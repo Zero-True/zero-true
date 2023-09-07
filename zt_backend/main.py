@@ -24,7 +24,7 @@ app.add_middleware(
     expose_headers=["*"]
 )
 
-# if mode=='app':
-#     app.mount(route_prefix, StaticFiles(directory="dist_app"), name="assets")
-# else:
-#     app.mount(route_prefix, StaticFiles(directory="dist_dev"), name="assets")
+if run_mode=='app':
+    app.mount(route_prefix, StaticFiles(directory="dist_app"), name="assets")
+else:
+    app.mount(route_prefix, StaticFiles(directory="dist_dev"), name="assets")

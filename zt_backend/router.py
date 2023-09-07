@@ -10,7 +10,8 @@ router = APIRouter()
 def read_root():
     if os.environ.get('RUN_MODE', 'app')=='app':
         return FileResponse("dist_app/index.html")
-    return FileResponse("dist_dev/index.html")
+    else:
+        return FileResponse("dist_dev/index.html")
 
 @router.get("/health")
 def health():
