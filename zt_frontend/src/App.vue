@@ -28,6 +28,8 @@ import 'ace-builds/src-noconflict/snippets/python';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/theme-dracula';
 import axios from 'axios';
+import { Request, CodeCell } from './types/request';
+
 export default {
   components: {
     'ace-editor': VAceEditor,
@@ -39,13 +41,9 @@ export default {
   },
   methods: {
     async runCode() {
-      const respone = axios.post(import.meta.env.VITE_BACKEND_URL + 'api/runcode', {
-        cells: [
-          {
-            code: this.code
-          }
-        ]
-      });
+      const codeCell: CodeCell = {code: this.code}
+      const request: Request = {cells: [codeCell]}
+      const respone = axios.post(import.meta.env.VITE_BACKEND_URL + 'api/runcode', request);
     },
   }
 }
