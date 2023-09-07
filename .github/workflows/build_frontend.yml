@@ -1,0 +1,47 @@
+name: Build Frontend Files
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks out your repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Build and Copy Dev
+        run: |
+          npm install --global yarn
+          cd zt_frontend
+          yarn install
+          yarn run build
+          cd ..
+          rm -rf zt_backend/dist_dev
+          mkdir -p zt_backend/dist_dev
+          cp -r zt_frontend/dist/* zt_backend/dist_dev
+
+      - name: Build and Copy App
+        run: |
+          cd zt_frontend
+          yarn install
+          yarn run buildapp
+          cd ..
+          rm -rf zt_backend/dist_app
+          mkdir -p zt_backend/dist_app
+          cp -r zt_frontend/dist/* zt_backend/dist_app
+
+      - name: Commit Build Files
+        uses: devops-infra/action-commit-push@master
+        with:
+          github_token: "${{ secrets.ZT_PAT }}"
+          commit_message: "Frontend build file update"
