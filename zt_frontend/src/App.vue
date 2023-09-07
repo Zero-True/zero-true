@@ -20,13 +20,14 @@
     </div>
   </v-card>
 </template>
-<script>
+
+<script lang="ts">
 import { VAceEditor } from 'vue3-ace-editor';
 import 'ace-builds/src-noconflict/mode-python';
 import 'ace-builds/src-noconflict/snippets/python';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/theme-dracula';
-import axios from "axios";
+import axios from 'axios';
 export default {
   components: {
     'ace-editor': VAceEditor,

@@ -1,9 +1,9 @@
-from models import Request, CodeCell
+from models import request
 
-def execute_request(request: Request):
+def execute_request(request: request.Request):
     for code_cell in request.cells:
         execute_code(code_cell)
 
-def execute_code(code_cell: CodeCell):
+def execute_code(code_cell: request.CodeCell):
     exec(code_cell.code)
 

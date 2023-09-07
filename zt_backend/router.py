@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from fastapi.responses import FileResponse
-from models import Request
+from models import request
 from runner.execute_code import execute_request
 import os
 
@@ -18,5 +18,5 @@ def health():
     return('UP')
 
 @router.post("/api/runcode")
-def runcode(request: Request):
+def runcode(request: request.Request):
     return execute_request(request)
