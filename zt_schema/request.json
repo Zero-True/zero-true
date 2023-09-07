@@ -1,0 +1,31 @@
+{
+  "$defs": {
+    "CodeCell": {
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "title": "CodeCell",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "cells": {
+      "items": {
+        "$ref": "#/$defs/CodeCell"
+      },
+      "title": "Cells",
+      "type": "array"
+    }
+  },
+  "required": [
+    "cells"
+  ],
+  "title": "Request",
+  "type": "object"
+}

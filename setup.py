@@ -12,6 +12,8 @@ setup(
     entry_points={
         'console_scripts': [
             'zero-true=zt_cli.cli:start_servers',
+            'zero-true-dev=zt_dev_cli.cli:zt_cli',
         ],
+        
     }
 )
