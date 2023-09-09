@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from fastapi.responses import FileResponse
-from models import request
+from zt_backend.models import request
 from runner.execute_code import execute_request
 import os
 
@@ -19,4 +19,6 @@ def health():
 
 @router.post("/api/runcode")
 def runcode(request: request.Request):
-    return execute_request(request)
+    here= execute_request(request)
+    print(here.model_dump())
+    return here.model_dump()

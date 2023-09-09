@@ -29,6 +29,7 @@ import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/theme-dracula';
 import axios from 'axios';
 import { Request, CodeCell } from './types/request';
+import { Response, CellResponse } from './types/response';
 
 export default {
   components: {
@@ -36,14 +37,17 @@ export default {
   },
   data() {
     return {
-      code: 'print("Hello, World!")',  // Default code in the editor
+      code: "from zt_backend.models.components.slider import Slider \
+\n\ntest_slider = Slider(id='please')",
     };
   },
   methods: {
     async runCode() {
       const codeCell: CodeCell = {code: this.code}
-      const request: Request = {cells: [codeCell]}
-      const respone = axios.post(import.meta.env.VITE_BACKEND_URL + 'api/runcode', request);
+      const request: Request = {cells: [codeCell], components: []}
+      const axiosResponse = await axios.post(import.meta.env.VITE_BACKEND_URL + 'api/runcode', request);
+      const response: Response = axiosResponse.data;
+      console.log(JSON.stringify(response));
     },
   }
 }
