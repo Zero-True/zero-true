@@ -5,8 +5,6 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export type Code = string;
-export type Cells = CodeCell[];
 /**
  * Unique id for a component
  */
@@ -15,17 +13,7 @@ export type Id = string;
  * Optional variable name associated with a component
  */
 export type VariableName = string;
-export type Components = ZTComponent[];
 
-export interface Request {
-  cells: Cells;
-  components: Components;
-  [k: string]: unknown;
-}
-export interface CodeCell {
-  code: Code;
-  [k: string]: unknown;
-}
 export interface ZTComponent {
   id: Id;
   variable_name?: VariableName;

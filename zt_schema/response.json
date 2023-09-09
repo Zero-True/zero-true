@@ -1,16 +1,24 @@
 {
   "$defs": {
-    "CodeCell": {
+    "CellResponse": {
       "properties": {
-        "code": {
-          "title": "Code",
+        "components": {
+          "items": {
+            "$ref": "#/$defs/ZTComponent"
+          },
+          "title": "Components",
+          "type": "array"
+        },
+        "output": {
+          "title": "Output",
           "type": "string"
         }
       },
       "required": [
-        "code"
+        "components",
+        "output"
       ],
-      "title": "CodeCell",
+      "title": "CellResponse",
       "type": "object"
     },
     "ZTComponent": {
@@ -37,23 +45,15 @@
   "properties": {
     "cells": {
       "items": {
-        "$ref": "#/$defs/CodeCell"
+        "$ref": "#/$defs/CellResponse"
       },
       "title": "Cells",
-      "type": "array"
-    },
-    "components": {
-      "items": {
-        "$ref": "#/$defs/ZTComponent"
-      },
-      "title": "Components",
       "type": "array"
     }
   },
   "required": [
-    "cells",
-    "components"
+    "cells"
   ],
-  "title": "Request",
+  "title": "Response",
   "type": "object"
 }
