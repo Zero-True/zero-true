@@ -1,10 +1,11 @@
 from pydantic import Field, validator
+from typing import Optional
 from zt_backend.models.components.zt_component import ZTComponent
 from zt_backend.models.validations import validate_color, validate_min_less_than_max
 
 class Slider(ZTComponent):
     """A class for Slider components inheriting from ZTComponent."""
-    component: str = Field("SliderComponent", description="Vue component name.")
+    component: str = Field("v-slider", description="Vue component name.")
     value: int = Field(0, description="Current value of the slider.")
     min: int = Field(0, ge=0, description="Minimum value of the slider.")
     max: int = Field(100, ge=0, description="Maximum value of the slider.")
@@ -21,6 +22,7 @@ class Slider(ZTComponent):
     def _validate_max(cls, max_value, values):
         validate_min_less_than_max(max_value, values)
 
+
     @validator('color', allow_reuse=True, pre=True)
-    def _validate_color(cls, color, values):
-        validate_color(color)
+    def validate_color(cls, color):
+        return validate_color(color)

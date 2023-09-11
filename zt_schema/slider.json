@@ -13,7 +13,7 @@
       "type": "string"
     },
     "component": {
-      "default": "SliderComponent",
+      "default": "v-slider",
       "description": "Vue component name.",
       "title": "Component",
       "type": "string"
