@@ -10,3 +10,4 @@ def generate_schema():
     generate_json(Request, 'request')
     generate_json(Response, 'response')
     generate_json(Slider, 'slider')
+    generate_json(Notebook, 'notebook')

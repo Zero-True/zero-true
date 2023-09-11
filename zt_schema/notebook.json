@@ -1,9 +1,17 @@
 {
   "$defs": {
-    "CellResponse": {
+    "CodeCell": {
       "properties": {
         "id": {
           "title": "Id",
+          "type": "string"
+        },
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "output": {
+          "title": "Output",
           "type": "string"
         },
         "components": {
@@ -13,17 +21,23 @@
           "title": "Components",
           "type": "array"
         },
-        "output": {
-          "title": "Output",
+        "cellType": {
+          "default": "code",
+          "enum": [
+            "code",
+            "markdown"
+          ],
+          "title": "Celltype",
           "type": "string"
         }
       },
       "required": [
         "id",
-        "components",
-        "output"
+        "code",
+        "output",
+        "components"
       ],
-      "title": "CellResponse",
+      "title": "CodeCell",
       "type": "object"
     },
     "ZTComponent": {
@@ -49,16 +63,16 @@
   },
   "properties": {
     "cells": {
-      "items": {
-        "$ref": "#/$defs/CellResponse"
+      "additionalProperties": {
+        "$ref": "#/$defs/CodeCell"
       },
       "title": "Cells",
-      "type": "array"
+      "type": "object"
     }
   },
   "required": [
     "cells"
   ],
-  "title": "Response",
+  "title": "Notebook",
   "type": "object"
 }

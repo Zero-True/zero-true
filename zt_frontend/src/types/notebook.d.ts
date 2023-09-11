@@ -6,6 +6,8 @@
  */
 
 export type Id = string;
+export type Code = string;
+export type Output = string;
 /**
  * Unique id for a component
  */
@@ -15,17 +17,21 @@ export type Id1 = string;
  */
 export type VariableName = string;
 export type Components = ZTComponent[];
-export type Output = string;
-export type Cells = CellResponse[];
+export type Celltype = "code" | "markdown";
 
-export interface Response {
+export interface Notebook {
   cells: Cells;
   [k: string]: unknown;
 }
-export interface CellResponse {
+export interface Cells {
+  [k: string]: CodeCell;
+}
+export interface CodeCell {
   id: Id;
-  components: Components;
+  code: Code;
   output: Output;
+  components: Components;
+  cellType?: Celltype;
   [k: string]: unknown;
 }
 export interface ZTComponent {
