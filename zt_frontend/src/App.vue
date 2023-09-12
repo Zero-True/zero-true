@@ -3,7 +3,6 @@
     <v-app-bar app color="primary">
       <v-app-bar-title class="white--text">
         <v-btn icon @click="navigateToApp">
-          <v-img icon src="src/assets/logo.png"></v-img>
         </v-btn>
         Zero-True</v-app-bar-title>
     </v-app-bar>
