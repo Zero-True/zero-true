@@ -1,68 +1,79 @@
 <template>
-  <v-card flat>
-    <div class="code-editor-container">
-      <!-- Display the ace-editor -->
-      <ace-editor
-          v-model:value="code"
-          ref="editor"
-          class="editor"
-          theme="dracula"
-          lang="python"
-          :options="{
-            showPrintMargin: false,
-            enableBasicAutocompletion: true,
-            enableSnippets: true,
-            enableLiveAutocompletion: true
-          }"
-      ></ace-editor>
-      <!-- Run Button -->
-      <v-btn color="primary" class="run-button" @click="runCode">Run</v-btn>
-      <!-- Render Components -->
-      <!-- Render Components -->
-      <div v-for="component in UIcomponents" :key="component.id">
-        <component :is="component.component" v-bind="component" v-model="component.value"></component>
-      </div>
-    </div>
-  </v-card>
+  <v-app>
+    <v-app-bar app color="primary">
+      <v-app-bar-title class="white--text">
+        <v-btn icon @click="navigateToApp">
+          <v-img icon src="src/assets/logo.png"></v-img>
+        </v-btn>
+        Zero-True</v-app-bar-title>
+    </v-app-bar>
+    <v-main>
+      <v-container v-for="codeCell in notebook.cells" >
+        <CodeComponent 
+          :cellData = codeCell
+          @runCode="runCode"/>
+      </v-container>
+      <v-toolbar color="secondary">
+        <v-btn small color="primary" @click="createCodeCell">Add Code Cell</v-btn>
+        <v-spacer></v-spacer>
+        <v-btn small color="primary">Add Markdown Cell</v-btn>
+      </v-toolbar>
+    </v-main>
+  </v-app>
 </template>
 
 
 <script lang="ts">
-import { VAceEditor } from 'vue3-ace-editor';
-import 'ace-builds/src-noconflict/mode-python';
-import 'ace-builds/src-noconflict/snippets/python';
-import 'ace-builds/src-noconflict/ext-language_tools';
-import 'ace-builds/src-noconflict/theme-dracula';
 import axios from 'axios';
-import { Request, CodeCell } from './types/request';
+import { Request, CodeRequest } from './types/request';
 import { Response, CellResponse } from './types/response';
-import { Slider } from './types/slider';
-import { ZTComponent } from './types/zt_component';
-import { VSlider } from 'vuetify/lib/components/index.mjs';
+import { Notebook, CodeCell, ZTComponent } from './types/notebook';
+import CodeComponent from '@/components/CodeComponent.vue';
 
 export default {
   components: {
-    'ace-editor': VAceEditor,
-    'v-slider': VSlider
-
+    CodeComponent
   },
   data() {
     return {
-      code: "from zt_backend.models.components.slider import Slider \
-\n\ntest_slider = Slider(id='please')",
-      UIcomponents: [] as ZTComponent[],  // Typed as an array of ZTComponent interfaces
+      notebook: {} as Notebook,
     };
   },
+
+  async created() {
+      const response = await axios.post(import.meta.env.VITE_BACKEND_URL + 'api/create_cell');
+      const startCell: CodeCell = response.data
+      this.notebook.cells = {}
+      this.notebook.cells[startCell.id] = startCell
+  },
+
   methods: {
     async runCode() {
-      const codeCell: CodeCell = { code: this.code };
-      const request: Request = { cells: [codeCell], components: [] };
+      const cellRequests: CodeRequest[] = [];
+      const requestComponents: ZTComponent[] = []
+      for (let key in this.notebook.cells){
+        const cellRequest: CodeRequest = {id: key, code: this.notebook.cells[key].code};
+        requestComponents.push.apply(requestComponents, this.notebook.cells[key].components)
+        cellRequests.push(cellRequest);
+      }
+      const request: Request = { cells: cellRequests, components: requestComponents };
       const axiosResponse = await axios.post(import.meta.env.VITE_BACKEND_URL + 'api/runcode', request);
       const response: Response = axiosResponse.data;
-      console.log(JSON.stringify(response))
-      // Directly assign the component data to components
-      this.UIcomponents = response.cells[0].components;
+      for (const cellResponse of response.cells){
+        this.notebook.cells[cellResponse.id].components = cellResponse.components
+        this.notebook.cells[cellResponse.id].output = cellResponse.output
+      }
     },
+
+    navigateToApp(){
+      console.log('navigate')
+    },
+
+    async createCodeCell(){
+      const response = await axios.post(import.meta.env.VITE_BACKEND_URL + 'api/create_cell');
+      const cell: CodeCell = response.data
+      this.notebook.cells[cell.id] = cell
+    }
   }
 }
 </script>

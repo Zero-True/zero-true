@@ -1,16 +1,21 @@
 {
   "$defs": {
-    "CodeCell": {
+    "CodeRequest": {
       "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
         "code": {
           "title": "Code",
           "type": "string"
         }
       },
       "required": [
+        "id",
         "code"
       ],
-      "title": "CodeCell",
+      "title": "CodeRequest",
       "type": "object"
     },
     "ZTComponent": {
@@ -37,7 +42,7 @@
   "properties": {
     "cells": {
       "items": {
-        "$ref": "#/$defs/CodeCell"
+        "$ref": "#/$defs/CodeRequest"
       },
       "title": "Cells",
       "type": "array"

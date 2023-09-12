@@ -46,44 +46,45 @@
       "type": "integer"
     },
     "thumb_label": {
-      "default": null,
+      "default": false,
       "description": "Displays the thumb label.",
       "title": "Thumb Label",
       "type": "boolean"
     },
     "thumb_size": {
-      "default": null,
+      "default": 0,
       "description": "Size of the thumb.",
       "title": "Thumb Size",
       "type": "integer"
     },
     "tick_labels": {
-      "default": null,
+      "default": false,
       "description": "Displays the tick labels.",
       "title": "Tick Labels",
       "type": "boolean"
     },
     "ticks": {
-      "default": null,
+      "default": [],
       "description": "Displays the ticks.",
+      "items": {},
       "title": "Ticks",
-      "type": "boolean"
+      "type": "array"
     },
     "color": {
-      "default": null,
+      "default": "primary",
       "description": "Color of the range slider. Can be custom or standard Material color.",
       "pre": true,
       "title": "Color",
       "type": "string"
     },
     "size": {
-      "default": null,
+      "default": "large",
       "description": "Size of the slider.",
       "title": "Size",
       "type": "string"
     },
     "rounded": {
-      "default": null,
+      "default": true,
       "description": "Determines if the slider has rounded edges.",
       "title": "Rounded",
       "type": "boolean"

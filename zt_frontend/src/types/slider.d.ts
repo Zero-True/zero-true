@@ -48,7 +48,7 @@ export type TickLabels = boolean;
 /**
  * Displays the ticks.
  */
-export type Ticks = boolean;
+export type Ticks = unknown[];
 /**
  * Color of the range slider. Can be custom or standard Material color.
  */

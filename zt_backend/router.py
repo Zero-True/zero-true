@@ -1,8 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi.responses import FileResponse
 from zt_backend.models import request
+from zt_backend.models import notebook
 from runner.execute_code import execute_request
 import os
+import uuid
 
 router = APIRouter()
 
@@ -18,7 +20,15 @@ def health():
     return('UP')
 
 @router.post("/api/runcode")
-def runcode(request: request.Request):
-    here= execute_request(request)
-    print(here.model_dump())
-    return here.model_dump()
+async def runcode(request: request.Request):
+    return execute_request(request)
+
+@router.post("/api/create_cell")
+def create_cell():
+     return notebook.CodeCell(
+         id=str(uuid.uuid4()),
+         code='#code here or else',
+         components=[],
+         output='',
+         cellType='code'
+     )
