@@ -40,24 +40,22 @@ export default {
   },
 
   async created() {
-      const response = await axios.post(import.meta.env.VITE_BACKEND_URL + 'api/create_cell');
-      const startCell: CodeCell = response.data
-      this.notebook.cells = {}
-      this.notebook.cells[startCell.id] = startCell
+      const response = await axios.get(import.meta.env.VITE_BACKEND_URL + 'api/notebook')
+      this.notebook = response.data
   },
 
   methods: {
     async runCode() {
-      const cellRequests: CodeRequest[] = [];
+      const cellRequests: CodeRequest[] = []
       const requestComponents: ZTComponent[] = []
       for (let key in this.notebook.cells){
-        const cellRequest: CodeRequest = {id: key, code: this.notebook.cells[key].code};
+        const cellRequest: CodeRequest = {id: key, code: this.notebook.cells[key].code}
         requestComponents.push.apply(requestComponents, this.notebook.cells[key].components)
-        cellRequests.push(cellRequest);
+        cellRequests.push(cellRequest)
       }
-      const request: Request = { cells: cellRequests, components: requestComponents };
-      const axiosResponse = await axios.post(import.meta.env.VITE_BACKEND_URL + 'api/runcode', request);
-      const response: Response = axiosResponse.data;
+      const request: Request = { cells: cellRequests, components: requestComponents }
+      const axiosResponse = await axios.post(import.meta.env.VITE_BACKEND_URL + 'api/runcode', request)
+      const response: Response = axiosResponse.data
       for (const cellResponse of response.cells){
         this.notebook.cells[cellResponse.id].components = cellResponse.components
         this.notebook.cells[cellResponse.id].output = cellResponse.output
