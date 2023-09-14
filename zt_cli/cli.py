@@ -16,7 +16,7 @@ def start_servers():
         os.environ['RUN_MODE'] = 'dev'
 
     os.chdir("zt_backend")
-    backend_process = subprocess.Popen(["uvicorn", "main:app", "--reload"])
+    backend_process = subprocess.Popen(["uvicorn", "main:app"])
     
     backend_process.wait()    
 

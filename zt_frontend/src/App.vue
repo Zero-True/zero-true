@@ -25,8 +25,8 @@
 <script lang="ts">
 import axios from 'axios';
 import { Request, CodeRequest } from './types/request';
-import { Response, CellResponse } from './types/response';
-import { Notebook, CodeCell, ZTComponent } from './types/notebook';
+import { Response } from './types/response';
+import { Notebook, CodeCell } from './types/notebook';
 import CodeComponent from '@/components/CodeComponent.vue';
 
 export default {
@@ -47,10 +47,13 @@ export default {
   methods: {
     async runCode() {
       const cellRequests: CodeRequest[] = []
-      const requestComponents: ZTComponent[] = []
+      const requestComponents: { [key: string]: any } = {};
       for (let key in this.notebook.cells){
         const cellRequest: CodeRequest = {id: key, code: this.notebook.cells[key].code}
-        requestComponents.push.apply(requestComponents, this.notebook.cells[key].components)
+        for (const c of this.notebook.cells[key].components){
+          requestComponents[c.id] = c.value
+        }
+        //requestComponents.push.apply(requestComponents, this.notebook.cells[key].components)
         cellRequests.push(cellRequest)
       }
       const request: Request = { cells: cellRequests, components: requestComponents }
