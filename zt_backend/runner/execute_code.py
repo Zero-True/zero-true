@@ -8,10 +8,8 @@ from zt_backend.models.state import global_state
 
 def execute_request(request: request.Request):
     cell_outputs = []
-    for component in request.components:
-        global_state[component.id]=component.value
-    component_globals = {}
-    component_globals['global_state']=global_state
+    global_state.update(request.components)
+    component_globals={'global_state': global_state}
 
     for code_cell in request.cells:
         cell_outputs.append(execute_code(code_cell, component_globals))

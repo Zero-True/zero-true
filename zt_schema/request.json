@@ -17,26 +17,6 @@
       ],
       "title": "CodeRequest",
       "type": "object"
-    },
-    "ZTComponent": {
-      "properties": {
-        "id": {
-          "description": "Unique id for a component",
-          "title": "Id",
-          "type": "string"
-        },
-        "variable_name": {
-          "default": null,
-          "description": "Optional variable name associated with a component",
-          "title": "Variable Name",
-          "type": "string"
-        }
-      },
-      "required": [
-        "id"
-      ],
-      "title": "ZTComponent",
-      "type": "object"
     }
   },
   "properties": {
@@ -48,11 +28,21 @@
       "type": "array"
     },
     "components": {
-      "items": {
-        "$ref": "#/$defs/ZTComponent"
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "integer"
+          }
+        ]
       },
       "title": "Components",
-      "type": "array"
+      "type": "object"
     }
   },
   "required": [

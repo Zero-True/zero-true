@@ -3,6 +3,7 @@
 import argparse
 import subprocess
 import os
+import threading
 from zt_backend.models.generate_schema import generate_schema
 
 def generate_ts():
@@ -14,20 +15,18 @@ def generate_ts():
 def start_servers(args):
     if args.mode == 'app':
         os.environ['RUN_MODE'] = 'app'
-        frontend_cmd = ["yarn", "run", "app", str(args.frontend_port)] # Pass port as argument here
+        frontend_cmd = ["yarn", "run", "app", str(args.frontend_port)]
     else:
         os.environ['RUN_MODE'] = 'dev'
-        frontend_cmd = ["yarn", "run", "dev", str(args.frontend_port)] # Pass port as argument here
-    backend_cmd = ["uvicorn", "main:app", "--reload"]
+        frontend_cmd = ["yarn", "run", "dev", str(args.frontend_port)]
+    backend_cmd = ["start", "uvicorn", "zt_backend.main:app", "--reload"]
 
-    os.chdir("zt_backend")
-    backend_process = subprocess.Popen(backend_cmd)
-
-    os.chdir("../zt_frontend")
+    backend_process = subprocess.Popen(backend_cmd, shell=True)
+    os.chdir("zt_frontend")
     frontend_process = subprocess.Popen(frontend_cmd, shell=True)
-    
-    frontend_process.wait()
+
     backend_process.wait()
+    frontend_process.wait()
 
 def zt_cli():
     parser = argparse.ArgumentParser(description="Start the frontend and backend servers.")
