@@ -163,4 +163,4 @@ cython_debug/
 #.idea/
 
 #Custom stuff
-zt_backend/notebook.toml
+**/notebook.toml

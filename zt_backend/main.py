@@ -3,12 +3,15 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from typing import OrderedDict
 from zt_backend.models.notebook import Notebook, CodeCell
-import router
+import zt_backend.router as router
 import toml
 import os
 import uuid
 
 app = FastAPI()
+
+current_path = os.path.dirname(os.path.abspath(__file__))
+
 
 run_mode = os.environ.get('RUN_MODE', 'app')
 project_name = os.environ.get('PROJECT_NAME','')
@@ -43,6 +46,6 @@ def open_project():
             toml.dump(zt_notebook.model_dump(), project_file)
 
 if run_mode=='app':
-    app.mount(route_prefix, StaticFiles(directory="dist_app"), name="assets")
+    app.mount(route_prefix, StaticFiles(directory=os.path.join(current_path, "dist_app")), name="assets")
 else:
-    app.mount(route_prefix, StaticFiles(directory="dist_dev"), name="assets")
+    app.mount(route_prefix, StaticFiles(directory=os.path.join(current_path, "dist_dev")), name="assets")
