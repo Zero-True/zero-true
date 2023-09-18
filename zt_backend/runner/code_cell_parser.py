@@ -1,19 +1,9 @@
 from typing import List, Dict, Union, Tuple, Any
 from pydantic import BaseModel
 import astroid
-from zt_backend.models.request import Request
+from zt_backend.models.request import Request,Cell,CodeDict
 
-# Define Pydantic model for Cell
-class Cell(BaseModel):
-    code: str
-    defined_names: List[str]
-    loaded_names: List[str]
-    child_cells: List[int] = []
-    parent_cells: List[int] = []
-    previous_child_cells: List[int] = []
 
-class CodeDict(BaseModel):
-    cells: Dict[str, Cell]
 
 def get_imports(module) -> List[str]:
     import_froms = [node.names[0][1] or node.names[0][0] for node in module.nodes_of_class(astroid.ImportFrom)]
