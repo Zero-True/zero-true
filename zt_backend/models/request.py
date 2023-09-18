@@ -1,12 +1,12 @@
 from pydantic import BaseModel
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Optional
 
 class CodeRequest(BaseModel):
     id: str
     code: str
 
 class Request(BaseModel):
-    originId: str
+    originId: Optional(str)
     cells: List[CodeRequest]
     components: Dict[str, Union[str, bool, int]]
 
