@@ -3,7 +3,7 @@ from zt_backend.models.request import Request,CodeRequest
 
 # Test 1: No dependencies between cells
 def test_no_dependencies():
-    cells = Request(cells=[CodeRequest(id="0",code="a = 1"),
+    cells = Request(originId="0", cells=[CodeRequest(id="0",code="a = 1"),
                            CodeRequest(id="1",code="b = 2"),
                            CodeRequest(id="2",code="c = 3")],\
                     components={"":""})
@@ -14,7 +14,7 @@ def test_no_dependencies():
 
 # Test 2: Simple dependencies
 def test_simple_dependencies():
-    cells = Request(cells=[CodeRequest(id="0", code="a = 1"),
+    cells = Request(originId="0", cells=[CodeRequest(id="0", code="a = 1"),
                            CodeRequest(id="1", code="b = a + 2"),
                            CodeRequest(id="2", code="c = b + 3")],
                     components={})
