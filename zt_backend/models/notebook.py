@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, SerializeAsAny, root_validator
+from pydantic import BaseModel, Field, SerializeAsAny, model_validator
 from typing import OrderedDict, List, Dict, Any
 from zt_backend.models.components.zt_component import ZTComponent
 from zt_backend.models.components.slider import Slider
@@ -20,7 +20,7 @@ class CodeCell(BaseModel):
     components: List[SerializeAsAny[ZTComponent]]
     cellType: str = Field('code', enum=['code', 'markdown'])
 
-    @root_validator(pre=True)
+    @model_validator(mode='before')
     def deserialize_components(cls, values):
         components = values.get('components', [])
         values['components'] = [deserialize_component(comp) for comp in components]
