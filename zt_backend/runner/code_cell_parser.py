@@ -1,5 +1,19 @@
-import astroid
 from typing import List, Dict, Union, Tuple, Any
+from pydantic import BaseModel
+import astroid
+from zt_backend.models.request import Request
+
+# Define Pydantic model for Cell
+class Cell(BaseModel):
+    code: str
+    defined_names: List[str]
+    loaded_names: List[str]
+    child_cells: List[int] = []
+    parent_cells: List[int] = []
+    previous_child_cells: List[int] = []
+
+class CodeDict(BaseModel):
+    cells: Dict[str, Cell]
 
 def get_imports(module) -> List[str]:
     import_froms = [node.names[0][1] or node.names[0][0] for node in module.nodes_of_class(astroid.ImportFrom)]
@@ -30,19 +44,18 @@ def get_loaded_names(module, defined_names) -> List[str]:
     function_names, function_arguments = get_functions(module)
     return [usenode.name for usenode in module.nodes_of_class(astroid.Name) if usenode.name not in defined_names + function_arguments]
 
-def parse_cells(cells: List[str]) -> Dict[int, Dict[str, Union[str, List[str]]]]:
+def parse_cells(request: Request) -> CodeDict:
     cell_dict = {}
-    for i, cell in enumerate(cells):
-        module = astroid.parse(cell)
+    for cell  in request.cells:
+        module = astroid.parse(cell.code)
         function_names, function_arguments = get_functions(module)
         defined_names = get_defined_names(module) + get_imports(module) + function_names
         loaded_names = get_loaded_names(module, defined_names) + get_loaded_modules(module)
-        cell_dict[i] = {
-            'code': cell,
+        cell_dict[cell.id] = Cell(**{
+            'code': cell.code,
             'defined_names': defined_names,
-            'loaded_names': list(set(loaded_names))  # Remove duplicates
-        }
-    return cell_dict
+            'loaded_names': list(set(loaded_names))})
+    return CodeDict(cells=cell_dict)
 
 
 def build_dependency_graph(cell_dict: Dict[int, Dict[str, Any]]) -> Dict[int, Dict[str, Any]]:
@@ -58,30 +71,30 @@ def build_dependency_graph(cell_dict: Dict[int, Dict[str, Any]]) -> Dict[int, Di
 
     return graph
 
-def find_child_cells(cell: Dict[str, Any], code_dictionary: Dict[str, Any], idx: int) -> List[str]:
+def find_child_cells(cell: Cell, code_dictionary: CodeDict, idx: int) -> List[str]:
     child_cells = []
-    names = cell['defined_names']
-    for next_key in list(code_dictionary.keys())[idx + 1:]:
-        next_cell = code_dictionary[next_key]
-        next_loaded_names = next_cell['loaded_names']
+    names = cell.defined_names
+    for next_key in list(code_dictionary.cells.keys())[idx + 1:]:
+        next_cell = code_dictionary.cells[next_key]
+        next_loaded_names = next_cell.loaded_names
         if set(names).intersection(set(next_loaded_names)):
             child_cells.append(next_key)
     return child_cells
 
-def add_parent_cells(code_dictionary: Dict[str, Any]) -> Dict[str, Any]:
-    for key in list(code_dictionary.keys()):
-        cell = code_dictionary[key]
-        child_cells = cell.get('child_cells', [])
+def add_parent_cells(code_dictionary: CodeDict) -> Dict[str, Any]:
+    for key in list(code_dictionary.cells.keys()):
+        cell = code_dictionary.cells[key]
+        child_cells = cell.child_cells
         for child_cell in child_cells:
-            code_dictionary[child_cell].setdefault('parent_cells', []).append(key)
-        cell['child_cells'] = child_cells
+            code_dictionary.cells[child_cell].parent_cells.append(key)
+        cell.child_cells = child_cells
     return code_dictionary
 
-def add_child_cells(code_dictionary: Dict[str, Any], prev_components: Dict[str, Any]) -> Dict[str, Any]:
-    for idx, key in enumerate(list(code_dictionary.keys())):
-        cell = code_dictionary[key]
-        cell['child_cells'] = find_child_cells(cell, code_dictionary, idx)
-        cell['previous_child_cells'] = prev_components.get(key, {}).get('child_cells', [])
+def add_child_cells(code_dictionary: CodeDict, prev_components: Dict[str, Any]) -> Dict[str, Any]:
+    for idx, key in enumerate(list(code_dictionary.cells.keys())):
+        cell = code_dictionary.cells[key]
+        cell.child_cells = find_child_cells(cell, code_dictionary, idx)
+        cell.previous_child_cells = prev_components.get(key, {}).get('child_cells', [])
     return add_parent_cells(code_dictionary)
 
 
@@ -90,4 +103,22 @@ def print_astroid_tree(code):
     module = astroid.parse(code)
     print(module.repr_tree())
 
+
+def find_downstream_cells(code_dictionary: CodeDict, start_cell_id, visited=None):
+    if visited is None:
+        visited = set()
+        
+    if start_cell_id in visited:
+        return []
+    
+    visited.add(start_cell_id)
+    
+    downstream_cells = []
+    
+    for cell_id, cell_data in code_dictionary.cells.items():
+        if start_cell_id in cell_data.parent_cells:
+            downstream_cells.append(cell_id)
+            downstream_cells.extend(find_downstream_cells(code_dictionary, cell_id, visited))
+    
+    return list(set(downstream_cells))
 
