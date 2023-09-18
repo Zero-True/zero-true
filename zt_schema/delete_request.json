@@ -1,0 +1,13 @@
+{
+  "properties": {
+    "cellId": {
+      "title": "Cellid",
+      "type": "string"
+    }
+  },
+  "required": [
+    "cellId"
+  ],
+  "title": "DeleteRequest",
+  "type": "object"
+}

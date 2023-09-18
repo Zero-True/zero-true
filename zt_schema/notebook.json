@@ -48,7 +48,7 @@
           "type": "string"
         },
         "variable_name": {
-          "default": null,
+          "default": "fake",
           "description": "Optional variable name associated with a component",
           "title": "Variable Name",
           "type": "string"
