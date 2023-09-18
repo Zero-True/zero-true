@@ -21,7 +21,7 @@
     </v-toolbar>
     <!-- Render Components -->
     <div v-for="component in cellData.components" :key="component.id">
-        <component :is="component.component" v-bind="component" v-model="component.value" @end="handleValueChange($event, component.id)"></component>
+        <component :is="component.component" v-bind="component" v-model="component.value" @end="runCode"></component>
     </div>
     <div class="text-p">{{cellData.output}}</div>
 </v-card>

@@ -1,6 +1,5 @@
 from zt_backend.runner.execute_code import execute_request, cell_outputs_dict
 from zt_backend.models.request import Request, CodeRequest
-import pytest
 
 # Initialize or clear cell_outputs_dict
 def setup_function():

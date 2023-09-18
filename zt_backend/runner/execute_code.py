@@ -4,8 +4,8 @@ import pickle
 from contextlib import redirect_stdout
 from zt_backend.models import request, response
 from zt_backend.models.components.zt_component import ZTComponent
-from zt_backend.models.state import component_values, created_components, context_globals,cell_outputs_dict
-from zt_backend.runner.code_cell_parser import parse_cells,build_dependency_graph,find_downstream_cells, CodeDict,Cell
+from zt_backend.models.state import component_values, created_components, context_globals, cell_outputs_dict
+from zt_backend.runner.code_cell_parser import parse_cells,build_dependency_graph, find_downstream_cells, CodeDict
 
 
 def try_pickle(obj):
@@ -61,11 +61,13 @@ def execute_request(request: request.Request):
     component_globals={'global_state': component_values}
     added_components = []
     dependency_graph = build_dependency_graph(parse_cells(request))
-    downstream_cells = find_downstream_cells(dependency_graph,request.cells[0].id)
-
+    downstream_cells = [request.originId]
+    downstream_cells.extend(find_downstream_cells(dependency_graph, request.originId))
+ 
 
     #go through each item in dependency graph (we should just go through the downstream cells)
-    for code_cell_id,code_cell in dependency_graph.cells.items():
+    for code_cell_id in downstream_cells:
+        code_cell = dependency_graph.cells[code_cell_id]
 
         f = StringIO()
         with redirect_stdout(f):
@@ -75,6 +77,10 @@ def execute_request(request: request.Request):
                 else:
                     temp_globals = get_parent_vars(cell_id=code_cell_id,code_components=dependency_graph,cell_outputs_dict=cell_outputs_dict)
 
+                for component_name, value in temp_globals.items():
+                    if isinstance(value, ZTComponent) and value.id not in added_components:
+                        value.variable_name = component_name
+                        added_components.append(value.id)
                 exec(code_cell.code, temp_globals)
             except Exception as e:
                 print(e)
