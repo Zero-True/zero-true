@@ -5,11 +5,13 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
+export type Originid = string;
 export type Id = string;
 export type Code = string;
 export type Cells = CodeRequest[];
 
 export interface Request {
+  originId: Originid;
   cells: Cells;
   components: Components;
   [k: string]: unknown;

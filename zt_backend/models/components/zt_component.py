@@ -5,7 +5,7 @@ class ZTComponent(BaseModel):
     id: str = Field(description="Unique id for a component")
     variable_name: str = Field('fake', description="Optional variable name associated with a component")
 
-    @field_validator('id',mode='before')
+    @field_validator('id', mode='before')
     def validate_unique_component_id(cls, id):
         if context_globals['exec_mode'] and id in created_components:
             raise Exception("Component ID is not unique")

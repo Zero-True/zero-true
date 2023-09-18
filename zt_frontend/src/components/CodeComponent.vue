@@ -14,11 +14,14 @@
         }"
     >
     </ace-editor>
-    <!-- Run Button -->
-    <v-btn color="primary" class="run-button" @click="runCode">Run</v-btn>
+    <v-toolbar>
+        <v-btn color="primary" @click="runCode">Run</v-btn>
+        <v-spacer/>
+        <v-btn small color="primary" @click="deleteCell">Delete Cell</v-btn>
+    </v-toolbar>
     <!-- Render Components -->
     <div v-for="component in cellData.components" :key="component.id">
-        <component :is="component.component" v-bind="component" v-model="component.value"></component>
+        <component :is="component.component" v-bind="component" v-model="component.value" @end="handleValueChange($event, component.id)"></component>
     </div>
     <div class="text-p">{{cellData.output}}</div>
 </v-card>
@@ -33,7 +36,7 @@ import 'ace-builds/src-noconflict/snippets/python';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/theme-dracula';
 import { VSlider } from 'vuetify/lib/components/index.mjs';
-import { CodeCell } from '@/types/notebook';
+import { CodeCell, ZTComponent } from '@/types/notebook';
 
 
 export default {
@@ -49,7 +52,13 @@ export default {
     },
     methods: {
         runCode(){
-            this.$emit('runCode');
+            this.$emit('runCode', this.cellData.id);
+        },
+        handleValueChange(newValue:any, componentId: string){
+            this.$emit('componentValueChange', componentId, newValue );
+        },
+        deleteCell(){
+            this.$emit('deleteCell', this.cellData.id);
         }
     },
 }
@@ -60,10 +69,6 @@ export default {
     filter: none;
     height: 300px;
     width: 100%;
-    margin-bottom: 20px;
-}
-
-.run-button {
     margin-bottom: 20px;
 }
 

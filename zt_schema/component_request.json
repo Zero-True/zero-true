@@ -1,0 +1,28 @@
+{
+  "properties": {
+    "componentId": {
+      "title": "Componentid",
+      "type": "string"
+    },
+    "componentValue": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer"
+        }
+      ],
+      "title": "Componentvalue"
+    }
+  },
+  "required": [
+    "componentId",
+    "componentValue"
+  ],
+  "title": "ComponentRequest",
+  "type": "object"
+}

@@ -29,6 +29,10 @@ def runcode(request: request.Request):
     globalStateUpdate(run_response=response)
     return response
 
+@router.post("/api/component_run")
+def runcode(request: request.ComponentRequest):
+    print(request)
+
 @router.post("/api/create_cell")
 def create_cell():
      createdCell = notebook.CodeCell(
@@ -41,6 +45,10 @@ def create_cell():
      globalStateUpdate(newCell=createdCell)
      return createdCell
 
+@router.post("/api/delete_cell")
+def delete_cell(deleteRequest: request.DeleteRequest):
+     globalStateUpdate(deletedCell=deleteRequest.cellId)
+
 @router.get("/api/notebook")
 def get_notebook():
     return get_notebook()
@@ -50,10 +58,12 @@ def get_notebook():
         notebook_data = toml.load(project_file)
     return notebook.Notebook(**notebook_data)
 
-def globalStateUpdate(newCell: notebook.CodeCell=None, run_request: request.Request=None, run_response: response.Response=None):
+def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, run_request: request.Request=None, run_response: response.Response=None):
     zt_notebook = get_notebook()
     if newCell is not None:
         zt_notebook.cells[newCell.id] = newCell
+    if deletedCell is not None:
+        del zt_notebook.cells[deletedCell]
     if run_request is not None:
         for requestCell in run_request.cells:
             zt_notebook.cells[requestCell.id].code = requestCell.code

@@ -20,6 +20,10 @@
     }
   },
   "properties": {
+    "originId": {
+      "title": "Originid",
+      "type": "string"
+    },
     "cells": {
       "items": {
         "$ref": "#/$defs/CodeRequest"
@@ -46,6 +50,7 @@
     }
   },
   "required": [
+    "originId",
     "cells",
     "components"
   ],
