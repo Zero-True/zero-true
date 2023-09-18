@@ -4,7 +4,7 @@ import pickle
 from contextlib import redirect_stdout
 from zt_backend.models import request, response
 from zt_backend.models.components.zt_component import ZTComponent
-from zt_backend.models.state import component_values, created_components, context_globals
+from zt_backend.models.state import component_values, created_components, context_globals,cell_outputs_dict
 from zt_backend.runner.code_cell_parser import parse_cells,build_dependency_graph,find_downstream_cells, CodeDict,Cell
 
 
@@ -59,7 +59,6 @@ def execute_request(request: request.Request):
     cell_outputs = []
     component_values.update(request.components)
     component_globals={'global_state': component_values}
-    cell_outputs_dict = {}
     added_components = []
     dependency_graph = build_dependency_graph(parse_cells(request))
     downstream_cells = find_downstream_cells(dependency_graph,request.cells[0].id)
