@@ -1,11 +1,9 @@
 from zt_backend.runner.code_cell_parser import parse_cells, build_dependency_graph
-from zt_backend.models.request import Request,CodeRequest,Cell,CodeDict
-import pytest
-
+from zt_backend.models.request import Request,CodeRequest
 
 # Test 1: No dependencies between cells
 def test_no_dependencies():
-    cells = Request(cells=[CodeRequest(id="0",code="a = 1"),
+    cells = Request(originId="0", cells=[CodeRequest(id="0",code="a = 1"),
                            CodeRequest(id="1",code="b = 2"),
                            CodeRequest(id="2",code="c = 3")],\
                     components={"":""})
@@ -16,7 +14,7 @@ def test_no_dependencies():
 
 # Test 2: Simple dependencies
 def test_simple_dependencies():
-    cells = Request(cells=[CodeRequest(id="0", code="a = 1"),
+    cells = Request(originId="0", cells=[CodeRequest(id="0", code="a = 1"),
                            CodeRequest(id="1", code="b = a + 2"),
                            CodeRequest(id="2", code="c = b + 3")],
                     components={})
@@ -28,7 +26,7 @@ def test_simple_dependencies():
 
 # Test 3: Complex dependencies
 def test_complex_dependencies():
-    cells = Request(cells=[CodeRequest(id="0", code="a = 1"),
+    cells = Request(originId="0", cells=[CodeRequest(id="0", code="a = 1"),
                            CodeRequest(id="1", code="b = a + 2"),
                            CodeRequest(id="2", code="c = b + a")],
                     components={})
@@ -40,7 +38,7 @@ def test_complex_dependencies():
 
 # Test 4: Overriding dependencies
 def test_overriding_dependencies():
-    cells = Request(cells=[CodeRequest(id="0", code="a = 1"),
+    cells = Request(originId="0", cells=[CodeRequest(id="0", code="a = 1"),
                            CodeRequest(id="1", code="b = a + 2"),
                            CodeRequest(id="2", code="a = 3"),
                            CodeRequest(id="3", code="c = a + b")],
@@ -54,7 +52,7 @@ def test_overriding_dependencies():
 
 # Test 5: Function definitions and calls
 def test_function_definitions_and_calls():
-    cells = Request(cells=[CodeRequest(id="0", code="def f(x): return x + 2"),
+    cells = Request(originId="0", cells=[CodeRequest(id="0", code="def f(x): return x + 2"),
                            CodeRequest(id="1", code="a = f(2)"),
                            CodeRequest(id="2", code="b = a + 3")],
                     components={})
@@ -66,7 +64,7 @@ def test_function_definitions_and_calls():
 
 # Test 6: Dependencies with function calls and redefinitions
 def test_dependencies_with_function_calls_and_redefinitions():
-    cells = Request(cells=[CodeRequest(id="0", code="def f(x): return x + 2"),
+    cells = Request(originId="0", cells=[CodeRequest(id="0", code="def f(x): return x + 2"),
                            CodeRequest(id="1", code="a = f(2)"),
                            CodeRequest(id="2", code="b = a + 3"),
                            CodeRequest(id="3", code="def g(x): return x * 2"),
@@ -82,7 +80,7 @@ def test_dependencies_with_function_calls_and_redefinitions():
 
 # Test 7: Importing a module in one cell and using it in another
 def test_importing_module():
-    cells = Request(cells=[CodeRequest(id="0", code="import math"),
+    cells = Request(originId="0", cells=[CodeRequest(id="0", code="import math"),
                            CodeRequest(id="1", code="a = math.sqrt(4)")],
                     components={})
     cell_dict = build_dependency_graph(parse_cells(cells))
@@ -92,7 +90,7 @@ def test_importing_module():
 
 # Test 8: Defining multiple variables in one cell
 def test_multiple_variables_in_one_cell():
-    cells = Request(cells=[CodeRequest(id="0", code="a = 1; b = 2; c = 3"),
+    cells = Request(originId="0", cells=[CodeRequest(id="0", code="a = 1; b = 2; c = 3"),
                            CodeRequest(id="1", code="d = a + b + c")],
                     components={})
     cell_dict = build_dependency_graph(parse_cells(cells))
@@ -102,7 +100,7 @@ def test_multiple_variables_in_one_cell():
 
 # Test 9: Multiline cells
 def test_multiline_cells():
-    cells = Request(cells=[CodeRequest(id="0", code="a = 1\nb = 2\nc = 3"),
+    cells = Request(originId="0", cells=[CodeRequest(id="0", code="a = 1\nb = 2\nc = 3"),
                            CodeRequest(id="1", code="d = a + b\ne = c * d")],
                     components={})
     cell_dict = build_dependency_graph(parse_cells(cells))
@@ -112,7 +110,7 @@ def test_multiline_cells():
 
 # Test 10: Importing a module with an alias in one cell and using it in another
 def test_importing_module_with_alias():
-    cells = Request(cells=[CodeRequest(id="0", code="import math as m"),
+    cells = Request(originId="0", cells=[CodeRequest(id="0", code="import math as m"),
                            CodeRequest(id="1", code="a = m.sqrt(4)")],
                     components={})
     cell_dict = build_dependency_graph(parse_cells(cells))
