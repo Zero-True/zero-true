@@ -1,4 +1,4 @@
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, validator
 from zt_backend.models.components.zt_component import ZTComponent
 from zt_backend.models.validations import validate_color, validate_min_less_than_max
 from zt_backend.models.state import component_values
@@ -22,7 +22,7 @@ class Slider(ZTComponent):
     def validate_color(cls, color):
         return validate_color(color)
     
-    @field_validator('value')
+    @validator('value', always=True) #TODO: debug and replace with field validator
     def get_value_from_global_state(cls, value, values):
         id = values.data['id']  # Get the id if it exists in the field values
         try:

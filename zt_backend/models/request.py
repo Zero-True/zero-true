@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import List, Dict, Union
 
 class CodeRequest(BaseModel):
@@ -6,7 +6,7 @@ class CodeRequest(BaseModel):
     code: str
 
 class Request(BaseModel):
-    originId: str = Field('id')
+    originId: str
     cells: List[CodeRequest]
     components: Dict[str, Union[str, bool, int]]
 
