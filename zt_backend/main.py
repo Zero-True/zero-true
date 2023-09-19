@@ -6,6 +6,7 @@ from zt_backend.models.notebook import Notebook, CodeCell
 import zt_backend.router as router
 import toml
 import os
+import uvicorn
 import uuid
 
 app = FastAPI()
@@ -49,3 +50,6 @@ if run_mode=='app':
     app.mount(route_prefix, StaticFiles(directory=os.path.join(current_path, "dist_app")), name="assets")
 else:
     app.mount(route_prefix, StaticFiles(directory=os.path.join(current_path, "dist_dev")), name="assets")
+
+def run_app():
+    uvicorn.run(app, port=2613)

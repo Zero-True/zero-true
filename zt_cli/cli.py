@@ -3,7 +3,8 @@
 import argparse
 import subprocess
 import os
-import zt_backend.models as models
+import zt_backend
+from zt_backend.main import run_app
 
 def start_servers():
     parser = argparse.ArgumentParser(description="Start the frontend and backend servers.")
@@ -15,8 +16,10 @@ def start_servers():
     else:
         os.environ['RUN_MODE'] = 'dev'
 
-    os.chdir("zt_backend")
-    backend_process = subprocess.Popen(["uvicorn", "main:app"])
+    #run_app()
+
+    os.chdir(os.path.dirname(zt_backend.__file__))
+    backend_process = subprocess.Popen(["uvicorn", "main:app", "--port=2613"])
     
     backend_process.wait()    
 
