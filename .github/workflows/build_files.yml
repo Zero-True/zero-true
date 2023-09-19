@@ -56,4 +56,4 @@ jobs:
         uses: devops-infra/action-commit-push@master
         with:
           github_token: "${{ secrets.ZT_PAT }}"
-          commit_message: "Frontend build file update"
+          commit_message: "Build file update"
