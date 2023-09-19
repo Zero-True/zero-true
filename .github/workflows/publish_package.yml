@@ -10,24 +10,24 @@ jobs:
 
     steps:
 
-    - name: Checkout code
-    uses: actions/checkout@v3
+      - name: Checkout code
+      uses: actions/checkout@v3
 
-    - name: Set up Python
-    uses: actions/setup-python@v4
-    with:
-      python-version: 3.9
-
-    - name: Build Package
-      run: |
-        pip install build
-        python -m build
-
-    - name: Store the distribution packages
-      uses: actions/upload-artifact@v3
+      - name: Set up Python
+      uses: actions/setup-python@v4
       with:
-        name: python-package-distributions
-        path: dist/
+        python-version: 3.9
+
+      - name: Build Package
+        run: |
+          pip install build
+          python -m build
+
+      - name: Store the distribution packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: python-package-distributions
+          path: dist/
 
   publish-to-pypi:
     runs-on: ubuntu-latest
@@ -40,11 +40,11 @@ jobs:
       id-token: write
 
     steps:
-    - name: Download all the dists
-      uses: actions/download-artifact@v3
-      with:
-        name: python-package-distributions
-        path: dist/
+      - name: Download all the dists
+        uses: actions/download-artifact@v3
+        with:
+          name: python-package-distributions
+          path: dist/
 
-    - name: Publish distribution 📦 to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
