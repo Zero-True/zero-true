@@ -24,9 +24,8 @@ def health():
 
 @router.post("/api/runcode")
 def runcode(request: request.Request):
-    globalStateUpdate(run_request=request)
     response = execute_request(request)
-    globalStateUpdate(run_response=response)
+    globalStateUpdate(run_request=request,run_response=response)
     return response
 
 @router.post("/api/component_run")
