@@ -7,6 +7,7 @@ class ZTComponent(BaseModel):
     variable_name: str = Field('fake', description="Optional variable name associated with a component")
     row: Optional[int] = None 
     column: Optional[int] = None
+    colWidth: Optional[float] = None
 
     @field_validator('id', mode='before')
     def validate_unique_component_id(cls, id):

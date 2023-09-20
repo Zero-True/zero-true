@@ -15,6 +15,7 @@ export type Id = string;
 export type VariableName = string;
 export type Row = number | null;
 export type Column = number | null;
+export type Colwidth = number | null;
 /**
  * Vue component name.
  */
@@ -72,6 +73,7 @@ export interface Slider {
   variable_name?: VariableName;
   row?: Row;
   column?: Column;
+  colWidth?: Colwidth;
   component?: Component;
   value?: Value;
   min?: Min;

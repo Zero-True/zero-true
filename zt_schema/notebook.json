@@ -77,6 +77,18 @@
           ],
           "default": null,
           "title": "Column"
+        },
+        "colWidth": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Colwidth"
         }
       },
       "required": [

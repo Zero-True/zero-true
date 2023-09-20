@@ -16,6 +16,7 @@ export type Id1 = string;
 export type VariableName = string;
 export type Row = number | null;
 export type Column = number | null;
+export type Colwidth = number | null;
 export type Components = ZTComponent[];
 export type Output = string;
 export type Cells = CellResponse[];
@@ -35,5 +36,6 @@ export interface ZTComponent {
   variable_name?: VariableName;
   row?: Row;
   column?: Column;
+  colWidth?: Colwidth;
   [k: string]: unknown;
 }
