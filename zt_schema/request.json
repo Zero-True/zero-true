@@ -9,11 +9,21 @@
         "code": {
           "title": "Code",
           "type": "string"
+        },
+        "cellType": {
+          "enum": [
+            "code",
+            "markdown",
+            "text"
+          ],
+          "title": "Celltype",
+          "type": "string"
         }
       },
       "required": [
         "id",
-        "code"
+        "code",
+        "cellType"
       ],
       "title": "CodeRequest",
       "type": "object"

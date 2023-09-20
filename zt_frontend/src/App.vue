@@ -61,7 +61,7 @@ export default {
       const cellRequests: CodeRequest[] = []
       const requestComponents: { [key: string]: any } = {};
       for (let key in this.notebook.cells){
-        const cellRequest: CodeRequest = {id: key, code: this.notebook.cells[key].code}
+        const cellRequest: CodeRequest = {id: key, code: this.notebook.cells[key].code, cellType: this.notebook.cells[key].cellType}
         for (const c of this.notebook.cells[key].components){
           requestComponents[c.id] = c.value
         }
