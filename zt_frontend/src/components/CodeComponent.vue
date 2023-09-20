@@ -20,9 +20,11 @@
         <v-btn small color="primary" @click="deleteCell">Delete Cell</v-btn>
     </v-toolbar>
     <!-- Render Components -->
-    <div v-for="component in cellData.components" :key="component.id">
+    <v-row v-for="(row, rowIndex) in sortedRows" :key="'row-' + rowIndex" no-gutters>
+      <v-col v-for="component in row" :key="component.id">
         <component :is="component.component" v-bind="component" v-model="component.value" @end="runCode"></component>
-    </div>
+      </v-col>
+    </v-row>
     <div class="text-p">{{cellData.output}}</div>
 </v-card>
 </template>
@@ -36,7 +38,7 @@ import 'ace-builds/src-noconflict/snippets/python';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/theme-dracula';
 import { VSlider } from 'vuetify/lib/components/index.mjs';
-import { CodeCell } from '@/types/notebook';
+import { CodeCell,ZTComponent } from '@/types/notebook';
 
 
 export default {
@@ -52,6 +54,7 @@ export default {
     },
     methods: {
         runCode(){
+            console.log(this.cellData)
             this.$emit('runCode', this.cellData.id);
         },
         handleValueChange(newValue:any, componentId: string){
@@ -61,7 +64,44 @@ export default {
             this.$emit('deleteCell', this.cellData.id);
         }
     },
-}
+    computed: {
+        sortedRows(): ZTComponent[][] {
+            const rows: Record<number, ZTComponent[][]> = {};
+            const bottomRow: ZTComponent[] = [];  // For components without a row or column
+            
+            for (const component of this.cellData.components) {
+            if (component.row !== null && component.row !== undefined &&
+                component.column !== null && component.column !== undefined) {
+                const row = component.row;
+                if (!rows[row]) rows[row] = [];
+                const column = component.column;
+                
+                // Initialize the column as an array if it doesn't exist
+                if (!rows[row][column]) rows[row][column] = [];
+                
+                // Append the component to the existing column
+                rows[row][column].push(component);
+                
+            } else {
+                // Place components without a row or column at the bottom
+                bottomRow.push(component);
+            }
+            }
+            
+            // Sort by row number and add the bottom row at the end
+            const sortedRowNumbers = Object.keys(rows).sort((a, b) => Number(a) - Number(b));
+            const sortedRows = sortedRowNumbers.map(rowNum => {
+            const row = rows[Number(rowNum)];
+            return row.reduce((acc: ZTComponent[], col: ZTComponent[] = []) => acc.concat(col), []);
+            });
+            
+            sortedRows.push(bottomRow);  // Add the bottom row
+            
+            return sortedRows;
+        }
+        },
+
+  }
 </script>
     
 <style scoped>

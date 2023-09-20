@@ -16,6 +16,9 @@ export type Id1 = string;
  * Optional variable name associated with a component
  */
 export type VariableName = string;
+export type Row = number | null;
+export type Column = number | null;
+export type Colwidth = number | null;
 export type Components = ZTComponent[];
 export type Celltype = "code" | "markdown" | "text";
 
@@ -37,5 +40,8 @@ export interface CodeCell {
 export interface ZTComponent {
   id: Id1;
   variable_name?: VariableName;
+  row?: Row;
+  column?: Column;
+  colWidth?: Colwidth;
   [k: string]: unknown;
 }
