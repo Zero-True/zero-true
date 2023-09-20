@@ -9,6 +9,7 @@ def generate_schema():
     generate_json(Request, 'request')
     generate_json(ComponentRequest, 'component_request')
     generate_json(DeleteRequest, 'delete_request')
+    generate_json(CreateRequest, 'create_request')
     generate_json(Response, 'response')
     generate_json(Slider, 'slider')
     generate_json(Notebook, 'notebook')

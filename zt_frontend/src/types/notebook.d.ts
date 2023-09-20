@@ -17,7 +17,7 @@ export type Id1 = string;
  */
 export type VariableName = string;
 export type Components = ZTComponent[];
-export type Celltype = "code" | "markdown";
+export type Celltype = "code" | "markdown" | "text";
 
 export interface Notebook {
   cells: Cells;
@@ -31,7 +31,7 @@ export interface CodeCell {
   code: Code;
   output: Output;
   components: Components;
-  cellType?: Celltype;
+  cellType: Celltype;
   [k: string]: unknown;
 }
 export interface ZTComponent {

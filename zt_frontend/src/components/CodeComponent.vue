@@ -36,7 +36,7 @@ import 'ace-builds/src-noconflict/snippets/python';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/theme-dracula';
 import { VSlider } from 'vuetify/lib/components/index.mjs';
-import { CodeCell, ZTComponent } from '@/types/notebook';
+import { CodeCell } from '@/types/notebook';
 
 
 export default {
@@ -70,14 +70,5 @@ export default {
     height: 300px;
     width: 100%;
     margin-bottom: 20px;
-}
-
-.formatted-code {
-white-space: pre-wrap;
-padding: 15px;
-border: 1px solid #ddd;
-overflow-x: auto;
-width: 100%; /* Similar width as the Ace editor */
-height: 100%; /* Similar height as the Ace editor */
 }
 </style>

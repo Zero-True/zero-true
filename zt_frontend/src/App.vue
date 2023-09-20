@@ -8,16 +8,19 @@
     </v-app-bar>
     <v-main>
       <v-container v-for="codeCell in notebook.cells" >
-        <CodeComponent 
+        <component
+          :is="getComponent(codeCell.cellType)"
           :cellData = codeCell
           @runCode="runCode"
           @componentValueChange="componentValueChange"
           @deleteCell="deleteCell"/>
       </v-container>
       <v-toolbar color="secondary">
-        <v-btn small color="primary" @click="createCodeCell">Add Code Cell</v-btn>
+        <v-btn small color="primary" @click="createCodeCell('code')">Add Code Cell</v-btn>
         <v-spacer/>
-        <v-btn small color="primary">Add Markdown Cell</v-btn>
+        <v-btn small color="primary" @click="createCodeCell('markdown')">Add Markdown Cell</v-btn>
+        <v-spacer/>
+        <v-btn small color="primary" @click="createCodeCell('text')">Add Text Cell</v-btn>
       </v-toolbar>
     </v-main>
   </v-app>
@@ -29,13 +32,18 @@ import axios from 'axios';
 import { Request, CodeRequest } from './types/request';
 import { ComponentRequest } from './types/component_request';
 import { DeleteRequest } from './types/delete_request';
+import { CreateRequest, Celltype } from './types/create_request';
 import { Response } from './types/response';
 import { Notebook, CodeCell } from './types/notebook';
 import CodeComponent from '@/components/CodeComponent.vue';
+import MarkdownComponent from '@/components/MarkdownComponent.vue';
+import EditorComponent from '@/components/EditorComponent.vue';
 
 export default {
   components: {
-    CodeComponent
+    CodeComponent,
+    MarkdownComponent,
+    EditorComponent
   },
   data() {
     return {
@@ -77,8 +85,9 @@ export default {
       console.log('navigate')
     },
 
-    async createCodeCell(){
-      const response = await axios.post(import.meta.env.VITE_BACKEND_URL + 'api/create_cell');
+    async createCodeCell(cellType: string){
+      const cellRequest: CreateRequest = {cellType: cellType as Celltype}
+      const response = await axios.post(import.meta.env.VITE_BACKEND_URL + 'api/create_cell', cellRequest);
       const cell: CodeCell = response.data
       this.notebook.cells[cell.id] = cell
     },
@@ -87,6 +96,19 @@ export default {
       const deleteRequest: DeleteRequest = {cellId: cellId}
       await axios.post(import.meta.env.VITE_BACKEND_URL + 'api/delete_cell', deleteRequest);
       delete this.notebook.cells[cellId]
+    },
+
+    getComponent(cellType: string){
+      switch (cellType) {
+        case 'code':
+          return 'CodeComponent';
+        case 'text':
+          return 'EditorComponent';
+        case 'markdown':
+          return 'MarkdownComponent';
+        default:
+          throw new Error(`Unknown component type: ${cellType}`);
+      }
     }
   }
 }

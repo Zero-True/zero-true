@@ -24,7 +24,7 @@ class Slider(ZTComponent):
     
     @validator('value', always=True) #TODO: debug and replace with field validator
     def get_value_from_global_state(cls, value, values):
-        id = values.data['id']  # Get the id if it exists in the field values
+        id = values['id']  # Get the id if it exists in the field values
         try:
             if id and id in component_values:  # Check if id exists in global_state
                 return component_values[id]  # Return the value associated with id in global_state

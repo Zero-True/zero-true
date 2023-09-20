@@ -34,13 +34,13 @@ def runcode(request: request.ComponentRequest):
     print(request)
 
 @router.post("/api/create_cell")
-def create_cell():
+def create_cell(cellRequest: request.CreateRequest):
      createdCell = notebook.CodeCell(
          id=str(uuid.uuid4()),
-         code='#code here or else',
+         code='',
          components=[],
          output='',
-         cellType='code'
+         cellType=cellRequest.cellType
      )
      globalStateUpdate(newCell=createdCell)
      return createdCell

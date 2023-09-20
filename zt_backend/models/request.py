@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Dict, Union
 
 class CodeRequest(BaseModel):
@@ -27,3 +27,6 @@ class ComponentRequest(BaseModel):
 
 class DeleteRequest(BaseModel):
     cellId: str
+
+class CreateRequest(BaseModel):
+    cellType: str = Field(enum=['code', 'markdown', 'text'])
