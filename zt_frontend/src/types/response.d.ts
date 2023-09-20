@@ -14,6 +14,8 @@ export type Id1 = string;
  * Optional variable name associated with a component
  */
 export type VariableName = string;
+export type Row = number | null;
+export type Column = number | null;
 export type Components = ZTComponent[];
 export type Output = string;
 export type Cells = CellResponse[];
@@ -31,5 +33,7 @@ export interface CellResponse {
 export interface ZTComponent {
   id: Id1;
   variable_name?: VariableName;
+  row?: Row;
+  column?: Column;
   [k: string]: unknown;
 }

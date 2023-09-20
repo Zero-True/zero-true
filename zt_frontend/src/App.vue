@@ -7,6 +7,11 @@
         Zero-True</v-app-bar-title>
     </v-app-bar>
     <v-main>
+      <v-toolbar color="secondary">
+        <v-btn small color="primary" @click="createCodeCell">Add Code Cell</v-btn>
+        <v-spacer/>
+        <v-btn small color="primary">Add Markdown Cell</v-btn>
+      </v-toolbar>
       <v-container v-for="codeCell in notebook.cells" >
         <component
           :is="getComponent(codeCell.cellType)"
@@ -15,13 +20,6 @@
           @componentValueChange="componentValueChange"
           @deleteCell="deleteCell"/>
       </v-container>
-      <v-toolbar color="secondary">
-        <v-btn small color="primary" @click="createCodeCell('code')">Add Code Cell</v-btn>
-        <v-spacer/>
-        <v-btn small color="primary" @click="createCodeCell('markdown')">Add Markdown Cell</v-btn>
-        <v-spacer/>
-        <v-btn small color="primary" @click="createCodeCell('text')">Add Text Cell</v-btn>
-      </v-toolbar>
     </v-main>
   </v-app>
 </template>
