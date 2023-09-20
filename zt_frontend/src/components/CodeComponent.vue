@@ -65,31 +65,42 @@ export default {
         }
     },
     computed: {
-    sortedRows(): ZTComponent[][] {
-      const rows: Record<number, ZTComponent[]> = {};
-      const bottomRow: ZTComponent[] = [];  // For components without a row or column
-      
-      for (const component of this.cellData.components) {
-        if (component.row !== null && component.row !== undefined &&
-            component.column !== null && component.column !== undefined) {
-          const row = component.row;
-          if (!rows[row]) rows[row] = [];
-          const column = component.column;
-          rows[row][column] = component;
-        } else {
-          // Place components without a row or column at the bottom
-          bottomRow.push(component);
+        sortedRows(): ZTComponent[][] {
+            const rows: Record<number, ZTComponent[][]> = {};
+            const bottomRow: ZTComponent[] = [];  // For components without a row or column
+            
+            for (const component of this.cellData.components) {
+            if (component.row !== null && component.row !== undefined &&
+                component.column !== null && component.column !== undefined) {
+                const row = component.row;
+                if (!rows[row]) rows[row] = [];
+                const column = component.column;
+                
+                // Initialize the column as an array if it doesn't exist
+                if (!rows[row][column]) rows[row][column] = [];
+                
+                // Append the component to the existing column
+                rows[row][column].push(component);
+                
+            } else {
+                // Place components without a row or column at the bottom
+                bottomRow.push(component);
+            }
+            }
+            
+            // Sort by row number and add the bottom row at the end
+            const sortedRowNumbers = Object.keys(rows).sort((a, b) => Number(a) - Number(b));
+            const sortedRows = sortedRowNumbers.map(rowNum => {
+            const row = rows[Number(rowNum)];
+            return row.reduce((acc: ZTComponent[], col: ZTComponent[] = []) => acc.concat(col), []);
+            });
+            
+            sortedRows.push(bottomRow);  // Add the bottom row
+            
+            return sortedRows;
         }
-      }
-      
-      // Sort by row number and add the bottom row at the end
-      const sortedRowNumbers = Object.keys(rows).sort((a, b) => Number(a) - Number(b));
-      const sortedRows = sortedRowNumbers.map(rowNum => rows[Number(rowNum)].filter(Boolean));
-      sortedRows.push(bottomRow);  // Add the bottom row
-      
-      return sortedRows;
-    }
-  },
+        },
+
   }
 </script>
     
