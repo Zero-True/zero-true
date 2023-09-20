@@ -22,10 +22,10 @@
           "type": "array"
         },
         "cellType": {
-          "default": "code",
           "enum": [
             "code",
-            "markdown"
+            "markdown",
+            "text"
           ],
           "title": "Celltype",
           "type": "string"
@@ -35,7 +35,8 @@
         "id",
         "code",
         "output",
-        "components"
+        "components",
+        "cellType"
       ],
       "title": "CodeCell",
       "type": "object"
