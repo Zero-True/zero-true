@@ -38,7 +38,7 @@ import 'ace-builds/src-noconflict/snippets/python';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/theme-dracula';
 import { VSlider } from 'vuetify/lib/components/index.mjs';
-import { CodeCell } from '@/types/notebook';
+import { CodeCell,ZTComponent } from '@/types/notebook';
 
 
 export default {
