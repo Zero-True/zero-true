@@ -67,18 +67,30 @@ export default {
     computed: {
     sortedRows(): ZTComponent[][] {
       const rows: Record<number, ZTComponent[]> = {};
+      const bottomRow: ZTComponent[] = [];  // For components without a row or column
+      
       for (const component of this.cellData.components) {
-        const row = component.row !== null && component.row !== undefined ? component.row : -1;
-        if (!rows[row]) rows[row] = [];
-        const column = component.column !== null && component.column !== undefined ? component.column : rows[row].length;
-        rows[row][column] = component;
+        if (component.row !== null && component.row !== undefined &&
+            component.column !== null && component.column !== undefined) {
+          const row = component.row;
+          if (!rows[row]) rows[row] = [];
+          const column = component.column;
+          rows[row][column] = component;
+        } else {
+          // Place components without a row or column at the bottom
+          bottomRow.push(component);
+        }
       }
-      // Sort by row number, placing the undefined row (-1) at the end
+      
+      // Sort by row number and add the bottom row at the end
       const sortedRowNumbers = Object.keys(rows).sort((a, b) => Number(a) - Number(b));
-      return sortedRowNumbers.map(rowNum => rows[Number(rowNum)].filter(Boolean));
+      const sortedRows = sortedRowNumbers.map(rowNum => rows[Number(rowNum)].filter(Boolean));
+      sortedRows.push(bottomRow);  // Add the bottom row
+      
+      return sortedRows;
     }
   },
-}
+  }
 </script>
     
 <style scoped>
