@@ -10,6 +10,7 @@ def generate_ts():
     os.mkdir('zt_schema')
     generate_schema()
     os.chdir('zt_frontend')
+    shutil.rmtree('src/types')
     os.system('yarn json2ts -i ../zt_schema -o src/types')
     os.chdir('..')
     shutil.rmtree('zt_schema')
