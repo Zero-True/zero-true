@@ -22,7 +22,7 @@
     <!-- Render Components -->
     <v-row v-for="(row, rowIndex) in sortedRows" :key="'row-' + rowIndex" no-gutters>
       <v-col v-for="component in row" :key="component.id">
-        <component :is="component.component" v-bind="component" v-model="component.value" @end="runCode"></component>
+            <component :is="component.component" v-bind="component" v-model="component.value" @[component.triggerEvent]="runCode"></component>
       </v-col>
     </v-row>
     <div class="text-p">{{cellData.output}}</div>
@@ -37,14 +37,15 @@ import 'ace-builds/src-noconflict/mode-python';
 import 'ace-builds/src-noconflict/snippets/python';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/theme-dracula';
-import { VSlider } from 'vuetify/lib/components/index.mjs';
+import { VSlider, VTextField } from 'vuetify/lib/components/index.mjs';
 import { CodeCell,ZTComponent } from '@/types/notebook';
 
 
 export default {
     components: {
         'ace-editor': VAceEditor,
-        'v-slider': VSlider
+        'v-slider': VSlider,
+        'v-text-field': VTextField
     },
     props: {
         cellData: {

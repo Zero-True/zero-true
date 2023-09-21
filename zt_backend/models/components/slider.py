@@ -23,7 +23,7 @@ class Slider(ZTComponent):
     color: str = Field('primary', pre=True, description="Color of the range slider. Can be custom or standard Material color.")
     size: str = Field('large', description="Size of the slider.")
     rounded: bool = Field(True, description="Determines if the slider has rounded edges.")
-    
+    triggerEvent: str = Field('end',description="Trigger event for when to run the slider")
     @field_validator('color')
     def validate_color(cls, color):
         return validate_color(color)
