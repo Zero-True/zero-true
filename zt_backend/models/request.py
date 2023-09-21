@@ -4,6 +4,7 @@ from typing import List, Dict, Union
 class CodeRequest(BaseModel):
     id: str
     code: str
+    cellType: str = Field(enum=['code', 'markdown', 'text'])
 
 class Request(BaseModel):
     originId: str

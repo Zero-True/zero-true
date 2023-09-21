@@ -36,7 +36,7 @@ def get_loaded_names(module, defined_names) -> List[str]:
 
 def parse_cells(request: Request) -> CodeDict:
     cell_dict = {}
-    for cell  in request.cells:
+    for cell in [c for c in request.cells if c.cellType=='code']:
         module = astroid.parse(cell.code)
         function_names, function_arguments = get_functions(module)
         defined_names = get_defined_names(module) + get_imports(module) + function_names
