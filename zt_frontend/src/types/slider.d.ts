@@ -64,6 +64,10 @@ export type Size = string;
  * Determines if the slider has rounded edges.
  */
 export type Rounded = boolean;
+/**
+ * Trigger event for when to run the slider
+ */
+export type Triggerevent = string;
 
 /**
  * A slider component that allows you to capture numeric input from a user.
@@ -90,5 +94,6 @@ export interface Slider {
   color?: Color;
   size?: Size;
   rounded?: Rounded;
+  triggerEvent?: Triggerevent;
   [k: string]: unknown;
 }
