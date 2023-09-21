@@ -37,7 +37,7 @@ def open_project():
     if not os.path.exists('notebook.toml'):
         codeCell = CodeCell(
             id=str(uuid.uuid4()),
-            code='#code here or else',
+            code='',
             components=[],
             output='',
             cellType='code'
@@ -47,9 +47,9 @@ def open_project():
             toml.dump(zt_notebook.model_dump(), project_file)
 
 if run_mode=='app':
-    app.mount(route_prefix, StaticFiles(directory=os.path.join(current_path, "dist_app")), name="assets")
+    app.mount(route_prefix, StaticFiles(directory=os.path.join(current_path, "dist_app"), html=True), name="assets")
 else:
-    app.mount(route_prefix, StaticFiles(directory=os.path.join(current_path, "dist_dev")), name="assets")
+    app.mount(route_prefix, StaticFiles(directory=os.path.join(current_path, "dist_dev"), html=True), name="assets")
 
 def run_app():
     uvicorn.run(app, port=2613)

@@ -1,22 +1,11 @@
 from fastapi import APIRouter
-from fastapi.responses import FileResponse
 from zt_backend.models import request, notebook, response
 from zt_backend.runner.execute_code import execute_request
 from zt_backend.models.state import component_values, created_components, context_globals
-import os
 import uuid
 import toml
 
-current_path = os.path.dirname(os.path.abspath(__file__))
-
 router = APIRouter()
-
-@router.get("/")
-def read_root():
-    if os.environ.get('RUN_MODE', 'app')=='app':
-        return FileResponse( os.path.join(current_path, "dist_app/index.html"))
-    else:
-        return FileResponse( os.path.join(current_path, "dist_dev/index.html"))
 
 @router.get("/health")
 def health():

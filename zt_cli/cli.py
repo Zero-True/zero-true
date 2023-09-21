@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
-import subprocess
 import os
-import zt_backend
 from zt_backend.main import run_app
 
 def start_servers():
@@ -17,12 +15,8 @@ def start_servers():
         os.environ['RUN_MODE'] = 'dev'
     else:
         raise Exception('You must specify either noteboook or app to run Zero-True')
-    #run_app()
 
-    os.chdir(os.path.dirname(zt_backend.__file__))
-    backend_process = subprocess.Popen(["uvicorn", "main:app", "--port=2613"])
-    
-    backend_process.wait()    
+    run_app()
 
 if __name__ == "__main__":
     start_servers()
