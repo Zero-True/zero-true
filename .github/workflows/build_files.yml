@@ -52,7 +52,7 @@ jobs:
           pip install furo
           sphinx-build -b html docs docs/html
           git add .
-          git commi -m "Build file update"
+          git commit -m "Build file update"
 
       - name: Push build files
         uses: CasperWA/push-protected@v2
