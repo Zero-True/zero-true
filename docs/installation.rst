@@ -16,5 +16,5 @@ After installation, you can verify that Zero True is installed by running:
 
 .. code-block:: python
 
-   import zerotrue
-   print(zerotrue.__version__)
+   import zero_true as zt
+   print(zt.__version__)

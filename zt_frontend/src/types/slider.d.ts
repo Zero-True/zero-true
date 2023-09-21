@@ -66,7 +66,11 @@ export type Size = string;
 export type Rounded = boolean;
 
 /**
- * A class for Slider components inheriting from ZTComponent.
+ * A slider component that allows you to capture numeric input from a user.
+ *
+ * To use the slider simply import the package and then declare the slider. The only required
+ * field is an id. Your slider will render with default max and min values and a number
+ * of other defaults.
  */
 export interface Slider {
   id: Id;

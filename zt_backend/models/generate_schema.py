@@ -1,4 +1,7 @@
-from zt_backend.models import *
+from .request import Request, ComponentRequest, DeleteRequest, CreateRequest
+from .response import Response
+from .notebook import Notebook
+from .components.slider import Slider
 import json
 
 def generate_json(model, name):

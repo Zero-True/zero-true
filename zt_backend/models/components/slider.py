@@ -4,7 +4,13 @@ from zt_backend.models.validations import validate_color, validate_min_less_than
 from zt_backend.models.state import component_values
 
 class Slider(ZTComponent):
-    """A class for Slider components inheriting from ZTComponent."""
+    """A slider component that allows you to capture numeric input from a user. 
+    
+    To use the slider simply import the package and then declare the slider. The only required 
+    field is an id. Your slider will render with default max and min values and a number 
+    of other defaults.
+    
+    """
     component: str = Field("v-slider", description="Vue component name.")
     value: int = Field(0, description="Current value of the slider.")
     min: int = Field(0, ge=0, description="Minimum value of the slider.")
