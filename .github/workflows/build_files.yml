@@ -1,7 +1,7 @@
 name: Build Frontend and Docs
 
 on:
-  pull_request:
+  push:
     branches:
       - main
 
