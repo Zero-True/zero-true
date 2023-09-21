@@ -51,8 +51,10 @@ jobs:
           pip install autodoc_pydantic
           pip install furo
           sphinx-build -b html docs docs/html
+          git add .
+          git commi -m "Build file update"
 
-      - name: Push to protected branch
+      - name: Push build files
         uses: CasperWA/push-protected@v2
         with:
           token: ${{ secrets.ZT_PAT }}
