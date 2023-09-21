@@ -52,8 +52,9 @@ jobs:
           pip install furo
           sphinx-build -b html docs docs/html
 
-      - name: Commit Files
-        uses: devops-infra/action-commit-push@master
+      - name: Push to protected branch
+        uses: CasperWA/push-protected@v2
         with:
-          github_token: "${{ secrets.ZT_PAT }}"
-          commit_message: "Build file update"
+          token: ${{ secrets.ZT_PAT }}
+          branch: main
+          unprotect_reviews: true
