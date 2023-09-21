@@ -1,13 +1,9 @@
 from fastapi import APIRouter
-from fastapi.responses import FileResponse
 from zt_backend.models import request, notebook, response
 from zt_backend.runner.execute_code import execute_request
 from zt_backend.models.state import component_values, created_components, context_globals
-import os
 import uuid
 import toml
-
-current_path = os.path.dirname(os.path.abspath(__file__))
 
 router = APIRouter()
 
