@@ -1,16 +1,15 @@
 name: Build Frontend and Docs
 
 on:
-  push:
+  pull_request:
     branches:
       - main
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      # Checks out your repository
       - name: Checkout Code
         uses: actions/checkout@v3
 
@@ -18,11 +17,14 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
+          cache: "yarn"
+          cache-dependency-path: "zt_frontend/yarn.lock"
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
+          cache: "pip"
 
       - name: Build and Copy Dev
         run: |
@@ -52,8 +54,8 @@ jobs:
           pip install furo
           sphinx-build -b html docs docs/html
 
-      - name: Commit Files
-        uses: devops-infra/action-commit-push@master
-        with:
-          github_token: "${{ secrets.ZT_PAT }}"
-          commit_message: "Build file update"
+      - name: Install dependencies and run tests
+        run: |
+          python -m pip install --upgrade pip
+          pip install .
+          pytest zt_backend/tests/

@@ -164,3 +164,4 @@ cython_debug/
 
 #Custom stuff
 **/notebook.toml
+docs/html/
