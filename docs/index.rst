@@ -12,5 +12,6 @@ Contents
    introduction
    installation
    getting_started
-   api_reference
+   layout
+   ui_components
 
