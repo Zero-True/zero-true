@@ -3,11 +3,13 @@ from typing import OrderedDict, List, Dict, Any
 from zt_backend.models.components.zt_component import ZTComponent
 from zt_backend.models.components.slider import Slider
 from zt_backend.models.components.text_input import TextInput
+from zt_backend.models.components.text_area_input import TextArea
 
 def deserialize_component(data: Dict[str, Any]) -> ZTComponent:
     component_map = {
         "v-slider": Slider,
-        "v-text-field":TextInput
+        "v-text-field":TextInput,
+        "v-textarea": TextArea,
         # add other component types here
     }
     component_class = data.get("component")
