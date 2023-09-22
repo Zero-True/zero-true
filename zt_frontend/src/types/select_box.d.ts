@@ -23,7 +23,11 @@ export type Component = string;
 /**
  * Options for the select box. Can be a list of strings or integers.
  */
-export type Value = (string | number)[];
+export type Items = (string | number)[];
+/**
+ * Selected option for the select box. Can be a string or integer.
+ */
+export type Value = string | number | null;
 /**
  * Label for the select box.
  */
@@ -71,7 +75,8 @@ export interface SelectBox {
   column?: Column;
   colWidth?: Colwidth;
   component?: Component;
-  value: Value;
+  items: Items;
+  value?: Value;
   label?: Label;
   multiple?: Multiple;
   dense?: Dense;

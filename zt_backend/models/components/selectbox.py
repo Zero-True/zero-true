@@ -8,7 +8,9 @@ class SelectBox(ZTComponent):
     """A class for SelectBox components inheriting from ZTComponent."""
     
     component: str = Field("v-select", description="Vue component name.")
-    value: List[Union[str, int]] = Field(..., description="Options for the select box. Can be a list of strings or integers.")
+    
+    items: List[Union[str, int]] = Field(..., description="Options for the select box. Can be a list of strings or integers.")
+    value: Union[str, int,None] = Field(None, description="Selected option for the select box. Can be a string or integer.")
     label: str = Field(None, description="Label for the select box.")
     multiple: bool = Field(False, description="Determines if multiple selections are allowed.")
     dense: bool = Field(None, description="Determines if the select box is dense.")
@@ -17,7 +19,7 @@ class SelectBox(ZTComponent):
     disabled: bool = Field(None, description="Determines if the select box is disabled.")
     readonly: bool = Field(None, description="Determines if the select box is read-only.")
     color: str = Field(None, pre=True, description="Color of the range slider. Can be custom or standard Material color.")
-    triggerEvent: str = Field('input',description="Trigger event for when to run the slider")
+    triggerEvent: str = Field('update:modelValue',description="Trigger event for when to run the slider")
 
     @field_validator('color')
     def validate_color(cls, color):
