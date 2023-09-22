@@ -1,7 +1,7 @@
 from typing import List 
 from pydantic import Field, field_validator, validator
 from zt_backend.models.components.zt_component import ZTComponent
-from zt_backend.models.validations import validate_color, validate_min_less_than_max
+from zt_backend.models.validations import validate_color
 from zt_backend.models.state import component_values
 
 class RangeSlider(ZTComponent):

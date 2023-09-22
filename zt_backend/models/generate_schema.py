@@ -5,6 +5,7 @@ from .components.slider import Slider
 from .components.text_input import TextInput
 from .components.text_area_input import TextArea
 from .components.range_slider import RangeSlider
+from .components.selectbox import SelectBox
 
 import json
 
@@ -23,3 +24,4 @@ def generate_schema():
     generate_json(TextInput, 'text_input')
     generate_json(TextArea,'text_area')
     generate_json(RangeSlider,'range_slider')
+    generate_json(SelectBox,'select_box')
