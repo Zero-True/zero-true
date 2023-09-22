@@ -4,6 +4,8 @@ from .notebook import Notebook
 from .components.slider import Slider
 from .components.text_input import TextInput
 from .components.text_area_input import TextArea
+from .components.range_slider import RangeSlider
+
 import json
 
 def generate_json(model, name):
@@ -20,3 +22,4 @@ def generate_schema():
     generate_json(Notebook, 'notebook')
     generate_json(TextInput, 'text_input')
     generate_json(TextArea,'text_area')
+    generate_json(RangeSlider,'range_slider')

@@ -9,7 +9,7 @@ class CodeRequest(BaseModel):
 class Request(BaseModel):
     originId: str
     cells: List[CodeRequest]
-    components: Dict[str, Union[str, bool, int]]
+    components: Dict[str, Union[str, bool, int,List]]
 
 class Cell(BaseModel):
     code: str

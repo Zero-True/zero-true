@@ -4,12 +4,15 @@ from zt_backend.models.components.zt_component import ZTComponent
 from zt_backend.models.components.slider import Slider
 from zt_backend.models.components.text_input import TextInput
 from zt_backend.models.components.text_area_input import TextArea
+from zt_backend.models.components.range_slider import RangeSlider
+
 
 def deserialize_component(data: Dict[str, Any]) -> ZTComponent:
     component_map = {
         "v-slider": Slider,
         "v-text-field":TextInput,
         "v-textarea": TextArea,
+        "v-range-slider": RangeSlider,
         # add other component types here
     }
     component_class = data.get("component")

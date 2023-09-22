@@ -24,3 +24,5 @@ Zero-True offers an extensive UI componentent library to allow users to build co
 .. autopydantic_model:: zt_backend.models.components.slider.Slider
 
 .. autopydantic_model:: zt_backend.models.components.text_input.TextInput
+
+.. autopydantic_model:: zt_backend.models.compoents.text_area_input.TextArea
