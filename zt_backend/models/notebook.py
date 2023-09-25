@@ -10,6 +10,7 @@ from zt_backend.models.components.multiselect import MultiSelectBox
 from zt_backend.models.components.button import Button
 from zt_backend.models.components.number_input import NumberInput
 from zt_backend.models.components.image import Image
+from zt_backend.models.components.text import Text
 
 def deserialize_component(data: Dict[str, Any]) -> ZTComponent:
     component_map = {
@@ -21,7 +22,8 @@ def deserialize_component(data: Dict[str, Any]) -> ZTComponent:
         "v-select": SelectBox,
         "v-combobox": MultiSelectBox,
         "v-btn": Button,
-        "v-img": Image
+        "v-img": Image,
+        "v-text": Text
 
         # add other component types here
     }

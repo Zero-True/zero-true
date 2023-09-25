@@ -21,34 +21,34 @@ export type Colwidth = number | null;
  */
 export type Component = string;
 /**
- * The input text value
+ * Whether the button has been clicked
  */
-export type Value = string;
+export type Value = boolean;
 /**
- * Placeholder text.
+ * Label displayed on the button.
  */
-export type Placeholder = string;
+export type Text = string;
 /**
- * Label for the text input.
+ * Color of the button.
  */
-export type Label = string | null;
+export type Color = string;
 /**
- * If true, the input is read-only.
- */
-export type Readonly = boolean;
-/**
- * If true, the input is disabled.
+ * If true, the button is disabled.
  */
 export type Disabled = boolean;
+/**
+ * If true, the button will have an outlined style.
+ */
+export type Outlined = boolean;
 /**
  * Trigger event to send code to the backend
  */
 export type Triggerevent = string;
 
 /**
- * A class for TextInput components inheriting from ZTComponent.
+ * A class for Button components inheriting from ZTComponent.
  */
-export interface TextInput {
+export interface Button {
   id: Id;
   variable_name?: VariableName;
   row?: Row;
@@ -56,10 +56,10 @@ export interface TextInput {
   colWidth?: Colwidth;
   component?: Component;
   value?: Value;
-  placeholder?: Placeholder;
-  label?: Label;
-  readonly?: Readonly;
+  text?: Text;
+  color?: Color;
   disabled?: Disabled;
+  outlined?: Outlined;
   triggerEvent?: Triggerevent;
   [k: string]: unknown;
 }

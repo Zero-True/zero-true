@@ -21,45 +21,35 @@ export type Colwidth = number | null;
  */
 export type Component = string;
 /**
- * The input text value
+ * Source URL of the image.
  */
-export type Value = string;
+export type Src = string;
 /**
- * Placeholder text.
+ * Alternative text for the image.
  */
-export type Placeholder = string;
+export type Alt = string;
 /**
- * Label for the text input.
+ * Width of the image.
  */
-export type Label = string | null;
+export type Width = number;
 /**
- * If true, the input is read-only.
+ * Height of the image.
  */
-export type Readonly = boolean;
-/**
- * If true, the input is disabled.
- */
-export type Disabled = boolean;
-/**
- * Trigger event to send code to the backend
- */
-export type Triggerevent = string;
+export type Height = number;
 
 /**
- * A class for TextInput components inheriting from ZTComponent.
+ * A class for Image components inheriting from ZTComponent.
  */
-export interface TextInput {
+export interface Image {
   id: Id;
   variable_name?: VariableName;
   row?: Row;
   column?: Column;
   colWidth?: Colwidth;
   component?: Component;
-  value?: Value;
-  placeholder?: Placeholder;
-  label?: Label;
-  readonly?: Readonly;
-  disabled?: Disabled;
-  triggerEvent?: Triggerevent;
+  src: Src;
+  alt?: Alt;
+  width?: Width;
+  height?: Height;
   [k: string]: unknown;
 }

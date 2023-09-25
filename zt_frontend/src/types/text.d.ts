@@ -17,49 +17,52 @@ export type Row = number | null;
 export type Column = number | null;
 export type Colwidth = number | null;
 /**
- * Vue component name.
+ * Vue component name for static text.
  */
 export type Component = string;
 /**
- * The input text value
+ * The actual text content.
  */
-export type Value = string;
+export type Text1 = string;
 /**
- * Placeholder text.
+ * Text type for text-related components.
  */
-export type Placeholder = string;
+export type TextType =
+  | "text-h1"
+  | "text-h2"
+  | "text-h3"
+  | "text-h4"
+  | "text-h5"
+  | "text-h6"
+  | "text-subtitle-1"
+  | "text-subtitle-2"
+  | "text-body-1"
+  | "text-body-2"
+  | "text-button"
+  | "text-caption"
+  | "text-overline";
 /**
- * Label for the text input.
+ * Color of the text.
  */
-export type Label = string | null;
+export type Color = string;
 /**
- * If true, the input is read-only.
- */
-export type Readonly = boolean;
-/**
- * If true, the input is disabled.
- */
-export type Disabled = boolean;
-/**
- * Trigger event to send code to the backend
+ * Trigger event to send code to the backend. None for static text.
  */
 export type Triggerevent = string;
 
 /**
- * A class for TextInput components inheriting from ZTComponent.
+ * A class for static text components inheriting from ZTComponent.
  */
-export interface TextInput {
+export interface Text {
   id: Id;
   variable_name?: VariableName;
   row?: Row;
   column?: Column;
   colWidth?: Colwidth;
   component?: Component;
-  value?: Value;
-  placeholder?: Placeholder;
-  label?: Label;
-  readonly?: Readonly;
-  disabled?: Disabled;
+  text?: Text1;
+  text_type?: TextType;
+  color?: Color;
   triggerEvent?: Triggerevent;
   [k: string]: unknown;
 }

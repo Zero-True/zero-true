@@ -23,7 +23,7 @@ export type Component = string;
 /**
  * The input text value
  */
-export type Value = string;
+export type Value = number | null;
 /**
  * Placeholder text.
  */
@@ -31,7 +31,7 @@ export type Placeholder = string;
 /**
  * Label for the text input.
  */
-export type Label = string | null;
+export type Label = string;
 /**
  * If true, the input is read-only.
  */
@@ -41,6 +41,10 @@ export type Readonly = boolean;
  */
 export type Disabled = boolean;
 /**
+ * Ensures that only numbers are accepted on the frontend
+ */
+export type Type = string;
+/**
  * Trigger event to send code to the backend
  */
 export type Triggerevent = string;
@@ -48,7 +52,7 @@ export type Triggerevent = string;
 /**
  * A class for TextInput components inheriting from ZTComponent.
  */
-export interface TextInput {
+export interface NumberInput {
   id: Id;
   variable_name?: VariableName;
   row?: Row;
@@ -60,6 +64,7 @@ export interface TextInput {
   label?: Label;
   readonly?: Readonly;
   disabled?: Disabled;
+  type?: Type;
   triggerEvent?: Triggerevent;
   [k: string]: unknown;
 }
