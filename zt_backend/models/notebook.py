@@ -7,17 +7,22 @@ from zt_backend.models.components.text_area_input import TextArea
 from zt_backend.models.components.range_slider import RangeSlider
 from zt_backend.models.components.selectbox import SelectBox
 from zt_backend.models.components.multiselect import MultiSelectBox
-
+from zt_backend.models.components.button import Button
+from zt_backend.models.components.number_input import NumberInput
+from zt_backend.models.components.image import Image
 
 def deserialize_component(data: Dict[str, Any]) -> ZTComponent:
     component_map = {
         "v-slider": Slider,
         "v-text-field":TextInput,
         "v-textarea": TextArea,
+        "v-number-field": NumberInput,
         "v-range-slider": RangeSlider,
         "v-select": SelectBox,
         "v-combobox": MultiSelectBox,
-        
+        "v-btn": Button,
+        "v-img": Image
+
         # add other component types here
     }
     component_class = data.get("component")
