@@ -35,7 +35,6 @@ Welcome to **Zero True**, your go-to platform for creating beautiful and profess
 ## 🚀 Quick Start
 
 \```bash
-# Clone the repository
 pip install zero-true
 zero-true notebook
 \```
