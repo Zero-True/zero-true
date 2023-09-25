@@ -37,7 +37,8 @@ import 'ace-builds/src-noconflict/mode-python';
 import 'ace-builds/src-noconflict/snippets/python';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/theme-dracula';
-import { VSlider, VTextField } from 'vuetify/lib/components/index.mjs';
+import { VSlider, VTextField, VTextarea, VRangeSlider, VSelect, VCombobox, VBtn, VImg} from 'vuetify/lib/components/index.mjs';
+import VText from './TextComponent.vue';
 import { CodeCell,ZTComponent } from '@/types/notebook';
 
 
@@ -45,7 +46,15 @@ export default {
     components: {
         'ace-editor': VAceEditor,
         'v-slider': VSlider,
-        'v-text-field': VTextField
+        'v-text-field': VTextField,
+        'v-number-field': VTextField,
+        'v-textarea': VTextarea,
+        'v-range-slider': VRangeSlider,
+        'v-select':VSelect,
+        'v-combobox':VCombobox,
+        'v-btn': VBtn,
+        'v-img': VImg,
+        'v-text': VText,
     },
     props: {
         cellData: {

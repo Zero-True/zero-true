@@ -31,7 +31,7 @@ export type Placeholder = string;
 /**
  * Label for the text input.
  */
-export type Label = string | null;
+export type Label = string;
 /**
  * If true, the input is read-only.
  */
@@ -48,7 +48,7 @@ export type Triggerevent = string;
 /**
  * A class for TextInput components inheriting from ZTComponent.
  */
-export interface TextInput {
+export interface TextArea {
   id: Id;
   variable_name?: VariableName;
   row?: Row;

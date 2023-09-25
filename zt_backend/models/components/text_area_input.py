@@ -1,15 +1,13 @@
 from pydantic import Field, field_validator, validator
 from zt_backend.models.components.zt_component import ZTComponent
 from zt_backend.models.state import component_values
-from typing import Optional
 
-
-class TextInput(ZTComponent):
+class TextArea(ZTComponent):
     """A class for TextInput components inheriting from ZTComponent."""
-    component: str = Field("v-text-field", description="Vue component name.")
+    component: str = Field("v-textarea", description="Vue component name.")
     value: str = Field ('',description="The input text value")
     placeholder: str = Field(None, description="Placeholder text.")
-    label: Optional[str] = Field(None, description="Label for the text input.")
+    label: str = Field(None, description="Label for the text input.")
     readonly: bool = Field(None, description="If true, the input is read-only.")
     disabled: bool = Field(None, description="If true, the input is disabled.")
     triggerEvent: str = Field('input',description="Trigger event to send code to the backend")

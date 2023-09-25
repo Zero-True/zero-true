@@ -21,9 +21,9 @@ export type Colwidth = number | null;
  */
 export type Component = string;
 /**
- * Current value of the slider.
+ * Current value range of the slider.
  */
-export type Value = number;
+export type Value = number[];
 /**
  * Minimum value of the slider.
  */
@@ -74,13 +74,13 @@ export type Rounded = boolean;
 export type Triggerevent = string;
 
 /**
- * A slider component that allows you to capture numeric input from a user.
+ * A range slider component that allows you to capture numeric input from a user.
  *
  * To use the slider simply import the package and then declare the slider. The only required
  * field is an id. Your slider will render with default max and min values and a number
  * of other defaults.
  */
-export interface Slider {
+export interface RangeSlider {
   id: Id;
   variable_name?: VariableName;
   row?: Row;

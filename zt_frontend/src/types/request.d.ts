@@ -24,5 +24,5 @@ export interface CodeRequest {
   [k: string]: unknown;
 }
 export interface Components {
-  [k: string]: string | boolean | number;
+  [k: string]: string | boolean | number | unknown[] | null;
 }
