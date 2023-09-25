@@ -2,10 +2,7 @@
 
 # Zero True: A New Kind of Code Notebook
 
-<!-- Badges indicating the status of various workflows -->
-![Build Frontend](https://github.com/Zero-True/zero-true/actions/workflows/build-frontend.yml/badge.svg)
-![Docs](https://github.com/Zero-True/zero-true/actions/workflows/publish-docs.yml/badge.svg)
-![Publish Package](https://github.com/Zero-True/zero-true/actions/workflows/publish-package.yml/badge.svg)
+
 
 ## 🌐 Overview
 
