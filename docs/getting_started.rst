@@ -18,5 +18,8 @@ Coming Soon!
 
 Additional Resources
 ---------------------
-- [GitHub Repository](https://github.com/Zero-True/zero-true)
-- [Issue Tracker](https://github.com/Zero-True/zero-true)
+- `GitHub`_
+- `Zero-True`_
+
+.. _GitHub: https://github.com/Zero-True/zero-true
+.. _Zero-True: https://zero-true.com
