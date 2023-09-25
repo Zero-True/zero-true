@@ -31,10 +31,10 @@ Welcome to **Zero True**, your go-to platform for creating beautiful and profess
 
 ## 🚀 Quick Start
 
-\```bash
+```bash
 pip install zero-true
 zero-true notebook
-\```
+```
 
 ### Usage 
 
