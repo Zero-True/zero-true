@@ -61,6 +61,10 @@ export type Color = string;
  */
 export type Size = string;
 /**
+ * A label for your slider
+ */
+export type Label = string | null;
+/**
  * Determines if the slider has rounded edges.
  */
 export type Rounded = boolean;
@@ -93,6 +97,7 @@ export interface RangeSlider {
   ticks?: Ticks;
   color?: Color;
   size?: Size;
+  label?: Label;
   rounded?: Rounded;
   triggerEvent?: Triggerevent;
   [k: string]: unknown;

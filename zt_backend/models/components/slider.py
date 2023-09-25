@@ -2,6 +2,7 @@ from pydantic import Field, field_validator, validator
 from zt_backend.models.components.zt_component import ZTComponent
 from zt_backend.models.validations import validate_color, validate_min_less_than_max
 from zt_backend.models.state import component_values
+from typing import Optional
 
 class Slider(ZTComponent):
     """A slider component that allows you to capture numeric input from a user. 
@@ -22,6 +23,7 @@ class Slider(ZTComponent):
     ticks: list = Field([], description="Displays the ticks.")
     color: str = Field('primary', pre=True, description="Color of the range slider. Can be custom or standard Material color.")
     size: str = Field('large', description="Size of the slider.")
+    label: Optional[str] = Field(None,description= 'A label for your slider')
     rounded: bool = Field(True, description="Determines if the slider has rounded edges.")
     triggerEvent: str = Field('end',description="Trigger event for when to run the slider")
     
