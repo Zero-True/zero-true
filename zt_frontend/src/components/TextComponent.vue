@@ -4,12 +4,23 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from 'vue';
+
+export default defineComponent({
   props: {
-    text: String,
-    text_type: String,
-    color: String,
+    text: {
+      type: String,
+      required: true
+    },
+    text_type: {
+      type: String,
+      required: true
+    },
+    color: {
+      type: String,
+      required: true
+    },
   },
-}
+});
 </script>
