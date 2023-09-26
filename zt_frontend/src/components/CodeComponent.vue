@@ -1,5 +1,5 @@
 <template>
-<v-card flat>
+<v-card flat color="bluegrey">
     <ace-editor
         v-model:value="cellData.code"
         ref="editor"
@@ -12,23 +12,22 @@
             enableSnippets: true,
             enableLiveAutocompletion: true,
             autoScrollEditorIntoView: true,
-            minLines: 10,
+            minLines: 15,
             maxLines: Infinity
         }"
-    >
-    </ace-editor>
-    <v-toolbar>
-        <v-btn color="primary" @click="runCode">Run</v-btn>
+    />
+    <v-toolbar color="bluegrey">
+        <v-btn variant="flat" color="primary" @click="runCode">Run</v-btn>
         <v-spacer/>
-        <v-btn small color="primary" @click="deleteCell">Delete Cell</v-btn>
+        <v-btn variant="flat" color="error" @click="deleteCell">Delete Cell</v-btn>
     </v-toolbar>
     <!-- Render Components -->
     <v-row v-for="(row, rowIndex) in sortedRows" :key="'row-' + rowIndex" no-gutters>
       <v-col v-for="component in row" :key="component.id">
             <component :is="component.component" v-bind="component" v-model="component.value" @[component.triggerEvent]="runCode">
-            <template v-if="component.component === 'v-data-table'" v-slot:items="props">
-        <td v-for="(value, key) in props.item" :key="key">{{ value }}</td>
-      </template>
+                <template v-if="component.component === 'v-data-table'" v-slot:items="props">
+                    <td v-for="(value, key) in props.item" :key="key">{{ value }}</td>
+                </template>
             </component>
       </v-col>
     </v-row>
@@ -73,7 +72,6 @@ export default {
     },
     methods: {
         runCode(){
-            console.log(this.cellData)
             this.$emit('runCode', this.cellData.id);
         },
         handleValueChange(newValue:any, componentId: string){
@@ -122,12 +120,3 @@ export default {
 
   }
 </script>
-    
-<style scoped>
-.editor {
-    filter: none;
-    height: 300px;
-    width: 100%;
-    margin-bottom: 20px;
-}
-</style>

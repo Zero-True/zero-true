@@ -1,10 +1,10 @@
 <template>
-  <v-app>
-    <v-app-bar app color="primary">
-      <v-app-bar-title class="white--text">
-        <v-btn icon @click="navigateToApp">
-        </v-btn>
-        Zero-True</v-app-bar-title>
+  <v-app style="background-color: #040607;">
+    <v-app-bar app color="bluegrey">
+      <v-btn size="x-large" variant="text" @click="navigateToApp">
+        <v-icon start size="x-large" icon="custom:ZTIcon"></v-icon>
+        Zero-True
+      </v-btn>
     </v-app-bar>
     <v-main>
       <v-container v-for="codeCell in notebook.cells" >
@@ -15,12 +15,12 @@
           @componentValueChange="componentValueChange"
           @deleteCell="deleteCell"/>
       </v-container>
-      <v-toolbar color="secondary">
-        <v-btn small color="primary" @click="createCodeCell('code')">Add Code Cell</v-btn>
+      <v-toolbar color="bluegrey">
+        <v-btn variant="flat" color="accent" @click="createCodeCell('code')">Add Code Cell</v-btn>
         <v-spacer/>
-        <v-btn small color="primary" @click="createCodeCell('markdown')">Add Markdown Cell</v-btn>
+        <v-btn variant="flat" color="accent" @click="createCodeCell('markdown')">Add Markdown Cell</v-btn>
         <v-spacer/>
-        <v-btn small color="primary" @click="createCodeCell('text')">Add Text Cell</v-btn>
+        <v-btn variant="flat" color="accent" @click="createCodeCell('text')">Add Text Cell</v-btn>
       </v-toolbar>
     </v-main>
   </v-app>
@@ -113,13 +113,22 @@ export default {
   }
 }
 </script>
-<style scoped>
+
+<style>
 .editor {
-  height: 300px;
-  width: 100%;
-  margin-bottom: 20px;
+    background-color: #1B2F3C;
+    filter: none;
+    height: 300px;
+    width: 100%;
+    margin-bottom: 20px;
 }
-.run-button {
-  margin-bottom: 20px;
+.editor .ace_gutter {
+    background: #1B2F3C;
+}
+.editor .ace_active-line {
+    background: #0E1B23 !important;
+}
+.editor .ace_gutter-active-line {
+    background: #0E1B23 !important;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-    <v-card flat>
+    <v-card flat color="bluegrey">
         <ace-editor
             v-model:value="cellData.code"
             ref="editor"
@@ -12,15 +12,14 @@
                 enableSnippets: true,
                 enableLiveAutocompletion: true,
                 autoScrollEditorIntoView: true,
-                minLines: 10,
+                minLines: 15,
                 maxLines: Infinity
             }"
-        >
-        </ace-editor>
+        />
         <Markdown :source="cellData.code" />
-        <v-toolbar>
+        <v-toolbar color="bluegrey">
             <v-spacer/>
-            <v-btn small color="primary" @click="deleteCell">Delete Cell</v-btn>
+            <v-btn variant="flat" color="error" @click="deleteCell">Delete Cell</v-btn>
         </v-toolbar>
     </v-card>
 </template>
@@ -54,12 +53,3 @@ export default {
     },
 }
 </script>
-
-<style scoped>
-.editor {
-    filter: none;
-    height: 300px;
-    width: 100%;
-    margin-bottom: 20px;
-}
-</style>
