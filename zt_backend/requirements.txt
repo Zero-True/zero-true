@@ -6,3 +6,5 @@ pytest
 astroid
 autodoc_pydantic
 furo
+pandas
+duckdb

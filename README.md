@@ -52,22 +52,20 @@ my_slider = zt.Slider(id="my_slider")
 
 ```python
 
-from zt_backend.models.components.slider import Slider 
-from zt_backend.models.components.range_slider import RangeSlider
-from zt_backend.models.components.button import Button 
+import zero_true as zt 
 
-slider = Slider(id='slider',row=0,column=0,label='First Slider')
+slider = zt.Slider(id='slider',row=0,column=0,label='First Slider')
 
 if slider.value < 50:
     color = 'primary'
 else:
     color = 'accent'
     
-slider1 = RangeSlider(id='slider1',color=color,row=0,column=0, label= 'Second Slider')
-slider2 = Slider(id='slider3',color=color,row=2,column=0,label='Third Slider')
-slider4 = Slider(id='slider4',label = 'Fourth Slider')
+slider1 = zt.RangeSlider(id='slider1',color=color,row=0,column=0, label= 'Second Slider')
+slider2 = zt.Slider(id='slider3',color=color,row=2,column=0,label='Third Slider')
+slider4 = zt.Slider(id='slider4',label = 'Fourth Slider')
 
-button = Button(id='btn',text = 'Only Button')
+button = zt.Button(id='btn',text ='Only Button')
 
 ```
 
