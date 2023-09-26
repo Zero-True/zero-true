@@ -29,6 +29,7 @@ Static Components
 
 .. autopydantic_model:: zero_true.Image 
 
+.. autopydantic_model:: zero_true.dataframe
 
 Input Components
 ----------------
