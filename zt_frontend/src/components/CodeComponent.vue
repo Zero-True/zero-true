@@ -41,10 +41,10 @@ import 'ace-builds/src-noconflict/mode-python';
 import 'ace-builds/src-noconflict/snippets/python';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/theme-dracula';
-import { VSlider, VTextField, VTextarea, VRangeSlider, VSelect, VCombobox, VBtn, VImg} from 'vuetify/lib/components/index.mjs';
+import { VSlider ,VTextField, VTextarea, VRangeSlider, VSelect, VCombobox, VBtn, VImg} from 'vuetify/lib/components/index.mjs';
+import {VDataTable,} from "vuetify/labs/VDataTable"
 import VText from './TextComponent.vue';
 import { CodeCell,ZTComponent } from '@/types/notebook';
-import { VDataTable } from 'vuetify/lib/labs/components.mjs';
 
 
 export default {
