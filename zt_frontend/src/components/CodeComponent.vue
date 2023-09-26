@@ -10,7 +10,10 @@
             showPrintMargin: false,
             enableBasicAutocompletion: true,
             enableSnippets: true,
-            enableLiveAutocompletion: true
+            enableLiveAutocompletion: true,
+            autoScrollEditorIntoView: true,
+            minLines: 10,
+            maxLines: Infinity
         }"
     >
     </ace-editor>
