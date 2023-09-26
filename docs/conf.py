@@ -7,4 +7,4 @@ extensions = [
     'sphinxcontrib.autodoc_pydantic',
 ]
 html_theme = 'furo'
-html_favicon = '../zt_frontend/src/assets/favicon.ico'
+html_favicon = '../zt_frontend/public/favicon.ico'

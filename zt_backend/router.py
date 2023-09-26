@@ -60,4 +60,4 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, ru
             zt_notebook.cells[responseCell.id].components = responseCell.components
             zt_notebook.cells[responseCell.id].output = responseCell.output
     with open('notebook.toml', "w") as project_file:
-        toml.dump(zt_notebook.model_dump(exclude={'headers','items'}), project_file)
+        toml.dump(zt_notebook.model_dump(), project_file)
