@@ -1,6 +1,6 @@
 <template>
     <v-card flat>
-        <quill-editor toolbar="essential" :options="options"/>
+        <tiny-editor v-model="cellData.code" :init="init"/>
         <v-toolbar>
             <v-spacer/>
             <v-btn small color="primary" @click="deleteCell">Delete Cell</v-btn>
@@ -10,13 +10,17 @@
 
 <script lang="ts">
 import type { PropType } from 'vue'
-import { QuillEditor } from '@vueup/vue-quill'
-import '@vueup/vue-quill/dist/vue-quill.snow.css';
+import "tinymce/tinymce";
+import 'tinymce/models/dom';
+import "tinymce/themes/silver";
+import "tinymce/icons/default";
+import "tinymce/skins/ui/oxide-dark/skin.css";
+import Editor from "@tinymce/tinymce-vue";
 import { CodeCell } from '@/types/notebook';
 
 export default {
     components: {
-        'quill-editor': QuillEditor
+        'tiny-editor': Editor
     },
     props: {
         cellData: {
@@ -26,11 +30,16 @@ export default {
     },
     data() {
         return {
-            options: {
-                placeholder: this.cellData.code,
-                theme: 'snow'
+            init: {
+                height: 500,
+                toolbar:
+                'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl',
+                branding: false,
+                menubar: false,
+                skin: false,
+                content_css: false,
             }
-        }
+        };
     },
     methods: {
         deleteCell(){
@@ -39,7 +48,3 @@ export default {
     },
 }
 </script>
-
-<style scoped>
-.ql-container.ql-snow{ border: none !important;}
-</style>

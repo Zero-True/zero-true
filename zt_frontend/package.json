@@ -10,11 +10,12 @@
   },
   "dependencies": {
     "@mdi/font": "7.0.96",
-    "@vueup/vue-quill": "^1.2.0",
+    "@tinymce/tinymce-vue": "^5",
     "ace-builds": "^1.24.1",
     "axios": "^1.5.0",
     "json-schema-to-typescript": "^13.1.1",
     "roboto-fontface": "*",
+    "tinymce": "^6.7.0",
     "vue": "^3.2.0",
     "vue3-ace-editor": "^2.2.3",
     "vue3-markdown-it": "^1.0.10",
