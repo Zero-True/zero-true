@@ -1,11 +1,15 @@
 import { mdi } from "vuetify/iconsets/mdi";
+import { h } from "vue";
 import 'vuetify/styles';
 import type { IconSet, IconProps } from "vuetify";
 import ZTIcon from "@/components/ZTIcon.vue"
 import { createVuetify } from 'vuetify'
 
+const customSvgNameToComponent: any = {ZTIcon};
+
 const customIcons: IconSet = {
-  component: ZTIcon,
+  component: (props: IconProps) =>
+    h(props.tag, [h(customSvgNameToComponent[props.icon as string], { class: 'v-icon__svg' })]),
 };
 
 export default createVuetify({
