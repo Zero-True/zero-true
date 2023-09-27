@@ -13,8 +13,9 @@ def health():
 
 @router.post("/api/runcode")
 def runcode(request: request.Request):
+    globalStateUpdate(run_request=request)
     response = execute_request(request)
-    globalStateUpdate(run_request=request,run_response=response)
+    globalStateUpdate(run_response=response)
     return response
 
 @router.post("/api/component_run")
@@ -28,6 +29,7 @@ def create_cell(cellRequest: request.CreateRequest):
          code='',
          components=[],
          output='',
+         variable_name='',
          cellType=cellRequest.cellType
      )
      globalStateUpdate(newCell=createdCell)
@@ -55,6 +57,7 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, ru
     if run_request is not None:
         for requestCell in run_request.cells:
             zt_notebook.cells[requestCell.id].code = requestCell.code
+            zt_notebook.cells[requestCell.id].variable_name = requestCell.variable_name
     if run_response is not None:
         for responseCell in run_response.cells:
             zt_notebook.cells[responseCell.id].components = responseCell.components

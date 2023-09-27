@@ -1,8 +1,8 @@
-from typing import List, Dict, Union, Tuple, Any
-from pydantic import BaseModel
+from typing import List, Dict, Tuple, Any
 import astroid
 from zt_backend.models.request import Request,Cell,CodeDict
-
+import duckdb
+import uuid
 
 
 def get_imports(module) -> List[str]:
@@ -36,11 +36,23 @@ def get_loaded_names(module, defined_names) -> List[str]:
 
 def parse_cells(request: Request) -> CodeDict:
     cell_dict = {}
-    for cell in [c for c in request.cells if c.cellType=='code']:
+    for cell in [c for c in request.cells if c.cellType in ['code', 'sql']]:
+        table_names=[]
+        if cell.cellType=='sql':
+            table_names = duckdb.get_table_names(cell.code)
+            if cell.variable_name:
+                cell.code = """import duckdb
+"""+cell.variable_name+"""=duckdb.sql(f'"""+cell.code+"""').df()
+import zero_true as zt
+zt.DataFrame.from_dataframe(id='"""+str(uuid.uuid4())+"""', df="""+cell.variable_name+""")"""
+            else:
+                cell.code = """import duckdb
+import zero_true as zt
+zt.DataFrame.from_dataframe(id='"""+str(uuid.uuid4())+"""', df=duckdb.sql(f'"""+cell.code+"""').df())"""
         module = astroid.parse(cell.code)
         function_names, function_arguments = get_functions(module)
         defined_names = get_defined_names(module) + get_imports(module) + function_names
-        loaded_names = get_loaded_names(module, defined_names) + get_loaded_modules(module)
+        loaded_names = get_loaded_names(module, defined_names) + get_loaded_modules(module) + list(table_names)
         cell_dict[cell.id] = Cell(**{
             'code': cell.code,
             'defined_names': defined_names,

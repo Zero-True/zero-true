@@ -5,7 +5,7 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export type Celltype = "code" | "markdown" | "text";
+export type Celltype = "code" | "markdown" | "text" | "sql";
 
 export interface CreateRequest {
   cellType: Celltype;

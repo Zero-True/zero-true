@@ -3,8 +3,7 @@ from typing import Dict,Any
 import pickle
 from contextlib import redirect_stdout
 from zt_backend.models import request, response
-from zt_backend.models.components.zt_component import ZTComponent
-from zt_backend.models.state import component_values, created_components, context_globals, cell_outputs_dict
+from zt_backend.models.state import component_values, created_components, context_globals, cell_outputs_dict, current_cell_components
 from zt_backend.runner.code_cell_parser import parse_cells,build_dependency_graph, find_downstream_cells, CodeDict
 
 
@@ -59,12 +58,10 @@ def execute_request(request: request.Request):
     cell_outputs = []
     component_values.update(request.components)
     component_globals={'global_state': component_values}
-    added_components = []
     dependency_graph = build_dependency_graph(parse_cells(request))
     downstream_cells = [request.originId]
     downstream_cells.extend(find_downstream_cells(dependency_graph, request.originId))
  
-
     #go through each item in dependency graph (we should just go through the downstream cells)
     for code_cell_id in downstream_cells:
         code_cell = dependency_graph.cells[code_cell_id]
@@ -76,23 +73,13 @@ def execute_request(request: request.Request):
                     temp_globals = component_globals
                 else:
                     temp_globals = get_parent_vars(cell_id=code_cell_id,code_components=dependency_graph,cell_outputs_dict=cell_outputs_dict)
-
-                for component_name, value in temp_globals.items():
-                    if isinstance(value, ZTComponent) and value.id not in added_components:
-                        value.variable_name = component_name
-                        added_components.append(value.id)
                 exec(code_cell.code, temp_globals)
             except Exception as e:
                 print(e)
-        response_components = []
         cell_outputs_dict[code_cell_id] = {k: try_pickle(v) for k, v in temp_globals.items() if k != '__builtins__'}
 
-        for component_name, value in temp_globals.items():
-            if isinstance(value, ZTComponent) and value.id not in added_components:
-                value.variable_name = component_name
-                added_components.append(value.id)
-                response_components.append(value)
-        cell_outputs.append(response.CellResponse(id=code_cell_id, components=response_components, output=f.getvalue()))
+        cell_outputs.append(response.CellResponse(id=code_cell_id, components=current_cell_components, output=f.getvalue()))
+        current_cell_components.clear()
 
 
     component_values.clear()

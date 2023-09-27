@@ -38,8 +38,9 @@ class CodeCell(BaseModel):
     id: str
     code: str
     output: str
+    variable_name: str
     components: List[SerializeAsAny[ZTComponent]]
-    cellType: str = Field(enum=['code', 'markdown', 'text'])
+    cellType: str = Field(enum=['code', 'markdown', 'text', 'sql'])
 
     @model_validator(mode='before')
     def deserialize_components(cls, values):

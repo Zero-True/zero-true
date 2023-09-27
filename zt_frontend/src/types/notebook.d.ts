@@ -8,6 +8,7 @@
 export type Id = string;
 export type Code = string;
 export type Output = string;
+export type VariableName = string;
 /**
  * Unique id for a component
  */
@@ -15,12 +16,12 @@ export type Id1 = string;
 /**
  * Optional variable name associated with a component
  */
-export type VariableName = string;
+export type VariableName1 = string;
 export type Row = number | null;
 export type Column = number | null;
 export type Colwidth = number | null;
 export type Components = ZTComponent[];
-export type Celltype = "code" | "markdown" | "text";
+export type Celltype = "code" | "markdown" | "text" | "sql";
 
 export interface Notebook {
   cells: Cells;
@@ -33,13 +34,14 @@ export interface CodeCell {
   id: Id;
   code: Code;
   output: Output;
+  variable_name: VariableName;
   components: Components;
   cellType: Celltype;
   [k: string]: unknown;
 }
 export interface ZTComponent {
   id: Id1;
-  variable_name?: VariableName;
+  variable_name?: VariableName1;
   row?: Row;
   column?: Column;
   colWidth?: Colwidth;

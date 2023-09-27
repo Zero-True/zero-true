@@ -39,6 +39,7 @@ def open_project():
             id=str(uuid.uuid4()),
             code='',
             components=[],
+            variable_name='',
             output='',
             cellType='code'
         )
