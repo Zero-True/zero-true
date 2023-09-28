@@ -3,6 +3,7 @@ import astroid
 from zt_backend.models.request import Request,Cell,CodeDict
 import duckdb
 import uuid
+import re
 
 
 def get_imports(module) -> List[str]:
@@ -38,8 +39,8 @@ def parse_cells(request: Request) -> CodeDict:
     cell_dict = {}
     for cell in [c for c in request.cells if c.cellType in ['code', 'sql']]:
         table_names=[]
-        if cell.cellType=='sql':
-            table_names = duckdb.get_table_names(cell.code)
+        if cell.cellType=='sql' and cell.code:
+            table_names = duckdb.get_table_names(re.sub(r'\{.*?\}', '1', cell.code))
             if cell.variable_name:
                 cell.code = """import duckdb
 """+cell.variable_name+"""=duckdb.sql(f'"""+cell.code+"""').df()
