@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
-from zt_backend.models.state import created_components, context_globals
+from zt_backend.models.state import created_components, context_globals, current_cell_components
 from typing import Optional
 
 class ZTComponent(BaseModel):
@@ -8,6 +8,11 @@ class ZTComponent(BaseModel):
     row: Optional[int] = None 
     column: Optional[int] = None
     colWidth: Optional[float] = None
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        if context_globals['exec_mode']:
+            current_cell_components.append(self)
 
     @field_validator('id', mode='before')
     def validate_unique_component_id(cls, id):

@@ -18,6 +18,8 @@
       <v-toolbar color="bluegrey">
         <v-btn variant="flat" color="accent" @click="createCodeCell('code')">Add Code Cell</v-btn>
         <v-spacer/>
+        <v-btn variant="flat" color="accent" @click="createCodeCell('sql')">Add SQL Cell</v-btn>
+        <v-spacer/>
         <v-btn variant="flat" color="accent" @click="createCodeCell('markdown')">Add Markdown Cell</v-btn>
         <v-spacer/>
         <v-btn variant="flat" color="accent" @click="createCodeCell('text')">Add Text Cell</v-btn>
@@ -38,12 +40,14 @@ import { Notebook, CodeCell } from './types/notebook';
 import CodeComponent from '@/components/CodeComponent.vue';
 import MarkdownComponent from '@/components/MarkdownComponent.vue';
 import EditorComponent from '@/components/EditorComponent.vue';
+import SQLComponent from '@/components/SQLComponent.vue';
 
 export default {
   components: {
     CodeComponent,
     MarkdownComponent,
-    EditorComponent
+    EditorComponent,
+    SQLComponent
   },
   data() {
     return {
@@ -61,7 +65,12 @@ export default {
       const cellRequests: CodeRequest[] = []
       const requestComponents: { [key: string]: any } = {};
       for (let key in this.notebook.cells){
-        const cellRequest: CodeRequest = {id: key, code: this.notebook.cells[key].code, cellType: this.notebook.cells[key].cellType}
+        const cellRequest: CodeRequest = {
+          id: key, 
+          code: this.notebook.cells[key].code, 
+          variable_name: this.notebook.cells[key].variable_name, 
+          cellType: this.notebook.cells[key].cellType
+        }
         for (const c of this.notebook.cells[key].components){
           requestComponents[c.id] = c.value
         }
@@ -106,6 +115,8 @@ export default {
           return 'EditorComponent';
         case 'markdown':
           return 'MarkdownComponent';
+        case 'sql':
+          return 'SQLComponent';
         default:
           throw new Error(`Unknown component type: ${cellType}`);
       }

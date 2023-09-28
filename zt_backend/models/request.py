@@ -4,7 +4,8 @@ from typing import List, Dict, Union
 class CodeRequest(BaseModel):
     id: str
     code: str
-    cellType: str = Field(enum=['code', 'markdown', 'text'])
+    variable_name: str
+    cellType: str = Field(enum=['code', 'markdown', 'text', 'sql'])
 
 class Request(BaseModel):
     originId: str
@@ -30,4 +31,4 @@ class DeleteRequest(BaseModel):
     cellId: str
 
 class CreateRequest(BaseModel):
-    cellType: str = Field(enum=['code', 'markdown', 'text'])
+    cellType: str = Field(enum=['code', 'markdown', 'text', 'sql'])

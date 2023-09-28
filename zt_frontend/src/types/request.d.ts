@@ -8,7 +8,8 @@
 export type Originid = string;
 export type Id = string;
 export type Code = string;
-export type Celltype = "code" | "markdown" | "text";
+export type VariableName = string;
+export type Celltype = "code" | "markdown" | "text" | "sql";
 export type Cells = CodeRequest[];
 
 export interface Request {
@@ -20,6 +21,7 @@ export interface Request {
 export interface CodeRequest {
   id: Id;
   code: Code;
+  variable_name: VariableName;
   cellType: Celltype;
   [k: string]: unknown;
 }
