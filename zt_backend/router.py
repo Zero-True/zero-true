@@ -3,6 +3,7 @@ from zt_backend.models import request, notebook, response
 from zt_backend.runner.execute_code import execute_request
 from zt_backend.models.state import component_values, created_components, context_globals
 import uuid
+import os
 import toml
 
 router = APIRouter()
@@ -62,5 +63,13 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, ru
         for responseCell in run_response.cells:
             zt_notebook.cells[responseCell.id].components = responseCell.components
             zt_notebook.cells[responseCell.id].output = responseCell.output
-    with open('notebook.toml', "w") as project_file:
-        toml.dump(zt_notebook.model_dump(), project_file)
+    
+    try: 
+        tmp_uuid_file = 'notebook_'+ str(uuid.uuid4())+'.toml'
+        with open(tmp_uuid_file, "w") as project_file:
+            toml.dump(zt_notebook.model_dump(), project_file)
+        os.replace(tmp_uuid_file,'notebook.toml')
+
+    except Exception as e:
+        print(e)
+        
