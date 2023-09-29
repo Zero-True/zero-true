@@ -16,28 +16,44 @@
   
       <!-- Loop through rows in the layout -->
   <!-- Loop through rows in the layout -->
-
   <div v-for="(row, rowIndex) in renderLayout(cellData.layout)" :key="rowIndex">
-    <v-row>
-      <div v-for="(col, colIndex) in row" :key="colIndex">
-        <v-col :cols="col.length > 0 ? 6 : 12">
-          <div v-for="(component, componentIndex) in col" :key="componentIndex">
-            <!-- Here, use your logic to render the component, similar to what you had before -->
-            <component 
-              :is="component.component" 
-              v-bind="component" 
-              v-model="component.value" 
-              @[component.triggerEvent]="runCode"
-            >
-              <!-- ... (other logic) ... -->
-            </component>
+  <v-row>
+    <v-col v-for="(col, colIndex) in row.columns" :key="colIndex" :cols="12 / row.columns.length">
+      <div v-for="(component, componentIndex) in col.components" :key="componentIndex">
+        <template v-if="component.type === 'nested'">
+          <!-- Recursive rendering for nested rows -->
+          <div v-for="(nestedRow, nestedRowIndex) in component.layout" :key="nestedRowIndex">
+            <v-row>
+              <v-col v-for="(nestedCol, nestedColIndex) in nestedRow.columns" :key="nestedColIndex" :cols="12 / nestedRow.columns.length">
+                <div v-for="(nestedComponent, nestedComponentIndex) in nestedCol.components" :key="nestedComponentIndex">
+                  <!-- Render nested components here -->
+                  <component
+                    :is="nestedComponent.component"
+                    v-bind="nestedComponent"
+                    v-model="nestedComponent.value"
+                    @[nestedComponent.triggerEvent]="runCode"
+                  ></component>
+                </div>
+              </v-col>
+            </v-row>
           </div>
-        </v-col>
+        </template>
+        <template v-else>
+          <!-- Regular component rendering -->
+          <component
+            :is="component.component"
+            v-bind="component"
+            v-model="component.value"
+            @[component.triggerEvent]="runCode"
+          ></component>
+        </template>
       </div>
-    </v-row>
-  </div>
+    </v-col>
+  </v-row>
+</div>
 
-  
+
+
   
       <!-- Render unplaced components at the bottom -->
       <v-row>
@@ -96,13 +112,29 @@
         };
       },
       unplacedComponents() {
-        const placedComponentIds = this.cellData.layout.rows.flatMap((row: { columns: any[]; }) =>
-          row.columns.flatMap((column: { components: any; }) => column.components)
-        );
-        return this.cellData.components.filter(
-          comp => !placedComponentIds.includes(comp.id)
-        );
-      },
+    const findPlacedIds = (rows: any[]): string[] => {
+      let ids: string[] = [];
+      for (const row of rows) {
+        for (const column of row.columns) {
+          for (const component of column.components) {
+            if (typeof component === 'string') {
+              // It's an ID of a regular component
+              ids.push(component);
+            } else if (component && component.columns) {
+              // It's a nested row, go deeper
+              ids = ids.concat(findPlacedIds([component]));
+            }
+          }
+        }
+      }
+      return ids;
+    };
+
+    const placedComponentIds = findPlacedIds(this.cellData.layout.rows);
+    return this.cellData.components.filter(
+      comp => !placedComponentIds.includes(comp.id)
+    );
+  },
     },
     methods: {
       runCode() {
@@ -115,26 +147,30 @@
       findComponentById(id: string) {
         return this.cellData.components.find(comp => comp.id === id);
       },
-      renderLayout(layout: unknown) {
-    const elements: any[] = [];
-    layout.rows.forEach((row: { columns: any[]; }) => {
-      const rowElement: any[][] = [];
-      row.columns.forEach((column: { components: any[]; }) => {
-        const colElement: (any[] | ZTComponent)[] = [];
-        column.components.forEach((componentId: string) => {
-          const component = this.findComponentById(componentId);
-          if (component) {
-            colElement.push(component);  // Directly pushing the component; you might need to modify this
-          } else if (typeof componentId === 'object' && componentId.rows) {
-            colElement.push(this.renderLayout(componentId));
-          }
+      renderLayout(layout: any) {
+        return layout.rows.map((row: any) => {
+            return {
+            type: 'row',
+            id: row.id,
+            columns: row.columns.map((column: any) => {
+                return {
+                type: 'column',
+                id: column.id,
+                components: column.components.map((componentOrNestedRow: any) => {
+                    if (typeof componentOrNestedRow === 'string') {
+                    return this.findComponentById(componentOrNestedRow);
+                    } else if (componentOrNestedRow.id && componentOrNestedRow.columns) {
+                    return {
+                        type: 'nested',
+                        layout: this.renderLayout({ rows: [componentOrNestedRow] })
+                    };
+                    }
+                })
+                };
+            })
+            };
         });
-        rowElement.push(colElement);
-      });
-      elements.push(rowElement);
-    });
-    return elements;
-  }
+        },
     },
   }
   </script>
