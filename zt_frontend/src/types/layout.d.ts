@@ -16,7 +16,7 @@ export type Id1 = string;
 /**
  * List of component IDs that belong to this column
  */
-export type Components = string[];
+export type Components = (string | ZTRow)[];
 /**
  * List of columns that belong to this row
  */
