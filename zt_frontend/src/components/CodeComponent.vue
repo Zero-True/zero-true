@@ -15,16 +15,15 @@
       </v-toolbar>
   
       <!-- Loop through rows in the layout -->
-  <!-- Loop through rows in the layout -->
-  <div v-for="(row, rowIndex) in renderLayout(cellData.layout)" :key="rowIndex">
+      <div v-for="(row, rowIndex) in renderLayout(cellData.layout)" :key="rowIndex">
   <v-row>
-    <v-col v-for="(col, colIndex) in row.columns" :key="colIndex" :cols="12 / row.columns.length">
+    <v-col v-for="(col, colIndex) in row?.columns ?? []" :key="colIndex" :cols="12 / (row?.columns?.length ?? 1)">
       <div v-for="(component, componentIndex) in col.components" :key="componentIndex">
         <template v-if="component.type === 'nested'">
           <!-- Recursive rendering for nested rows -->
           <div v-for="(nestedRow, nestedRowIndex) in component.layout" :key="nestedRowIndex">
             <v-row>
-              <v-col v-for="(nestedCol, nestedColIndex) in nestedRow.columns" :key="nestedColIndex" :cols="12 / nestedRow.columns.length">
+              <v-col v-for="(nestedCol, nestedColIndex) in nestedRow?.columns ?? []" :key="nestedColIndex" :cols="12 / (nestedRow?.columns?.length ?? 1)">
                 <div v-for="(nestedComponent, nestedComponentIndex) in nestedCol.components" :key="nestedComponentIndex">
                   <!-- Render nested components here -->
                   <component
@@ -51,10 +50,6 @@
     </v-col>
   </v-row>
 </div>
-
-
-
-  
       <!-- Render unplaced components at the bottom -->
       <v-row>
         <v-col v-for="component in unplacedComponents" :key="component.id">
@@ -112,29 +107,29 @@
         };
       },
       unplacedComponents() {
-    const findPlacedIds = (rows: any[]): string[] => {
-      let ids: string[] = [];
-      for (const row of rows) {
-        for (const column of row.columns) {
-          for (const component of column.components) {
-            if (typeof component === 'string') {
-              // It's an ID of a regular component
-              ids.push(component);
-            } else if (component && component.columns) {
-              // It's a nested row, go deeper
-              ids = ids.concat(findPlacedIds([component]));
-            }
+  const findPlacedIds = (rows: any[]): string[] => {
+    let ids: string[] = [];
+    for (const row of rows) {
+      for (const column of row?.columns ?? []) {
+        for (const component of column?.components ?? []) {
+          if (typeof component === 'string') {
+            // It's an ID of a regular component
+            ids.push(component);
+          } else if (component && component.columns) {
+            // It's a nested row, go deeper
+            ids = ids.concat(findPlacedIds([component]));
           }
         }
       }
-      return ids;
-    };
+    }
+    return ids;
+  };
 
-    const placedComponentIds = findPlacedIds(this.cellData.layout.rows);
-    return this.cellData.components.filter(
-      comp => !placedComponentIds.includes(comp.id)
-    );
-  },
+  const placedComponentIds = findPlacedIds(this.cellData.layout?.rows ?? []);
+  return this.cellData.components.filter(
+    comp => !placedComponentIds.includes(comp.id)
+  );
+},
     },
     methods: {
       runCode() {
