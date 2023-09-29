@@ -5,6 +5,7 @@ from contextlib import redirect_stdout
 from zt_backend.models import request, response
 from zt_backend.models.state import component_values, created_components, context_globals, cell_outputs_dict, current_cell_components,current_cell_layout
 from zt_backend.runner.code_cell_parser import parse_cells,build_dependency_graph, find_downstream_cells, CodeDict
+from zt_backend.models.components.layout import ZTLayout
 from datetime import datetime
 
 now = datetime.now()
@@ -87,7 +88,7 @@ def execute_request(request: request.Request):
         try:
             layout = current_cell_layout[0]
         except Exception:
-            layout = None
+            layout = ZTLayout(**{})
         cell_outputs.append(response.CellResponse(id=code_cell_id,layout=layout, components=current_cell_components, output=f.getvalue()))
         current_cell_components.clear()
         current_cell_layout.clear()

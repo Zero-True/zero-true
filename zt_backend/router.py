@@ -16,6 +16,7 @@ def health():
 async def runcode(request: request.Request):
     #globalStateUpdate(run_request=request)
     response = execute_request(request)
+    print(response.cells[0].layout)
     globalStateUpdate(run_response=response)
     return response
 
@@ -63,6 +64,8 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, ru
         for responseCell in run_response.cells:
             zt_notebook.cells[responseCell.id].components = responseCell.components
             zt_notebook.cells[responseCell.id].output = responseCell.output
+            zt_notebook.cells[responseCell.id].layout = responseCell.layout
+
     
     tmp_uuid_file = 'notebook_'+ str(uuid.uuid4())+'.toml'
 
