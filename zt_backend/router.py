@@ -14,7 +14,7 @@ def health():
 
 @router.post("/api/runcode")
 async def runcode(request: request.Request):
-    #globalStateUpdate(run_request=request)
+    globalStateUpdate(run_request=request)
     response = execute_request(request)
     print(response.cells[0].layout)
     globalStateUpdate(run_response=response)
