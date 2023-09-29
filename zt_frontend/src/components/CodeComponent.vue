@@ -70,7 +70,7 @@
   import 'ace-builds/src-noconflict/theme-dracula';
   import { VSlider, VTextField, VTextarea, VRangeSlider, VSelect, VCombobox, VBtn, VImg } from 'vuetify/lib/components/index.mjs';
   import { VDataTable } from "vuetify/labs/VDataTable";
-  import { CodeCell, ZTComponent } from '@/types/notebook';
+  import { CodeCell, ZTLayout } from '@/types/notebook';
   
   export default {
     components: {
@@ -125,7 +125,7 @@
     return ids;
   };
 
-  const placedComponentIds = findPlacedIds(this.cellData.layout?.rows ?? []);
+  const placedComponentIds = findPlacedIds((this.cellData.layout as ZTLayout)?.rows ?? []);
   return this.cellData.components.filter(
     comp => !placedComponentIds.includes(comp.id)
   );
