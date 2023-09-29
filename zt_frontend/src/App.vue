@@ -58,6 +58,7 @@ export default {
   async created() {
       const response = await axios.get(import.meta.env.VITE_BACKEND_URL + 'api/notebook')
       this.notebook = response.data
+      console.log(JSON.stringify(response.data))
   },
 
   methods: {
