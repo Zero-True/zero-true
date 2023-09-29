@@ -13,9 +13,6 @@ export type Id = string;
  * Optional variable name associated with a component
  */
 export type VariableName = string;
-export type Row = number | null;
-export type Column = number | null;
-export type Colwidth = number | null;
 /**
  * Vue component name for static text.
  */
@@ -56,9 +53,6 @@ export type Triggerevent = string;
 export interface Text {
   id: Id;
   variable_name?: VariableName;
-  row?: Row;
-  column?: Column;
-  colWidth?: Colwidth;
   component?: Component;
   text?: Text1;
   text_type?: TextType;

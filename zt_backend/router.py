@@ -13,8 +13,8 @@ def health():
     return('UP')
 
 @router.post("/api/runcode")
-def runcode(request: request.Request):
-    globalStateUpdate(run_request=request)
+async def runcode(request: request.Request):
+    #globalStateUpdate(run_request=request)
     response = execute_request(request)
     globalStateUpdate(run_response=response)
     return response
@@ -64,12 +64,16 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, ru
             zt_notebook.cells[responseCell.id].components = responseCell.components
             zt_notebook.cells[responseCell.id].output = responseCell.output
     
+    tmp_uuid_file = 'notebook_'+ str(uuid.uuid4())+'.toml'
+
     try: 
-        tmp_uuid_file = 'notebook_'+ str(uuid.uuid4())+'.toml'
         with open(tmp_uuid_file, "w") as project_file:
             toml.dump(zt_notebook.model_dump(), project_file)
         os.replace(tmp_uuid_file,'notebook.toml')
 
     except Exception as e:
-        print(e)
-        
+        e
+    try:
+        os.remove(tmp_uuid_file)
+    except Exception as e:
+        e

@@ -82,6 +82,8 @@ export default {
       for (const cellResponse of response.cells){
         this.notebook.cells[cellResponse.id].components = cellResponse.components
         this.notebook.cells[cellResponse.id].output = cellResponse.output
+        this.notebook.cells[cellResponse.id].layout = cellResponse.layout
+
       }
     },
 
