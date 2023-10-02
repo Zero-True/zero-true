@@ -9,21 +9,23 @@ Default Behavior for Components
 By default, each component is rendered in its own column, taking up the full width available. This is simply the current behavior, 
 although this will likely change in the near future. 
 
-Specifying Rows and Columns
----------------------------
+Specifying Rows, Cols and Nested Layouts
+-----------------------------------------
 
-If you specify both a `row` and `column` for a component, the component will be positioned accordingly within the layout grid. Components will appear in the order defined by the `row` and `column` values.
 
-For example:
+Zero-True allows you to create complicated nested layouts. These are the docs for columns, rows and layout:
 
-- A component with `row=1` and `column=1` will appear in the first row and first column.
-- A component with `row=1` and `column=2` will appear in the first row and second column, right next to the first component.
+.. autopydantic_model:: zero_true.ZTLayout 
+.. autopydantic_model:: zero_true.ZTRow 
+.. autopydantic_model:: zero_true.ZTColumn
 
+
+Note that Row and Column components can only be used insed of a layout or they will not be rendered. 
 
 Mixed Layouts
 -------------
 
-If some components have `row` and `column` specified while others do not, the layout will accommodate both:
+If some components are placed in a layout and others are not, the layout will accommodate both:
 
 1. Components with specified `row` and `column` values will be laid out first, following the order defined by these values.
 2. Components without `row` and `column` specified will be added to the layout at the bottom, each taking up its own row.
@@ -37,20 +39,42 @@ Here is an example with actual code that shows how the layout works.
 
 .. code-block:: python 
 
-    import zero_true as zt 
+    import zero_true as zt
 
-    slider = zt.Slider(id='slider',row=0,column=0,label='First Slider')
+
+
+    slider = zt.Slider(id='slider',label='First Slider')
 
     if slider.value < 50:
         color = 'primary'
     else:
         color = 'accent'
-        
-    slider1 = zt.RangeSlider(id='slider1',color=color,row=0,column=0, label= 'Second Slider')
-    slider2 = zt.Slider(id='slider3',color=color,row=2,column=0,label='Third Slider')
+    slider2 = zt.Slider(id='slider3',color=color,label='Third Slider')
+
+    slider1 = zt.RangeSlider(id='slider1',color=color, label= 'Second Slider')
+
+
     slider4 = zt.Slider(id='slider4',label = 'Fourth Slider')
 
     button = zt.Button(id='btn',text ='Only Button')
+
+    # Create nested rows
+    nested_row1 = zt.ZTRow(id='nested_row1', columns=[
+        zt.ZTColumn(id='nested_col1_1', components=['slider4']),
+        zt.ZTColumn(id='nested_col1_2', components=['btn'])
+    ])
+
+    nested_row2 = zt.ZTRow(id='nested_row2', columns=[
+        zt.ZTColumn(id='nested_col2_1', components=['slider1']),
+    ])
+
+    # Main layout
+    layout_example = zt.ZTLayout(rows=[
+        zt.ZTRow(id='row1', columns=[
+            zt.ZTColumn(id='col1', components=['slider', 'slider3',nested_row2]),
+            zt.ZTColumn(id='col2', components=[nested_row1]),
+        ]),
+    ])
 
 And this is the resulting layout:
 

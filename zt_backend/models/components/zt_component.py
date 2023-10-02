@@ -5,9 +5,7 @@ from typing import Optional
 class ZTComponent(BaseModel):
     id: str = Field(description="Unique id for a component")
     variable_name: str = Field('', description="Optional variable name associated with a component")
-    row: Optional[int] = None 
-    column: Optional[int] = None
-    colWidth: Optional[float] = None
+
 
     def __init__(self, **data):
         super().__init__(**data)

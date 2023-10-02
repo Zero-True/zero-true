@@ -11,6 +11,7 @@ from .components.button import Button
 from .components.number_input import NumberInput
 from .components.image import Image
 from .components.text import Text
+from .components.layout import ZTLayout
 import json
 
 def generate_json(model, name):
@@ -34,3 +35,4 @@ def generate_schema():
     generate_json(Button,'button')
     generate_json(NumberInput,'number_input')
     generate_json(Image,'image')
+    generate_json(ZTLayout,'layout')

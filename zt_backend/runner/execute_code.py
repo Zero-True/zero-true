@@ -3,8 +3,12 @@ from typing import Dict,Any
 import pickle
 from contextlib import redirect_stdout
 from zt_backend.models import request, response
-from zt_backend.models.state import component_values, created_components, context_globals, cell_outputs_dict, current_cell_components
+from zt_backend.models.state import component_values, created_components, context_globals, cell_outputs_dict, current_cell_components,current_cell_layout
 from zt_backend.runner.code_cell_parser import parse_cells,build_dependency_graph, find_downstream_cells, CodeDict
+from zt_backend.models.components.layout import ZTLayout
+from datetime import datetime
+
+now = datetime.now()
 
 
 def try_pickle(obj):
@@ -54,7 +58,6 @@ def get_parent_vars(cell_id: str, code_components: CodeDict, cell_outputs_dict: 
 #issue right now is that the request is sending the entire notebook. The request should send the ID of the cell you are running.
 #also right now there is no special handling for the 
 def execute_request(request: request.Request):
-    context_globals['exec_mode'] = True
     cell_outputs = []
     component_values.update(request.components)
     component_globals={'global_state': component_values}
@@ -63,7 +66,7 @@ def execute_request(request: request.Request):
     downstream_cells.extend(find_downstream_cells(dependency_graph, request.originId))
  
     #go through each item in dependency graph (we should just go through the downstream cells)
-    for code_cell_id in downstream_cells:
+    for code_cell_id in list(set(downstream_cells)):
         code_cell = dependency_graph.cells[code_cell_id]
 
         f = StringIO()
@@ -73,14 +76,22 @@ def execute_request(request: request.Request):
                     temp_globals = component_globals
                 else:
                     temp_globals = get_parent_vars(cell_id=code_cell_id,code_components=dependency_graph,cell_outputs_dict=cell_outputs_dict)
+                context_globals['exec_mode'] = True
                 exec(code_cell.code, temp_globals)
+
             except Exception as e:
                 print(e)
+        context_globals['exec_mode'] = False
+
         cell_outputs_dict[code_cell_id] = {k: try_pickle(v) for k, v in temp_globals.items() if k != '__builtins__'}
 
-        cell_outputs.append(response.CellResponse(id=code_cell_id, components=current_cell_components, output=f.getvalue()))
+        try:
+            layout = current_cell_layout[0]
+        except Exception:
+            layout = ZTLayout(**{})
+        cell_outputs.append(response.CellResponse(id=code_cell_id,layout=layout, components=current_cell_components, output=f.getvalue()))
         current_cell_components.clear()
-
+        current_cell_layout.clear()
 
     component_values.clear()
     created_components.clear()

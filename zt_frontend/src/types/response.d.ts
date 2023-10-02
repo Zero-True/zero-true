@@ -14,10 +14,19 @@ export type Id1 = string;
  * Optional variable name associated with a component
  */
 export type VariableName = string;
-export type Row = number | null;
-export type Column = number | null;
-export type Colwidth = number | null;
 export type Components = ZTComponent[];
+/**
+ * List of component IDs that belong to this column
+ */
+export type Components1 = (string | ZTRow)[];
+/**
+ * List of columns that belong to this row
+ */
+export type Columns = ZTColumn[];
+/**
+ * List of rows that make up this layout
+ */
+export type Rows = ZTRow[];
 export type Output = string;
 export type Cells = CellResponse[];
 
@@ -28,14 +37,24 @@ export interface Response {
 export interface CellResponse {
   id: Id;
   components: Components;
+  layout: ZTLayout | null;
   output: Output;
   [k: string]: unknown;
 }
 export interface ZTComponent {
   id: Id1;
   variable_name?: VariableName;
-  row?: Row;
-  column?: Column;
-  colWidth?: Colwidth;
+  [k: string]: unknown;
+}
+export interface ZTLayout {
+  rows?: Rows;
+  [k: string]: unknown;
+}
+export interface ZTRow {
+  columns?: Columns;
+  [k: string]: unknown;
+}
+export interface ZTColumn {
+  components?: Components1;
   [k: string]: unknown;
 }

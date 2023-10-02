@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, SerializeAsAny, model_validator
-from typing import OrderedDict, List, Dict, Any
+from typing import OrderedDict, List, Dict, Any,Optional
 from zt_backend.models.components.zt_component import ZTComponent
 from zt_backend.models.components.slider import Slider
 from zt_backend.models.components.text_input import TextInput
@@ -12,6 +12,7 @@ from zt_backend.models.components.number_input import NumberInput
 from zt_backend.models.components.image import Image
 from zt_backend.models.components.text import Text
 from zt_backend.models.components.dataframe import DataFrame
+from zt_backend.models.components.layout import ZTLayout,ZTColumn,ZTRow
 
 def deserialize_component(data: Dict[str, Any]) -> ZTComponent:
     component_map = {
@@ -39,6 +40,7 @@ class CodeCell(BaseModel):
     code: str
     output: str
     variable_name: str
+    layout: ZTLayout = Field(ZTLayout(**{}))
     components: List[SerializeAsAny[ZTComponent]]
     cellType: str = Field(enum=['code', 'markdown', 'text', 'sql'])
 
