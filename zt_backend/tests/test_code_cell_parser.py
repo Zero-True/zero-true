@@ -106,7 +106,8 @@ def test_multiline_cells():
     cell_dict = build_dependency_graph(parse_cells(cells))
     
     assert set(cell_dict.cells['0'].defined_names) == set(['a', 'b', 'c']) and cell_dict.cells['0'].loaded_names == [], "Test 9 Failed"
-    assert set(cell_dict.cells['1'].defined_names) == set(['d', 'e']) and set(cell_dict.cells['1'].loaded_names) == set(['a', 'b', 'c']), "Test 9 Failed"
+    print(cell_dict)
+    assert set(cell_dict.cells['1'].defined_names) == set(['d', 'e']) and set(cell_dict.cells['1'].loaded_names) == set(['a', 'b', 'c','d']), "Test 9a Failed"
 
 # Test 10: Importing a module with an alias in one cell and using it in another
 def test_importing_module_with_alias():

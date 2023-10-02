@@ -1,65 +1,81 @@
 <template>
-    <v-card flat color="bluegrey">
-      <ace-editor
-          v-model:value="cellData.code"
-          ref="editor"
-          class="editor"
-          theme="dracula"
-          lang="python"
-          :options="editorOptions"
-      />
-      <v-toolbar color="bluegrey">
-          <v-btn variant="flat" color="primary" @click="runCode">Run</v-btn>
-          <v-spacer/>
-          <v-btn variant="flat" color="error" @click="deleteCell">Delete Cell</v-btn>
-      </v-toolbar>
-  
-      <!-- Loop through rows in the layout -->
-      <div v-for="(row, rowIndex) in renderLayout(cellData.layout)" :key="rowIndex">
-  <v-row>
-    <v-col v-for="(col, colIndex) in row?.columns ?? []" :key="colIndex" :cols="12 / (row?.columns?.length ?? 1)">
-      <div v-for="(component, componentIndex) in col.components" :key="componentIndex">
-        <template v-if="component.type === 'nested'">
-          <!-- Recursive rendering for nested rows -->
-          <div v-for="(nestedRow, nestedRowIndex) in component.layout" :key="nestedRowIndex">
-            <v-row>
-              <v-col v-for="(nestedCol, nestedColIndex) in nestedRow?.columns ?? []" :key="nestedColIndex" :cols="12 / (nestedRow?.columns?.length ?? 1)">
-                <div v-for="(nestedComponent, nestedComponentIndex) in nestedCol.components" :key="nestedComponentIndex">
-                  <!-- Render nested components here -->
-                  <component
-                    :is="nestedComponent.component"
-                    v-bind="nestedComponent"
-                    v-model="nestedComponent.value"
-                    @[nestedComponent.triggerEvent]="runCode"
-                  ></component>
-                </div>
-              </v-col>
-            </v-row>
+  <v-card flat color="bluegrey">
+    <ace-editor
+      v-model:value="cellData.code"
+      ref="editor"
+      class="editor"
+      theme="dracula"
+      lang="python"
+      :options="editorOptions"
+    />
+
+    <v-toolbar color="bluegrey">
+      <v-btn variant="flat" color="primary" @click="runCode">Run</v-btn>
+      <v-spacer />
+      <v-btn variant="flat" color="error" @click="deleteCell">Delete Cell</v-btn>
+    </v-toolbar>
+
+    <!-- Loop through rows in the layout -->
+    <div v-for="(row, rowIndex) in renderLayout(cellData.layout)" :key="rowIndex">
+        <v-col
+          v-for="(col, colIndex) in row?.columns ?? []"
+          :key="colIndex"
+          :cols="12 / (row?.columns?.length ?? 1)"
+        >
+          <div v-for="(component, componentIndex) in col.components" :key="componentIndex">
+            <!-- Conditional Rendering -->
+            <template v-if="component.type === 'nested'">
+              <!-- Recursive rendering for nested rows -->
+              <div v-for="(nestedRow, nestedRowIndex) in component.layout" :key="nestedRowIndex">
+                <v-row>
+                  <v-col
+                    v-for="(nestedCol, nestedColIndex) in nestedRow?.columns ?? []"
+                    :key="nestedColIndex"
+                    :cols="12 / (nestedRow?.columns?.length ?? 1)"
+                  >
+                    <div v-for="(nestedComponent, nestedComponentIndex) in nestedCol.components" :key="nestedComponentIndex">
+                      <!-- Render nested components -->
+                      <component
+                        :is="nestedComponent.component"
+                        v-bind="nestedComponent"
+                        v-model="nestedComponent.value"
+                        @[nestedComponent.triggerEvent]="runCode"
+                      ></component>
+                    </div>
+                  </v-col>
+                </v-row>
+              </div>
+            </template>
+
+            <template v-else>
+              <!-- Regular component rendering -->
+              <component
+                :is="component.component"
+                v-bind="component"
+                v-model="component.value"
+                @[component.triggerEvent]="runCode"
+              ></component>
+            </template>
           </div>
-        </template>
-        <template v-else>
-          <!-- Regular component rendering -->
-          <component
-            :is="component.component"
-            v-bind="component"
-            v-model="component.value"
-            @[component.triggerEvent]="runCode"
-          ></component>
-        </template>
-      </div>
-    </v-col>
-  </v-row>
-</div>
-      <!-- Render unplaced components at the bottom -->
-      <v-row>
-        <v-col v-for="component in unplacedComponents" :key="component.id">
-          <component :is="component.component" v-bind="component" v-model="component.value" @[component.triggerEvent]="runCode"></component>
         </v-col>
-      </v-row>
-  
-      <div class="text-p">{{cellData.output}}</div>
-    </v-card>
-  </template>
+    </div>
+
+    <!-- Render unplaced components at the bottom -->
+    <v-row>
+      <v-col v-for="component in unplacedComponents" :key="component.id">
+        <component
+          :is="component.component"
+          v-bind="component"
+          v-model="component.value"
+          @[component.triggerEvent]="runCode"
+        ></component>
+      </v-col>
+    </v-row>
+
+    <div class="text-p">{{cellData.output}}</div>
+  </v-card>
+</template>
+
   
   <script lang="ts">
   import type { PropType } from 'vue'

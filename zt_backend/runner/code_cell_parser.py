@@ -33,7 +33,7 @@ def get_loaded_modules(module) -> List[str]:
 
 def get_loaded_names(module, defined_names) -> List[str]:
     function_names, function_arguments = get_functions(module)
-    return [usenode.name for usenode in module.nodes_of_class(astroid.Name) if usenode.name not in function_arguments + defined_names]
+    return [usenode.name for usenode in module.nodes_of_class(astroid.Name) if usenode.name not in function_arguments]
 
 def parse_cells(request: Request) -> CodeDict:
     cell_dict = {}
