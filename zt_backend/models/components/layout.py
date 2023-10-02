@@ -8,12 +8,10 @@ from typing import List
 ZTRow = ForwardRef('ZTRow')
 
 class ZTColumn(BaseModel):
-    id: str = Field(..., description="Unique id for a column")
     components: List[Union[str,ZTRow]] = Field([], description="List of component IDs that belong to this column")
 
 
 class ZTRow(BaseModel):
-    id: str = Field(..., description="Unique id for a row")
     columns: List[ZTColumn] = Field([], description="List of columns that belong to this row")
 
 

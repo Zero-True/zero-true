@@ -10,14 +10,6 @@ export type Code = string;
 export type Output = string;
 export type VariableName = string;
 /**
- * Unique id for a row
- */
-export type Id1 = string;
-/**
- * Unique id for a column
- */
-export type Id2 = string;
-/**
  * List of component IDs that belong to this column
  */
 export type Components = (string | ZTRow)[];
@@ -32,7 +24,7 @@ export type Rows = ZTRow[];
 /**
  * Unique id for a component
  */
-export type Id3 = string;
+export type Id1 = string;
 /**
  * Optional variable name associated with a component
  */
@@ -62,17 +54,15 @@ export interface ZTLayout {
   [k: string]: unknown;
 }
 export interface ZTRow {
-  id: Id1;
   columns?: Columns;
   [k: string]: unknown;
 }
 export interface ZTColumn {
-  id: Id2;
   components?: Components;
   [k: string]: unknown;
 }
 export interface ZTComponent {
-  id: Id3;
+  id: Id1;
   variable_name?: VariableName1;
   [k: string]: unknown;
 }

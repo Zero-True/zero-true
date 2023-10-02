@@ -6,14 +6,6 @@
  */
 
 /**
- * Unique id for a row
- */
-export type Id = string;
-/**
- * Unique id for a column
- */
-export type Id1 = string;
-/**
  * List of component IDs that belong to this column
  */
 export type Components = (string | ZTRow)[];
@@ -31,12 +23,10 @@ export interface ZTLayout {
   [k: string]: unknown;
 }
 export interface ZTRow {
-  id: Id;
   columns?: Columns;
   [k: string]: unknown;
 }
 export interface ZTColumn {
-  id: Id1;
   components?: Components;
   [k: string]: unknown;
 }

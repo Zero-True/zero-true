@@ -36,7 +36,7 @@ def create_cell(cellRequest: request.CreateRequest):
          variable_name='',
          cellType=cellRequest.cellType
      )
-     globalStateUpdate(newCell=createdCell)
+     globalStateUpdate(newCell=createdCell.model_copy(deep=True))
      return createdCell
 
 @router.post("/api/delete_cell")
