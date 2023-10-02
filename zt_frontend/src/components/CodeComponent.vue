@@ -1,5 +1,5 @@
 <template>
-  <v-card flat color="bluegrey">
+  <v-card flat color="bluegrey" style="min-height: 300px;">
     <ace-editor
       v-model:value="cellData.code"
       ref="editor"
@@ -17,6 +17,7 @@
 
     <!-- Loop through rows in the layout -->
     <div v-for="(row, rowIndex) in renderLayout(cellData.layout)" :key="rowIndex">
+      <v-row>
         <v-col
           v-for="(col, colIndex) in row?.columns ?? []"
           :key="colIndex"
@@ -58,6 +59,7 @@
             </template>
           </div>
         </v-col>
+      </v-row>
     </div>
 
     <!-- Render unplaced components at the bottom -->
@@ -72,7 +74,7 @@
       </v-col>
     </v-row>
 
-    <div class="text-p">{{cellData.output}}</div>
+    <v-row><v-col><div class="text-p">{{cellData.output}}</div></v-col></v-row>
   </v-card>
 </template>
 
