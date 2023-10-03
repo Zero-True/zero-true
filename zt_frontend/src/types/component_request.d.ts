@@ -5,10 +5,12 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
+export type Originid = string;
 export type Componentid = string;
-export type Componentvalue = string | boolean | number;
+export type Componentvalue = string | boolean | number | unknown[] | null;
 
 export interface ComponentRequest {
+  originId: Originid;
   componentId: Componentid;
   componentValue: Componentvalue;
   [k: string]: unknown;

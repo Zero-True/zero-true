@@ -1,16 +1,36 @@
 <template>
   <v-card flat color="bluegrey">
     <ace-editor
-      v-model:value="cellData.code"
-      ref="editor"
-      class="editor"
-      theme="dracula"
-      lang="python"
-      :options="editorOptions"
-    />
+        v-if="$devMode"
+        v-model:value="cellData.code"
+        ref="editor"
+        class="editor"
+        theme="dracula"
+        lang="python"
+        :readonly="!$devMode"
+        :options="editorOptions"
+      />
+    <v-expansion-panels v-else>
+      <v-expansion-panel>
+        <v-expansion-panel-title color="bluegrey2">
+          View Source Code
+        </v-expansion-panel-title>
+        <v-expansion-panel-text>
+          <ace-editor
+            v-model:value="cellData.code"
+            ref="editor"
+            class="editor"
+            theme="dracula"
+            lang="python"
+            :readonly="!$devMode"
+            :options="editorOptions"
+          />
+        </v-expansion-panel-text>
+      </v-expansion-panel>
+    </v-expansion-panels>
 
-    <v-toolbar color="bluegrey">
-      <v-btn variant="flat" color="primary" @click="runCode">Run</v-btn>
+    <v-toolbar v-if="$devMode" color="bluegrey">
+      <v-btn variant="flat" color="primary" @click="runCode(false, '', '')">Run</v-btn>
       <v-spacer />
       <v-btn variant="flat" color="error" @click="deleteCell">Delete Cell</v-btn>
     </v-toolbar>
@@ -19,7 +39,8 @@
       :key="rowIndex"
       :row-data="row"
       :components="cellData.components"
-      @runCode="runCode"/>
+      @runCode="runCode"
+      />
     <!-- Render unplaced components at the bottom -->
     <v-row>
       <v-col v-for="component in unplacedComponents" :key="component.id">
@@ -27,9 +48,10 @@
           :is="component.component"
           v-bind="component"
           v-model="component.value"
-          @[component.triggerEvent]="runCode"
-        ></component>
+          @[component.triggerEvent]="runCode(true, component.id, component.value)"
+        />
       </v-col>
+      
     </v-row>
     <v-row>
       <v-col>
@@ -47,7 +69,7 @@
   import 'ace-builds/src-noconflict/snippets/python';
   import 'ace-builds/src-noconflict/ext-language_tools';
   import 'ace-builds/src-noconflict/theme-dracula';
-  import { VSlider, VTextField, VTextarea, VRangeSlider, VSelect, VCombobox, VBtn, VImg } from 'vuetify/lib/components/index.mjs';
+  import { VSlider, VTextField, VTextarea, VRangeSlider, VSelect, VCombobox, VBtn, VImg, } from 'vuetify/lib/components/index.mjs';
   import { VDataTable } from "vuetify/labs/VDataTable";
   import { CodeCell, ZTLayout } from '@/types/notebook'
   import RowComponent from '@/components/RowComponent.vue';
@@ -83,6 +105,8 @@
           enableSnippets: true,
           enableLiveAutocompletion: true,
           autoScrollEditorIntoView: true,
+          highlightActiveLine: this.$devMode,
+          highlightGutterLine: this.$devMode,
           minLines: 15,
           maxLines: Infinity,
         };
@@ -113,9 +137,13 @@
       },
     },
     methods: {
-      runCode() {
-        console.log(this.cellData.layout)
-        this.$emit('runCode', this.cellData.id);
+      runCode(fromComponent:boolean , componentId: string, componentValue: any) {
+        if (!this.$devMode && fromComponent){
+          this.$emit('componentChange', this.cellData.id, componentId, componentValue);
+        }
+        else{
+          this.$emit('runCode', this.cellData.id);
+        }
       },
       deleteCell() {
         this.$emit('deleteCell', this.cellData.id);
@@ -123,4 +151,3 @@
     },
   }
   </script>
-  

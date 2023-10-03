@@ -7,7 +7,7 @@
                         :is="comp.component"
                         v-bind="comp"
                         v-model="comp.value"
-                        @[comp.triggerEvent]="runCode"
+                        @[comp.triggerEvent]="runCode(comp.id, comp.value)"
                     />
                 </div>
                 <div v-else>
@@ -54,9 +54,9 @@ export default {
             const component = this.components.find(comp => comp.id === id);
             return component ? [component] : [];
         },
-        runCode() {
-            this.$emit('runCode');
-        },
+        runCode(componentId: string, componentValue: any) {
+            this.$emit('runCode', true, componentId, componentValue);
+        }
     }
 }
 

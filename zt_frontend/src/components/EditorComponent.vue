@@ -1,7 +1,8 @@
 <template>
     <v-card flat color="bluegrey">
-        <tiny-editor v-model="cellData.code" :init="init"/>
-        <v-toolbar color="bluegrey">
+        <tiny-editor v-if="$devMode" v-model="cellData.code" :init="init"/>
+        <tiny-editor v-else v-model="cellData.code" :init="init" :disabled="true"/>
+        <v-toolbar v-if="$devMode" color="bluegrey">
             <v-spacer/>
             <v-btn variant="flat" color="error" @click="deleteCell">Delete Cell</v-btn>
         </v-toolbar>
@@ -30,21 +31,38 @@ export default {
         },
     },
     data() {
-        return {
-            init: {
-                plugins: 'autoresize',
-                toolbar:
-                'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl',
-                branding: false,
-                menubar: false,
-                statusbar: false,
-                skin: false,
-                content_css: false,
-                content_style: "body { background-color: #1B2F3C; color: #FFFFFF; } main { border-radius: 0; }",
-                autoresize_bottom_margin: 10,
-                min_height: 300,
-            }
-        };
+        if (this.$devMode){
+            return {
+                init: {
+                    plugins: 'autoresize',
+                    toolbar:
+                    'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl',
+                    branding: false,
+                    menubar: false,
+                    statusbar: false,
+                    skin: false,
+                    content_css: false,
+                    content_style: "body { background-color: #1B2F3C; color: #FFFFFF; } main { border-radius: 0; }",
+                    autoresize_bottom_margin: 10,
+                    min_height: 300,
+                }
+            };
+        }
+        else{
+            return {
+                init: {
+                    plugins: 'autoresize',
+                    toolbar: false,
+                    branding: false,
+                    menubar: false,
+                    statusbar: false,
+                    skin: false,
+                    content_css: false,
+                    content_style: "body { background-color: #1B2F3C; color: #FFFFFF; } main { border-radius: 0; }"
+                }
+            };
+        }
+        
     },
     methods: {
         deleteCell(){

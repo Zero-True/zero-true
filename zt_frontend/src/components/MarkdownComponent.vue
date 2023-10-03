@@ -1,13 +1,17 @@
 <template>
     <v-card flat color="bluegrey">
         <ace-editor
+            v-if="$devMode"
             v-model:value="cellData.code"
             ref="editor"
             class="editor"
             theme="dracula"
             lang="markdown"
+            :readonly="!$devMode"
             :options="{
                 showPrintMargin: false,
+                highlightActiveLine: $devMode,
+                highlightGutterLine: $devMode,
                 enableBasicAutocompletion: true,
                 enableSnippets: true,
                 enableLiveAutocompletion: true,
@@ -17,7 +21,7 @@
             }"
         />
         <Markdown :source="cellData.code" />
-        <v-toolbar color="bluegrey">
+        <v-toolbar v-if="$devMode" color="bluegrey">
             <v-spacer/>
             <v-btn variant="flat" color="error" @click="deleteCell">Delete Cell</v-btn>
         </v-toolbar>

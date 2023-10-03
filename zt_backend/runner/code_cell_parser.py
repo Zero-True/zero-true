@@ -43,13 +43,13 @@ def parse_cells(request: Request) -> CodeDict:
             table_names = duckdb.get_table_names(re.sub(r'\{.*?\}', '1', cell.code))
             if cell.variable_name:
                 cell.code = """import duckdb
-"""+cell.variable_name+"""=duckdb.sql(f'"""+cell.code+"""').df()
+"""+cell.variable_name+"""=duckdb.sql(f"""+'"""'+cell.code+'"""'+""").df()
 import zero_true as zt
 zt.DataFrame.from_dataframe(id='"""+str(uuid.uuid4())+"""', df="""+cell.variable_name+""")"""
             else:
                 cell.code = """import duckdb
 import zero_true as zt
-zt.DataFrame.from_dataframe(id='"""+str(uuid.uuid4())+"""', df=duckdb.sql(f'"""+cell.code+"""').df())"""
+zt.DataFrame.from_dataframe(id='"""+str(uuid.uuid4())+"""', df=duckdb.sql(f"""+'"""'+cell.code+'"""'+""").df())"""
         module = astroid.parse(cell.code)
         function_names, function_arguments = get_functions(module)
         defined_names = get_defined_names(module) + get_imports(module) + function_names
