@@ -10,38 +10,64 @@ import json
 
 router = APIRouter()
 
+run_mode = os.environ.get('RUN_MODE', 'app')
+
 @router.get("/health")
 def health():
     return('UP')
 
 @router.post("/api/runcode")
 async def runcode(request: request.Request):
-    globalStateUpdate(run_request=request)
-    response = execute_request(request)
-    print(response.cells[0].layout)
-    globalStateUpdate(run_request=request,run_response=response)
-    return response
+    if(run_mode=='dev'):
+        globalStateUpdate(run_request=request)
+        response = execute_request(request)
+        globalStateUpdate(run_response=response)
+        return response
 
 @router.post("/api/component_run")
-def runcode(request: request.ComponentRequest):
-    print(request)
+def runcode(component_request: request.ComponentRequest):
+    notebook = get_notebook()
+    cells = []
+    components={}
+    for cell_key, cell in notebook.cells.items():
+        cell_request=request.CodeRequest(
+            id=cell.id, 
+            code=cell.code,
+            variable_name=cell.variable_name,
+            cellType=cell.cellType
+        )
+        for comp in cell.components:
+            if hasattr(comp, 'value'):
+                components[comp.id] = comp.value
+        cells.append(cell_request)
+    components[component_request.componentId] = component_request.componentValue
+    code_request = request.Request(
+        originId=component_request.originId,
+        cells=cells,
+        components=components
+    )
+    response = execute_request(code_request)
+    return response
+
 
 @router.post("/api/create_cell")
 def create_cell(cellRequest: request.CreateRequest):
-     createdCell = notebook.CodeCell(
-         id=str(uuid.uuid4()),
-         code='',
-         components=[],
-         output='',
-         variable_name='',
-         cellType=cellRequest.cellType
-     )
-     globalStateUpdate(newCell=createdCell.model_copy(deep=True))
-     return createdCell
+     if(run_mode=='dev'):
+        createdCell = notebook.CodeCell(
+            id=str(uuid.uuid4()),
+            code='',
+            components=[],
+            output='',
+            variable_name='',
+            cellType=cellRequest.cellType
+        )
+        globalStateUpdate(newCell=createdCell.model_copy(deep=True))
+        return createdCell
 
 @router.post("/api/delete_cell")
 def delete_cell(deleteRequest: request.DeleteRequest):
-     globalStateUpdate(deletedCell=deleteRequest.cellId)
+     if(run_mode=='dev'):
+        globalStateUpdate(deletedCell=deleteRequest.cellId)
 
 @router.get("/api/notebook")
 def get_notebook():

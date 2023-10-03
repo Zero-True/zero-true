@@ -6,8 +6,7 @@ from typing import List, Dict,Any
 
 
 class Header(BaseModel):
-    text: str
-    value: str
+    title: str
     align: str = Field("start", description="Column alignment.")
     key: str = 'name'
 
@@ -18,6 +17,6 @@ class DataFrame(ZTComponent):
 
     @classmethod
     def from_dataframe(cls, df: pd.DataFrame, id: str):
-        headers = [{"text": col, "value": col, "key": col} for col in df.columns]
+        headers = [{"title": col, "key": col} for col in df.columns]
         items = df.to_dict(orient='records')
         return cls(id=id, headers=headers, items=items)

@@ -9,13 +9,14 @@
     <v-main>
       <v-container v-for="codeCell in notebook.cells" >
         <component
+          :style="{ '--cursor-opacity': $devMode ? '100' : '0' }"
           :is="getComponent(codeCell.cellType)"
           :cellData = codeCell
           @runCode="runCode"
-          @componentValueChange="componentValueChange"
+          @componentChange="componentValueChange"
           @deleteCell="deleteCell"/>
       </v-container>
-      <v-toolbar color="bluegrey">
+      <v-toolbar v-if="$devMode" color="bluegrey" >
         <v-btn variant="flat" color="accent" @click="createCodeCell('code')">Add Code Cell</v-btn>
         <v-spacer/>
         <v-btn variant="flat" color="accent" @click="createCodeCell('sql')">Add SQL Cell</v-btn>
@@ -87,9 +88,16 @@ export default {
       }
     },
 
-    async componentValueChange(componentId: string, newValue: any){
-      const componentRequest: ComponentRequest = {componentId: componentId, componentValue: newValue}
+    async componentValueChange(originId: string, componentId: string, newValue: any){
+      const componentRequest: ComponentRequest = {originId: originId, componentId: componentId, componentValue: newValue}
       const axiosResponse = await axios.post(import.meta.env.VITE_BACKEND_URL + 'api/component_run', componentRequest)
+      const response: Response = axiosResponse.data
+      for (const cellResponse of response.cells){
+        this.notebook.cells[cellResponse.id].components = cellResponse.components
+        this.notebook.cells[cellResponse.id].output = cellResponse.output
+        this.notebook.cells[cellResponse.id].layout = cellResponse.layout as ZTLayout | undefined;
+
+      }
     },
 
     navigateToApp(){
@@ -143,5 +151,9 @@ export default {
 }
 .editor .ace_gutter-active-line {
     background: #0E1B23 !important;
+}
+
+.editor .ace_cursor {
+  opacity: var(--cursor-opacity) !important;
 }
 </style>
