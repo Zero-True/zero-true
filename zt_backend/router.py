@@ -70,7 +70,7 @@ def delete_cell(deleteRequest: request.DeleteRequest):
         globalStateUpdate(deletedCell=deleteRequest.cellId)
 
 @router.get("/api/notebook")
-def get_notebook() -> notebook.Notebook:
+def get_notebook():
     return get_notebook()
 
 def get_notebook():

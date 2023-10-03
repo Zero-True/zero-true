@@ -7,11 +7,8 @@
             class="editor"
             theme="dracula"
             lang="markdown"
-            :readonly="!$devMode"
             :options="{
                 showPrintMargin: false,
-                highlightActiveLine: $devMode,
-                highlightGutterLine: $devMode,
                 enableBasicAutocompletion: true,
                 enableSnippets: true,
                 enableLiveAutocompletion: true,

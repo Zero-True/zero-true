@@ -11,10 +11,7 @@
             class="editor"
             theme="dracula"
             lang="sql"
-            :readonly="!$devMode"
             :options="{
-                highlightActiveLine: $devMode,
-                highlightGutterLine: $devMode,
                 showPrintMargin: false,
                 enableBasicAutocompletion: true,
                 enableSnippets: true,
@@ -36,10 +33,10 @@
                     class="editor"
                     theme="dracula"
                     lang="sql"
-                    :readonly="!$devMode"
+                    :readonly=true
                     :options="{
-                        highlightActiveLine: $devMode,
-                        highlightGutterLine: $devMode,
+                        highlightActiveLine: false,
+                        highlightGutterLine: false,
                         showPrintMargin: false,
                         enableBasicAutocompletion: true,
                         enableSnippets: true,

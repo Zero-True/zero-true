@@ -7,7 +7,6 @@
         class="editor"
         theme="dracula"
         lang="python"
-        :readonly="!$devMode"
         :options="editorOptions"
       />
     <v-expansion-panels v-else>
@@ -22,7 +21,7 @@
             class="editor"
             theme="dracula"
             lang="python"
-            :readonly="!$devMode"
+            :readonly=true
             :options="editorOptions"
           />
         </v-expansion-panel-text>
