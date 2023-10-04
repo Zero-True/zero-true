@@ -42,16 +42,23 @@
       />
     <!-- Render unplaced components at the bottom -->
     <v-row>
-      <v-col v-for="component in unplacedComponents" :key="component.id">
-        <component
-          :is="component.component"
-          v-bind="component"
-          v-model="component.value"
-          @[component.triggerEvent]="runCode(true, component.id, component.value)"
-        />
-      </v-col>
-      
-    </v-row>
+  <v-col v-for="component in unplacedComponents" :key="component.id">
+    <!-- Render Plotly component if it's a 'plotly-plot' -->
+    <plotly-plot
+      v-if="component.component === 'plotly-plot'"
+      :figure="component.figure"
+      :layout="component.layout"
+    />
+    <!-- Render other components -->
+    <component
+      v-else
+      :is="component.component"
+      v-bind="component"
+      v-model="component.value"
+      @[component.triggerEvent]="runCode(true, component.id, component.value)"
+    />
+  </v-col>
+</v-row>
     <v-row>
       <v-col>
         <div class="text-p">{{cellData.output}}</div>
@@ -63,6 +70,7 @@
   
   <script lang="ts">
   import type { PropType } from 'vue'
+  import PlotlyPlot from '@/components/PlotlyComponent.vue';
   import { VAceEditor } from 'vue3-ace-editor';
   import 'ace-builds/src-noconflict/mode-python';
   import 'ace-builds/src-noconflict/snippets/python';
@@ -86,6 +94,7 @@
       'v-btn': VBtn,
       'v-img': VImg,
       'v-data-table': VDataTable,
+      'plotly-plot': PlotlyPlot,
       'row-component': RowComponent,
     },
     props: {

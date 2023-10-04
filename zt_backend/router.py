@@ -3,6 +3,7 @@ from zt_backend.models import request, notebook, response
 from zt_backend.runner.execute_code import execute_request
 from zt_backend.models.state import component_values, created_components, context_globals
 from zt_backend.models.components.layout import ZTLayout
+from zt_backend.models.components.plotly import PlotlyComponent
 import uuid
 import os
 import toml
@@ -19,7 +20,8 @@ def health():
 @router.post("/api/runcode")
 async def runcode(request: request.Request,background_tasks: BackgroundTasks):
     if(run_mode=='dev'):
-        background_tasks.add_task(globalStateUpdate,run_request=request)
+        background_tasks.add_task(globalStateUpdate,run_request=request.model_copy(deep=True))
+
         response = execute_request(request)
         background_tasks.add_task(globalStateUpdate,run_response=response)
         return response
@@ -113,7 +115,7 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, ru
     
     try:
         with open(tmp_uuid_file, "w") as project_file:
-            toml.dump(zt_notebook.model_dump(), project_file)
+            toml.dump(zt_notebook.model_dump(exclude={PlotlyComponent}), project_file)
         os.replace(tmp_uuid_file,'notebook.toml')
 
     except Exception as e:

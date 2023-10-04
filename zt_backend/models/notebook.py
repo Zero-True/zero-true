@@ -12,7 +12,8 @@ from zt_backend.models.components.number_input import NumberInput
 from zt_backend.models.components.image import Image
 from zt_backend.models.components.text import Text
 from zt_backend.models.components.dataframe import DataFrame
-from zt_backend.models.components.layout import ZTLayout,ZTColumn,ZTRow
+from zt_backend.models.components.layout import ZTLayout
+from zt_backend.models.components.plotly import PlotlyComponent
 
 def deserialize_component(data: Dict[str, Any]) -> ZTComponent:
     component_map = {
@@ -27,7 +28,7 @@ def deserialize_component(data: Dict[str, Any]) -> ZTComponent:
         "v-img": Image,
         "v-text": Text,
         "v-data-table": DataFrame,
-
+        "plotly-plot":PlotlyComponent
         # add other component types here
     }
     component_class = data.get("component")

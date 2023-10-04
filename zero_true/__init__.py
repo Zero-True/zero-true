@@ -12,3 +12,4 @@ from zt_backend.models.components.text import Text
 from zt_backend.models.components.dataframe import DataFrame
 from zt_backend.models.components.layout import ZTColumn,ZTRow,ZTLayout
 from zt_backend.models.components.matplotlib import Matplotlib
+from zt_backend.models.components.plotly import  PlotlyComponent

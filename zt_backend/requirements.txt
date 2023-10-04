@@ -9,3 +9,4 @@ furo
 pandas
 duckdb
 matplotlib
+plotly
