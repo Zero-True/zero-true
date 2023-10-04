@@ -4,6 +4,7 @@ from zt_backend.runner.execute_code import execute_request
 from zt_backend.models.state import component_values, created_components, context_globals
 from zt_backend.models.components.layout import ZTLayout
 from zt_backend.models.components.plotly import PlotlyComponent
+import tomli
 import uuid
 import os
 import toml
@@ -76,8 +77,8 @@ def get_notebook():
     return get_notebook()
 
 def get_notebook():
-    with open('notebook.toml', "r") as project_file:
-        notebook_data = toml.load(project_file)
+    with open('notebook.toml', "rb") as project_file:
+        notebook_data = tomli.load(project_file)
 
     # Convert the JSON strings back to ZTLayout objects
     for cell_id, cell_data in notebook_data.get('cells', {}).items():
@@ -115,7 +116,7 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, ru
     
     try:
         with open(tmp_uuid_file, "w") as project_file:
-            toml.dump(zt_notebook.model_dump(exclude={PlotlyComponent}), project_file)
+            toml.dump(zt_notebook.model_dump(), project_file)
         os.replace(tmp_uuid_file,'notebook.toml')
 
     except Exception as e:
