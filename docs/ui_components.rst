@@ -65,4 +65,12 @@ The button can be used to send boolean inputs to the backend.
 Plotting Components
 -------------------
 
+If you ever want to plot the results of your analysis we have you covered. Zero True comes with built in
+integrations for some of the more popular plotting libraries. Currently we support the following:
+
 .. autopydantic_model:: zero_true.Matplotlib
+
+.. autopydantic_model:: zero_true.PlotlyComponent
+
+In the future we plan on supporting libraries like plotly, bokeh, echarts, and the likes. If you would like 
+to see these 
