@@ -62,3 +62,7 @@ The button can be used to send boolean inputs to the backend.
 
 *There is currentl a bug with the button component.*
 
+Plotting Components
+-------------------
+
+.. autopydantic_model:: zero_true.Matplotlib

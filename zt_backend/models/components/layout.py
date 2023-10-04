@@ -9,7 +9,7 @@ ZTRow = ForwardRef('ZTRow')
 
 class ZTColumn(BaseModel):
     components: List[Union[str,ZTRow]] = Field([], description="List of component IDs that belong to this column")
-
+    
 
 class ZTRow(BaseModel):
     columns: List[ZTColumn] = Field([], description="List of columns that belong to this row")
