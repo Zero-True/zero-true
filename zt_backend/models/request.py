@@ -27,6 +27,7 @@ class ComponentRequest(BaseModel):
     originId: str
     componentId: str
     componentValue: Union[str, bool, int, List, None]
+    userId: str
 
 class DeleteRequest(BaseModel):
     cellId: str

@@ -3,7 +3,7 @@ from typing import Dict,Any,OrderedDict
 import pickle
 from contextlib import redirect_stdout
 from zt_backend.models import request, response
-from zt_backend.models.state import component_values, created_components, context_globals, cell_outputs_dict, current_cell_components,current_cell_layout
+from zt_backend.models.state import component_values, created_components, context_globals, current_cell_components,current_cell_layout
 from zt_backend.runner.code_cell_parser import parse_cells,build_dependency_graph, find_downstream_cells, CodeDict
 from zt_backend.models.components.layout import ZTLayout
 from datetime import datetime
@@ -57,13 +57,16 @@ def get_parent_vars(cell_id: str, code_components: CodeDict, cell_outputs_dict: 
 
 #issue right now is that the request is sending the entire notebook. The request should send the ID of the cell you are running.
 #also right now there is no special handling for the 
-def execute_request(request: request.Request):
+def execute_request(request: request.Request,cell_outputs_dict: Dict):
     cell_outputs = []
     component_values.update(request.components)
     component_globals={'global_state': component_values}
     dependency_graph = build_dependency_graph(parse_cells(request))
-    downstream_cells = [request.originId]
-    downstream_cells.extend(find_downstream_cells(dependency_graph, request.originId))
+    if request.originId:
+        downstream_cells = [request.originId]
+        downstream_cells.extend(find_downstream_cells(dependency_graph, request.originId))
+    else:
+        downstream_cells = [cell.id for cell in request.cells]
  
     #go through each item in dependency graph (we should just go through the downstream cells)
     for code_cell_id in list(OrderedDict.fromkeys(downstream_cells)):

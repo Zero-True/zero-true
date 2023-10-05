@@ -89,7 +89,7 @@ export default {
     },
 
     async componentValueChange(originId: string, componentId: string, newValue: any){
-      const componentRequest: ComponentRequest = {originId: originId, componentId: componentId, componentValue: newValue}
+      const componentRequest: ComponentRequest = {originId: originId, componentId: componentId, componentValue: newValue, userId: this.notebook.userId}
       const axiosResponse = await axios.post(import.meta.env.VITE_BACKEND_URL + 'api/component_run', componentRequest)
       const response: Response = axiosResponse.data
       for (const cellResponse of response.cells){
