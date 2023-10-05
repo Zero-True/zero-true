@@ -43,7 +43,7 @@ def open_project():
             output='',
             cellType='code'
         )
-        zt_notebook = Notebook(cells=OrderedDict([(codeCell.id, codeCell)]))
+        zt_notebook = Notebook(userId='', cells=OrderedDict([(codeCell.id, codeCell)]))
         with open('notebook.toml', "w") as project_file:
             toml.dump(zt_notebook.model_dump(), project_file)
 
