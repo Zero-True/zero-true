@@ -1,4 +1,4 @@
-from zt_backend.runner.execute_code import execute_request, cell_outputs_dict
+from zt_backend.runner.execute_code import execute_request
 from zt_backend.models.request import Request, CodeRequest
 
 cell_outputs_dict={}
