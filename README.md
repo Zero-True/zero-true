@@ -52,20 +52,43 @@ my_slider = zt.Slider(id="my_slider")
 
 ```python
 
-import zero_true as zt 
+    import zero_true as zt
 
-slider = zt.Slider(id='slider',row=0,column=0,label='First Slider')
 
-if slider.value < 50:
-    color = 'primary'
-else:
-    color = 'accent'
-    
-slider1 = zt.RangeSlider(id='slider1',color=color,row=0,column=0, label= 'Second Slider')
-slider2 = zt.Slider(id='slider3',color=color,row=2,column=0,label='Third Slider')
-slider4 = zt.Slider(id='slider4',label = 'Fourth Slider')
 
-button = zt.Button(id='btn',text ='Only Button')
+    slider = zt.Slider(id='slider',label='First Slider')
+
+    if slider.value < 50:
+        color = 'primary'
+    else:
+        color = 'accent'
+    slider2 = zt.Slider(id='slider3',color=color,label='Third Slider')
+
+    slider1 = zt.RangeSlider(id='slider1',color=color, label= 'Second Slider')
+
+
+    slider4 = zt.Slider(id='slider4',label = 'Fourth Slider')
+
+    button = zt.Button(id='btn',text ='Only Button')
+
+    # Create nested rows
+    nested_row1 = zt.ZTRow(id='nested_row1', columns=[
+        zt.ZTColumn(id='nested_col1_1', components=['slider4']),
+        zt.ZTColumn(id='nested_col1_2', components=['btn'])
+    ])
+
+    nested_row2 = zt.ZTRow(id='nested_row2', columns=[
+        zt.ZTColumn(id='nested_col2_1', components=['slider1']),
+    ])
+
+    # Main layout
+    layout_example = zt.ZTLayout(rows=[
+        zt.ZTRow(id='row1', columns=[
+            zt.ZTColumn(id='col1', components=['slider', 'slider3',nested_row2]),
+            zt.ZTColumn(id='col2', components=[nested_row1]),
+        ]),
+    ])
+
 
 ```
 

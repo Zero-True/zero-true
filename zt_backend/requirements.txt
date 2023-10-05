@@ -8,3 +8,5 @@ autodoc_pydantic
 furo
 pandas
 duckdb
+matplotlib
+plotly

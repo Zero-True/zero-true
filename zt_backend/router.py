@@ -1,8 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter,BackgroundTasks
 from zt_backend.models import request, notebook, response
 from zt_backend.runner.execute_code import execute_request
 from zt_backend.models.state import component_values, created_components, context_globals
 from zt_backend.models.components.layout import ZTLayout
+from zt_backend.models.components.plotly import PlotlyComponent
+import tomli
 import uuid
 import os
 import toml
@@ -10,18 +12,19 @@ import json
 
 router = APIRouter()
 
-run_mode = os.environ.get('RUN_MODE', 'app')
+run_mode = os.environ.get('RUN_MODE', 'dev')
 
 @router.get("/health")
 def health():
     return('UP')
 
 @router.post("/api/runcode")
-async def runcode(request: request.Request):
+async def runcode(request: request.Request,background_tasks: BackgroundTasks):
     if(run_mode=='dev'):
-        globalStateUpdate(run_request=request)
+        background_tasks.add_task(globalStateUpdate,run_request=request.model_copy(deep=True))
+
         response = execute_request(request)
-        globalStateUpdate(run_response=response)
+        background_tasks.add_task(globalStateUpdate,run_response=response)
         return response
 
 @router.post("/api/component_run")
@@ -74,16 +77,19 @@ def get_notebook():
     return get_notebook()
 
 def get_notebook():
-    with open('notebook.toml', "r") as project_file:
-        notebook_data = toml.load(project_file)
+    with open('notebook.toml', "rb") as project_file:
+        notebook_data = tomli.load(project_file)
 
     # Convert the JSON strings back to ZTLayout objects
     for cell_id, cell_data in notebook_data.get('cells', {}).items():
         layout_str = cell_data.get('layout')
         if layout_str:
-            layout_dict = json.loads(layout_str)
-            cell_data['layout'] = ZTLayout(**layout_dict)
-
+            try:
+                layout_dict = json.loads(layout_str)
+                cell_data['layout'] = ZTLayout(**layout_dict)
+            
+            except:
+                cell_data['layout'] = ZTLayout(**layout_str)
     return notebook.Notebook(**notebook_data)
 
 def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, run_request: request.Request=None, run_response: response.Response=None):

@@ -11,9 +11,11 @@
   "dependencies": {
     "@mdi/font": "7.0.96",
     "@tinymce/tinymce-vue": "^5",
+    "@types/plotly.js-basic-dist": "^1.54.2",
     "ace-builds": "^1.24.1",
     "axios": "^1.5.0",
     "json-schema-to-typescript": "^13.1.1",
+    "plotly.js-basic-dist": "^2.26.2",
     "roboto-fontface": "*",
     "tinymce": "^6.7.0",
     "vue": "^3.2.0",
