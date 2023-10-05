@@ -5,8 +5,8 @@
   </template>
   
   <script lang="ts">
-  import { defineComponent, PropType, onMounted } from 'vue';
-  import Plotly from "plotly.js-basic-dist";
+  import { defineComponent, PropType, onMounted, watch } from 'vue';
+  import Plotly from 'plotly.js-basic-dist';
   
   export default defineComponent({
     props: {
@@ -20,11 +20,31 @@
       },
     },
     setup(props) {
+      // Initial plot
       onMounted(() => {
         Plotly.newPlot('plotly-plot', props.figure.data, props.layout);
-
       });
+  
+      // Watch for changes in figure and layout
+      watch(
+        () => props.figure,
+        (newFigure, oldFigure) => {
+          if (newFigure !== oldFigure) {
+            Plotly.newPlot('plotly-plot', newFigure.data, props.layout);
+          }
+        },
+        { deep: true }
+      );
+  
+      watch(
+        () => props.layout,
+        (newLayout, oldLayout) => {
+          if (newLayout !== oldLayout) {
+            Plotly.newPlot('plotly-plot', props.figure.data, newLayout);
+          }
+        },
+        { deep: true }
+      );
     },
   });
   </script>
-  
