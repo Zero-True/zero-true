@@ -45,8 +45,6 @@ def get_parent_vars(cell_id: str, code_components: CodeDict, cell_outputs_dict: 
     parent_cells = code_components.cells[cell_id].parent_cells
     cell_dicts = []
     for parent_cell in parent_cells:
-        if cell_id ==parent_cell:
-            continue
         cell_dicts.append(cell_outputs_dict.get(parent_cell, {}))
         parent_vars_list = code_components.cells[parent_cell].loaded_names + \
                            code_components.cells[parent_cell].defined_names
