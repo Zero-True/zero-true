@@ -1,5 +1,5 @@
 from io import StringIO
-from typing import Dict,Any
+from typing import Dict,Any,OrderedDict
 import pickle
 from contextlib import redirect_stdout
 from zt_backend.models import request, response
@@ -68,7 +68,7 @@ def execute_request(request: request.Request):
     downstream_cells.extend(find_downstream_cells(dependency_graph, request.originId))
  
     #go through each item in dependency graph (we should just go through the downstream cells)
-    for code_cell_id in list(set(downstream_cells)):
+    for code_cell_id in list(OrderedDict.fromkeys(downstream_cells)):
         code_cell = dependency_graph.cells[code_cell_id]
 
         f = StringIO()
