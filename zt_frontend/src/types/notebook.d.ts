@@ -31,14 +31,11 @@ export type Id1 = string;
 export type VariableName1 = string;
 export type Components1 = ZTComponent[];
 export type Celltype = "code" | "markdown" | "text" | "sql";
-/**
- * User session ID
- */
 export type Userid = string;
 
 export interface Notebook {
   cells: Cells;
-  userId?: Userid;
+  userId: Userid;
   [k: string]: unknown;
 }
 export interface Cells {
