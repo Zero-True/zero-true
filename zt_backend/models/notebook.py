@@ -53,6 +53,6 @@ class CodeCell(BaseModel):
     
 class Notebook(BaseModel):
     cells: OrderedDict[str, CodeCell]
-    userId: str 
+    userId: str = Field('', description='User session ID')
 
 

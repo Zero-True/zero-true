@@ -11,7 +11,6 @@ class Request(BaseModel):
     originId: str
     cells: List[CodeRequest]
     components: Dict[str, Union[str, bool, int, List, None]]
-    userId: str
 
 class Cell(BaseModel):
     code: str
@@ -28,7 +27,7 @@ class ComponentRequest(BaseModel):
     originId: str
     componentId: str
     componentValue: Union[str, bool, int, List, None]
-    userId: str = Field('default',description='User Session ID')
+    userId: str
 
 class DeleteRequest(BaseModel):
     cellId: str

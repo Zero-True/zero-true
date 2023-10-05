@@ -62,8 +62,11 @@ def execute_request(request: request.Request,cell_outputs_dict: Dict):
     component_values.update(request.components)
     component_globals={'global_state': component_values}
     dependency_graph = build_dependency_graph(parse_cells(request))
-    downstream_cells = [request.originId]
-    downstream_cells.extend(find_downstream_cells(dependency_graph, request.originId))
+    if request.originId:
+        downstream_cells = [request.originId]
+        downstream_cells.extend(find_downstream_cells(dependency_graph, request.originId))
+    else:
+        downstream_cells = [cell.id for cell in request.cells]
  
     #go through each item in dependency graph (we should just go through the downstream cells)
     for code_cell_id in list(OrderedDict.fromkeys(downstream_cells)):

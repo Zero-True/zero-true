@@ -70,14 +70,14 @@ export default {
           id: key, 
           code: this.notebook.cells[key].code, 
           variable_name: this.notebook.cells[key].variable_name, 
-          cellType: this.notebook.cells[key].cellType,
+          cellType: this.notebook.cells[key].cellType
         }
         for (const c of this.notebook.cells[key].components){
           requestComponents[c.id] = c.value
         }
         cellRequests.push(cellRequest)
       }
-      const request: Request = { originId: originId, cells: cellRequests, components: requestComponents, userId: this.notebook.userId }
+      const request: Request = { originId: originId, cells: cellRequests, components: requestComponents }
       const axiosResponse = await axios.post(import.meta.env.VITE_BACKEND_URL + 'api/runcode', request)
       const response: Response = axiosResponse.data
       for (const cellResponse of response.cells){
@@ -89,7 +89,7 @@ export default {
     },
 
     async componentValueChange(originId: string, componentId: string, newValue: any){
-      const componentRequest: ComponentRequest = {originId: originId, componentId: componentId, componentValue: newValue,userId: this.notebook.userId}
+      const componentRequest: ComponentRequest = {originId: originId, componentId: componentId, componentValue: newValue, userId: this.notebook.userId}
       const axiosResponse = await axios.post(import.meta.env.VITE_BACKEND_URL + 'api/component_run', componentRequest)
       const response: Response = axiosResponse.data
       for (const cellResponse of response.cells){
