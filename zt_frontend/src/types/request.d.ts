@@ -11,11 +11,13 @@ export type Code = string;
 export type VariableName = string;
 export type Celltype = "code" | "markdown" | "text" | "sql";
 export type Cells = CodeRequest[];
+export type Userid = string;
 
 export interface Request {
   originId: Originid;
   cells: Cells;
   components: Components;
+  userId: Userid;
   [k: string]: unknown;
 }
 export interface CodeRequest {

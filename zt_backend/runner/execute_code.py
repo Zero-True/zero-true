@@ -57,7 +57,7 @@ def get_parent_vars(cell_id: str, code_components: CodeDict, cell_outputs_dict: 
 
 #issue right now is that the request is sending the entire notebook. The request should send the ID of the cell you are running.
 #also right now there is no special handling for the 
-def execute_request(request: request.Request):
+def execute_request(request: request.Request,cell_outputs_dict: Dict):
     cell_outputs = []
     component_values.update(request.components)
     component_globals={'global_state': component_values}

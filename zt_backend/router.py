@@ -1,9 +1,7 @@
 from fastapi import APIRouter,BackgroundTasks
 from zt_backend.models import request, notebook, response
 from zt_backend.runner.execute_code import execute_request
-from zt_backend.models.state import component_values, created_components, context_globals
 from zt_backend.models.components.layout import ZTLayout
-from zt_backend.models.components.plotly import PlotlyComponent
 import tomli
 import uuid
 import os
@@ -11,6 +9,8 @@ import toml
 import json
 
 router = APIRouter()
+
+user_states={}
 
 run_mode = os.environ.get('RUN_MODE', 'dev')
 
@@ -23,7 +23,7 @@ async def runcode(request: request.Request,background_tasks: BackgroundTasks):
     if(run_mode=='dev'):
         background_tasks.add_task(globalStateUpdate,run_request=request.model_copy(deep=True))
 
-        response = execute_request(request)
+        response = execute_request(request,user_states[request.userId])
         background_tasks.add_task(globalStateUpdate,run_response=response)
         return response
 
@@ -90,6 +90,16 @@ def get_notebook():
             
             except:
                 cell_data['layout'] = ZTLayout(**layout_str)
+    try:
+        del notebook_data['userId']
+    except:
+        Exception
+        
+    #create backend state object
+    notebook_data['userId'] = str(uuid.uuid4())
+
+    user_states[notebook_data['userId']]={}
+
     return notebook.Notebook(**notebook_data)
 
 def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, run_request: request.Request=None, run_response: response.Response=None):
