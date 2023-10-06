@@ -1,6 +1,6 @@
 <template>
     <v-row v-if="rowData">
-        <v-col v-for="(component, componentIndex) in rowData.components" :key="componentIndex" :cols="component.width || false">
+        <v-col v-for="(component, componentIndex) in rowData.components" :key="componentIndex" :cols="componentWidth(component)">
             <div v-if="typeof component==='string'">
                 <div v-for="comp in findComponentById(component)">
                     <!-- Logic to conditionally render Plotly component -->
@@ -101,6 +101,9 @@ export default {
         },
         runCode(componentId: string, componentValue: any) {
             this.$emit('runCode', true, componentId, componentValue);
+        },
+        componentWidth(component: any){
+            return component.width ? component.width : false
         }
     }
 }
