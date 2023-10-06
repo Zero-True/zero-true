@@ -1,4 +1,4 @@
-from typing import List, Dict, Tuple, Any
+from typing import OrderedDict, List, Dict, Tuple, Any
 import astroid
 from zt_backend.models.request import Request,Cell,CodeDict
 import duckdb
@@ -142,5 +142,5 @@ def find_downstream_cells(code_dictionary: CodeDict, start_cell_id, visited=None
             downstream_cells.append(cell_id)
             downstream_cells.extend(find_downstream_cells(code_dictionary, cell_id, visited))
     
-    return list(set(downstream_cells))
+    return list(OrderedDict.fromkeys(downstream_cells))
 

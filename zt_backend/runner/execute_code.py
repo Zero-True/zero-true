@@ -63,8 +63,23 @@ def execute_request(request: request.Request,cell_outputs_dict: Dict):
     component_globals={'global_state': component_values}
     dependency_graph = build_dependency_graph(parse_cells(request))
     if request.originId:
+        
         downstream_cells = [request.originId]
         downstream_cells.extend(find_downstream_cells(dependency_graph, request.originId))
+        
+        
+        try:
+            old_downstream_cells = [request.originId]
+            old_downstream_cells.extend(find_downstream_cells(cell_outputs_dict['previous_dependecy_graph'],request.originId))
+             # Find cells that are no longer dependent
+            no_longer_dependent_cells = set(old_downstream_cells) - set(downstream_cells)
+    
+            if no_longer_dependent_cells:
+                
+                downstream_cells.extend(list(OrderedDict.fromkeys(no_longer_dependent_cells)))
+        except Exception as e:
+            print(e)
+    
     else:
         downstream_cells = [cell.id for cell in request.cells]
  
@@ -95,6 +110,9 @@ def execute_request(request: request.Request,cell_outputs_dict: Dict):
         cell_outputs.append(response.CellResponse(id=code_cell_id,layout=layout, components=current_cell_components, output=f.getvalue()))
         current_cell_components.clear()
         current_cell_layout.clear()
+    
+    
+    cell_outputs_dict['previous_dependecy_graph'] = dependency_graph
 
     component_values.clear()
     created_components.clear()

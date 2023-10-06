@@ -1,0 +1,122 @@
+/* ... Existing global and animation styles */
+
+/* Header Styles */
+header {
+    background: #AE9FE8;
+    padding: 1em;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+/* Titles */
+h1, h2, h3, h4 {
+    color: #AE9FE8;
+    margin-bottom: 0.5em;
+    text-shadow: 2px 2px 4px #000000;
+}
+
+a:hover {
+    border-bottom: 2px solid #16B48E;
+    color: #FFDCA7;
+}
+
+
+
+/* Links */
+
+a {
+    color: #16B48E;  /* Default color */
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: border-bottom 0.3s ease, color 0.3s ease;
+}
+
+/* Override for Dark Mode and Auto Mode */
+body[data-theme='dark'] a {
+    color: #FFDCA7 !important;  /* Gold */
+}
+
+a:hover {
+    border-bottom: 2px solid currentColor;
+}
+
+a, body[data-theme='light'] .sidebar a {
+    color: #16B48E !important;  /* Teal */
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: border-bottom 0.3s ease, color 0.3s ease;
+}
+
+/* Dark Mode and Auto Mode Links */
+
+body[data-theme='dark'] a, body[data-theme='dark'] .sidebar a {
+    color: #FFDCA7 !important;  /* Gold */
+}
+
+/* Hover effect for all links */
+
+a:hover, .sidebar a:hover {
+    border-bottom: 2px solid currentColor;
+}
+
+/* Default Dark Mode */
+
+body[data-theme='dark'] {
+    background: linear-gradient(to right, #040607, #1B2F3C);
+    color: #FFDCA7;
+}
+
+div.highlight[data-theme='dark'] {
+    background-color: #1B2F3C;
+    color: #FFDCA7;
+}
+
+/* Light Mode */
+
+@media (prefers-color-scheme: light) {
+    body[data-theme='light'] {
+        background: linear-gradient(to right, #e0e0e0, #f2f2f2);
+        color: #555;
+    }
+
+    header[data-theme='light'] {
+        background: linear-gradient(to right, #dcd6f7, #f0e6ff);
+        color: #555;
+    }
+
+    nav[data-theme='light'] {
+        background-color: #f0e6ff;
+        color: #555;
+    }
+
+    div.body[data-theme='light'] {
+        border-left: 5px solid #888;
+    }
+
+    h1[data-theme='light'], h2[data-theme='light'], h3[data-theme='light'], h4[data-theme='light'] {
+        color: #555;
+    }
+
+    a[data-theme='light'] {
+        color: #0056b3;
+    }
+
+    div.highlight[data-theme='light'] {
+        background-color: #f0f0f0;
+        color: #333;
+    }
+
+    button[data-theme='light'], .btn[data-theme='light'] {
+        background-color: #0056b3;
+        color: #FFF;
+    }
+
+    footer[data-theme='light'] {
+        background-color: #f0e6ff;
+        color: #555;
+    }
+}
+
+/* More exciting visual tweaks can go here */
