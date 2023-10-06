@@ -34,31 +34,41 @@
       <v-btn variant="flat" color="error" @click="deleteCell">Delete Cell</v-btn>
     </v-toolbar>
 
-    <row-component v-for="(row, rowIndex) in cellData.layout?.rows" 
+    <layout-component v-for="(row, rowIndex) in cellData.layout?.rows"
       :key="rowIndex"
       :row-data="row"
       :components="cellData.components"
       @runCode="runCode"
       />
+    <v-row>
+      <v-col v-for="(col, colIndex) in columns" :cols="col.width">
+        <layout-component 
+          :key="colIndex"
+          :column-data="col"
+          :components="cellData.components"
+          @runCode="runCode"
+        />
+      </v-col>
+    </v-row>
     <!-- Render unplaced components at the bottom -->
     <v-row>
-  <v-col v-for="component in unplacedComponents" :key="component.id">
-    <!-- Render Plotly component if it's a 'plotly-plot' -->
-    <plotly-plot
-      v-if="component.component === 'plotly-plot'"
-      :figure="component.figure"
-      :layout="component.layout"
-    />
-    <!-- Render other components -->
-    <component
-      v-else
-      :is="component.component"
-      v-bind="component"
-      v-model="component.value"
-      @[component.triggerEvent]="runCode(true, component.id, component.value)"
-    />
-  </v-col>
-</v-row>
+      <v-col v-for="component in unplacedComponents" :key="component.id">
+        <!-- Render Plotly component if it's a 'plotly-plot' -->
+        <plotly-plot
+          v-if="component.component === 'plotly-plot'"
+          :figure="component.figure"
+          :layout="component.layout"
+        />
+        <!-- Render other components -->
+        <component
+          v-else
+          :is="component.component"
+          v-bind="component"
+          v-model="component.value"
+          @[component.triggerEvent]="runCode(true, component.id, component.value)"
+        />
+      </v-col>
+    </v-row>  
     <v-row>
       <v-col>
         <div class="text-p">{{cellData.output}}</div>
@@ -78,8 +88,8 @@
   import 'ace-builds/src-noconflict/theme-dracula';
   import { VSlider, VTextField, VTextarea, VRangeSlider, VSelect, VCombobox, VBtn, VImg, } from 'vuetify/lib/components/index.mjs';
   import { VDataTable } from "vuetify/labs/VDataTable";
-  import { CodeCell, ZTLayout } from '@/types/notebook'
-  import RowComponent from '@/components/RowComponent.vue';
+  import { CodeCell, Layout } from '@/types/notebook';
+  import LayoutComponent from '@/components/LayoutComponent.vue';
   
   export default {
     components: {
@@ -95,7 +105,7 @@
       'v-img': VImg,
       'v-data-table': VDataTable,
       'plotly-plot': PlotlyPlot,
-      'row-component': RowComponent,
+      'layout-component': LayoutComponent,
     },
     props: {
       cellData: {
@@ -106,6 +116,11 @@
   
     
     computed: {
+
+      columns(){
+        return this.cellData.layout?.columns || []
+      },
+
       editorOptions() {
         return {
           showPrintMargin: false,
@@ -120,25 +135,23 @@
         };
       },
       unplacedComponents() {
-        const findPlacedIds = (rows: any[]): string[] => {
+        const findPlacedIds = (items: any[]): string[] => {
           let ids: string[] = [];
-          for (const row of rows) {
-            for (const column of row?.columns ?? []) {
-              for (const component of column?.components ?? []) {
+          for (const item of items) {
+            for (const component of item?.components ?? []) {
                 if (typeof component === 'string') {
                   // It's an ID of a regular component
                   ids.push(component);
-                } else if (component && component.columns) {
+                } else if (component && component.components) {
                   // It's a nested row, go deeper
                   ids = ids.concat(findPlacedIds([component]));
                 }
-              }
             }
           }
           return ids;
         };
 
-        const placedComponentIds = findPlacedIds((this.cellData.layout as ZTLayout)?.rows ?? []);
+        const placedComponentIds = findPlacedIds((this.cellData.layout as Layout)?.rows ?? []).concat(findPlacedIds((this.cellData.layout as Layout)?.columns ?? []));
         return this.cellData.components.filter(
           comp => !placedComponentIds.includes(comp.id)
         );

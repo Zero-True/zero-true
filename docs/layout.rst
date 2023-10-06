@@ -15,9 +15,9 @@ Specifying Rows, Cols and Nested Layouts
 
 Zero-True allows you to create complicated nested layouts. These are the docs for columns, rows and layout:
 
-.. autopydantic_model:: zero_true.ZTLayout 
-.. autopydantic_model:: zero_true.ZTRow 
-.. autopydantic_model:: zero_true.ZTColumn
+.. autopydantic_model:: zero_true.Layout 
+.. autopydantic_model:: zero_true.Row 
+.. autopydantic_model:: zero_true.Column
 
 
 Note that Row and Column components can only be used insed of a layout or they will not be rendered. 
@@ -39,42 +39,30 @@ Here is an example with actual code that shows how the layout works.
 
 .. code-block:: python 
 
+    import plotly.graph_objects as go
+    from plotly.graph_objects import Figure
     import zero_true as zt
 
 
+    # Generate a layout
+    layout = {
+        "title": "My Plot",
+        "xaxis": {"title": "x-axis"},
+        "yaxis": {"title": "y-axis"}
+    }
 
-    slider = zt.Slider(id='slider',label='First Slider')
+    slider=zt.Slider(id='slider1')
+    zt.Slider(id='slider2')
+    zt.Slider(id='slider3')
+    zt.Slider(id='slider4')
+    zt.Slider(id='slider5')
 
-    if slider.value < 50:
-        color = 'primary'
-    else:
-        color = 'accent'
-    slider2 = zt.Slider(id='slider3',color=color,label='Third Slider')
+    fig = go.Figure(data=[go.Scatter(x=[slider.value, slider.value+2, slider.value+3], y=[1, 4, 9])])
 
-    slider1 = zt.RangeSlider(id='slider1',color=color, label= 'Second Slider')
+    zt.PlotlyComponent(id = 'acds',figure=fig.to_dict(), layout=layout)
 
-
-    slider4 = zt.Slider(id='slider4',label = 'Fourth Slider')
-
-    button = zt.Button(id='btn',text ='Only Button')
-
-    # Create nested rows
-    nested_row1 = zt.ZTRow(id='nested_row1', columns=[
-        zt.ZTColumn(id='nested_col1_1', components=['slider4']),
-        zt.ZTColumn(id='nested_col1_2', components=['btn'])
-    ])
-
-    nested_row2 = zt.ZTRow(id='nested_row2', columns=[
-        zt.ZTColumn(id='nested_col2_1', components=['slider1']),
-    ])
-
-    # Main layout
-    layout_example = zt.ZTLayout(rows=[
-        zt.ZTRow(id='row1', columns=[
-            zt.ZTColumn(id='col1', components=['slider', 'slider3',nested_row2]),
-            zt.ZTColumn(id='col2', components=[nested_row1]),
-        ]),
-    ])
+    zt.Layout(rows=[zt.Row(components=['slider3',zt.Column(components=['slider4','slider5'])])],columns=[zt.Column(components=['acds','slider1']),
+                        zt.Column(components=['slider2'])])
 
 And this is the resulting layout:
 
