@@ -15,9 +15,9 @@ Specifying Rows, Cols and Nested Layouts
 
 Zero-True allows you to create complicated nested layouts. These are the docs for columns, rows and layout:
 
-.. autopydantic_model:: zero_true.ZTLayout 
-.. autopydantic_model:: zero_true.ZTRow 
-.. autopydantic_model:: zero_true.ZTColumn
+.. autopydantic_model:: zero_true.Layout 
+.. autopydantic_model:: zero_true.Row 
+.. autopydantic_model:: zero_true.Column
 
 
 Note that Row and Column components can only be used insed of a layout or they will not be rendered. 
@@ -51,18 +51,18 @@ Here is an example with actual code that shows how the layout works.
         "yaxis": {"title": "y-axis"}
     }
 
-    heyo=zt.Slider(id='ayo')
-    zt.Slider(id='ayo2')
-    zt.Slider(id='ayo3')
-    zt.Slider(id='ayo4')
-    zt.Slider(id='ayo5')
+    slider=zt.Slider(id='slider1')
+    zt.Slider(id='slider2')
+    zt.Slider(id='slider3')
+    zt.Slider(id='slider4')
+    zt.Slider(id='slider5')
 
-    fig = go.Figure(data=[go.Scatter(x=[heyo.value, heyo.value+2, heyo.value+3], y=[1, 4, 9])])
+    fig = go.Figure(data=[go.Scatter(x=[slider.value, slider.value+2, slider.value+3], y=[1, 4, 9])])
 
     zt.PlotlyComponent(id = 'acds',figure=fig.to_dict(), layout=layout)
 
-    zt.Layout(rows=[zt.Row(components=['ayo3',zt.Column(components=['ayo4','ayo5'])])],columns=[zt.Column(components=['acds','ayo']),
-                        zt.Column(components=['ayo2'])])
+    zt.Layout(rows=[zt.Row(components=['slider3',zt.Column(components=['slider4','slider5'])])],columns=[zt.Column(components=['acds','slider1']),
+                        zt.Column(components=['slider2'])])
 
 And this is the resulting layout:
 
