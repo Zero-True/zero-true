@@ -31,15 +31,17 @@ In this guide you will get an overview of the contribution workflow from opening
 
 To get an overview of the project, read the README file. Here are some resources to help you get started with open source contributions:
 
-- Finding ways to contribute to open source
-- Set up your development environment
-- Collaboration guidelines
+
+- [Finding ways to contribute to open source on GitHub](https://docs.github.com/en/get-started/exploring-projects-on-github/finding-ways-to-contribute-to-open-source-on-github)
+- [Set up Git](https://docs.github.com/en/get-started/quickstart/set-up-git)
+- [Collaborating with pull requests](https://docs.github.com/en/github/collaborating-with-pull-requests)
+
 
 ## Getting Started
 
-To navigate our codebase with confidence, see the introduction to working in the docs repository 🎊. For more information on how we write our markdown files, see the GitHub Markdown reference.
+To navigate our codebase with confidence, learn omre about pydantic (for type safety of the python side), sphynx (for building docs), and Vuetify for our frontend. 
 
-Check to see what types of contributions we accept before making changes. Some of them don't even require writing a single line of code ✨.
+Check to see what types of contributions we accept before making changes. Some of them might not even require writing a single line of code ✨.
 
 ## Issues
 
