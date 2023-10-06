@@ -35,21 +35,40 @@ def get_loaded_names(module, defined_names) -> List[str]:
     function_names, function_arguments = get_functions(module)
     return [usenode.name for usenode in module.nodes_of_class(astroid.Name) if usenode.name not in function_arguments]
 
+
+def generate_sql_code(cell, uuid_value):
+    """Generate SQL code for the given cell."""
+
+    # Common import statements
+    base_code = "import duckdb\nimport zero_true as zt"
+
+    # SQL code execution
+    sql_execution = f'duckdb.sql(f"""{cell.code}""").df()'
+
+    if cell.variable_name:
+        # If variable_name is provided, use it for assignment
+        variable_assignment = f"{cell.variable_name} = {sql_execution}"
+        data_frame_conversion = f"zt.DataFrame.from_dataframe(id='{uuid_value}', df={cell.variable_name})"
+        
+        full_code = f"{base_code}\n{variable_assignment}\n{data_frame_conversion}"
+        
+    else:
+        # If variable_name is not provided, directly use the SQL execution
+        data_frame_conversion = f"zt.DataFrame.from_dataframe(id='{uuid_value}', df={sql_execution})"
+        
+        full_code = f"{base_code}\n{data_frame_conversion}"
+
+    return full_code
+
 def parse_cells(request: Request) -> CodeDict:
     cell_dict = {}
     for cell in [c for c in request.cells if c.cellType in ['code', 'sql']]:
         table_names=[]
         if cell.cellType=='sql' and cell.code:
             table_names = duckdb.get_table_names(re.sub(r'\{.*?\}', '1', cell.code))
-            if cell.variable_name:
-                cell.code = """import duckdb
-"""+cell.variable_name+"""=duckdb.sql(f"""+'"""'+cell.code+'"""'+""").df()
-import zero_true as zt
-zt.DataFrame.from_dataframe(id='"""+str(uuid.uuid4())+"""', df="""+cell.variable_name+""")"""
-            else:
-                cell.code = """import duckdb
-import zero_true as zt
-zt.DataFrame.from_dataframe(id='"""+str(uuid.uuid4())+"""', df=duckdb.sql(f"""+'"""'+cell.code+'"""'+""").df())"""
+            uuid_value = str(uuid.uuid4())
+            cell.code = generate_sql_code(cell, uuid_value)
+        
         module = astroid.parse(cell.code)
         function_names, function_arguments = get_functions(module)
         defined_names = get_defined_names(module) + get_imports(module) + function_names
