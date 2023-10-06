@@ -39,7 +39,7 @@ import { DeleteRequest } from './types/delete_request';
 import { SaveRequest } from './types/save_request';
 import { CreateRequest, Celltype } from './types/create_request';
 import { Response } from './types/response';
-import { Notebook, CodeCell, ZTLayout } from './types/notebook';
+import { Notebook, CodeCell, Layout } from './types/notebook';
 import CodeComponent from '@/components/CodeComponent.vue';
 import MarkdownComponent from '@/components/MarkdownComponent.vue';
 import EditorComponent from '@/components/EditorComponent.vue';
@@ -85,7 +85,7 @@ export default {
       for (const cellResponse of response.cells){
         this.notebook.cells[cellResponse.id].components = cellResponse.components
         this.notebook.cells[cellResponse.id].output = cellResponse.output
-        this.notebook.cells[cellResponse.id].layout = cellResponse.layout as ZTLayout | undefined;
+        this.notebook.cells[cellResponse.id].layout = cellResponse.layout as Layout | undefined;
 
       }
     },
@@ -97,7 +97,7 @@ export default {
       for (const cellResponse of response.cells){
         this.notebook.cells[cellResponse.id].components = cellResponse.components
         this.notebook.cells[cellResponse.id].output = cellResponse.output
-        this.notebook.cells[cellResponse.id].layout = cellResponse.layout as ZTLayout | undefined;
+        this.notebook.cells[cellResponse.id].layout = cellResponse.layout as Layout | undefined;
 
       }
     },

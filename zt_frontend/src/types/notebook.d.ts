@@ -12,15 +12,20 @@ export type VariableName = string;
 /**
  * List of component IDs that belong to this column
  */
-export type Components = (string | ZTRow)[];
+export type Components1 = (string | Row)[];
+export type Width = number | boolean;
 /**
  * List of columns that belong to this row
  */
-export type Columns = ZTColumn[];
+export type Components = (string | Column)[];
 /**
- * List of rows that make up this layout
+ * List of rows in this layout
  */
-export type Rows = ZTRow[];
+export type Rows = Row[];
+/**
+ * List of columns in this layout
+ */
+export type Columns = Column[];
 /**
  * Unique id for a component
  */
@@ -29,7 +34,7 @@ export type Id1 = string;
  * Optional variable name associated with a component
  */
 export type VariableName1 = string;
-export type Components1 = ZTComponent[];
+export type Components2 = ZTComponent[];
 export type Celltype = "code" | "markdown" | "text" | "sql";
 export type Userid = string;
 
@@ -46,21 +51,23 @@ export interface CodeCell {
   code: Code;
   output: Output;
   variable_name: VariableName;
-  layout?: ZTLayout;
-  components: Components1;
+  layout?: Layout;
+  components: Components2;
   cellType: Celltype;
   [k: string]: unknown;
 }
-export interface ZTLayout {
+export interface Layout {
   rows?: Rows;
-  [k: string]: unknown;
-}
-export interface ZTRow {
   columns?: Columns;
   [k: string]: unknown;
 }
-export interface ZTColumn {
+export interface Row {
   components?: Components;
+  [k: string]: unknown;
+}
+export interface Column {
+  components?: Components1;
+  width?: Width;
   [k: string]: unknown;
 }
 export interface ZTComponent {

@@ -1,7 +1,7 @@
 from fastapi import APIRouter,BackgroundTasks
 from zt_backend.models import request, notebook, response
 from zt_backend.runner.execute_code import execute_request
-from zt_backend.models.components.layout import ZTLayout
+from zt_backend.models.components.layout import Layout
 from zt_backend.config import settings
 import tomli
 import uuid
@@ -118,16 +118,16 @@ def get_notebook():
     with open('notebook.toml', "rb") as project_file:
         notebook_data = tomli.load(project_file)
 
-    # Convert the JSON strings back to ZTLayout objects
+    # Convert the JSON strings back to Layout objects
     for cell_id, cell_data in notebook_data.get('cells', {}).items():
         layout_str = cell_data.get('layout')
         if layout_str:
             try:
                 layout_dict = json.loads(layout_str)
-                cell_data['layout'] = ZTLayout(**layout_dict)
+                cell_data['layout'] = Layout(**layout_dict)
             
             except:
-                cell_data['layout'] = ZTLayout(**layout_str)
+                cell_data['layout'] = Layout(**layout_str)
 
     return notebook.Notebook(**notebook_data)
 

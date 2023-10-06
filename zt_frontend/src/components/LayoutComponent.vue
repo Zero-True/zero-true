@@ -1,9 +1,37 @@
 <template>
-    <v-row>
-        <v-col v-for="(col, colIndex) in rowData.columns" :key="colIndex">
-            <div v-for="(component, componentIndex) in col.components" :key="componentIndex">
-                <div v-if="typeof component==='string'">
-                    <div v-for="comp in findComponentById(component)">
+    <v-row v-if="rowData">
+        <v-col v-for="(component, componentIndex) in rowData.components" :key="componentIndex" :cols="component.width || false">
+            <div v-if="typeof component==='string'">
+                <div v-for="comp in findComponentById(component)">
+                    <!-- Logic to conditionally render Plotly component -->
+                    <plotly-plot 
+                        
+                        v-if="comp.component === 'plotly-plot'"
+                        :figure="comp.figure"
+                        :layout="comp.layout"
+                    />
+                    <!-- Logic to render other types of components -->
+                    <component
+                        v-else
+                        :is="comp.component"
+                        v-bind="comp"
+                        v-model="comp.value"
+                        @[comp.triggerEvent]="runCode(comp.id, comp.value)"
+                    />
+                </div>
+            </div>
+            <div v-else>
+                <layout-component 
+                    :column-data="component"
+                    :components="components"
+                    @runCode="runCode"/>
+            </div>
+        </v-col>
+    </v-row>
+    <div v-if="columnData">
+        <div v-for="(component, componentIndex) in columnData.components" :key="componentIndex">
+            <div v-if="typeof component==='string'">
+                <div v-for="comp in findComponentById(component)">
                     <!-- Logic to conditionally render Plotly component -->
                     <plotly-plot 
                         
@@ -21,22 +49,23 @@
                         @[comp.triggerEvent]="runCode(comp.id, comp.value)"
                     />
                 </div>
-                </div>
-                <div v-else>
-                    <row-component 
-                        :row-data="component"
-                        :components="components"/>
-                </div>
             </div>
-        </v-col>
-    </v-row>
+            <div v-else>
+                <layout-component 
+                    :row-data="component"
+                    :components="components"
+                    @runCode="runCode"/>
+            </div>
+        </div>
+    </div>
+    
 </template>
 
 <script lang="ts">
 import type { PropType } from 'vue'
 import { VSlider, VTextField, VTextarea, VRangeSlider, VSelect, VCombobox, VBtn, VImg } from 'vuetify/lib/components/index.mjs';
 import { VDataTable } from "vuetify/labs/VDataTable";
-import { ZTComponent, ZTRow } from '@/types/notebook';
+import { Column, ZTComponent, Row } from '@/types/notebook';
 import PlotlyPlot from '@/components/PlotlyComponent.vue';
 
 export default {
@@ -55,8 +84,10 @@ export default {
     },
     props: {
         rowData: {
-            type: Object as PropType<ZTRow>,
-            required: true,
+            type: Object as PropType<Row>
+        },
+        columnData: {
+            type: Object as PropType<Column>
         },
         components: {
             type: Object as PropType<ZTComponent[]>,
