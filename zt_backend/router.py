@@ -2,6 +2,7 @@ from fastapi import APIRouter,BackgroundTasks
 from zt_backend.models import request, notebook, response
 from zt_backend.runner.execute_code import execute_request
 from zt_backend.models.components.layout import ZTLayout
+from zt_backend.config import settings
 import tomli
 import uuid
 import os
@@ -13,7 +14,7 @@ router = APIRouter()
 user_states={}
 cell_outputs_dict={}
 
-run_mode = os.environ.get('RUN_MODE', 'dev')
+run_mode = settings.run_mode
 
 @router.get("/health")
 def health():
@@ -75,6 +76,11 @@ def delete_cell(deleteRequest: request.DeleteRequest):
      if(run_mode=='dev'):
         globalStateUpdate(deletedCell=deleteRequest.cellId)
 
+@router.post("/api/save_text")
+def save_test(saveRequest: request.SaveRequest):
+     if(run_mode=='dev'):
+        globalStateUpdate(saveCell=saveRequest)
+
 @router.get("/api/notebook")
 def get_notebook():
     notebook_start = get_notebook()
@@ -125,12 +131,14 @@ def get_notebook():
 
     return notebook.Notebook(**notebook_data)
 
-def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, run_request: request.Request=None, run_response: response.Response=None):
+def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, saveCell: request.SaveRequest=None, run_request: request.Request=None, run_response: response.Response=None):
     zt_notebook = get_notebook()
     if newCell is not None:
         zt_notebook.cells[newCell.id] = newCell
     if deletedCell is not None:
         del zt_notebook.cells[deletedCell]
+    if saveCell is not None:
+        zt_notebook.cells[saveCell.id].code=saveCell.text
     if run_request is not None:
         for requestCell in run_request.cells:
             zt_notebook.cells[requestCell.id].code = requestCell.code
