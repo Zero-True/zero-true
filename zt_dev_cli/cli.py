@@ -50,7 +50,7 @@ def start_servers(args):
 def zt_cli():
     parser = argparse.ArgumentParser(description="Start the frontend and backend servers.")
     parser.add_argument("run", nargs='?', default=False, help="Run the project")
-    parser.add_argument("mode", choices=["dev", "app"], nargs='?', default="app", help="The mode to run the servers in.")
+    parser.add_argument("mode", choices=["notebook", "app"], nargs='?', default="app", help="The mode to run the servers in.")
     parser.add_argument("--frontend-port", type=int, default=5173, help="The port for the frontend server.") # Default to 8080
     parser.add_argument("--pyd2ts", action=argparse.BooleanOptionalAction, help="Generate TS models without running project")
     parser.add_argument("--yarnBuild", action=argparse.BooleanOptionalAction, help="Generate TS models without running project")

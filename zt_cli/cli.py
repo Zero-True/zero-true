@@ -2,7 +2,7 @@
 
 import argparse
 import os
-from zt_backend.main import run_app
+import uvicorn
 
 def start_servers():
     parser = argparse.ArgumentParser(description="Start the frontend and backend servers.")
@@ -11,12 +11,12 @@ def start_servers():
 
     if args.mode == 'app':
         os.environ['RUN_MODE'] = 'app'
+        uvicorn.run('zt_backend.main:app', port=2613)
     elif args.mode=='notebook':
         os.environ['RUN_MODE'] = 'dev'
+        uvicorn.run('zt_backend.main:app', port=1326)
     else:
         raise Exception('You must specify either noteboook or app to run Zero-True')
-
-    run_app()
 
 if __name__ == "__main__":
     start_servers()

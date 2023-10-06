@@ -13,6 +13,7 @@
           :is="getComponent(codeCell.cellType)"
           :cellData = codeCell
           @runCode="runCode"
+          @saveCell="saveCell"
           @componentChange="componentValueChange"
           @deleteCell="deleteCell"/>
       </v-container>
@@ -35,6 +36,7 @@ import axios from 'axios';
 import { Request, CodeRequest } from './types/request';
 import { ComponentRequest } from './types/component_request';
 import { DeleteRequest } from './types/delete_request';
+import { SaveRequest } from './types/save_request';
 import { CreateRequest, Celltype } from './types/create_request';
 import { Response } from './types/response';
 import { Notebook, CodeCell, ZTLayout } from './types/notebook';
@@ -115,6 +117,11 @@ export default {
       const deleteRequest: DeleteRequest = {cellId: cellId}
       await axios.post(import.meta.env.VITE_BACKEND_URL + 'api/delete_cell', deleteRequest);
       delete this.notebook.cells[cellId]
+    },
+
+    async saveCell(cellId: string){
+      const saveRequest: SaveRequest = {id: cellId, text: this.notebook.cells[cellId].code}
+      await axios.post(import.meta.env.VITE_BACKEND_URL + 'api/save_text', saveRequest);
     },
 
     getComponent(cellType: string){

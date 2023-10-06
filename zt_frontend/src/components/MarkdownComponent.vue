@@ -19,6 +19,7 @@
         />
         <Markdown :source="cellData.code" />
         <v-toolbar v-if="$devMode" color="bluegrey">
+            <v-btn variant="flat" color="primary" @click="saveCell">Save</v-btn>
             <v-spacer/>
             <v-btn variant="flat" color="error" @click="deleteCell">Delete Cell</v-btn>
         </v-toolbar>
@@ -48,6 +49,9 @@ export default {
         },
     },
     methods: {
+        saveCell(){
+            this.$emit('saveCell', this.cellData.id);
+        },
         deleteCell(){
             this.$emit('deleteCell', this.cellData.id);
         }

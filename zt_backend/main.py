@@ -3,10 +3,10 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from typing import OrderedDict
 from zt_backend.models.notebook import Notebook, CodeCell
+from zt_backend.config import settings
 import zt_backend.router as router
 import toml
 import os
-import uvicorn
 import uuid
 
 app = FastAPI()
@@ -14,8 +14,8 @@ app = FastAPI()
 current_path = os.path.dirname(os.path.abspath(__file__))
 
 
-run_mode = os.environ.get('RUN_MODE', 'app')
-project_name = os.environ.get('PROJECT_NAME','')
+run_mode = settings.run_mode
+project_name = ''
 
 route_prefix = ''
 if project_name:
@@ -51,6 +51,3 @@ if run_mode=='app':
     app.mount(route_prefix, StaticFiles(directory=os.path.join(current_path, "dist_app"), html=True), name="assets")
 else:
     app.mount(route_prefix, StaticFiles(directory=os.path.join(current_path, "dist_dev"), html=True), name="assets")
-
-def run_app():
-    uvicorn.run(app, port=2613)
