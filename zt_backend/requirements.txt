@@ -10,3 +10,4 @@ pandas
 duckdb
 matplotlib
 plotly
+pydantic-settings
