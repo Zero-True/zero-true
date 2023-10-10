@@ -14,3 +14,4 @@ from zt_backend.models.components.layout import Column,Row,Layout
 from zt_backend.models.components.matplotlib import Matplotlib
 from zt_backend.models.components.plotly import  PlotlyComponent
 from zt_backend.models.components.autocomplete import  Autocomplete
+from zt_backend.models.components.card import Card

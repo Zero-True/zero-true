@@ -13,6 +13,7 @@ from .components.image import Image
 from .components.text import Text
 from .components.layout import Layout
 from .components.autocomplete import Autocomplete
+from .components.card import Card
 import json
 
 def generate_json(model, name):
@@ -39,3 +40,4 @@ def generate_schema():
     generate_json(Image,'image')
     generate_json(Layout,'layout')
     generate_json(Autocomplete,'autocomplete')
+    generate_json(Card,'card')

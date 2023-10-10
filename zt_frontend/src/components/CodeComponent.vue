@@ -33,27 +33,26 @@
       <v-spacer />
       <v-btn variant="flat" color="error" @click="deleteCell">Delete Cell</v-btn>
     </v-toolbar>
-
-    <layout-component v-for="(row, rowIndex) in cellData.layout?.rows"
-      :key="rowIndex"
-      :row-data="row"
-      :components="cellData.components"
-      @runCode="runCode"
-      />
-    <v-row>
-      <v-col v-for="(col, colIndex) in columns" :cols="col.width">
-        <layout-component 
-          :key="colIndex"
-          :column-data="col"
-          :components="cellData.components"
-          @runCode="runCode"
+    <v-container>    
+      <layout-component v-for="(row, rowIndex) in cellData.layout?.rows"
+        :key="rowIndex"
+        :row-data="row"
+        :components="cellData.components"
+        @runCode="runCode"
         />
-      </v-col>
-    </v-row>
-    <!-- Render unplaced components at the bottom -->
-    <v-row>
-      <v-col>
-        <div v-for="component in unplacedComponents" :key="component.id">
+      <v-row>
+        <v-col v-for="(col, colIndex) in columns" :cols="col.width">
+          <layout-component 
+            :key="colIndex"
+            :column-data="col"
+            :components="cellData.components"
+            @runCode="runCode"
+          />
+        </v-col>
+      </v-row>
+      <!-- Render unplaced components at the bottom -->
+      <v-row>
+        <v-container class="pa-1" v-for="component in unplacedComponents" :key="component.id" >
           <!-- Render Plotly component if it's a 'plotly-plot' -->
           <plotly-plot
             v-if="component.component === 'plotly-plot'"
@@ -61,22 +60,43 @@
             :layout="component.layout"
           />
           <!-- Render other components -->
+          <component 
+            v-else-if="component.component==='v-card'" 
+            :is="component.component" 
+            v-bind="componentBind(component)" 
+            position="relative"
+            @runCode="runCode">
+            <div v-for="comp in cardComponents(component)">
+              <plotly-plot
+                v-if="comp.component === 'plotly-plot'"
+                :figure="comp.figure"
+                :layout="comp.layout"
+              />
+              <component
+                v-else
+                :is="comp.component"
+                v-bind="componentBind(comp)"
+                v-model="comp.value"
+                @click="clickedButton(comp)"
+                @[comp.triggerEvent]="runCode(true, comp.id, comp.value)"/>
+            </div>
+          </component>
+
           <component
             v-else
             :is="component.component"
             v-bind="componentBind(component)"
             v-model="component.value"
             @click="clickedButton(component)"
-            @[component.triggerEvent]="runCode(true, component.id, component.value)"
-          />
-        </div>
-      </v-col>
-    </v-row>  
-    <v-row>
-      <v-col>
-        <div class="text-p">{{cellData.output}}</div>
-      </v-col>
-    </v-row>
+            @[component.triggerEvent]="runCode(true, component.id, component.value)"/>
+        </v-container>
+      </v-row>  
+      <v-row>
+        <v-col>
+          <div class="text-p">{{cellData.output}}</div>
+        </v-col>
+      </v-row>
+    </v-container>
   </v-card>
 </template>
 
@@ -89,7 +109,7 @@
   import 'ace-builds/src-noconflict/snippets/python';
   import 'ace-builds/src-noconflict/ext-language_tools';
   import 'ace-builds/src-noconflict/theme-dracula';
-  import { VSlider, VTextField, VTextarea, VRangeSlider, VSelect, VCombobox, VBtn, VImg, VAutocomplete} from 'vuetify/lib/components/index.mjs';
+  import { VSlider, VTextField, VTextarea, VRangeSlider, VSelect, VCombobox, VBtn, VImg, VAutocomplete, VCard } from 'vuetify/lib/components/index.mjs';
   import { VDataTable } from "vuetify/labs/VDataTable";
   import { CodeCell, Layout } from '@/types/notebook';
   import LayoutComponent from '@/components/LayoutComponent.vue';
@@ -108,6 +128,7 @@
       'v-img': VImg,
       'v-data-table': VDataTable,
       'v-autocomplete': VAutocomplete,
+      'v-card': VCard,
       'plotly-plot': PlotlyPlot,
       'layout-component': LayoutComponent,
     },
@@ -155,7 +176,17 @@
           return ids;
         };
 
-        const placedComponentIds = findPlacedIds((this.cellData.layout as Layout)?.rows ?? []).concat(findPlacedIds((this.cellData.layout as Layout)?.columns ?? []));
+        const findCardIds = (items: any[]): string[] => {
+          let ids: string[] = [];
+          for (const comp of items){
+            if(comp.component==='v-card'){
+              ids.push.apply(ids, Object.values(comp.cardChildren))
+            }
+          }
+          return ids
+        }
+
+        const placedComponentIds = findPlacedIds((this.cellData.layout as Layout)?.rows ?? []).concat(findPlacedIds((this.cellData.layout as Layout)?.columns ?? [])).concat(findCardIds(this.cellData.components));
         return this.cellData.components.filter(
           comp => !placedComponentIds.includes(comp.id)
         );
@@ -184,6 +215,17 @@
           if(component.component==='v-btn'){
               component.value=true
           }
+      },
+      findComponentById(id: string) {
+          const component = this.cellData.components.find(comp => comp.id === id);
+          return component;
+      },
+      cardComponents(card: any) {
+        const cardComponents: any[] = []
+        for(const id in card.cardChildren){
+          cardComponents.push(this.findComponentById(card.cardChildren[id]))
+        }
+        return cardComponents
       }
     },
   }
