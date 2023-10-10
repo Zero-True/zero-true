@@ -14,8 +14,9 @@
                     <component
                         v-else
                         :is="comp.component"
-                        v-bind="comp"
+                        v-bind="componentBind(comp)"
                         v-model="comp.value"
+                        @click="clickedButton(comp)"
                         @[comp.triggerEvent]="runCode(comp.id, comp.value)"
                     />
                 </div>
@@ -44,8 +45,9 @@
                     <component
                         v-else
                         :is="comp.component"
-                        v-bind="comp"
+                        v-bind="componentBind(comp)"
                         v-model="comp.value"
+                        @click="clickedButton(comp)"
                         @[comp.triggerEvent]="runCode(comp.id, comp.value)"
                     />
                 </div>
@@ -63,7 +65,7 @@
 
 <script lang="ts">
 import type { PropType } from 'vue'
-import { VSlider, VTextField, VTextarea, VRangeSlider, VSelect, VCombobox, VBtn, VImg } from 'vuetify/lib/components/index.mjs';
+import { VSlider, VTextField, VTextarea, VRangeSlider, VSelect, VCombobox, VBtn, VImg, VAutocomplete } from 'vuetify/lib/components/index.mjs';
 import { VDataTable } from "vuetify/labs/VDataTable";
 import { Column, ZTComponent, Row } from '@/types/notebook';
 import PlotlyPlot from '@/components/PlotlyComponent.vue';
@@ -80,6 +82,7 @@ export default {
       'v-btn': VBtn,
       'v-img': VImg,
       'v-data-table': VDataTable,
+      'v-autocomplete': VAutocomplete,
       'plotly-plot': PlotlyPlot,
     },
     props: {
@@ -104,6 +107,18 @@ export default {
         },
         componentWidth(component: any){
             return component.width ? component.width : false
+        },
+        componentBind(component: any){
+            if(component.component && component.component === 'v-autocomplete'){
+                const { value, ...rest } = component;
+                return rest
+            }
+            return component
+        },
+        clickedButton(component: any){
+            if(component.component==='v-btn'){
+                component.value=true
+            }
         }
     }
 }

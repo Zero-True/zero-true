@@ -52,21 +52,24 @@
     </v-row>
     <!-- Render unplaced components at the bottom -->
     <v-row>
-      <v-col v-for="component in unplacedComponents" :key="component.id">
-        <!-- Render Plotly component if it's a 'plotly-plot' -->
-        <plotly-plot
-          v-if="component.component === 'plotly-plot'"
-          :figure="component.figure"
-          :layout="component.layout"
-        />
-        <!-- Render other components -->
-        <component
-          v-else
-          :is="component.component"
-          v-bind="component"
-          v-model="component.value"
-          @[component.triggerEvent]="runCode(true, component.id, component.value)"
-        />
+      <v-col>
+        <div v-for="component in unplacedComponents" :key="component.id">
+          <!-- Render Plotly component if it's a 'plotly-plot' -->
+          <plotly-plot
+            v-if="component.component === 'plotly-plot'"
+            :figure="component.figure"
+            :layout="component.layout"
+          />
+          <!-- Render other components -->
+          <component
+            v-else
+            :is="component.component"
+            v-bind="componentBind(component)"
+            v-model="component.value"
+            @click="clickedButton(component)"
+            @[component.triggerEvent]="runCode(true, component.id, component.value)"
+          />
+        </div>
       </v-col>
     </v-row>  
     <v-row>
@@ -86,7 +89,7 @@
   import 'ace-builds/src-noconflict/snippets/python';
   import 'ace-builds/src-noconflict/ext-language_tools';
   import 'ace-builds/src-noconflict/theme-dracula';
-  import { VSlider, VTextField, VTextarea, VRangeSlider, VSelect, VCombobox, VBtn, VImg, } from 'vuetify/lib/components/index.mjs';
+  import { VSlider, VTextField, VTextarea, VRangeSlider, VSelect, VCombobox, VBtn, VImg, VAutocomplete} from 'vuetify/lib/components/index.mjs';
   import { VDataTable } from "vuetify/labs/VDataTable";
   import { CodeCell, Layout } from '@/types/notebook';
   import LayoutComponent from '@/components/LayoutComponent.vue';
@@ -104,6 +107,7 @@
       'v-btn': VBtn,
       'v-img': VImg,
       'v-data-table': VDataTable,
+      'v-autocomplete': VAutocomplete,
       'plotly-plot': PlotlyPlot,
       'layout-component': LayoutComponent,
     },
@@ -155,7 +159,7 @@
         return this.cellData.components.filter(
           comp => !placedComponentIds.includes(comp.id)
         );
-      },
+      }
     },
     methods: {
       runCode(fromComponent:boolean , componentId: string, componentValue: any) {
@@ -163,11 +167,23 @@
           this.$emit('componentChange', this.cellData.id, componentId, componentValue);
         }
         else{
-          this.$emit('runCode', this.cellData.id);
+          this.$emit('runCode', this.cellData.id, componentId);
         }
       },
       deleteCell() {
         this.$emit('deleteCell', this.cellData.id);
+      },
+      componentBind(component: any){
+        if(component.component && component.component === 'v-autocomplete'){
+          const { value, ...rest } = component;
+          return rest
+        }
+        return component
+      },
+      clickedButton(component: any){
+          if(component.component==='v-btn'){
+              component.value=true
+          }
       }
     },
   }

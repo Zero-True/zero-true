@@ -81,7 +81,7 @@ def execute_request(request: request.Request,cell_outputs_dict: Dict):
             print(e)
     
     else:
-        downstream_cells = [cell.id for cell in request.cells]
+        downstream_cells = [cell.id for cell in request.cells if cell.cellType in ['code', 'sql']]
  
     #go through each item in dependency graph (we should just go through the downstream cells)
     for code_cell_id in list(OrderedDict.fromkeys(downstream_cells)):
@@ -107,6 +107,11 @@ def execute_request(request: request.Request,cell_outputs_dict: Dict):
             layout = current_cell_layout[0]
         except Exception:
             layout = Layout(**{})
+        
+        for component in current_cell_components:
+            if component.component == 'v-btn':
+                component.value = False
+
         cell_outputs.append(response.CellResponse(id=code_cell_id,layout=layout, components=current_cell_components, output=f.getvalue()))
         current_cell_components.clear()
         current_cell_layout.clear()

@@ -29,6 +29,7 @@ jobs:
           pip install -r zt_backend/requirements.txt
           sphinx-build -b html docs docs/html
           cp docs/custom_theme.css docs/html/_static/custom_theme.css
+          echo document.body.setAttribute("data-theme", "dark"); >> docs/html/_static/doctools.js
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Upload artifact
