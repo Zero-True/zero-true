@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import base64
 from io import BytesIO
 
-
 class Matplotlib(ZTComponent):
     component: str = Field("v-img", description="Vue component name.")
     src: str = Field(..., description="Source URL of the image.")
@@ -14,6 +13,7 @@ class Matplotlib(ZTComponent):
     
     @classmethod
     def from_matplotlib(cls,id: str, figure: plt.Figure, alt=None, width=None, height=None):
+        plt.style.use('dark_background')
         buffer = BytesIO()
         figure.savefig(buffer, format="png")
         buffer.seek(0)

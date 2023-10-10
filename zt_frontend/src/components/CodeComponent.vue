@@ -56,6 +56,7 @@
           <!-- Render Plotly component if it's a 'plotly-plot' -->
           <plotly-plot
             v-if="component.component === 'plotly-plot'"
+            :id="component.id"
             :figure="component.figure"
             :layout="component.layout"
           />
@@ -69,6 +70,7 @@
             <div v-for="comp in cardComponents(component)">
               <plotly-plot
                 v-if="comp.component === 'plotly-plot'"
+                :id="component.id"
                 :figure="comp.figure"
                 :layout="comp.layout"
               />

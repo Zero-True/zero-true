@@ -7,6 +7,7 @@
                     <plotly-plot 
                         
                         v-if="comp.component === 'plotly-plot'"
+                        :id="comp.id"
                         :figure="comp.figure"
                         :layout="comp.layout"
                     />
@@ -19,6 +20,7 @@
                         <div v-for="c in cardComponents(comp)">
                             <plotly-plot
                                 v-if="c.component === 'plotly-plot'"
+                                :id="c.id"
                                 :figure="c.figure"
                                 :layout="c.layout"
                             />
@@ -58,6 +60,7 @@
                     <plotly-plot 
                         
                         v-if="comp.component === 'plotly-plot'"
+                        :id="comp.id"
                         :figure="comp.figure"
                         :layout="comp.layout"
                     />
@@ -71,6 +74,7 @@
                         <div v-for="c in cardComponents(comp)">
                             <plotly-plot
                                 v-if="c.component === 'plotly-plot'"
+                                :id="c.id"
                                 :figure="c.figure"
                                 :layout="c.layout"
                             />
@@ -150,11 +154,9 @@ export default {
         
         cardComponents(card: any) {
             const cardComponents: any[] = []
-            console.log(card.cardChildren)
             for(const id in card.cardChildren){
                 cardComponents.push.apply(cardComponents,this.findComponentById(card.cardChildren[id]))
             }
-            console.log(cardComponents)
             return cardComponents
         },
         runCode(componentId: string, componentValue: any) {
