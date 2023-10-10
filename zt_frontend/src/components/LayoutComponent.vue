@@ -14,7 +14,7 @@
                     <component
                         v-else
                         :is="comp.component"
-                        v-bind="comp"
+                        v-bind="componentBind(comp)"
                         v-model="comp.value"
                         @[comp.triggerEvent]="runCode(comp.id, comp.value)"
                     />
@@ -44,7 +44,7 @@
                     <component
                         v-else
                         :is="comp.component"
-                        v-bind="comp"
+                        v-bind="componentBind(comp)"
                         v-model="comp.value"
                         @[comp.triggerEvent]="runCode(comp.id, comp.value)"
                     />
@@ -105,6 +105,13 @@ export default {
         },
         componentWidth(component: any){
             return component.width ? component.width : false
+        },
+        componentBind(component: any){
+            if(component.component && component.component === 'v-autocomplete'){
+                const { value, ...rest } = component;
+                return rest
+            }
+            return component
         }
     }
 }
