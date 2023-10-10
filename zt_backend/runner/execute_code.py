@@ -81,7 +81,7 @@ def execute_request(request: request.Request,cell_outputs_dict: Dict):
             print(e)
     
     else:
-        downstream_cells = [cell.id for cell in request.cells]
+        downstream_cells = [cell.id for cell in request.cells if cell.cellType in ['code', 'sql']]
  
     #go through each item in dependency graph (we should just go through the downstream cells)
     for code_cell_id in list(OrderedDict.fromkeys(downstream_cells)):

@@ -119,4 +119,8 @@ div.highlight[data-theme='dark'] {
     }
 }
 
+.theme-toggle-container {
+    display: none;
+  }
+
 /* More exciting visual tweaks can go here */

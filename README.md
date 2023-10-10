@@ -52,30 +52,30 @@ my_slider = zt.Slider(id="my_slider")
 
 ```python
 
-    import plotly.graph_objects as go
-    from plotly.graph_objects import Figure
-    import zero_true as zt
+import plotly.graph_objects as go
+from plotly.graph_objects import Figure
+import zero_true as zt
 
 
-    # Generate a layout
-    layout = {
-        "title": "My Plot",
-        "xaxis": {"title": "x-axis"},
-        "yaxis": {"title": "y-axis"}
-    }
+# Generate a layout
+layout = {
+    "title": "My Plot",
+    "xaxis": {"title": "x-axis"},
+    "yaxis": {"title": "y-axis"}
+}
 
-    slider=zt.Slider(id='slider1')
-    zt.Slider(id='slider2')
-    zt.Slider(id='slider3')
-    zt.Slider(id='slider4')
-    zt.Slider(id='slider5')
+slider=zt.Slider(id='slider1')
+zt.Slider(id='slider2')
+zt.Slider(id='slider3')
+zt.Slider(id='slider4')
+zt.Slider(id='slider5')
 
-    fig = go.Figure(data=[go.Scatter(x=[slider.value, slider.value+2, slider.value+3], y=[1, 4, 9])])
+fig = go.Figure(data=[go.Scatter(x=[slider.value, slider.value+2, slider.value+3], y=[1, 4, 9])])
 
-    zt.PlotlyComponent(id = 'acds',figure=fig.to_dict(), layout=layout)
+zt.PlotlyComponent(id = 'acds',figure=fig.to_dict(), layout=layout)
 
-    zt.Layout(rows=[zt.Row(components=['slider3',zt.Column(components=['slider4','slider5'])])],columns=[zt.Column(components=['acds','slider1']),
-                        zt.Column(components=['slider2'])])
+zt.Layout(rows=[zt.Row(components=['slider3',zt.Column(components=['slider4','slider5'])])],columns=[zt.Column(components=['acds','slider1']),
+                    zt.Column(components=['slider2'])])
 
 
 ```
