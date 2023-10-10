@@ -1,6 +1,6 @@
 from pydantic import Field, validator
 from zt_backend.models.components.zt_component import ZTComponent
-from zt_backend.models.state import component_values
+from zt_backend.models.state import component_values, context_globals
 
 class Button(ZTComponent):
     """A class for Button components inheriting from ZTComponent."""

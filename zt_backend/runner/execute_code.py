@@ -107,6 +107,11 @@ def execute_request(request: request.Request,cell_outputs_dict: Dict):
             layout = current_cell_layout[0]
         except Exception:
             layout = Layout(**{})
+        
+        for component in current_cell_components:
+            if component.component == 'v-btn':
+                component.value = False
+
         cell_outputs.append(response.CellResponse(id=code_cell_id,layout=layout, components=current_cell_components, output=f.getvalue()))
         current_cell_components.clear()
         current_cell_layout.clear()

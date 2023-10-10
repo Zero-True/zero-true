@@ -16,6 +16,7 @@
                         :is="comp.component"
                         v-bind="componentBind(comp)"
                         v-model="comp.value"
+                        @click="clickedButton(comp)"
                         @[comp.triggerEvent]="runCode(comp.id, comp.value)"
                     />
                 </div>
@@ -46,6 +47,7 @@
                         :is="comp.component"
                         v-bind="componentBind(comp)"
                         v-model="comp.value"
+                        @click="clickedButton(comp)"
                         @[comp.triggerEvent]="runCode(comp.id, comp.value)"
                     />
                 </div>
@@ -112,6 +114,11 @@ export default {
                 return rest
             }
             return component
+        },
+        clickedButton(component: any){
+            if(component.component==='v-btn'){
+                component.value=true
+            }
         }
     }
 }

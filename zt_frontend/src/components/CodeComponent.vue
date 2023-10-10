@@ -66,6 +66,7 @@
             :is="component.component"
             v-bind="componentBind(component)"
             v-model="component.value"
+            @click="clickedButton(component)"
             @[component.triggerEvent]="runCode(true, component.id, component.value)"
           />
         </div>
@@ -166,7 +167,7 @@
           this.$emit('componentChange', this.cellData.id, componentId, componentValue);
         }
         else{
-          this.$emit('runCode', this.cellData.id);
+          this.$emit('runCode', this.cellData.id, componentId);
         }
       },
       deleteCell() {
@@ -178,6 +179,11 @@
           return rest
         }
         return component
+      },
+      clickedButton(component: any){
+          if(component.component==='v-btn'){
+              component.value=true
+          }
       }
     },
   }

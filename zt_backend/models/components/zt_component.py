@@ -1,6 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
 from zt_backend.models.state import created_components, context_globals, current_cell_components
-from typing import Optional
 
 class ZTComponent(BaseModel):
     id: str = Field(description="Unique id for a component")
