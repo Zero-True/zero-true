@@ -11,10 +11,10 @@ def start_servers():
 
     if args.mode == 'app':
         os.environ['RUN_MODE'] = 'app'
-        uvicorn.run('zt_backend.main:app', port=2613)
+        uvicorn.run('zt_backend.main:app', host="0.0.0.0", port=2613)
     elif args.mode=='notebook':
         os.environ['RUN_MODE'] = 'dev'
-        uvicorn.run('zt_backend.main:app', port=1326)
+        uvicorn.run('zt_backend.main:app', host="0.0.0.0", port=1326)
     else:
         raise Exception('You must specify either noteboook or app to run Zero-True')
 
