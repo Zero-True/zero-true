@@ -25,8 +25,7 @@ class CodeDict(BaseModel):
 
 class ComponentRequest(BaseModel):
     originId: str
-    componentId: str
-    componentValue: Union[str, bool, int, List, None]
+    components: Dict[str, Union[str, bool, int, List, None]]
     userId: str
 
 class DeleteRequest(BaseModel):

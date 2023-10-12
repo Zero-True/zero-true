@@ -32,7 +32,6 @@ async def runcode(request: request.Request,background_tasks: BackgroundTasks):
 def runcode(component_request: request.ComponentRequest):
     notebook = get_notebook()
     cells = []
-    components={}
     for cell_key, cell in notebook.cells.items():
         cell_request=request.CodeRequest(
             id=cell.id, 
@@ -40,15 +39,11 @@ def runcode(component_request: request.ComponentRequest):
             variable_name=cell.variable_name,
             cellType=cell.cellType
         )
-        for comp in cell.components:
-            if hasattr(comp, 'value'):
-                components[comp.id] = comp.value
         cells.append(cell_request)
-    components[component_request.componentId] = component_request.componentValue
     code_request = request.Request(
         originId=component_request.originId,
         cells=cells,
-        components=components
+        components=component_request.components
     )
     if(run_mode=='dev'):
         return execute_request(code_request, cell_outputs_dict)
