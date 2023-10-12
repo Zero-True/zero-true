@@ -50,7 +50,7 @@ def runcode(component_request: request.ComponentRequest):
     else:
         if component_request.userId not in user_states:
             return response.Response(cells=[], refresh=True)
-        timer_set(component_request.userId, 10)
+        timer_set(component_request.userId, 1800)
         return execute_request(code_request, user_states[component_request.userId])
 
 
@@ -90,7 +90,7 @@ def get_notebook():
         userId = str(uuid.uuid4())
         notebook_start.userId = userId
         user_states[userId]={}
-        timer_set(userId, 10)
+        timer_set(userId, 1800)
         cells = []
         components={}
 
