@@ -6,14 +6,14 @@
  */
 
 export type Originid = string;
-export type Componentid = string;
-export type Componentvalue = string | boolean | number | unknown[] | null;
 export type Userid = string;
 
 export interface ComponentRequest {
   originId: Originid;
-  componentId: Componentid;
-  componentValue: Componentvalue;
+  components: Components;
   userId: Userid;
   [k: string]: unknown;
+}
+export interface Components {
+  [k: string]: string | boolean | number | unknown[] | null;
 }

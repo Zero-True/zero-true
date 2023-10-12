@@ -30,7 +30,7 @@
                                 v-bind="componentBind(c)"
                                 v-model="c.value"
                                 @click="clickedButton(c)"
-                                @[c.triggerEvent]="runCode(c.id, c.value)"/>
+                                @[c.triggerEvent]="runCode(true, c.id, c.value)"/>
                         </div>
                     </component>
                     <!-- Logic to render other types of components -->
@@ -40,7 +40,7 @@
                         v-bind="componentBind(comp)"
                         v-model="comp.value"
                         @click="clickedButton(comp)"
-                        @[comp.triggerEvent]="runCode(comp.id, comp.value)"
+                        @[comp.triggerEvent]="runCode(true, comp.id, comp.value)"
                     />
                 </div>
             </div>
@@ -84,7 +84,7 @@
                                 v-bind="componentBind(c)"
                                 v-model="c.value"
                                 @click="clickedButton(c)"
-                                @[c.triggerEvent]="runCode(c.id, c.value)"/>
+                                @[c.triggerEvent]="runCode(true, c.id, c.value)"/>
                         </div>
                     </component>
 
@@ -95,7 +95,7 @@
                         v-bind="componentBind(comp)"
                         v-model="comp.value"
                         @click="clickedButton(comp)"
-                        @[comp.triggerEvent]="runCode(comp.id, comp.value)"
+                        @[comp.triggerEvent]="runCode(true, comp.id, comp.value)"
                     />
                 </div>
             </div>
@@ -159,8 +159,8 @@ export default {
             }
             return cardComponents
         },
-        runCode(componentId: string, componentValue: any) {
-            this.$emit('runCode', true, componentId, componentValue);
+        runCode(fromComponent: boolean, componentId: string, componentValue: any) {
+            this.$emit('runCode', fromComponent, componentId, componentValue);
         },
         componentWidth(component: any){
             return component.width ? component.width : false
