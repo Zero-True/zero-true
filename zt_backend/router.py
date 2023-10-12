@@ -6,7 +6,7 @@ import tomli
 import uuid
 import os
 import toml
-import json
+import threading
 
 router = APIRouter()
 
@@ -48,6 +48,9 @@ def runcode(component_request: request.ComponentRequest):
     if(run_mode=='dev'):
         return execute_request(code_request, cell_outputs_dict)
     else:
+        if component_request.userId not in user_states:
+            return response.Response(cells=[], refresh=True)
+        timer_set(component_request.userId, 1800)
         return execute_request(code_request, user_states[component_request.userId])
 
 
@@ -71,9 +74,14 @@ def delete_cell(deleteRequest: request.DeleteRequest):
         globalStateUpdate(deletedCell=deleteRequest.cellId)
 
 @router.post("/api/save_text")
-def save_test(saveRequest: request.SaveRequest):
+def save_text(saveRequest: request.SaveRequest):
      if(run_mode=='dev'):
         globalStateUpdate(saveCell=saveRequest)
+
+@router.post("/api/clear_state")
+def clear_state(clearRequest: request.ClearRequest):
+     if(run_mode=='app'):
+        user_states.pop(clearRequest.userId, None)
 
 @router.get("/api/notebook")
 def get_notebook():
@@ -82,6 +90,7 @@ def get_notebook():
         userId = str(uuid.uuid4())
         notebook_start.userId = userId
         user_states[userId]={}
+        timer_set(userId, 1800)
         cells = []
         components={}
 
@@ -145,3 +154,22 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, sa
         os.remove(tmp_uuid_file)
     except Exception as e:
         e
+
+def remove_user_state(user_id):
+    if user_id in user_states:
+        # Cancel and remove the associated timer
+        timer = user_states[user_id]['timer']
+        if timer:
+            timer.cancel()
+        del user_states[user_id]
+
+def timer_set(user_id, timeout_seconds):
+    if user_id in user_states:
+        existing_timer = user_states[user_id].get('timer')
+        if existing_timer:
+            existing_timer.cancel()
+        
+        timer = threading.Timer(timeout_seconds, remove_user_state, args=(user_id,))
+        timer.start()
+        
+        user_states[user_id]['timer'] = timer

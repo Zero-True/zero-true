@@ -38,6 +38,7 @@ import { ComponentRequest } from './types/component_request';
 import { DeleteRequest } from './types/delete_request';
 import { SaveRequest } from './types/save_request';
 import { CreateRequest, Celltype } from './types/create_request';
+import { ClearRequest } from './types/clear_request';
 import { Response } from './types/response';
 import { Notebook, CodeCell, Layout } from './types/notebook';
 import CodeComponent from '@/components/CodeComponent.vue';
@@ -58,9 +59,19 @@ export default {
     };
   },
 
+  beforeMount() {
+    window.addEventListener('beforeunload', this.clearState)
+    window.addEventListener('unload', this.clearState)
+  },
+
+  beforeUnmount() {
+    window.removeEventListener('beforeunload', this.clearState)
+    window.removeEventListener('unload', this.clearState)
+  },
+
   async created() {
-      const response = await axios.get(import.meta.env.VITE_BACKEND_URL + 'api/notebook')
-      this.notebook = response.data
+    const response = await axios.get(import.meta.env.VITE_BACKEND_URL + 'api/notebook')
+    this.notebook = response.data
   },
 
   methods: {
@@ -100,16 +111,26 @@ export default {
       const componentRequest: ComponentRequest = {originId: originId, components: requestComponents, userId: this.notebook.userId}
       const axiosResponse = await axios.post(import.meta.env.VITE_BACKEND_URL + 'api/component_run', componentRequest)
       const response: Response = axiosResponse.data
-      for (const cellResponse of response.cells){
-        this.notebook.cells[cellResponse.id].components = cellResponse.components
-        this.notebook.cells[cellResponse.id].output = cellResponse.output
-        this.notebook.cells[cellResponse.id].layout = cellResponse.layout as Layout | undefined;
-
+      if (response.refresh){
+        const notebookResponse = await axios.get(import.meta.env.VITE_BACKEND_URL + 'api/notebook')
+        this.notebook = notebookResponse.data
+      }
+      else{
+        for (const cellResponse of response.cells){
+          this.notebook.cells[cellResponse.id].components = cellResponse.components
+          this.notebook.cells[cellResponse.id].output = cellResponse.output
+          this.notebook.cells[cellResponse.id].layout = cellResponse.layout as Layout | undefined;
+        }
       }
     },
 
     navigateToApp(){
-      window.location.href = 'https://zero-true.com/';
+      window.open('https://zero-true.com/')
+    },
+
+    clearState: function clearState(){
+      const clearRequest: ClearRequest = {userId: this.notebook.userId}
+      axios.post(import.meta.env.VITE_BACKEND_URL + 'api/clear_state', clearRequest)
     },
 
     async createCodeCell(cellType: string){
