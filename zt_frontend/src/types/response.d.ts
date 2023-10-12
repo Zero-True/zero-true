@@ -34,9 +34,11 @@ export type Rows = Row[];
 export type Columns = Column[];
 export type Output = string;
 export type Cells = CellResponse[];
+export type Refresh = boolean;
 
 export interface Response {
   cells: Cells;
+  refresh?: Refresh;
   [k: string]: unknown;
 }
 export interface CellResponse {

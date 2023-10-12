@@ -1,4 +1,4 @@
-from .request import Request, ComponentRequest, DeleteRequest, CreateRequest, SaveRequest
+from .request import Request, ComponentRequest, DeleteRequest, CreateRequest, SaveRequest, ClearRequest
 from .response import Response
 from .notebook import Notebook
 from .components.slider import Slider
@@ -26,6 +26,7 @@ def generate_schema():
     generate_json(DeleteRequest, 'delete_request')
     generate_json(CreateRequest, 'create_request')
     generate_json(SaveRequest, 'save_request')
+    generate_json(ClearRequest, 'clear_request')
     generate_json(Response, 'response')
     generate_json(Slider, 'slider')
     generate_json(Notebook, 'notebook')

@@ -37,3 +37,6 @@ class CreateRequest(BaseModel):
 class SaveRequest(BaseModel):
     id: str
     text: str
+
+class ClearRequest(BaseModel):
+    userId: str

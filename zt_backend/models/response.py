@@ -1,4 +1,4 @@
-from pydantic import BaseModel, SerializeAsAny
+from pydantic import BaseModel, SerializeAsAny, Field
 from typing import List
 from zt_backend.models.components.zt_component import ZTComponent
 from zt_backend.models.components.layout import Layout
@@ -13,3 +13,4 @@ class CellResponse(BaseModel):
 
 class Response(BaseModel):
     cells: List[CellResponse]
+    refresh: bool = Field(False)
