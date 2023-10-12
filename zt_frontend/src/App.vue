@@ -69,7 +69,7 @@ export default {
     window.removeEventListener('unload', this.clearState)
   },
 
-  async mounted() {
+  async created() {
     const response = await axios.get(import.meta.env.VITE_BACKEND_URL + 'api/notebook')
     this.notebook = response.data
   },
