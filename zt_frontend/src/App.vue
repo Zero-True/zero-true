@@ -109,7 +109,7 @@ export default {
     },
 
     navigateToApp(){
-      console.log('navigate')
+      window.location.href = 'https://zero-true.com/';
     },
 
     async createCodeCell(cellType: string){
