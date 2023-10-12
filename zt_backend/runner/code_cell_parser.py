@@ -36,27 +36,33 @@ def get_loaded_names(module, defined_names) -> List[str]:
     return [usenode.name for usenode in module.nodes_of_class(astroid.Name) if usenode.name not in function_arguments]
 
 
-def generate_sql_code(cell, uuid_value):
+def generate_sql_code(cell, uuid_value, db_file='my_database.db'):
     """Generate SQL code for the given cell."""
-
+    
     # Common import statements
     base_code = "import duckdb\nimport zero_true as zt"
 
+    # Initialize the DuckDB database connection to persist tables
+    db_init = f"conn = duckdb.connect('{db_file}')"
+
     # SQL code execution
-    sql_execution = f'duckdb.sql(f"""{cell.code}""").df()'
+    # Note: Use the connection 'conn' to ensure tables are persisted to the database file
+    sql_execution = f'conn.query(f"""{cell.code}""").df()'
 
     if cell.variable_name:
         # If variable_name is provided, use it for assignment
         variable_assignment = f"{cell.variable_name} = {sql_execution}"
+
+        # Convert the result to a custom DataFrame
         data_frame_conversion = f"zt.DataFrame.from_dataframe(id='{uuid_value}', df={cell.variable_name})"
         
-        full_code = f"{base_code}\n{variable_assignment}\n{data_frame_conversion}"
+        full_code = f"{base_code}\n{db_init}\n{variable_assignment}\n{data_frame_conversion}"
         
     else:
         # If variable_name is not provided, directly use the SQL execution
         data_frame_conversion = f"zt.DataFrame.from_dataframe(id='{uuid_value}', df={sql_execution})"
         
-        full_code = f"{base_code}\n{data_frame_conversion}"
+        full_code = f"{base_code}\n{db_init}\n{data_frame_conversion}"
 
     return full_code
 
@@ -65,7 +71,10 @@ def parse_cells(request: Request) -> CodeDict:
     for cell in [c for c in request.cells if c.cellType in ['code', 'sql']]:
         table_names=[]
         if cell.cellType=='sql' and cell.code:
-            table_names = duckdb.get_table_names(re.sub(r'\{.*?\}', '1', cell.code))
+            try:
+                table_names = duckdb.get_table_names(re.sub(r'\{.*?\}', '1', cell.code))
+            except Exception as e:
+                print(e)
             uuid_value = str(uuid.uuid4())
             cell.code = generate_sql_code(cell, uuid_value)
         
