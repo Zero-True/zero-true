@@ -2,13 +2,38 @@ from fastapi import APIRouter,BackgroundTasks
 from zt_backend.models import request, notebook, response
 from zt_backend.runner.execute_code import execute_request
 from zt_backend.config import settings
+from dictdiffer import diff
+import site 
+import json
+import duckdb
 import tomli
 import uuid
 import os
 import toml
 import threading
 
+
+
 router = APIRouter()
+
+#connect to db for saving notebook
+notebook_db_dir =  site.USER_SITE+'/.zero_true/'
+notebook_db_path = notebook_db_dir+'notebook.db'
+
+os.makedirs(notebook_db_dir, exist_ok=True)
+
+conn = duckdb.connect(notebook_db_path)
+
+# Create the table for the notebook
+conn.execute('''
+    DROP TABLE IF EXISTS notebooks;
+
+    CREATE TABLE IF NOT EXISTS notebooks (
+        id STRING,
+        notebook STRING
+    )
+''')
+
 
 user_states={}
 cell_outputs_dict={}
@@ -122,8 +147,22 @@ def get_notebook():
         notebook_data = tomli.load(project_file)
     return notebook.Notebook(**notebook_data)
 
+def get_notebook_db():
+    notebook_data = conn.execute('SELECT * FROM notebooks').fetchall()
+    print(notebook_data)
+    return notebook.Notebook(**json.loads(notebook_data[0][1]))
+
+
 def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, saveCell: request.SaveRequest=None, run_request: request.Request=None, run_response: response.Response=None):
     zt_notebook = get_notebook()
+    try:
+        duckdb_notebook = get_notebook_db()
+    except Exception as e:
+        duckdb_notebook = {}
+        print(e)
+        
+    print('Notebooks are the same:', zt_notebook==duckdb_notebook)
+    old_state = zt_notebook.model_dump()
     if newCell is not None:
         zt_notebook.cells[newCell.id] = newCell
     if deletedCell is not None:
@@ -140,6 +179,14 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, sa
             zt_notebook.cells[responseCell.id].output = responseCell.output
             zt_notebook.cells[responseCell.id].layout = responseCell.layout
     
+    new_state = zt_notebook.model_dump()
+    new_notebook = zt_notebook.model_dump_json()
+    conn.execute("INSERT INTO notebooks (id, notebook) VALUES ('test_id', ?)", [new_notebook])
+
+    differences = list(diff(old_state, new_state))
+    #print("Differences:", differences)
+
+
     tmp_uuid_file = 'notebook_'+ str(uuid.uuid4())+'.toml'
     
     try:
