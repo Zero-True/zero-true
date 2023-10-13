@@ -26,10 +26,8 @@ conn = duckdb.connect(notebook_db_path)
 
 # Create the table for the notebook
 conn.execute('''
-    DROP TABLE IF EXISTS notebooks;
-
     CREATE TABLE IF NOT EXISTS notebooks (
-        id STRING,
+        id STRING  PRIMARY KEY,
         notebook STRING
     )
 ''')
@@ -95,7 +93,36 @@ def create_cell(cellRequest: request.CreateRequest):
 
 @router.post("/api/delete_cell")
 def delete_cell(deleteRequest: request.DeleteRequest):
+     cell_id = deleteRequest.cellId
      if(run_mode=='dev'):
+        
+        try:
+            del cell_outputs_dict[cell_id]
+        except Exception as e:
+            print(e)
+        try:
+            
+            cell_dict = cell_outputs_dict['previous_dependecy_graph'].cells
+            print(cell_outputs_dict['previous_dependecy_graph'])
+            if cell_id in cell_dict:
+                del cell_dict[cell_id]
+
+            # Recursively search for and remove the cell ID from child_cells in other cells
+            for cell_key, cell in cell_dict.items():
+                if cell_id in cell.get("child_cells", []):
+                    cell["child_cells"].remove(cell_id)
+
+            # Recursively search for and remove the cell ID from parent_cells in other cells
+            for cell_key, cell in cell_dict.items():
+                if cell_id in cell.get("parent_cells", []):
+                    cell["parent_cells"].remove(cell_id)
+
+        except:
+            print(cell_outputs_dict)
+
+        print(cell_outputs_dict['previous_dependecy_graph'])
+        print(cell_dict)
+
         globalStateUpdate(deletedCell=deleteRequest.cellId)
 
 @router.post("/api/save_text")
@@ -149,7 +176,6 @@ def get_notebook():
 
 def get_notebook_db():
     notebook_data = conn.execute('SELECT * FROM notebooks').fetchall()
-    print(notebook_data)
     return notebook.Notebook(**json.loads(notebook_data[0][1]))
 
 
@@ -160,7 +186,11 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, sa
     except Exception as e:
         duckdb_notebook = {}
         print(e)
-        
+    if zt_notebook!=duckdb_notebook and duckdb_notebook!={}:
+            differences = list(diff(zt_notebook.model_dump(), duckdb_notebook.model_dump()))
+            print("Differences:", differences)
+            print('different')
+            
     print('Notebooks are the same:', zt_notebook==duckdb_notebook)
     old_state = zt_notebook.model_dump()
     if newCell is not None:
@@ -181,7 +211,7 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, sa
     
     new_state = zt_notebook.model_dump()
     new_notebook = zt_notebook.model_dump_json()
-    conn.execute("INSERT INTO notebooks (id, notebook) VALUES ('test_id', ?)", [new_notebook])
+    conn.execute("INSERT OR REPLACE INTO notebooks (id, notebook) VALUES ('test_id', ?)", [new_notebook])
 
     differences = list(diff(old_state, new_state))
     #print("Differences:", differences)
