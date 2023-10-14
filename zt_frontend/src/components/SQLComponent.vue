@@ -17,7 +17,7 @@
                 enableSnippets: true,
                 enableLiveAutocompletion: true,
                 autoScrollEditorIntoView: true,
-                minLines: 15,
+                minLines: 5,
                 maxLines: Infinity
             }"
         />

@@ -45,7 +45,7 @@ export default {
                     content_css: false,
                     content_style: "body { background-color: #1B2F3C; color: #FFFFFF; } main { border-radius: 0; }",
                     autoresize_bottom_margin: 10,
-                    min_height: 300,
+                    min_height: 100,
                 }
             };
         }

@@ -157,7 +157,7 @@
           autoScrollEditorIntoView: true,
           highlightActiveLine: this.$devMode,
           highlightGutterLine: this.$devMode,
-          minLines: 15,
+          minLines: 5,
           maxLines: Infinity,
         };
       },
