@@ -3,6 +3,7 @@ from zt_backend.models import request, notebook, response
 from zt_backend.runner.execute_code import execute_request
 from zt_backend.config import settings
 from dictdiffer import diff
+import re
 import site 
 import json
 import duckdb
@@ -170,9 +171,30 @@ def get_notebook():
     return notebook_start
 
 def get_notebook():
-    with open('notebook.toml', "rb") as project_file:
-        notebook_data = tomli.load(project_file)
-    return notebook.Notebook(**notebook_data)
+    try:
+        # Attempt to get the notebook from the database
+        zt_notebook = get_notebook_db()
+
+        if not zt_notebook:
+            # If it doesn't exist in the database, load it from the TOML file
+            with open('notebook.toml', "rb") as project_file:
+                toml_data = toml.load(project_file)
+
+            # Convert TOML data to a Notebook object
+            notebook_data = {
+                'cells': {
+                    cell_id: notebook.CodeCell(id=cell_id, **cell_data)
+                    for cell_id, cell_data in toml_data['cells'].items()
+                }
+            }
+            zt_notebook = notebook.Notebook(**notebook_data)
+
+        return zt_notebook
+    except Exception as e:
+        print(e)
+        # Handle any exceptions appropriately and return a valid notebook object
+        return notebook.Notebook(cells={})
+
 
 def get_notebook_db():
     notebook_data = conn.execute('SELECT * FROM notebooks').fetchall()
@@ -219,10 +241,29 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, sa
 
     tmp_uuid_file = 'notebook_'+ str(uuid.uuid4())+'.toml'
     
+    
     try:
+    # Create a TOML representation with only cell_id, cell_type, and code
+        toml_data = {
+            'cells': {
+                cell_id: {
+                    'cellType': cell.cellType,
+                    'code': cell.code
+                } for cell_id, cell in zt_notebook.cells.items()
+            }
+        }
+        toml_str = toml.dumps(toml_data)
+        # Loop through each cell to reformat the 'code' field
+        for cell_id, cell in zt_notebook.cells.items():
+            code_single_line = cell.code.replace("\n", "\\n")
+            code_multi_line = '"""\n' + cell.code + '\n"""'
+            toml_str = re.sub(f'code = "{re.escape(code_single_line)}"', f'code = {code_multi_line}', toml_str)
+
+
         with open(tmp_uuid_file, "w") as project_file:
-            toml.dump(zt_notebook.model_dump(), project_file)
-        os.replace(tmp_uuid_file,'notebook.toml')
+            project_file.write(toml_str)
+            
+        os.replace(tmp_uuid_file, 'notebook.toml')
 
     except Exception as e:
         print(e)
