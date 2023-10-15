@@ -172,28 +172,33 @@ def get_notebook():
 
 def get_notebook():
     try:
-        # Attempt to get the notebook from the database
+        #get notebook from the database
         zt_notebook = get_notebook_db()
+        return(zt_notebook)
+    except Exception as e:
+        print(e)
 
-        if not zt_notebook:
-            # If it doesn't exist in the database, load it from the TOML file
-            with open('notebook.toml', "rb") as project_file:
-                toml_data = toml.load(project_file)
+    try:            
+        # If it doesn't exist in the database, load it from the TOML file
+        with open('notebook.toml', "r") as project_file:
+            toml_data = toml.load(project_file)
 
-            # Convert TOML data to a Notebook object
-            notebook_data = {
-                'cells': {
-                    cell_id: notebook.CodeCell(id=cell_id, **cell_data)
-                    for cell_id, cell_data in toml_data['cells'].items()
-                }
+        # Convert TOML data to a Notebook object
+        notebook_data = {
+            'userId' : '',
+            'cells': {
+                cell_id: notebook.CodeCell(id=cell_id, **cell_data,output="",variable_name=cell_id)
+                for cell_id, cell_data in toml_data['cells'].items()
             }
-            zt_notebook = notebook.Notebook(**notebook_data)
+        }
+        zt_notebook = notebook.Notebook(**notebook_data)
 
         return zt_notebook
+
     except Exception as e:
         print(e)
         # Handle any exceptions appropriately and return a valid notebook object
-        return notebook.Notebook(cells={})
+        return notebook.Notebook(cells={},userId='')
 
 
 def get_notebook_db():
@@ -203,17 +208,8 @@ def get_notebook_db():
 
 def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, saveCell: request.SaveRequest=None, run_request: request.Request=None, run_response: response.Response=None):
     zt_notebook = get_notebook()
-    try:
-        duckdb_notebook = get_notebook_db()
-    except Exception as e:
-        duckdb_notebook = {}
-        print(e)
-    if zt_notebook!=duckdb_notebook and duckdb_notebook!={}:
-            differences = list(diff(zt_notebook.model_dump(), duckdb_notebook.model_dump()))
-            print("Differences:", differences)
-            print('different')
-            
-    print('Notebooks are the same:', zt_notebook==duckdb_notebook)
+    
+    
     old_state = zt_notebook.model_dump()
     if newCell is not None:
         zt_notebook.cells[newCell.id] = newCell
