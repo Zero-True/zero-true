@@ -6,6 +6,7 @@ from typing_extensions import Annotated
 import logging
 import uvicorn
 from typing import Optional
+from rich import print
 
 app = typer.Typer()
 
@@ -20,7 +21,7 @@ _______________________________ ________    _____________________ ____ _________
         \/        \/         \/         \/                     \/                 \/ 
 
     """
-    print(ascii_logo)
+    print(f"[purple]{ascii_logo}[/purple]")
 
 @app.command()
 def start(mode: Annotated[Optional[str], typer.Argument(help="The mode to run zero-true in, can be one of 'notebook' and 'app'")],
@@ -46,7 +47,8 @@ def start(mode: Annotated[Optional[str], typer.Argument(help="The mode to run ze
     
     if host == "0.0.0.0":
         host = 'localhost'
-    logger.info(f'Starting Zero-True in {mode} mode on http://{host}:{port}')
+        
+    print(f"[yellow]Starting Zero-True in {mode} mode on http://{host}:{port}[/yellow]")
 
     uvicorn.run('zt_backend.main:app', host=host, port=port, log_level='error')
 
