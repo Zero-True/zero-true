@@ -46,9 +46,11 @@ def start(mode: Annotated[Optional[str], typer.Argument(help="The mode to run ze
     logger = logging.getLogger(__name__)
     
     if host == "0.0.0.0":
-        host = 'localhost'
+        print_host = 'localhost'
+    else:
+        print_host(str(host))
         
-    print(f"[yellow]Starting Zero-True in {mode} mode on http://{host}:{port}[/yellow]")
+    print(f"[yellow]Starting Zero-True in {mode} mode on http://{print_host}:{port}[/yellow]")
 
     uvicorn.run('zt_backend.main:app', host=host, port=port, log_level='error')
 
