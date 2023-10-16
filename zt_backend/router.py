@@ -20,7 +20,7 @@ router = APIRouter()
 #connect to db for saving notebook
 notebook_db_dir =  site.USER_SITE+'/.zero_true/'
 notebook_db_path = notebook_db_dir+'notebook.db'
-
+notebook_id = []
 os.makedirs(notebook_db_dir, exist_ok=True)
 
 conn = duckdb.connect(notebook_db_path)
@@ -77,6 +77,7 @@ def runcode(component_request: request.ComponentRequest):
             return response.Response(cells=[], refresh=True)
         timer_set(component_request.userId, 1800)
         return execute_request(code_request, user_states[component_request.userId])
+
 
 
 @router.post("/api/create_cell")
@@ -171,13 +172,14 @@ def get_notebook():
             notebook_start.cells[responseCell.id].layout = responseCell.layout
     return notebook_start
 
-def get_notebook():
-    try:
-        #get notebook from the database
-        zt_notebook = get_notebook_db()
-        return(zt_notebook)
-    except Exception as e:
-        print(e)
+def get_notebook(id=''):
+    if id!='':
+        try:
+            #get notebook from the database
+            zt_notebook = get_notebook_db(id)
+            return(zt_notebook)
+        except Exception as e:
+            print(e)
 
     try:            
         # If it doesn't exist in the database, load it from the TOML file
@@ -186,6 +188,7 @@ def get_notebook():
 
         # Convert TOML data to a Notebook object
         notebook_data = {
+            'notebookId' : toml_data['notebookId'],
             'userId' : '',
             'cells': {
                 cell_id: notebook.CodeCell(id=cell_id, **cell_data,output="",variable_name=cell_id)
@@ -193,7 +196,7 @@ def get_notebook():
             }
         }
         zt_notebook = notebook.Notebook(**notebook_data)
-
+        notebook_id.append(toml_data['notebookId'])
         return zt_notebook
 
     except Exception as e:
@@ -202,15 +205,20 @@ def get_notebook():
         return notebook.Notebook(cells={},userId='')
 
 
-def get_notebook_db():
+def get_notebook_db(id=''):
     conn = duckdb.connect(notebook_db_path)
-    notebook_data = conn.execute('SELECT * FROM notebooks').fetchall()
+    if id!="":
+        notebook_data = conn.execute('SELECT notebook FROM notebooks WHERE id = ?',[id]).fetchall()
     conn.close()
     return notebook.Notebook(**json.loads(notebook_data[0][1]))
 
 
 def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, saveCell: request.SaveRequest=None, run_request: request.Request=None, run_response: response.Response=None):
-    zt_notebook = get_notebook()
+    
+    if len(notebook_id)==1:
+        zt_notebook = get_notebook(notebook_id[0])
+    else:
+        zt_notebook = get_notebook()
     
     
     old_state = zt_notebook.model_dump()
@@ -233,11 +241,15 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, sa
     new_state = zt_notebook.model_dump()
     new_notebook = zt_notebook.model_dump_json()
     conn = duckdb.connect(notebook_db_path)
-    conn.execute("INSERT OR REPLACE INTO notebooks (id, notebook) VALUES ('test_id', ?)", [new_notebook])
+    conn.execute("INSERT OR REPLACE INTO notebooks (id, notebook) VALUES (?, ?)", [zt_notebook.notebookId,new_notebook])
     conn.close()
     differences = list(diff(old_state, new_state))
-    #print("Differences:", differences)
+    save_toml(zt_notebook)
 
+
+    #print("Differences:", differences)
+def save_toml(zt_notebook: notebook.Notebook):
+    
 
     tmp_uuid_file = 'notebook_'+ str(uuid.uuid4())+'.toml'
     
@@ -245,6 +257,7 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, sa
     try:
     # Create a TOML representation with only cell_id, cell_type, and code
         toml_data = {
+            'notebookId': zt_notebook.notebookId,
             'cells': {
                 cell_id: {
                     'cellType': cell.cellType,

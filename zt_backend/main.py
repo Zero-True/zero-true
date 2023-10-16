@@ -44,9 +44,8 @@ def open_project():
             cellType='code'
         )
         zt_notebook = Notebook(userId='', cells=OrderedDict([(codeCell.id, codeCell)]))
-        with open('notebook.toml', "w") as project_file:
-            toml.dump(zt_notebook.model_dump(), project_file)
-
+        router.save_toml(zt_notebook=zt_notebook)
+        
 if run_mode=='app':
     app.mount(route_prefix, StaticFiles(directory=os.path.join(current_path, "dist_app"), html=True), name="assets")
 else:
