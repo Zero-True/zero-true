@@ -1,10 +1,27 @@
 #!/usr/bin/env python3
 
-import argparse
 import subprocess
 import os
 import shutil
+import typer
 from zt_backend.models.generate_schema import generate_schema
+from typing_extensions import Annotated
+from typing import Optional
+from rich import print 
+
+app = typer.Typer()
+
+def print_ascii_logo():
+    ascii_logo="""
+_____________________ ________  _______________   ____
+\____    /\__    ___/ \______ \ \_   _____/\   \ /   /
+  /     /   |    |     |    |  \ |    __)_  \   Y   / 
+ /     /_   |    |     |    `   \|        \  \     /  
+/_______ \  |____|    /_______  /_______  /   \___/   
+        \/                    \/        \/            
+
+    """
+    print(f"[purple]{ascii_logo}[/purple]")
 
 def generate_ts():
     os.mkdir('zt_schema')
@@ -31,13 +48,28 @@ def build_frontend():
     os.chdir('..')
     shutil.copytree('zt_frontend/dist', 'zt_backend/dist_app')
 
-def start_servers(args):
-    if args.mode == 'app':
+@app.command()
+def pyd2ts():
+    generate_ts()
+
+@app.command()
+def run_yarn_build():
+    build_frontend()
+
+
+@app.command()
+def run(mode: Annotated[Optional[str], typer.Argument(help="The mode to run zero-true in, can be one of 'notebook' and 'app'")],
+        port: Annotated[Optional[str], typer.Argument(help="Port number to bind to.")]=""):
+    
+    print_ascii_logo()
+    port = port if port else 5173
+    
+    if mode == 'app':
         os.environ['RUN_MODE'] = 'app'
-        frontend_cmd = ["yarn", "run", "app", str(args.frontend_port)]
+        frontend_cmd = ["yarn", "run", "app", str(port)]
     else:
         os.environ['RUN_MODE'] = 'dev'
-        frontend_cmd = ["yarn", "run", "dev", str(args.frontend_port)]
+        frontend_cmd = ["yarn", "run", "dev", str(port)]
     backend_cmd = ["start", "uvicorn", "zt_backend.main:app", "--reload"]
 
     backend_process = subprocess.Popen(backend_cmd, shell=True)
@@ -47,21 +79,5 @@ def start_servers(args):
     backend_process.wait()
     frontend_process.wait()
 
-def zt_cli():
-    parser = argparse.ArgumentParser(description="Start the frontend and backend servers.")
-    parser.add_argument("run", nargs='?', default=False, help="Run the project")
-    parser.add_argument("mode", choices=["notebook", "app"], nargs='?', default="app", help="The mode to run the servers in.")
-    parser.add_argument("--frontend-port", type=int, default=5173, help="The port for the frontend server.") # Default to 8080
-    parser.add_argument("--pyd2ts", action=argparse.BooleanOptionalAction, help="Generate TS models without running project")
-    parser.add_argument("--yarnBuild", action=argparse.BooleanOptionalAction, help="Generate TS models without running project")
-    args = parser.parse_args()
-
-    if args.pyd2ts:
-        generate_ts()
-    if args.yarnBuild:
-        build_frontend()
-    if args.run:
-        start_servers(args)
-    
 if __name__ == "__main__":
-    zt_cli()
+    app()

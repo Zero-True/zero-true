@@ -2,13 +2,36 @@ from fastapi import APIRouter,BackgroundTasks
 from zt_backend.models import request, notebook, response
 from zt_backend.runner.execute_code import execute_request
 from zt_backend.config import settings
-import tomli
+from dictdiffer import diff
+import re
+import site 
+import json
+import duckdb
 import uuid
 import os
 import toml
 import threading
 
+
+
 router = APIRouter()
+
+#connect to db for saving notebook
+notebook_db_dir =  site.USER_SITE+'/.zero_true/'
+notebook_db_path = notebook_db_dir+'notebook.db'
+os.makedirs(notebook_db_dir, exist_ok=True)
+
+conn = duckdb.connect(notebook_db_path)
+
+# Create the table for the notebook
+conn.execute('''
+    CREATE TABLE IF NOT EXISTS notebooks (
+        id STRING  PRIMARY KEY,
+        notebook STRING
+    )
+''')
+conn.close()
+
 
 user_states={}
 cell_outputs_dict={}
@@ -54,6 +77,7 @@ def runcode(component_request: request.ComponentRequest):
         return execute_request(code_request, user_states[component_request.userId])
 
 
+
 @router.post("/api/create_cell")
 def create_cell(cellRequest: request.CreateRequest):
      if(run_mode=='dev'):
@@ -70,7 +94,32 @@ def create_cell(cellRequest: request.CreateRequest):
 
 @router.post("/api/delete_cell")
 def delete_cell(deleteRequest: request.DeleteRequest):
+     cell_id = deleteRequest.cellId
      if(run_mode=='dev'):
+        
+        try:
+            del cell_outputs_dict[cell_id]
+        except Exception as e:
+            print(e)
+        try:
+            
+            cell_dict = cell_outputs_dict['previous_dependecy_graph'].cells
+            if cell_id in cell_dict:
+                del cell_dict[cell_id]
+
+            # Recursively search for and remove the cell ID from child_cells in other cells
+            for cell_key, cell in cell_dict.items():
+                if cell_id in cell.get("child_cells", []):
+                    cell["child_cells"].remove(cell_id)
+
+            # Recursively search for and remove the cell ID from parent_cells in other cells
+            for cell_key, cell in cell_dict.items():
+                if cell_id in cell.get("parent_cells", []):
+                    cell["parent_cells"].remove(cell_id)
+
+        except Exception as e:
+            print(e)
+
         globalStateUpdate(deletedCell=deleteRequest.cellId)
 
 @router.post("/api/save_text")
@@ -117,13 +166,62 @@ def get_notebook():
             notebook_start.cells[responseCell.id].layout = responseCell.layout
     return notebook_start
 
-def get_notebook():
-    with open('notebook.toml', "rb") as project_file:
-        notebook_data = tomli.load(project_file)
-    return notebook.Notebook(**notebook_data)
+def get_notebook(id=''):
+    if id!='':
+        try:
+            #get notebook from the database
+            zt_notebook = get_notebook_db(id)
+            return(zt_notebook)
+        except Exception as e:
+            print(e)
+
+    try:            
+        # If it doesn't exist in the database, load it from the TOML file
+        with open('notebook.toml', "r") as project_file:
+            toml_data = toml.load(project_file)
+
+        try:
+        #get notebook from the database
+            zt_notebook = get_notebook_db(toml_data['notebookId'])
+            return(zt_notebook)
+        except Exception as e:
+            pass
+        # Convert TOML data to a Notebook object
+        notebook_data = {
+            'notebookId' : toml_data['notebookId'],
+            'userId' : '',
+            'cells': {
+                cell_id: notebook.CodeCell(id=cell_id, **cell_data,output="",variable_name=cell_id)
+                for cell_id, cell_data in toml_data['cells'].items()
+            }
+        }
+        zt_notebook = notebook.Notebook(**notebook_data)
+        new_notebook = zt_notebook.model_dump_json()
+        conn = duckdb.connect(notebook_db_path)
+        conn.execute("INSERT OR REPLACE INTO notebooks (id, notebook) VALUES (?, ?)", [zt_notebook.notebookId,new_notebook])
+        conn.close()
+        return zt_notebook
+
+    except Exception as e:
+        print(e)
+        # Handle any exceptions appropriately and return a valid notebook object
+        return notebook.Notebook(cells={},userId='')
+
+
+def get_notebook_db(id=''):
+    conn = duckdb.connect(notebook_db_path)
+    if id!="":
+        notebook_data = conn.execute('SELECT notebook FROM notebooks WHERE id = ?',[id]).fetchall()
+    conn.close()
+    return notebook.Notebook(**json.loads(notebook_data[0][0]))
+
 
 def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, saveCell: request.SaveRequest=None, run_request: request.Request=None, run_response: response.Response=None):
+    
     zt_notebook = get_notebook()
+    
+    
+    old_state = zt_notebook.model_dump()
     if newCell is not None:
         zt_notebook.cells[newCell.id] = newCell
     if deletedCell is not None:
@@ -140,12 +238,45 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, sa
             zt_notebook.cells[responseCell.id].output = responseCell.output
             zt_notebook.cells[responseCell.id].layout = responseCell.layout
     
+    new_state = zt_notebook.model_dump()
+    new_notebook = zt_notebook.model_dump_json()
+    conn = duckdb.connect(notebook_db_path)
+    conn.execute("INSERT OR REPLACE INTO notebooks (id, notebook) VALUES (?, ?)", [zt_notebook.notebookId,new_notebook])
+    conn.close()
+    differences = list(diff(old_state, new_state))
+    save_toml(zt_notebook)
+
+
+    #print("Differences:", differences)
+def save_toml(zt_notebook: notebook.Notebook):
+    
+
     tmp_uuid_file = 'notebook_'+ str(uuid.uuid4())+'.toml'
     
+    
     try:
+    # Create a TOML representation with only cell_id, cell_type, and code
+        toml_data = {
+            'notebookId': zt_notebook.notebookId,
+            'cells': {
+                cell_id: {
+                    'cellType': cell.cellType,
+                    'code': cell.code
+                } for cell_id, cell in zt_notebook.cells.items()
+            }
+        }
+        toml_str = toml.dumps(toml_data)
+        # Loop through each cell to reformat the 'code' field
+        for cell_id, cell in zt_notebook.cells.items():
+            code_single_line = cell.code.replace("\n", "\\n")
+            code_multi_line = '"""\n' + cell.code + '\n"""'
+            toml_str = re.sub(f'code = "{re.escape(code_single_line)}"', f'code = {code_multi_line}', toml_str)
+
+
         with open(tmp_uuid_file, "w") as project_file:
-            toml.dump(zt_notebook.model_dump(), project_file)
-        os.replace(tmp_uuid_file,'notebook.toml')
+            project_file.write(toml_str)
+            
+        os.replace(tmp_uuid_file, 'notebook.toml')
 
     except Exception as e:
         print(e)
