@@ -3,7 +3,6 @@
 import os
 import typer
 from typing_extensions import Annotated
-import logging
 import uvicorn
 from typing import Optional
 from rich import print
@@ -26,7 +25,7 @@ _______________________________ ________    _____________________ ____ _________
 @app.command()
 def start(mode: Annotated[Optional[str], typer.Argument(help="The mode to run zero-true in, can be one of 'notebook' and 'app'")],
           host: Annotated[Optional[str], typer.Argument(help="Host address to bind to.")]="localhost",
-          port: Annotated[Optional[str],typer.Argument(help="Port number to bind to.")]=""):
+          port: Annotated[Optional[str], typer.Argument(help="Port number to bind to.")]=""):
     """
     Start the Zero-True application.
     """
@@ -41,7 +40,6 @@ def start(mode: Annotated[Optional[str], typer.Argument(help="The mode to run ze
     else:
         typer.echo("Invalid mode. Choose either 'notebook' or 'app'.")
         raise typer.Exit(code=1)
-    
         
     print(f"[yellow]Starting Zero-True in {mode} mode on http://{host}:{port}[/yellow]")
 
