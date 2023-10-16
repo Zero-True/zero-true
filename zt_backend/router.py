@@ -7,7 +7,6 @@ import re
 import site 
 import json
 import duckdb
-import tomli
 import uuid
 import os
 import toml
@@ -20,7 +19,6 @@ router = APIRouter()
 #connect to db for saving notebook
 notebook_db_dir =  site.USER_SITE+'/.zero_true/'
 notebook_db_path = notebook_db_dir+'notebook.db'
-notebook_id = []
 os.makedirs(notebook_db_dir, exist_ok=True)
 
 conn = duckdb.connect(notebook_db_path)
@@ -106,7 +104,6 @@ def delete_cell(deleteRequest: request.DeleteRequest):
         try:
             
             cell_dict = cell_outputs_dict['previous_dependecy_graph'].cells
-            print(cell_outputs_dict['previous_dependecy_graph'])
             if cell_id in cell_dict:
                 del cell_dict[cell_id]
 
@@ -120,11 +117,8 @@ def delete_cell(deleteRequest: request.DeleteRequest):
                 if cell_id in cell.get("parent_cells", []):
                     cell["parent_cells"].remove(cell_id)
 
-        except:
-            print(cell_outputs_dict)
-
-        print(cell_outputs_dict['previous_dependecy_graph'])
-        print(cell_dict)
+        except Exception as e:
+            print(e)
 
         globalStateUpdate(deletedCell=deleteRequest.cellId)
 
@@ -186,6 +180,12 @@ def get_notebook(id=''):
         with open('notebook.toml', "r") as project_file:
             toml_data = toml.load(project_file)
 
+        try:
+        #get notebook from the database
+            zt_notebook = get_notebook_db(toml_data['notebookId'])
+            return(zt_notebook)
+        except Exception as e:
+            pass
         # Convert TOML data to a Notebook object
         notebook_data = {
             'notebookId' : toml_data['notebookId'],
@@ -196,7 +196,10 @@ def get_notebook(id=''):
             }
         }
         zt_notebook = notebook.Notebook(**notebook_data)
-        notebook_id.append(toml_data['notebookId'])
+        new_notebook = zt_notebook.model_dump_json()
+        conn = duckdb.connect(notebook_db_path)
+        conn.execute("INSERT OR REPLACE INTO notebooks (id, notebook) VALUES (?, ?)", [zt_notebook.notebookId,new_notebook])
+        conn.close()
         return zt_notebook
 
     except Exception as e:
@@ -210,15 +213,12 @@ def get_notebook_db(id=''):
     if id!="":
         notebook_data = conn.execute('SELECT notebook FROM notebooks WHERE id = ?',[id]).fetchall()
     conn.close()
-    return notebook.Notebook(**json.loads(notebook_data[0][1]))
+    return notebook.Notebook(**json.loads(notebook_data[0][0]))
 
 
 def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, saveCell: request.SaveRequest=None, run_request: request.Request=None, run_response: response.Response=None):
     
-    if len(notebook_id)==1:
-        zt_notebook = get_notebook(notebook_id[0])
-    else:
-        zt_notebook = get_notebook()
+    zt_notebook = get_notebook()
     
     
     old_state = zt_notebook.model_dump()
