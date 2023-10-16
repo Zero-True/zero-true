@@ -32,6 +32,7 @@ conn.execute('''
         notebook STRING
     )
 ''')
+conn.close()
 
 
 user_states={}
@@ -202,7 +203,9 @@ def get_notebook():
 
 
 def get_notebook_db():
+    conn = duckdb.connect(notebook_db_path)
     notebook_data = conn.execute('SELECT * FROM notebooks').fetchall()
+    conn.close()
     return notebook.Notebook(**json.loads(notebook_data[0][1]))
 
 
@@ -229,8 +232,9 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, sa
     
     new_state = zt_notebook.model_dump()
     new_notebook = zt_notebook.model_dump_json()
+    conn = duckdb.connect(notebook_db_path)
     conn.execute("INSERT OR REPLACE INTO notebooks (id, notebook) VALUES ('test_id', ?)", [new_notebook])
-
+    conn.close()
     differences = list(diff(old_state, new_state))
     #print("Differences:", differences)
 
