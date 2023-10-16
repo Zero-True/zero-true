@@ -25,7 +25,7 @@ _______________________________ ________    _____________________ ____ _________
 
 @app.command()
 def start(mode: Annotated[Optional[str], typer.Argument(help="The mode to run zero-true in, can be one of 'notebook' and 'app'")],
-          host: Annotated[Optional[str], typer.Argument(help="Host address to bind to.")]="0.0.0.0",
+          host: Annotated[Optional[str], typer.Argument(help="Host address to bind to.")]="localhost",
           port: Annotated[Optional[str],typer.Argument(help="Port number to bind to.")]=""):
     """
     Start the Zero-True application.
@@ -42,15 +42,8 @@ def start(mode: Annotated[Optional[str], typer.Argument(help="The mode to run ze
         typer.echo("Invalid mode. Choose either 'notebook' or 'app'.")
         raise typer.Exit(code=1)
     
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-    
-    if host == "0.0.0.0":
-        print_host = 'localhost'
-    else:
-        print_host(str(host))
         
-    print(f"[yellow]Starting Zero-True in {mode} mode on http://{print_host}:{port}[/yellow]")
+    print(f"[yellow]Starting Zero-True in {mode} mode on http://{host}:{port}[/yellow]")
 
     uvicorn.run('zt_backend.main:app', host=host, port=port, log_level='error')
 

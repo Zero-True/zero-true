@@ -59,9 +59,10 @@ def run_yarn_build():
 
 @app.command()
 def run(mode: Annotated[Optional[str], typer.Argument(help="The mode to run zero-true in, can be one of 'notebook' and 'app'")],
-                  host: Annotated[Optional[str], typer.Argument(help="Host address to bind to.")]="0.0.0.0",
-                  port: Annotated[Optional[str],typer.Argument(help="Port number to bind to.")]=""):
+        host: Annotated[Optional[str], typer.Argument(help="Host address to bind to.")]="0.0.0.0",
+        port: Annotated[Optional[str],typer.Argument(help="Port number to bind to.")]=""):
     
+    print(port)
     print_ascii_logo()
     port = port if port else 5173
     
