@@ -8,6 +8,9 @@
         theme="dracula"
         lang="python"
         :options="editorOptions"
+        @focus="handleFocus(true)"
+        @blur="handleFocus(false)"
+
       />
     <v-expansion-panels v-else>
       <v-expansion-panel>
@@ -23,6 +26,9 @@
             lang="python"
             :readonly=true
             :options="editorOptions"
+            @focus="handleFocus(true)"
+             @blur="handleFocus(false)"
+
           />
         </v-expansion-panel-text>
       </v-expansion-panel>
@@ -140,6 +146,11 @@
         required: true,
       },
     },
+    data() {
+    return {
+      isFocused: false, // add this line to keep track of the focus state
+    };
+  },
     mounted() {
     // Attach the event listener when the component is mounted
     window.addEventListener('keydown', this.handleKeyDown);
@@ -205,13 +216,13 @@
     },
     methods: {
       handleKeyDown(event: KeyboardEvent) {
-        if (event.ctrlKey && event.code === 'Enter') {
-          // Run your code here
-          console.log('Keydown!')
-          this.runCode(false, this.cellData.id, '');
-        }
-      },
-
+      if (this.isFocused && event.ctrlKey && event.key === 'Enter') {
+        this.runCode(false, this.cellData.id, '');
+      }
+    },
+    handleFocus(state: boolean) {
+      this.isFocused = state;
+    },
       runCode(fromComponent:boolean , componentId: string, componentValue: any) {
         if (!this.$devMode && fromComponent){
           this.$emit('componentChange', this.cellData.id, componentId, componentValue);
