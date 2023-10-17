@@ -3,6 +3,8 @@ from functools import lru_cache
 
 class Settings(BaseSettings):
     run_mode: str = "app"
+    project_name: str = ""
+    user_name: str = ""
 
 @lru_cache()
 def get_settings():

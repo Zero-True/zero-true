@@ -5,7 +5,6 @@ from typing import OrderedDict
 from zt_backend.models.notebook import Notebook, CodeCell
 from zt_backend.config import settings
 import zt_backend.router as router
-import toml
 import os
 import uuid
 
@@ -15,11 +14,12 @@ current_path = os.path.dirname(os.path.abspath(__file__))
 
 
 run_mode = settings.run_mode
-project_name = ''
+project_name = settings.project_name
+user_name = settings.user_name
 
 route_prefix = ''
 if project_name:
-    route_prefix = '/'+project_name+'/'+run_mode
+    route_prefix = '/'+project_name+'/'+user_name
 
 app.include_router(router.router, prefix=route_prefix)
 
