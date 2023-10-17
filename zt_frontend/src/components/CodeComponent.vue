@@ -115,7 +115,7 @@
   import { VDataTable } from "vuetify/labs/VDataTable";
   import { CodeCell, Layout } from '@/types/notebook';
   import LayoutComponent from '@/components/LayoutComponent.vue';
-  
+
   export default {
     components: {
       'ace-editor': VAceEditor,
@@ -140,7 +140,16 @@
         required: true,
       },
     },
-  
+    mounted() {
+    // Attach the event listener when the component is mounted
+    window.addEventListener('keydown', this.handleKeyDown);
+  },
+  beforeUnmount() {
+    // Remove the event listener before the component is destroyed
+    window.removeEventListener('keydown', this.handleKeyDown);
+  },
+
+
     
     computed: {
 
@@ -195,6 +204,14 @@
       }
     },
     methods: {
+      handleKeyDown(event: KeyboardEvent) {
+        if (event.ctrlKey && event.code === 'Enter') {
+          // Run your code here
+          console.log('Keydown!')
+          this.runCode(false, this.cellData.id, '');
+        }
+      },
+
       runCode(fromComponent:boolean , componentId: string, componentValue: any) {
         if (!this.$devMode && fromComponent){
           this.$emit('componentChange', this.cellData.id, componentId, componentValue);

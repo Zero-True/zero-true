@@ -5,6 +5,16 @@
         <v-icon start size="x-large" icon="custom:ZTIcon"></v-icon>
         Zero-True
       </v-btn>
+      <v-spacer></v-spacer>
+      <div v-if="isCodeRunning" class="d-flex align-center">
+        <v-progress-circular indeterminate color="white" size="24"></v-progress-circular>
+        <v-chip class="ml-2" color="white" text-color="black">
+          {{ timer }}ms
+        </v-chip>
+        <v-chip class="ml-2" color="white" text-color="black">
+          Queue Length: {{ requestQueue.length }}
+        </v-chip>
+      </div>
     </v-app-bar>
     <v-main>
       <v-container v-for="codeCell in notebook.cells" >
@@ -56,7 +66,11 @@ export default {
   data() {
     return {
       notebook: {} as Notebook,
-    };
+      timer: 0,  // The timer value
+      timerInterval: null as ReturnType<typeof setInterval> | null, // To hold the timer interval
+      isCodeRunning: false,
+      requestQueue: [] as string[],
+  };
   },
 
   beforeMount() {
@@ -75,7 +89,31 @@ export default {
   },
 
   methods: {
+    startTimer() {
+    this.timer = 0;
+    this.timerInterval = setInterval(() => {
+      this.timer++;
+    }, 1); // Update every millisecond
+      },
+    stopTimer() {
+      if (this.timerInterval) {
+        clearInterval(this.timerInterval);
+        this.timerInterval = null;
+      }
+    },
+
     async runCode(originId: string) {
+
+
+      this.requestQueue.push(originId);
+
+      if (this.isCodeRunning) {
+        return;
+        }
+      
+      while (this.requestQueue.length > 0) {
+      const currentOriginId = this.requestQueue.shift();
+      if (!currentOriginId) continue;
       const cellRequests: CodeRequest[] = []
       const requestComponents: { [key: string]: any } = {};
       for (let key in this.notebook.cells){
@@ -91,7 +129,12 @@ export default {
         cellRequests.push(cellRequest)
       }
       const request: Request = { originId: originId, cells: cellRequests, components: requestComponents }
+
+      this.isCodeRunning = true;
+      this.startTimer();
       const axiosResponse = await axios.post(import.meta.env.VITE_BACKEND_URL + 'api/runcode', request)
+      this.stopTimer();
+      this.isCodeRunning = false;
       const response: Response = axiosResponse.data
       for (const cellResponse of response.cells){
         this.notebook.cells[cellResponse.id].components = cellResponse.components
@@ -99,7 +142,7 @@ export default {
         this.notebook.cells[cellResponse.id].layout = cellResponse.layout as Layout | undefined;
 
       }
-    },
+    }},
 
     async componentValueChange(originId: string, componentId: string, newValue: any){
       const requestComponents: { [key: string]: any } = {};
@@ -109,7 +152,11 @@ export default {
         }
       }
       const componentRequest: ComponentRequest = {originId: originId, components: requestComponents, userId: this.notebook.userId}
+      this.isCodeRunning = true;
+      this.startTimer();
       const axiosResponse = await axios.post(import.meta.env.VITE_BACKEND_URL + 'api/component_run', componentRequest)
+      this.stopTimer();
+      this.isCodeRunning = false;
       const response: Response = axiosResponse.data
       if (response.refresh){
         const notebookResponse = await axios.get(import.meta.env.VITE_BACKEND_URL + 'api/notebook')
