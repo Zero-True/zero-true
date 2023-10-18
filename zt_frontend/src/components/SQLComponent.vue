@@ -40,22 +40,11 @@
         <v-expansion-panel-text>
           <ace-editor
             v-model:value="cellData.code"
-            ref="editor"
             class="editor"
             theme="dracula"
             lang="sql"
             :readonly="true"
-            :options="{
-              highlightActiveLine: false,
-              highlightGutterLine: false,
-              showPrintMargin: false,
-              enableBasicAutocompletion: true,
-              enableSnippets: true,
-              enableLiveAutocompletion: true,
-              autoScrollEditorIntoView: true,
-              minLines: 5,
-              maxLines: Infinity,
-            }"
+            :options="editorOptions"
           />
         </v-expansion-panel-text>
       </v-expansion-panel>
@@ -120,8 +109,10 @@ export default {
   },
   mounted() {
     // Attach the event listener when the component is mounted
-    const aceComponent = this.$refs.editor as any;
-    aceComponent._editor.renderer.$cursorLayer.element.style.display = "none";
+    if(this.$devMode){
+      const aceComponent = this.$refs.editor as any;
+      aceComponent._editor.renderer.$cursorLayer.element.style.display = "none";
+    }
     window.addEventListener("keydown", this.handleKeyDown);
   },
   beforeUnmount() {

@@ -38,7 +38,6 @@
         <v-expansion-panel-text>
           <ace-editor
             v-model:value="cellData.code"
-            ref="editor"
             class="editor"
             theme="dracula"
             lang="python"
@@ -186,8 +185,10 @@ export default {
   },
   mounted() {
     // Attach the event listener when the component is mounted
-    const aceComponent = this.$refs.editor as any;
-    aceComponent._editor.renderer.$cursorLayer.element.style.display = "none";
+    if (this.$devMode){
+      const aceComponent = this.$refs.editor as any;
+      aceComponent._editor.renderer.$cursorLayer.element.style.display = "none";
+    }
     window.addEventListener("keydown", this.handleKeyDown);
   },
   beforeUnmount() {

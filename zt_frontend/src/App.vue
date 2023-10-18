@@ -23,7 +23,6 @@
     <v-main>
       <v-container v-for="codeCell in notebook.cells">
         <component
-          :style="{ '--cursor-opacity': $devMode ? '100' : '0' }"
           :is="getComponent(codeCell.cellType)"
           :cellData="codeCell"
           @runCode="runCode"
@@ -284,9 +283,5 @@ export default {
 }
 .editor .ace_gutter-active-line {
   background: #0e1b23 !important;
-}
-
-.editor .ace_cursor {
-  opacity: var(--cursor-opacity) !important;
 }
 </style>

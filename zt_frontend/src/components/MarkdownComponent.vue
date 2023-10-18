@@ -57,8 +57,8 @@ export default {
         enableSnippets: true,
         enableLiveAutocompletion: true,
         autoScrollEditorIntoView: true,
-        highlightActiveLine: this.$devMode && this.isFocused,
-        highlightGutterLine: this.$devMode && this.isFocused,
+        highlightActiveLine: this.isFocused,
+        highlightGutterLine: this.isFocused,
         minLines: 5,
         maxLines: Infinity,
       };
@@ -77,8 +77,10 @@ export default {
   },
   mounted() {
     // Attach the event listener when the component is mounted
-    const aceComponent = this.$refs.editor as any;
-    aceComponent._editor.renderer.$cursorLayer.element.style.display = "none";
+    if(this.$devMode){
+      const aceComponent = this.$refs.editor as any;
+      aceComponent._editor.renderer.$cursorLayer.element.style.display = "none";
+    }
     window.addEventListener("keydown", this.handleKeyDown);
   },
   beforeUnmount() {
