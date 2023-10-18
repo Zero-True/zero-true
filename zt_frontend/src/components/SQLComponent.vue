@@ -27,15 +27,9 @@
             class="editor"
             theme="dracula"
             lang="sql"
-            :options="{
-                showPrintMargin: false,
-                enableBasicAutocompletion: true,
-                enableSnippets: true,
-                enableLiveAutocompletion: true,
-                autoScrollEditorIntoView: true,
-                minLines: 5,
-                maxLines: Infinity
-            }"
+            @focus="handleFocus(true)"
+            @blur="handleFocus(false)"
+            :options="editorOptions"
         />
         <v-expansion-panels v-else>
             <v-expansion-panel>
@@ -58,7 +52,7 @@
                         enableSnippets: true,
                         enableLiveAutocompletion: true,
                         autoScrollEditorIntoView: true,
-                        minLines: 15,
+                        minLines: 5,
                         maxLines: Infinity
                     }"
                 />
@@ -88,18 +82,68 @@ import 'ace-builds/src-noconflict/theme-dracula';
 import { CodeCell } from '@/types/notebook';
 
 
+
+
 export default {
     components: {
         'ace-editor': VAceEditor,
         'v-data-table': VDataTable
     },
+
+    computed: {
+        editorOptions() {
+        return {
+            showPrintMargin: false,
+            enableBasicAutocompletion: true,
+            enableSnippets: true,
+            enableLiveAutocompletion: true,
+            autoScrollEditorIntoView: true,
+            highlightActiveLine: (this.$devMode && this.isFocused),
+            highlightGutterLine: (this.$devMode && this.isFocused),
+            minLines: 5,
+            maxLines: Infinity,
+        };
+        },
+        },
+    data() {
+    return {
+      isFocused: false, // add this line to keep track of the focus state
+    };
+  },
     props: {
         cellData: {
             type: Object as PropType<CodeCell>,
             required: true,
         },
     },
+    mounted() {
+    // Attach the event listener when the component is mounted
+    const aceComponent = this.$refs.editor as any;
+    aceComponent._editor.renderer.$cursorLayer.element.style.display = "none"
+    window.addEventListener('keydown', this.handleKeyDown);
+  },
+  beforeUnmount() {
+    // Remove the event listener before the component is destroyed
+    window.removeEventListener('keydown', this.handleKeyDown);
+  },
+
     methods: {
+        handleKeyDown(event: KeyboardEvent) {
+      if (this.isFocused && event.ctrlKey && event.key === 'Enter') {
+        this.runCode();
+      }
+    },
+    handleFocus(state: boolean) {
+      if(state){
+        const aceComponent = this.$refs.editor as any;
+        aceComponent._editor.renderer.$cursorLayer.element.style.display = ""
+      }
+      else{
+        const aceComponent = this.$refs.editor as any;
+        aceComponent._editor.renderer.$cursorLayer.element.style.display = "none"
+      }
+      this.isFocused = state;
+    },
         runCode(){
             this.$emit('runCode', this.cellData.id);
         },
