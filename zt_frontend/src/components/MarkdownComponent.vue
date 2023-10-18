@@ -26,6 +26,10 @@
       @blur="handleFocus(false)"
       :options="editorOptions"
     />
+    <div v-if="$devMode">
+      <p class="text-caption text-disabled text-right">
+        CTRL+Enter to save</p>
+    </div>
     <Markdown :source="cellData.code" />
   </v-card>
 </template>

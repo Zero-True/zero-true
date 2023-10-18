@@ -274,7 +274,7 @@ export default {
   filter: none;
   height: 300px;
   width: 100%;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
 }
 .editor .ace_gutter {
   background: #1b2f3c;

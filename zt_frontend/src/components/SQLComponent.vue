@@ -60,6 +60,10 @@
         </v-expansion-panel-text>
       </v-expansion-panel>
     </v-expansion-panels>
+    <div v-if="$devMode">
+      <p class="text-caption text-disabled text-right">
+        CTRL+Enter to run</p>
+    </div>
     <v-container v-for="component in cellData.components" :key="component.id">
       <component
         :is="component.component"
