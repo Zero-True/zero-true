@@ -1,5 +1,20 @@
 <template>
     <v-card flat color="bluegrey">
+        <v-row  v-if="$devMode" no-gutters class="py-1 toolbar-bg">
+        <v-col :cols="11">
+        <span class="py-0 px-2">.md</span>
+
+            <!-- Placeholder for future content or can be empty -->
+        </v-col>
+        <v-col :cols="1" class="d-flex justify-end align-center py-0">
+            <v-icon small class="mx-1" color="primary" @click="saveCell">
+                mdi-content-save
+            </v-icon>
+            <v-icon small class="mx-1" color="error" @click="deleteCell">
+                mdi-delete
+            </v-icon>
+        </v-col>
+        </v-row>
         <ace-editor
             v-if="$devMode"
             v-model:value="cellData.code"
@@ -18,11 +33,6 @@
             }"
         />
         <Markdown :source="cellData.code" />
-        <v-toolbar v-if="$devMode" color="bluegrey">
-            <v-btn variant="flat" color="primary" @click="saveCell">Save</v-btn>
-            <v-spacer/>
-            <v-btn variant="flat" color="error" @click="deleteCell">Delete Cell</v-btn>
-        </v-toolbar>
     </v-card>
 </template>
 
