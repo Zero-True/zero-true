@@ -40,8 +40,6 @@
             lang="python"
             :readonly=true
             :options="editorOptions"
-            @focus="handleFocus(true)"
-             @blur="handleFocus(false)"
 
           />
         </v-expansion-panel-text>
@@ -117,50 +115,52 @@
 </template>
 
   
-  <script lang="ts">
-  import type { PropType } from 'vue'
-  import PlotlyPlot from '@/components/PlotlyComponent.vue';
-  import { VAceEditor } from 'vue3-ace-editor';
-  import 'ace-builds/src-noconflict/mode-python';
-  import 'ace-builds/src-noconflict/snippets/python';
-  import 'ace-builds/src-noconflict/ext-language_tools';
-  import 'ace-builds/src-noconflict/theme-dracula';
-  import { VSlider, VTextField, VTextarea, VRangeSlider, VSelect, VCombobox, VBtn, VImg, VAutocomplete, VCard } from 'vuetify/lib/components/index.mjs';
-  import { VDataTable } from "vuetify/labs/VDataTable";
-  import { CodeCell, Layout } from '@/types/notebook';
-  import LayoutComponent from '@/components/LayoutComponent.vue';
+<script lang="ts">
+import type { PropType } from 'vue'
+import PlotlyPlot from '@/components/PlotlyComponent.vue';
+import { VAceEditor } from 'vue3-ace-editor';
+import 'ace-builds/src-noconflict/mode-python';
+import 'ace-builds/src-noconflict/snippets/python';
+import 'ace-builds/src-noconflict/ext-language_tools';
+import 'ace-builds/src-noconflict/theme-dracula';
+import { VSlider, VTextField, VTextarea, VRangeSlider, VSelect, VCombobox, VBtn, VImg, VAutocomplete, VCard } from 'vuetify/lib/components/index.mjs';
+import { VDataTable } from "vuetify/labs/VDataTable";
+import { CodeCell, Layout } from '@/types/notebook';
+import LayoutComponent from '@/components/LayoutComponent.vue';
 
-  export default {
-    components: {
-      'ace-editor': VAceEditor,
-      'v-slider': VSlider,
-      'v-text-field': VTextField,
-      'v-number-field': VTextField,
-      'v-textarea': VTextarea,
-      'v-range-slider': VRangeSlider,
-      'v-select': VSelect,
-      'v-combobox': VCombobox,
-      'v-btn': VBtn,
-      'v-img': VImg,
-      'v-data-table': VDataTable,
-      'v-autocomplete': VAutocomplete,
-      'v-card': VCard,
-      'plotly-plot': PlotlyPlot,
-      'layout-component': LayoutComponent,
+export default {
+  components: {
+    'ace-editor': VAceEditor,
+    'v-slider': VSlider,
+    'v-text-field': VTextField,
+    'v-number-field': VTextField,
+    'v-textarea': VTextarea,
+    'v-range-slider': VRangeSlider,
+    'v-select': VSelect,
+    'v-combobox': VCombobox,
+    'v-btn': VBtn,
+    'v-img': VImg,
+    'v-data-table': VDataTable,
+    'v-autocomplete': VAutocomplete,
+    'v-card': VCard,
+    'plotly-plot': PlotlyPlot,
+    'layout-component': LayoutComponent,
+  },
+  props: {
+    cellData: {
+      type: Object as PropType<CodeCell>,
+      required: true,
     },
-    props: {
-      cellData: {
-        type: Object as PropType<CodeCell>,
-        required: true,
-      },
-    },
-    data() {
+  },
+  data() {
     return {
       isFocused: false, // add this line to keep track of the focus state
     };
   },
-    mounted() {
+  mounted() {
     // Attach the event listener when the component is mounted
+    const aceComponent = this.$refs.editor as any;
+    aceComponent._editor.renderer.$cursorLayer.element.style.display = "none"
     window.addEventListener('keydown', this.handleKeyDown);
   },
   beforeUnmount() {
@@ -169,105 +169,113 @@
   },
 
 
-    
-    computed: {
+  
+  computed: {
 
-      columns(){
-        return this.cellData.layout?.columns || []
-      },
-
-      editorOptions() {
-        return {
-          showPrintMargin: false,
-          enableBasicAutocompletion: true,
-          enableSnippets: true,
-          enableLiveAutocompletion: true,
-          autoScrollEditorIntoView: true,
-          highlightActiveLine: this.$devMode,
-          highlightGutterLine: this.$devMode,
-          minLines: 5,
-          maxLines: Infinity,
-        };
-      },
-      unplacedComponents() {
-        const findPlacedIds = (items: any[]): string[] => {
-          let ids: string[] = [];
-          for (const item of items) {
-            for (const component of item?.components ?? []) {
-                if (typeof component === 'string') {
-                  // It's an ID of a regular component
-                  ids.push(component);
-                } else if (component && component.components) {
-                  // It's a nested row, go deeper
-                  ids = ids.concat(findPlacedIds([component]));
-                }
-            }
-          }
-          return ids;
-        };
-
-        const findCardIds = (items: any[]): string[] => {
-          let ids: string[] = [];
-          for (const comp of items){
-            if(comp.component==='v-card'){
-              ids.push.apply(ids, Object.values(comp.cardChildren))
-            }
-          }
-          return ids
-        }
-
-        const placedComponentIds = findPlacedIds((this.cellData.layout as Layout)?.rows ?? []).concat(findPlacedIds((this.cellData.layout as Layout)?.columns ?? [])).concat(findCardIds(this.cellData.components));
-        return this.cellData.components.filter(
-          comp => !placedComponentIds.includes(comp.id)
-        );
-      }
+    columns(){
+      return this.cellData.layout?.columns || []
     },
-    methods: {
-      handleKeyDown(event: KeyboardEvent) {
+
+    editorOptions() {
+      return {
+        showPrintMargin: false,
+        enableBasicAutocompletion: true,
+        enableSnippets: true,
+        enableLiveAutocompletion: true,
+        autoScrollEditorIntoView: true,
+        highlightActiveLine: (this.$devMode && this.isFocused),
+        highlightGutterLine: (this.$devMode && this.isFocused),
+        minLines: 5,
+        maxLines: Infinity,
+      };
+    },
+    unplacedComponents() {
+      const findPlacedIds = (items: any[]): string[] => {
+        let ids: string[] = [];
+        for (const item of items) {
+          for (const component of item?.components ?? []) {
+              if (typeof component === 'string') {
+                // It's an ID of a regular component
+                ids.push(component);
+              } else if (component && component.components) {
+                // It's a nested row, go deeper
+                ids = ids.concat(findPlacedIds([component]));
+              }
+          }
+        }
+        return ids;
+      };
+
+      const findCardIds = (items: any[]): string[] => {
+        let ids: string[] = [];
+        for (const comp of items){
+          if(comp.component==='v-card'){
+            ids.push.apply(ids, Object.values(comp.cardChildren))
+          }
+        }
+        return ids
+      }
+
+      const placedComponentIds = findPlacedIds((this.cellData.layout as Layout)?.rows ?? []).concat(findPlacedIds((this.cellData.layout as Layout)?.columns ?? [])).concat(findCardIds(this.cellData.components));
+      return this.cellData.components.filter(
+        comp => !placedComponentIds.includes(comp.id)
+      );
+    }
+  },
+  methods: {
+    handleKeyDown(event: KeyboardEvent) {
       if (this.isFocused && event.ctrlKey && event.key === 'Enter') {
         this.runCode(false, this.cellData.id, '');
       }
     },
     handleFocus(state: boolean) {
+      if(state){
+        const aceComponent = this.$refs.editor as any;
+        aceComponent._editor.renderer.$cursorLayer.element.style.display = ""
+      }
+      else{
+        const aceComponent = this.$refs.editor as any;
+        aceComponent._editor.renderer.$cursorLayer.element.style.display = "none"
+      }
       this.isFocused = state;
     },
-      runCode(fromComponent:boolean , componentId: string, componentValue: any) {
-        if (!this.$devMode && fromComponent){
-          this.$emit('componentChange', this.cellData.id, componentId, componentValue);
-        }
-        else{
-          this.$emit('runCode', this.cellData.id, componentId);
-        }
-      },
-      deleteCell() {
-        this.$emit('deleteCell', this.cellData.id);
-      },
-      componentBind(component: any){
-        if(component.component && component.component === 'v-autocomplete'){
-          const { value, ...rest } = component;
-          return rest
-        }
-        return component
-      },
-      clickedButton(component: any){
-          if(component.component==='v-btn'){
-              component.value=true
-          }
-      },
-      findComponentById(id: string) {
-          const component = this.cellData.components.find(comp => comp.id === id);
-          return component;
-      },
-      cardComponents(card: any) {
-        const cardComponents: any[] = []
-        for(const id in card.cardChildren){
-          cardComponents.push(this.findComponentById(card.cardChildren[id]))
-        }
-        return cardComponents
+    runCode(fromComponent:boolean , componentId: string, componentValue: any) {
+      if (!this.$devMode && fromComponent){
+        this.$emit('componentChange', this.cellData.id, componentId, componentValue);
+      }
+      else{
+        this.$emit('runCode', this.cellData.id, componentId);
       }
     },
-  }
-  </script>
+    deleteCell() {
+      this.$emit('deleteCell', this.cellData.id);
+    },
+    componentBind(component: any){
+      if(component.component && component.component === 'v-autocomplete'){
+        const { value, ...rest } = component;
+        return rest
+      }
+      return component
+    },
+    clickedButton(component: any){
+        if(component.component==='v-btn'){
+            component.value=true
+        }
+    },
+    findComponentById(id: string) {
+        const component = this.cellData.components.find(comp => comp.id === id);
+        return component;
+    },
+    cardComponents(card: any) {
+      const cardComponents: any[] = []
+      for(const id in card.cardChildren){
+        cardComponents.push(this.findComponentById(card.cardChildren[id]))
+      }
+      return cardComponents
+    }
+  },
+}
+</script>
 
 <style>
 .toolbar-bg {
