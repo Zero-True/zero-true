@@ -2,8 +2,6 @@
 
 # Zero True: A New Kind of Code Notebook
 
-
-
 ## 🌐 Overview
 
 Welcome to **Zero True**, your go-to platform for creating beautiful and professional data-driven notebooks and applications in pure Python. Designed to foster collaboration and improve data accessibility, Zero True offers a rich UI library along with an intelligent code parser. Your notebook will always stay in sync.
@@ -24,7 +22,6 @@ Welcome to **Zero True**, your go-to platform for creating beautiful and profess
 - 🔄 Automatic dependency tracking between cells.
 - 🚀 Integrated app publishing with a simple command or click.
 
-
 ## ⚙ Requirements
 
 - Python 3.9 (Anaconda or virtual environment recommended)
@@ -36,9 +33,9 @@ pip install zero-true
 zero-true notebook
 ```
 
-### Usage 
+### Usage
 
-Once the application is running, navigate to http://localhost:2613 and start creating and executing code cells. Click the "Run" button to execute code and visualize the output below the editor. 
+Once the application is running, navigate to http://localhost:2613 and start creating and executing code cells. Click the "Run" button to execute code and visualize the output below the editor.
 
 #### Basic Example
 
@@ -46,7 +43,6 @@ Once the application is running, navigate to http://localhost:2613 and start cre
 import zero_true as zt
 my_slider = zt.Slider(id="my_slider")
 ```
-
 
 #### More Complicated Example
 
@@ -84,10 +80,8 @@ And the resulting layout:
 
 ![More Complicated Example](/docs/assets/example_layout.png)
 
-
 For more information checkout our [docs](https://docs.zero-true.com/)!
-
 
 ### Community
 
-Reach out on GitHub with any feature requests or bugs that you encounter and share your work with us on Twitter/X! We would love to see what you're able to build using Zero-True. 
+Reach out on GitHub with any feature requests or bugs that you encounter and share your work with us on Twitter/X! We would love to see what you're able to build using Zero-True.
