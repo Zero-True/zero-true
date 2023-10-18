@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@mdi/font": "7.0.96",
+    "@mdi/font": "^7.3.67",
     "@tinymce/tinymce-vue": "^5",
     "@types/plotly.js-basic-dist": "^1.54.2",
     "ace-builds": "^1.24.1",

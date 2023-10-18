@@ -248,43 +248,38 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, sa
 
 
     #print("Differences:", differences)
-def save_toml(zt_notebook: notebook.Notebook):
-    
 
-    tmp_uuid_file = 'notebook_'+ str(uuid.uuid4())+'.toml'
-    
-    
+def save_toml(zt_notebook):
+    tmp_uuid_file = f'notebook_{uuid.uuid4()}.toml'
+
     try:
-    # Create a TOML representation with only cell_id, cell_type, and code
-        toml_data = {
-            'notebookId': zt_notebook.notebookId,
-            'cells': {
-                cell_id: {
-                    'cellType': cell.cellType,
-                    'code': cell.code
-                } for cell_id, cell in zt_notebook.cells.items()
-            }
-        }
-        toml_str = toml.dumps(toml_data)
-        # Loop through each cell to reformat the 'code' field
-        for cell_id, cell in zt_notebook.cells.items():
-            code_single_line = cell.code.replace("\n", "\\n")
-            code_multi_line = '"""\n' + cell.code + '\n"""'
-            toml_str = re.sub(f'code = "{re.escape(code_single_line)}"', f'code = {code_multi_line}', toml_str)
-
-
         with open(tmp_uuid_file, "w") as project_file:
-            project_file.write(toml_str)
-            
+            # Write notebookId
+            project_file.write(f'notebookId = "{zt_notebook.notebookId}"\n\n')
+
+            for cell_id, cell in zt_notebook.cells.items():
+                # Write cell_id as a sub-section under cells
+                project_file.write(f'[cells.{cell_id}]\n')
+                
+                # Write cellType and code for this cell
+                project_file.write(f'cellType = "{cell.cellType}"\n')
+                
+                # Format code as a multi-line string
+                escaped_code = cell.code.encode().decode('unicode_escape')
+                project_file.write(f'code = """\n{escaped_code}"""\n\n')
+
         os.replace(tmp_uuid_file, 'notebook.toml')
 
     except Exception as e:
         print(e)
-            
-    try:
-        os.remove(tmp_uuid_file)
-    except Exception as e:
-        e
+        
+    finally:
+        try:
+            os.remove(tmp_uuid_file)
+        except Exception as e:
+            pass  # Handle error silently
+
+
 
 def remove_user_state(user_id):
     if user_id in user_states:

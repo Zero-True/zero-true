@@ -5,21 +5,21 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 
 export default defineComponent({
   props: {
     text: {
       type: String,
-      required: true
+      required: true,
     },
     text_type: {
       type: String,
-      required: true
+      required: true,
     },
     color: {
       type: String,
-      required: true
+      required: true,
     },
   },
 });
