@@ -19,7 +19,7 @@ user_name = settings.user_name
 
 route_prefix = ''
 if project_name:
-    route_prefix = '/'+project_name+'/'+user_name
+    route_prefix = '/'+user_name+'/'+project_name
 
 app.include_router(router.router, prefix=route_prefix)
 

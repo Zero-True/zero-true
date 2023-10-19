@@ -59,7 +59,7 @@ export default {
         autoScrollEditorIntoView: true,
         highlightActiveLine: this.isFocused,
         highlightGutterLine: this.isFocused,
-        minLines: 5,
+        minlines: 1,
         maxLines: Infinity,
       };
     },
