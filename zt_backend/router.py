@@ -109,12 +109,12 @@ def delete_cell(deleteRequest: request.DeleteRequest):
 
             # Recursively search for and remove the cell ID from child_cells in other cells
             for cell_key, cell in cell_dict.items():
-                if cell_id in cell.get("child_cells", []):
+                if cell_id in dict(cell).get("child_cells", []):
                     cell["child_cells"].remove(cell_id)
 
             # Recursively search for and remove the cell ID from parent_cells in other cells
             for cell_key, cell in cell_dict.items():
-                if cell_id in cell.get("parent_cells", []):
+                if cell_id in dict(cell).get("parent_cells", []):
                     cell["parent_cells"].remove(cell_id)
 
         except Exception as e:
