@@ -29,4 +29,4 @@ Explore the detailed API documentation for Zero True, including component proper
    autocomplete
    button
    matplotlib
-   plotlycomponent
+   plotly
