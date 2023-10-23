@@ -36,6 +36,7 @@ def get_loaded_names(module, defined_names) -> List[str]:
     return [usenode.name for usenode in module.nodes_of_class(astroid.Name) if usenode.name not in function_arguments]
 
 
+
 def generate_sql_code(cell, uuid_value, db_file='my_database.db'):
     """Generate SQL code for the given cell."""
     
@@ -45,9 +46,14 @@ def generate_sql_code(cell, uuid_value, db_file='my_database.db'):
     # Initialize the DuckDB database connection to persist tables
     db_init = f"conn = duckdb.connect('{db_file}')"
 
+    # Extract all placeholders from the SQL string
+    placeholders = re.findall(r"\{(.*?)\}", cell.code)
+    
+    # Replace placeholders with "?" for SQL parameterization
+    parametrized_sql = re.sub(r"\{(.*?)\}", "?", cell.code)
+    
     # SQL code execution
-    # Note: Use the connection 'conn' to ensure tables are persisted to the database file
-    sql_execution = f'conn.query(f"""{cell.code}""").df()'
+    sql_execution = f'conn.execute("""{parametrized_sql}""", [{", ".join(placeholders)}]).df()'
 
     if cell.variable_name:
         # If variable_name is provided, use it for assignment
@@ -78,14 +84,22 @@ def parse_cells(request: Request) -> CodeDict:
             uuid_value = str(uuid.uuid4())
             cell.code = generate_sql_code(cell, uuid_value)
         
-        module = astroid.parse(cell.code)
-        function_names, function_arguments = get_functions(module)
-        defined_names = get_defined_names(module) + get_imports(module) + function_names
-        loaded_names = get_loaded_names(module, defined_names) + get_loaded_modules(module) + list(table_names)
-        cell_dict[cell.id] = Cell(**{
-            'code': cell.code,
-            'defined_names': defined_names,
-            'loaded_names': list(set(loaded_names))})
+        try:
+            module = astroid.parse(cell.code)
+            function_names, function_arguments = get_functions(module)
+            defined_names = get_defined_names(module) + get_imports(module) + function_names
+            loaded_names = get_loaded_names(module, defined_names) + get_loaded_modules(module) + list(table_names)
+            cell_dict[cell.id] = Cell(**{
+                'code': cell.code,
+                'defined_names': defined_names,
+                'loaded_names': list(set(loaded_names))})
+        except Exception as e:
+            print(e)
+            cell_dict[cell.id] = Cell(**{
+                'code': cell.code,
+                'defined_names': [],
+                'loaded_names': []})
+    
     return CodeDict(cells=cell_dict)
 
 
