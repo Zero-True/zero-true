@@ -191,7 +191,7 @@ def get_notebook(id=''):
             'notebookId' : toml_data['notebookId'],
             'userId' : '',
             'cells': {
-                cell_id: notebook.CodeCell(id=cell_id, **cell_data,output="",variable_name='')
+                cell_id: notebook.CodeCell(id=cell_id, **cell_data,output="")
                 for cell_id, cell_data in toml_data['cells'].items()
             }
         }
