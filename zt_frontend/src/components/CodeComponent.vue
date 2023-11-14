@@ -286,9 +286,17 @@ export default {
     componentBind(component: any) {
       if (component.component && component.component === "v-autocomplete") {
         const { value, ...rest } = component;
-        return rest;
+        return this.convertUnderscoresToHyphens(rest);
       }
-      return component;
+      return this.convertUnderscoresToHyphens(component);
+    },
+
+    convertUnderscoresToHyphens(obj: any) {
+      return Object.entries(obj).reduce((newObj: any, [key, value]) => {
+        const modifiedKey = key.replace(/_/g, '-');
+        newObj[modifiedKey] = value;
+        return newObj;
+      }, {});
     },
     clickedButton(component: any) {
       if (component.component === "v-btn") {
