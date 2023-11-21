@@ -18,7 +18,7 @@ export type VariableName = string;
  */
 export type Component = string;
 /**
- * Source URL of the image.
+ * Source URL or Path of the image.
  */
 export type Src = string;
 /**

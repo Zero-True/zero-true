@@ -131,7 +131,7 @@ export default {
           const cellRequest: CodeRequest = {
             id: key,
             code: this.notebook.cells[key].code,
-            variable_name: this.notebook.cells[key].variable_name,
+            variable_name: this.notebook.cells[key].variable_name || "",
             cellType: this.notebook.cells[key].cellType,
           };
           for (const c of this.notebook.cells[key].components) {

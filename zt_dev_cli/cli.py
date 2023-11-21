@@ -9,7 +9,7 @@ from typing_extensions import Annotated
 from typing import Optional
 from rich import print
 
-app = typer.Typer()
+cli_app = typer.Typer()
 
 def print_ascii_logo():
     ascii_logo="""
@@ -48,27 +48,38 @@ def build_frontend():
     os.chdir('..')
     shutil.copytree('zt_frontend/dist', 'zt_backend/dist_app')
 
-@app.command()
+@cli_app.command()
 def pyd2ts():
     generate_ts()
 
-@app.command()
-def run_yarn_build():
+@cli_app.command()
+def build():
     build_frontend()    
 
-@app.command()
-def run(mode: Annotated[Optional[str], typer.Argument(help="The mode to run zero-true in, can be one of 'notebook' and 'app'")],
-        port: Annotated[Optional[str], typer.Argument(help="Port number to bind to.")]=""):
+@cli_app.command()
+def app(port: Annotated[Optional[int], typer.Argument(help="Port number to bind to.")]=5173):
+    
+    print_ascii_logo()
+
+    os.environ['RUN_MODE'] = 'app'
+    frontend_cmd = ["yarn", "run", "app", str(port)]
+    backend_cmd = ["start", "uvicorn", "zt_backend.main:app", "--reload", "--log-level", "debug"]
+
+    backend_process = subprocess.Popen(backend_cmd, shell=True)
+    os.chdir("zt_frontend")
+    frontend_process = subprocess.Popen(frontend_cmd, shell=True)
+
+    backend_process.wait()
+    frontend_process.wait()
+
+@cli_app.command()
+def notebook(port: Annotated[Optional[int], typer.Argument(help="Port number to bind to.")]=5173):
     
     print_ascii_logo()
     port = port if port else 5173
-    
-    if mode == 'app':
-        os.environ['RUN_MODE'] = 'app'
-        frontend_cmd = ["yarn", "run", "app", str(port)]
-    else:
-        os.environ['RUN_MODE'] = 'dev'
-        frontend_cmd = ["yarn", "run", "dev", str(port)]
+
+    os.environ['RUN_MODE'] = 'dev'
+    frontend_cmd = ["yarn", "run", "dev", str(port)]
     backend_cmd = ["start", "uvicorn", "zt_backend.main:app", "--reload", "--log-level", "debug"]
 
     backend_process = subprocess.Popen(backend_cmd, shell=True)
@@ -79,4 +90,4 @@ def run(mode: Annotated[Optional[str], typer.Argument(help="The mode to run zero
     frontend_process.wait()
 
 if __name__ == "__main__":
-    app()
+    cli_app()
