@@ -1,4 +1,3 @@
-from numpy import e
 from pydantic import Field, field_validator
 from zt_backend.models.components.zt_component import ZTComponent
 import base64

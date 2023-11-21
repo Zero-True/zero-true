@@ -11,7 +11,6 @@ import uuid
 import os
 import toml
 import threading
-import sys
 
 
 router = APIRouter()
