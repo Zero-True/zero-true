@@ -45,7 +45,7 @@ class CodeCell(BaseModel):
     id: str
     code: str
     output: str
-    variable_name: str
+    variable_name: str = Field("")
     layout: Layout = Field(Layout())
     components: List[SerializeAsAny[ZTComponent]]
     cellType: str = Field(enum=['code', 'markdown', 'text', 'sql'])

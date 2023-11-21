@@ -47,7 +47,7 @@ def publish(key: Annotated[Optional[str],typer.Argument(help="The API key used t
     headers = {"Content-Type":"application/json",
                "x-api-key":key}
     response = requests.post(lambda_url, json={"s3_key": s3_key}, headers=headers)
-    
+
     if response.status_code != 200:
         typer.echo(f"Execution error occured: {response.content}")
         return
@@ -91,7 +91,7 @@ def start(mode: Annotated[Optional[str], typer.Argument(help="The mode to run ze
         
     print(f"[yellow]Starting Zero-True in {mode} mode on http://{host}:{port}[/yellow]")
 
-    uvicorn.run('zt_backend.main:app', host=host, port=port, log_level='error')
+    uvicorn.run('zt_backend.main:app', host=host, port=port, log_level='info')
 
 if __name__ == "__main__":
     app()
