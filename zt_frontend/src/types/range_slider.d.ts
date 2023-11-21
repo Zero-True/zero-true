@@ -36,7 +36,7 @@ export type Step = number;
 /**
  * Displays the thumb label.
  */
-export type ThumbLabel = boolean;
+export type ThumbLabel = string;
 /**
  * Size of the thumb.
  */

@@ -9,7 +9,7 @@ from rich import print
 import shutil
 import requests
 
-app = typer.Typer()
+cli_app = typer.Typer()
 
 def print_ascii_logo():
     ascii_logo="""
@@ -35,7 +35,7 @@ def upload_to_s3(signed_url, zip_path):
     except Exception as e:
         typer.echo(f"An error occurred: {e}")
 
-@app.command()
+@cli_app.command()
 def publish(key: Annotated[Optional[str],typer.Argument(help="The API key used to publish your project")],
             user_name: Annotated[Optional[str],typer.Argument(help="User Name to publish the project under")],
             project_name:  Annotated[Optional[str],typer.Argument(help="The project to be published")],
@@ -70,28 +70,33 @@ def publish(key: Annotated[Optional[str],typer.Argument(help="The API key used t
     os.remove(f"{output_filename}.zip")
     return signed_url
 
-@app.callback(invoke_without_command=True)
-def start(mode: Annotated[Optional[str], typer.Argument(help="The mode to run zero-true in, can be one of 'notebook' and 'app'")],
-          host: Annotated[Optional[str], typer.Argument(help="Host address to bind to.")]="localhost",
-          port: Annotated[Optional[str], typer.Argument(help="Port number to bind to.")]=""):
+@cli_app.command()
+def app(host: Annotated[Optional[str], typer.Argument(help="Host address to bind to.")]="localhost",
+        port: Annotated[Optional[int], typer.Argument(help="Port number to bind to.")]=2613):
     """
     Start the Zero-True application.
     """
 
     print_ascii_logo()
-    if mode == 'app':
-        os.environ['RUN_MODE'] = 'app'
-        port = port if port else 2613
-    elif mode == 'notebook':
-        os.environ['RUN_MODE'] = 'dev'
-        port = port if port else 1326
-    else:
-        typer.echo("Invalid mode. Choose either 'notebook' or 'app'.")
-        raise typer.Exit(code=1)
+    os.environ['RUN_MODE'] = 'app'
         
-    print(f"[yellow]Starting Zero-True in {mode} mode on http://{host}:{port}[/yellow]")
+    print(f"[yellow]Starting Zero-True in app mode on http://{host}:{port}[/yellow]")
+
+    uvicorn.run('zt_backend.main:app', host=host, port=port, log_level='info')
+
+@cli_app.command()
+def notebook(host: Annotated[Optional[str], typer.Argument(help="Host address to bind to.")]="localhost",
+        port: Annotated[Optional[int], typer.Argument(help="Port number to bind to.")]=1326):
+    """
+    Start the Zero-True application.
+    """
+
+    print_ascii_logo()
+    os.environ['RUN_MODE'] = 'dev'
+        
+    print(f"[yellow]Starting Zero-True in notebook mode on http://{host}:{port}[/yellow]")
 
     uvicorn.run('zt_backend.main:app', host=host, port=port, log_level='info')
 
 if __name__ == "__main__":
-    app()
+    cli_app()

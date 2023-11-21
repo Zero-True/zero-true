@@ -81,6 +81,7 @@ export default {
       timerInterval: null as ReturnType<typeof setInterval> | null, // To hold the timer interval
       isCodeRunning: false,
       requestQueue: [] as string[],
+      componentChangeQueue: [] as  any[],
     };
   },
 
@@ -131,7 +132,7 @@ export default {
           const cellRequest: CodeRequest = {
             id: key,
             code: this.notebook.cells[key].code,
-            variable_name: this.notebook.cells[key].variable_name,
+            variable_name: this.notebook.cells[key].variable_name || "",
             cellType: this.notebook.cells[key].cellType,
           };
           for (const c of this.notebook.cells[key].components) {
@@ -165,44 +166,66 @@ export default {
       }
     },
 
-    async componentValueChange(
-      originId: string,
-      componentId: string,
-      newValue: any
-    ) {
-      const requestComponents: { [key: string]: any } = {};
-      for (let key in this.notebook.cells) {
-        for (const c of this.notebook.cells[key].components) {
-          requestComponents[c.id] = c.value;
-        }
+    async componentValueChange(originId: string, componentId: string, newValue: any) {
+      // Updating the component's value in the notebook
+      if (this.notebook.cells[componentId]) {
+        this.notebook.cells[componentId].value = newValue;
       }
-      const componentRequest: ComponentRequest = {
+
+      // Preparing the component change request
+      const componentChangeRequest = {
         originId: originId,
-        components: requestComponents,
+        componentId: componentId,
+        newValue: newValue,
         userId: this.notebook.userId,
       };
-      this.isCodeRunning = true;
-      this.startTimer();
-      const axiosResponse = await axios.post(
-        import.meta.env.VITE_BACKEND_URL + "api/component_run",
-        componentRequest
-      );
-      this.stopTimer();
-      this.isCodeRunning = false;
-      const response: Response = axiosResponse.data;
-      if (response.refresh) {
-        const notebookResponse = await axios.get(
-          import.meta.env.VITE_BACKEND_URL + "api/notebook"
-        );
-        this.notebook = notebookResponse.data;
+
+      // Updating the queue: if the componentId already exists, update the value; otherwise, add to the queue
+      const existingRequestIndex = this.componentChangeQueue.findIndex(req => req.componentId === componentId);
+      if (existingRequestIndex !== -1) {
+        this.componentChangeQueue[existingRequestIndex] = componentChangeRequest;
       } else {
-        for (const cellResponse of response.cells) {
-          this.notebook.cells[cellResponse.id].components =
-            cellResponse.components;
-          this.notebook.cells[cellResponse.id].output = cellResponse.output;
-          this.notebook.cells[cellResponse.id].layout = cellResponse.layout as
-            | Layout
-            | undefined;
+        this.componentChangeQueue.push(componentChangeRequest);
+      }
+
+      // If code is already running, exit the function to wait for the current execution to finish
+      if (this.isCodeRunning) {
+        return;
+      }
+
+      // Process the queue
+      while (this.componentChangeQueue.length > 0) {
+        const currentRequest = this.componentChangeQueue.shift();
+        if (!currentRequest) continue;
+
+        const requestComponents = { [currentRequest.componentId]: currentRequest.newValue };
+
+        const componentRequest: ComponentRequest = {
+          originId: currentRequest.originId,
+          components: requestComponents,
+          userId: currentRequest.userId,
+        };
+
+        this.isCodeRunning = true;
+        this.startTimer();
+        const axiosResponse = await axios.post(
+          import.meta.env.VITE_BACKEND_URL + "api/component_run",
+          componentRequest
+        );
+        this.stopTimer();
+        this.isCodeRunning = false;
+        const response: Response = axiosResponse.data;
+        if (response.refresh) {
+          const notebookResponse = await axios.get(
+            import.meta.env.VITE_BACKEND_URL + "api/notebook"
+          );
+          this.notebook = notebookResponse.data;
+        } else {
+          for (const cellResponse of response.cells) {
+            this.notebook.cells[cellResponse.id].components = cellResponse.components;
+            this.notebook.cells[cellResponse.id].output = cellResponse.output;
+            this.notebook.cells[cellResponse.id].layout = cellResponse.layout as Layout | undefined;
+          }
         }
       }
     },
