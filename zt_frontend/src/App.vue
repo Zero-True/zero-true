@@ -15,8 +15,11 @@
         <v-chip class="ml-2" color="white" text-color="black">
           {{ timer }}ms
         </v-chip>
-        <v-chip class="ml-2" color="white" text-color="black">
+        <v-chip v-if="$devMode" class="ml-2" color="white" text-color="black">
           Queue Length: {{ requestQueue.length }}
+        </v-chip>
+        <v-chip v-else class="ml-2" color="white" text-color="black">
+          Queue Length: {{ componentChangeQueue.length }}
         </v-chip>
       </div>
     </v-app-bar>
@@ -168,15 +171,18 @@ export default {
 
     async componentValueChange(originId: string, componentId: string, newValue: any) {
       // Updating the component's value in the notebook
-      if (this.notebook.cells[componentId]) {
-        this.notebook.cells[componentId].value = newValue;
+      const requestComponents: { [key: string]: any } = {};
+      for (let key in this.notebook.cells) {
+        for (const c of this.notebook.cells[key].components) {
+          requestComponents[c.id] = c.value;
+        }
       }
 
       // Preparing the component change request
       const componentChangeRequest = {
         originId: originId,
         componentId: componentId,
-        newValue: newValue,
+        components: requestComponents,
         userId: this.notebook.userId,
       };
 
@@ -198,11 +204,10 @@ export default {
         const currentRequest = this.componentChangeQueue.shift();
         if (!currentRequest) continue;
 
-        const requestComponents = { [currentRequest.componentId]: currentRequest.newValue };
 
         const componentRequest: ComponentRequest = {
           originId: currentRequest.originId,
-          components: requestComponents,
+          components: currentRequest.components,
           userId: currentRequest.userId,
         };
 
