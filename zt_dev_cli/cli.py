@@ -76,7 +76,6 @@ def app(port: Annotated[Optional[int], typer.Argument(help="Port number to bind 
 def notebook(port: Annotated[Optional[int], typer.Argument(help="Port number to bind to.")]=5173):
     
     print_ascii_logo()
-    port = port if port else 5173
 
     os.environ['RUN_MODE'] = 'dev'
     frontend_cmd = ["yarn", "run", "dev", str(port)]
