@@ -70,7 +70,7 @@ def publish(key: Annotated[Optional[str],typer.Argument(help="The API key used t
     os.remove(f"{output_filename}.zip")
     return signed_url
 
-@app.command()
+@app.callback(invoke_without_command=True)
 def start(mode: Annotated[Optional[str], typer.Argument(help="The mode to run zero-true in, can be one of 'notebook' and 'app'")],
           host: Annotated[Optional[str], typer.Argument(help="Host address to bind to.")]="localhost",
           port: Annotated[Optional[str], typer.Argument(help="Port number to bind to.")]=""):
