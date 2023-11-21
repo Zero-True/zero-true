@@ -81,7 +81,7 @@ export default {
       timerInterval: null as ReturnType<typeof setInterval> | null, // To hold the timer interval
       isCodeRunning: false,
       requestQueue: [] as string[],
-      componentChangeQueue: [] as  any,
+      componentChangeQueue: [] as  any[],
     };
   },
 
