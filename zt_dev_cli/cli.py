@@ -69,7 +69,7 @@ def run(mode: Annotated[Optional[str], typer.Argument(help="The mode to run zero
     else:
         os.environ['RUN_MODE'] = 'dev'
         frontend_cmd = ["yarn", "run", "dev", str(port)]
-    backend_cmd = ["start", "uvicorn", "zt_backend.main:app", "--reload"]
+    backend_cmd = ["start", "uvicorn", "zt_backend.main:app", "--reload", "--log-level", "debug"]
 
     backend_process = subprocess.Popen(backend_cmd, shell=True)
     os.chdir("zt_frontend")

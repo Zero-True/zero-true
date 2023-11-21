@@ -3,7 +3,7 @@ from zt_backend.models import request, notebook, response
 from zt_backend.runner.execute_code import execute_request
 from zt_backend.config import settings
 from dictdiffer import diff
-import re
+import logging
 import site 
 import json
 import duckdb
@@ -11,7 +11,7 @@ import uuid
 import os
 import toml
 import threading
-
+import sys
 
 
 router = APIRouter()
@@ -37,6 +37,8 @@ user_states={}
 cell_outputs_dict={}
 
 run_mode = settings.run_mode
+
+logger = logging.getLogger("uvicorn")
 
 @router.get("/health")
 def health():
@@ -133,7 +135,7 @@ def clear_state(clearRequest: request.ClearRequest):
         user_states.pop(clearRequest.userId, None)
 
 @router.get("/api/notebook")
-def get_notebook():
+def load_notebook():
     notebook_start = get_notebook()
     if (run_mode=='app'):
         userId = str(uuid.uuid4())
@@ -173,7 +175,7 @@ def get_notebook(id=''):
             zt_notebook = get_notebook_db(id)
             return(zt_notebook)
         except Exception as e:
-            print(e)
+            logger.error(e)
 
     try:            
         # If it doesn't exist in the database, load it from the TOML file
@@ -191,7 +193,7 @@ def get_notebook(id=''):
             'notebookId' : toml_data['notebookId'],
             'userId' : '',
             'cells': {
-                cell_id: notebook.CodeCell(id=cell_id, **cell_data,output="")
+                cell_id: notebook.CodeCell(id=cell_id, **cell_data, output="")
                 for cell_id, cell_data in toml_data['cells'].items()
             }
         }
@@ -264,6 +266,9 @@ def save_toml(zt_notebook):
                 # Write cellType and code for this cell
                 project_file.write(f'cellType = "{cell.cellType}"\n')
                 
+                if cell.cellType=='sql' and cell.variable_name:
+                    project_file.write(f'variable_name = "{cell.variable_name}"\n')
+                
                 # Format code as a multi-line string
                 escaped_code = cell.code.encode().decode('unicode_escape')
                 project_file.write(f'code = """\n{escaped_code}"""\n\n')
@@ -296,6 +301,7 @@ def timer_set(user_id, timeout_seconds):
             existing_timer.cancel()
         
         timer = threading.Timer(timeout_seconds, remove_user_state, args=(user_id,))
+        timer.daemon=True
         timer.start()
         
         user_states[user_id]['timer'] = timer

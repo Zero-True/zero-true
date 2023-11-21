@@ -7,9 +7,9 @@ from io import BytesIO
 class Matplotlib(ZTComponent):
     component: str = Field("v-img", description="Vue component name.")
     src: str = Field(..., description="Source URL of the image.")
-    alt: str = Field(None, description="Alternative text for the image.")
-    width: int = Field(None, description="Width of the image.")
-    height: int = Field(None, description="Height of the image.")
+    alt: str = Field("", description="Alternative text for the image.")
+    width: int = Field(100, description="Width of the image.")
+    height: int = Field(100, description="Height of the image.")
     
     @classmethod
     def from_matplotlib(cls,id: str, figure: plt.Figure, alt=None, width=None, height=None):
