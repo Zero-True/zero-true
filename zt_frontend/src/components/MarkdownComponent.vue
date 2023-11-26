@@ -64,8 +64,6 @@ export default {
     },
     compiledMarkdown() {
       const pasrsed_markdown = marked.parse(this.cellData.code,)
-      console.log(this.cellData.code)
-      console.log(pasrsed_markdown)
       return pasrsed_markdown;
     },
   },
