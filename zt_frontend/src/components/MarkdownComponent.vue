@@ -30,13 +30,13 @@
       <p class="text-caption text-disabled text-right">
         CTRL+Enter to save</p>
     </div>
-    <Markdown :source="cellData.code" />
+    <div v-html="compiledMarkdown"></div>
   </v-card>
 </template>
 
 <script lang="ts">
 import type { PropType } from "vue";
-import Markdown from "vue3-markdown-it";
+import { marked } from 'marked';
 import { VAceEditor } from "vue3-ace-editor";
 import "ace-builds/src-noconflict/mode-markdown";
 import "ace-builds/src-noconflict/snippets/markdown";
@@ -47,7 +47,6 @@ import { CodeCell } from "@/types/notebook";
 export default {
   components: {
     "ace-editor": VAceEditor,
-    Markdown,
   },
   computed: {
     editorOptions() {
@@ -62,6 +61,9 @@ export default {
         minlines: 1,
         maxLines: Infinity,
       };
+    },
+    compiledMarkdown() {
+      return marked.parse(this.cellData.code);
     },
   },
   data() {
