@@ -16,11 +16,11 @@ Welcome to **Zero True**, your go-to platform for creating beautiful and profess
 
 ## Features
 
-- 📝 Multi-language code editor with real-time execution.
-- 🌌 Hierarchical organization for code cells.
+- 📝 Python + SQL reactive computational notebook.
+- 🌌 No hidden state. Our reactive cell updates show you what your notebook looks like in real time.
 - 📊 Dynamic UI rendering with beautiful [Vuetify](https://vuetifyjs.com/en/) components.
 - 🔄 Automatic dependency tracking between cells.
-- 🚀 Integrated app publishing with a simple command or click.
+- 🚀 Integrated app publishing with a simple command.
 
 ## ⚙ Requirements
 
@@ -35,53 +35,91 @@ zero-true notebook
 
 ### Usage
 
-Once the application is running, navigate to http://localhost:2613 and start creating and executing code cells. Click the "Run" button to execute code and visualize the output below the editor.
+Once the application is running, navigate to http://localhost:1326 and start creating and executing code cells. Click the "Run" button to execute code and visualize the output below the editor.
 
 #### Basic Example
 
 ```python
 import zero_true as zt
-my_slider = zt.Slider(id="my_slider")
+slider = zt.Slider(id='slider_1')
+print('The squared value is '+str(slider.value**2))
 ```
 
-#### More Complicated Example
+
+#### More Complicated Example using Python + SQL 
+
+For this example you will need scikitlearn 
+
+```bash
+pip install scikit-learn
+```
+
+Once it has installed, launch your notebook. We will be using the Iris dataset from scikit learn to create an app where people 
+can filter the data using the our UI components and SQL editor. We start with a Python cell:
 
 ```python
 
-import plotly.graph_objects as go
-from plotly.graph_objects import Figure
 import zero_true as zt
-
-
-# Generate a layout
-layout = {
-    "title": "My Plot",
-    "xaxis": {"title": "x-axis"},
-    "yaxis": {"title": "y-axis"}
-}
-
-slider=zt.Slider(id='slider1')
-zt.Slider(id='slider2')
-zt.Slider(id='slider3')
-zt.Slider(id='slider4')
-zt.Slider(id='slider5')
-
-fig = go.Figure(data=[go.Scatter(x=[slider.value, slider.value+2, slider.value+3], y=[1, 4, 9])])
-
-zt.PlotlyComponent(id = 'acds',figure=fig.to_dict(), layout=layout)
-
-zt.Layout(rows=[zt.Row(components=['slider3',zt.Column(components=['slider4','slider5'])])],columns=[zt.Column(components=['acds','slider1']),
-                    zt.Column(components=['slider2'])])
-
-
+import sklearn
+import pandas as pd
+from sklearn import datasets
+iris = datasets.load_iris()
+# Creating a DataFrame with the feature data
+iris_df = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+# Map the target indices to target names
+iris_df['target'] = iris.target
+iris_df['target_name'] = iris_df['target'].apply(lambda x: iris.target_names[x])
+# Rename columns to remove spaces and standardize
+iris_df.columns = [col.replace(' ', '_').replace('(cm)', 'cm') for col in iris_df.columns]
+iris_df.columns = [ col.replace(' ','_').replace('(cm)','cm') for col in iris_df.columns]
+iris_df.drop('target',axis=1,inplace = True)
+#all the different sliders
+sepal_width_slider  = zt.RangeSlider(id = 'sepal_width',
+                                     min = iris_df.sepal_width_cm.min(),
+                                     max = iris_df.sepal_width_cm.max(),
+                                     step = 0.1,label = 'Sepal Width')
+petal_width_slider  = zt.RangeSlider(id = 'petal_width',
+                                     min = iris_df.petal_width_cm.min(),
+                                     max = iris_df.petal_width_cm.max(),
+                                     step = 0.1,label = 'Petal Width')
+sepal_length_slider = zt.RangeSlider(id = 'sepal_length',
+                                     min = iris_df.sepal_length_cm.min(),
+                                     max = iris_df.sepal_length_cm.max(),
+                                     step = 0.1, label = 'Sepal Length')
+petal_length_slider = zt.RangeSlider(id = 'petal_lenght',
+                                     min = iris_df.petal_length_cm.min(),
+                                     max = iris_df.petal_length_cm.max(),
+                                     step = 0.1, label = 'Petal Length')
 ```
 
-And the resulting layout:
+Then add a SQL cell below to query the dataframe. Notice how we can query a pandas dataframe directly and reference our
+UI components in the query:
 
-![More Complicated Example](/docs/assets/example_layout.png)
+```sql
+SELECT * FROM iris_df
+WHERE (sepal_length_cm BETWEEN {sepal_length_slider.value[0]} AND {sepal_length_slider.value[1]})
+AND  (sepal_width_cm BETWEEN {sepal_width_slider.value[0]} AND {sepal_width_slider.value[1]})
+AND  (petal_width_cm BETWEEN {petal_width_slider.value[0]} AND {petal_width_slider.value[1]})
+AND (petal_length_cm BETWEEN {petal_length_slider.value[0]} AND {petal_length_slider.value[1]})
+```
 
-For more information checkout our [docs](https://docs.zero-true.com/)!
+Notice how dragging the slider will update the dataframe. Set the parameters for your Iris bouquet and check out the data! You can 
+see a published app for this [example](https://published.zero-true-cloud.com/examples/iris/).
+
+![More Complicated Example](/docs/assets/example_gif.gif)
+
+We support a large range of use cases and UI components. For more information please check out our docs: [docs](https://docs.zero-true.com/)! You can also find some more narrative tutorials at our Medium publication [here](https://medium.com/zero-true). 
+
+### Publishing 
+
+Publishing your notebook is easy. Currently it's a one liner from the command line:
+
+
+```bash
+zero-true publish [api-key] [user-name] [project-name] [project-source]
+```
+Publishing is only open to a limited audience. If you are interested in publishing your notebook at a URL in our public cloud please fill out the email waiting list on our [website](https://zero-true.com/).
 
 ### Community
 
-Reach out on GitHub with any feature requests or bugs that you encounter and share your work with us on Twitter/X! We would love to see what you're able to build using Zero-True.
+Reach out on GitHub with any feature requests or bugs that you encounter and share your work with us on [Twitter/X](https://twitter.com/ZeroTrueML)! We are also active on [linkedin](https://www.linkedin.com/company/zero-true). We would love to see what you're able to build using Zero-True. 

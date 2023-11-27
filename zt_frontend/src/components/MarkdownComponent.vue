@@ -30,13 +30,13 @@
       <p class="text-caption text-disabled text-right">
         CTRL+Enter to save</p>
     </div>
-    <Markdown :source="cellData.code" />
+    <div class="markdown-content" v-html="compiledMarkdown"></div>
   </v-card>
 </template>
 
 <script lang="ts">
 import type { PropType } from "vue";
-import Markdown from "vue3-markdown-it";
+import { marked } from 'marked';
 import { VAceEditor } from "vue3-ace-editor";
 import "ace-builds/src-noconflict/mode-markdown";
 import "ace-builds/src-noconflict/snippets/markdown";
@@ -47,7 +47,6 @@ import { CodeCell } from "@/types/notebook";
 export default {
   components: {
     "ace-editor": VAceEditor,
-    Markdown,
   },
   computed: {
     editorOptions() {
@@ -62,6 +61,10 @@ export default {
         minlines: 1,
         maxLines: Infinity,
       };
+    },
+    compiledMarkdown() {
+      const pasrsed_markdown = marked.parse(this.cellData.code,)
+      return pasrsed_markdown;
     },
   },
   data() {
@@ -113,3 +116,71 @@ export default {
   },
 };
 </script>
+
+<style>
+ 
+.markdown-content {
+  /* General text styling */
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  color: #ffffff;}
+  
+
+  /* Headings */
+  .markdown-content   h1, h2, h3, h4, h5, h6 {
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    font-weight: bold;
+    line-height: 1.3;
+  }
+
+  /* Paragraphs */
+  .markdown-content p {
+    margin-top: 0;
+    margin-bottom: 1em;
+  }
+
+  /* Lists */
+  .markdown-content ul, ol {
+    padding-left: 20px;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
+
+  .markdown-content ul {
+    list-style-type: disc;
+  }
+
+  .markdown-content ol {
+    list-style-type: decimal;
+  }
+
+  .markdown-content li {
+    margin-bottom: 0.25em;
+  }
+
+  /* Links */
+  .markdown-content a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  .markdown-content a:hover {
+    text-decoration: underline;
+  }
+
+  /* Images */
+  .markdown-content img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  
+  /* Blockquotes */
+  .markdown-content blockquote {
+    margin: 0;
+    padding-left: 1em;
+    color: #6a737d;
+    border-left: 0.25em solid #dfe2e5;
+  }
+
+</style>
