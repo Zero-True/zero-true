@@ -390,9 +390,9 @@ asynckit@^0.4.0:
   integrity sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==
 
 axios@^1.5.0:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-1.5.1.tgz#11fbaa11fc35f431193a9564109c88c1f27b585f"
-  integrity sha512-Q28iYCWzNHjAm+yEAot5QaAMxhMghWLFVf7rRdwhUI+c2jix2DUXjAHXVi+s1ibs3mjPO/cCgbA++3BjD0vP/A==
+  version "1.6.2"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.6.2.tgz#de67d42c755b571d3e698df1b6504cde9b0ee9f2"
+  integrity sha512-7i24Ri4pmDRfJTR7LDBhsOTtcm+9kjX5WiY1X3wIisx6G9So3pfMkEiU7emUBe46oceVImccTEM3k6C5dbVW8A==
   dependencies:
     follow-redirects "^1.15.0"
     form-data "^4.0.0"
@@ -950,9 +950,9 @@ timers-ext@^0.1.7:
     next-tick "1"
 
 "tinymce@^6.0.0 || ^5.5.1", tinymce@^6.7.0:
-  version "6.7.0"
-  resolved "https://registry.yarnpkg.com/tinymce/-/tinymce-6.7.0.tgz#0ec245502cdefbfa0ff9042b423ac9a01e781423"
-  integrity sha512-Wf2RSobIXQ7XNw3/v4z1lPGiH3Pjsmc/6/7fG28aIS6uVWj/7IhvOPuwfJJDeOx0o0D3nSnoLHgR2KU8JAdE+w==
+  version "6.8.0"
+  resolved "https://registry.yarnpkg.com/tinymce/-/tinymce-6.8.0.tgz#5704cdaa7c01c07fd63c64b0f2f390f6e6244592"
+  integrity sha512-WSQlyfW8aPkOVMmmHmSVeA5Dq4JuUZjTB+PmePJ27oQ+ruv3Zn4KSTsvSnDUrHlqygjDvRidrCB/m5nTWCC2nA==
 
 to-fast-properties@^2.0.0:
   version "2.0.0"
