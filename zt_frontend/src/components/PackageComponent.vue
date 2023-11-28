@@ -13,7 +13,7 @@
             ref="editor"
             class="editor"
             theme="dracula"
-            lang="markdown"
+            lang="text"
             :options="editorOptions"
             />
         <v-card-actions>
@@ -43,8 +43,8 @@ import type { PropType } from "vue";
 import { VAceEditor } from "vue3-ace-editor";
 import { Dependencies } from "@/types/notebook_response";
 import { DependencyRequest } from "@/types/dependency_request";
-import "ace-builds/src-noconflict/mode-markdown";
-import "ace-builds/src-noconflict/snippets/markdown";
+import "ace-builds/src-noconflict/mode-text";
+import "ace-builds/src-noconflict/snippets/text";
 import "ace-builds/src-noconflict/ext-language_tools";
 import "ace-builds/src-noconflict/theme-dracula";
 import axios from "axios";

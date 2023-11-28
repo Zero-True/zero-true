@@ -66,6 +66,7 @@ import { CreateRequest, Celltype } from "./types/create_request";
 import { ClearRequest } from "./types/clear_request";
 import { Response } from "./types/response";
 import { Notebook, CodeCell, Layout } from "./types/notebook";
+import { Dependencies } from "./types/notebook_response";
 import CodeComponent from "@/components/CodeComponent.vue";
 import MarkdownComponent from "@/components/MarkdownComponent.vue";
 import EditorComponent from "@/components/EditorComponent.vue";
@@ -83,7 +84,7 @@ export default {
   data() {
     return {
       notebook: {} as Notebook,
-      dependencies: "",
+      dependencies: "" as Dependencies,
       timer: 0, // The timer value
       timerInterval: null as ReturnType<typeof setInterval> | null, // To hold the timer interval
       isCodeRunning: false,
