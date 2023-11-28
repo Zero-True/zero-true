@@ -45,6 +45,9 @@ def open_project():
         )
         zt_notebook = Notebook(userId='', cells=OrderedDict([(codeCell.id, codeCell)]))
         router.save_toml(zt_notebook=zt_notebook)
+    if not os.path.exists('requirements.txt'):
+        with open('requirements.txt', 'w') as file:
+            file.write('zero-true')
         
 if run_mode=='app':
     app.mount(route_prefix, StaticFiles(directory=os.path.join(current_path, "dist_app"), html=True), name="assets")

@@ -1,3 +1,4 @@
+from fastapi import dependencies
 from pydantic import BaseModel, Field
 from typing import List, Dict, Union
 
@@ -40,3 +41,6 @@ class SaveRequest(BaseModel):
 
 class ClearRequest(BaseModel):
     userId: str
+
+class DependencyRequest(BaseModel):
+    dependencies: str

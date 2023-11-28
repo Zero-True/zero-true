@@ -5,6 +5,7 @@
         <v-icon start size="x-large" icon="custom:ZTIcon"></v-icon>
         Zero-True
       </v-btn>
+      <PackageComponent v-if="$devMode" :dependencies="dependencies"/>
       <v-spacer></v-spacer>
       <div v-if="isCodeRunning" class="d-flex align-center">
         <v-progress-circular
@@ -69,6 +70,7 @@ import CodeComponent from "@/components/CodeComponent.vue";
 import MarkdownComponent from "@/components/MarkdownComponent.vue";
 import EditorComponent from "@/components/EditorComponent.vue";
 import SQLComponent from "@/components/SQLComponent.vue";
+import PackageComponent from "@/components/PackageComponent.vue";
 
 export default {
   components: {
@@ -76,10 +78,12 @@ export default {
     MarkdownComponent,
     EditorComponent,
     SQLComponent,
+    PackageComponent
   },
   data() {
     return {
       notebook: {} as Notebook,
+      dependencies: "",
       timer: 0, // The timer value
       timerInterval: null as ReturnType<typeof setInterval> | null, // To hold the timer interval
       isCodeRunning: false,
@@ -102,7 +106,8 @@ export default {
     const response = await axios.get(
       import.meta.env.VITE_BACKEND_URL + "api/notebook"
     );
-    this.notebook = response.data;
+    this.notebook = response.data.notebook;
+    this.dependencies = response.data.dependencies;
   },
 
   methods: {
@@ -224,7 +229,8 @@ export default {
           const notebookResponse = await axios.get(
             import.meta.env.VITE_BACKEND_URL + "api/notebook"
           );
-          this.notebook = notebookResponse.data;
+          this.notebook = notebookResponse.data.notebook;
+          this.dependencies = notebookResponse.data.dependencies;
         } else {
           for (const cellResponse of response.cells) {
             this.notebook.cells[cellResponse.id].components = cellResponse.components;

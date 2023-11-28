@@ -133,6 +133,23 @@ def clear_state(clearRequest: request.ClearRequest):
      if(run_mode=='app'):
         user_states.pop(clearRequest.userId, None)
 
+
+@router.post("/api/dependency_update")
+def clear_state(dependencyRequest: request.DependencyRequest):
+     if(run_mode=='dev'):
+        logger.debug("Updating dependencies")
+        try:
+            with open('requirements.txt', 'r+', encoding='utf-8') as file:
+                contents = file.read()
+                if contents == dependencyRequest.dependencies:
+                    return "No change to dependencies"
+                file.seek(0)
+                file.write(dependencyRequest.dependencies)
+                os.system("pip install -r requirements.txt")
+                logger.debug("Successfully updated dependencies")
+        except Exception as e:
+            logger.error('Error while updating requirements: ', e)
+
 @router.get("/api/notebook")
 def load_notebook():
     notebook_start = get_notebook()
@@ -165,7 +182,12 @@ def load_notebook():
             notebook_start.cells[responseCell.id].components = responseCell.components
             notebook_start.cells[responseCell.id].output = responseCell.output
             notebook_start.cells[responseCell.id].layout = responseCell.layout
-    return notebook_start
+    try:
+        with open('requirements.txt', 'r', encoding='utf-8') as file:
+            contents = file.read()
+            return notebook.NotebookResponse(notebook=notebook_start, dependencies=notebook.Dependencies(value=contents))
+    except FileNotFoundError:
+        logger.error('Requirements file not fouund')
 
 def get_notebook(id=''):
     if id!='':
