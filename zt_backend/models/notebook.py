@@ -61,4 +61,10 @@ class Notebook(BaseModel):
     cells: OrderedDict[str, CodeCell]
     userId: str
 
+class Dependencies(BaseModel):
+    value: str
+
+class NotebookResponse(BaseModel):
+    notebook: Notebook
+    dependencies: Dependencies
 
