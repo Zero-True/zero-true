@@ -7,6 +7,7 @@ from zt_backend.config import settings
 import zt_backend.router as router
 import os
 import uuid
+import subprocess
 
 app = FastAPI()
 
@@ -48,6 +49,7 @@ def open_project():
     if not os.path.exists('requirements.txt'):
         with open('requirements.txt', 'w') as file:
             file.write('zero-true')
+            subprocess.run("lock requirements.txt")
         
 if run_mode=='app':
     app.mount(route_prefix, StaticFiles(directory=os.path.join(current_path, "dist_app"), html=True), name="assets")
