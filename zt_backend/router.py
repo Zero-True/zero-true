@@ -1,3 +1,4 @@
+import subprocess
 from fastapi import APIRouter,BackgroundTasks
 from zt_backend.models import request, notebook, response
 from zt_backend.runner.execute_code import execute_request
@@ -135,7 +136,7 @@ def clear_state(clearRequest: request.ClearRequest):
 
 
 @router.post("/api/dependency_update")
-def clear_state(dependencyRequest: request.DependencyRequest):
+def dependency_update(dependencyRequest: request.DependencyRequest):
      if(run_mode=='dev'):
         logger.debug("Updating dependencies")
         try:
@@ -145,7 +146,9 @@ def clear_state(dependencyRequest: request.DependencyRequest):
                     return "No change to dependencies"
                 file.seek(0)
                 file.write(dependencyRequest.dependencies)
-                os.system("pip install -r requirements.txt")
+                file.truncate()
+                subprocess.run("pip install -r requirements.txt")
+                subprocess.run("lock requirements.txt")
                 logger.debug("Successfully updated dependencies")
         except Exception as e:
             logger.error('Error while updating requirements: ', e)

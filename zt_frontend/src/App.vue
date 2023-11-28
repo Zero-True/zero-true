@@ -84,7 +84,7 @@ export default {
   data() {
     return {
       notebook: {} as Notebook,
-      dependencies: "" as Dependencies,
+      dependencies: {} as Dependencies,
       timer: 0, // The timer value
       timerInterval: null as ReturnType<typeof setInterval> | null, // To hold the timer interval
       isCodeRunning: false,
