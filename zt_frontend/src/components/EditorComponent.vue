@@ -17,6 +17,21 @@
     <tiny-editor v-if="$devMode" v-model="cellData.code" :init="init" />
     <tiny-editor v-else v-model="cellData.code" :init="init" :disabled="true" />
   </v-card>
+  <v-menu transition="scale-transition">
+    <template v-slot:activator="{ props }">
+      <v-btn v-bind="props" block>
+        <v-row>
+          <v-icon color="primary">mdi-plus</v-icon>
+        </v-row>
+      </v-btn>
+    </template>
+
+    <v-list>
+      <v-list-item v-for="(item, i) in items" :key="i">
+        <v-btn block @click="createCell(item.title)">{{ item.title }}</v-btn>
+      </v-list-item>
+    </v-list>
+  </v-menu>
 </template>
 
 <script lang="ts">
@@ -57,6 +72,12 @@ export default {
           autoresize_bottom_margin: 10,
           min_height: 100,
         },
+        items: [
+          { title: 'Code' },
+          { title: 'SQL' },
+          { title: 'Markdown' },
+          { title: 'Text' },
+        ],
       };
     } else {
       return {
@@ -71,6 +92,12 @@ export default {
           content_style:
             "body { background-color: #1B2F3C; color: #FFFFFF; } main { border-radius: 0; }",
         },
+        items: [
+          { title: 'Code' },
+          { title: 'SQL' },
+          { title: 'Markdown' },
+          { title: 'Text' },
+        ],
       };
     }
   },
@@ -81,6 +108,9 @@ export default {
     deleteCell() {
       this.$emit("deleteCell", this.cellData.id);
     },
+    createCell(cellType: string){
+      this.$emit("createCell", this.cellData.id, cellType);
+    }
   },
 };
 </script>

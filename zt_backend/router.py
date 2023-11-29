@@ -1,5 +1,6 @@
 import subprocess
 from fastapi import APIRouter,BackgroundTasks
+from typing import OrderedDict
 from zt_backend.models import request, notebook, response
 from zt_backend.runner.execute_code import execute_request
 from zt_backend.config import settings
@@ -91,7 +92,7 @@ def create_cell(cellRequest: request.CreateRequest):
             variable_name='',
             cellType=cellRequest.cellType
         )
-        globalStateUpdate(newCell=createdCell.model_copy(deep=True)) 
+        globalStateUpdate(newCell=createdCell.model_copy(deep=True), position_key=cellRequest.position_key)
         logger.debug("Code cell addition request completed")
         return createdCell
 
@@ -100,23 +101,20 @@ def delete_cell(deleteRequest: request.DeleteRequest):
      cell_id = deleteRequest.cellId
      if(run_mode=='dev'):
         try:
-            del cell_outputs_dict[cell_id]
+            cell_outputs_dict.pop(cell_id, None)
         except Exception as e:
             logger.error("Error when deleting cell %s from cell_outputs_dict: %s", cell_id, e)
         try:
             cell_dict = cell_outputs_dict['previous_dependecy_graph'].cells
             if cell_id in cell_dict:
-                del cell_dict[cell_id]
+                cell_dict.pop(cell_id, None)
 
-            # Recursively search for and remove the cell ID from child_cells in other cells
+            # Recursively search for and remove the cell ID from child_cells and parent_cells in other cells
             for cell_key, cell in cell_dict.items():
                 if cell_id in dict(cell).get("child_cells", []):
-                    cell["child_cells"].remove(cell_id)
-
-            # Recursively search for and remove the cell ID from parent_cells in other cells
-            for cell_key, cell in cell_dict.items():
+                    cell["child_cells"].pop(cell_id, None)
                 if cell_id in dict(cell).get("parent_cells", []):
-                    cell["parent_cells"].remove(cell_id)
+                    cell["parent_cells"].pop(cell_id, None)
 
         except Exception as e:
             logger.error("Error when deleting cell %s from cell dicts: %s", cell_id, e)
@@ -248,13 +246,22 @@ def get_notebook_db(id=''):
     return notebook.Notebook(**json.loads(notebook_data[0][0]))
 
 
-def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, saveCell: request.SaveRequest=None, run_request: request.Request=None, run_response: response.Response=None):
+def globalStateUpdate(newCell: notebook.CodeCell=None, position_key:str=None, deletedCell: str=None, saveCell: request.SaveRequest=None, run_request: request.Request=None, run_response: response.Response=None):
     zt_notebook = get_notebook()
     logger.debug("Updating state for notebook %s", zt_notebook.notebookId)
     try:        
         old_state = zt_notebook.model_dump()
         if newCell is not None:
-            zt_notebook.cells[newCell.id] = newCell
+            if position_key:
+                new_cell_dict = OrderedDict()
+                for k, v in zt_notebook.cells.items():
+                    new_cell_dict[k] = v
+                    if k==position_key:
+                        new_cell_dict[newCell.id] = newCell
+                zt_notebook.cells = new_cell_dict
+            else:
+                zt_notebook.cells[newCell.id] = newCell
+                zt_notebook.cells.move_to_end(newCell.id, last=False)
         if deletedCell is not None:
             del zt_notebook.cells[deletedCell]
         if saveCell is not None:
