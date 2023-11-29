@@ -6,8 +6,10 @@
  */
 
 export type Celltype = "code" | "markdown" | "text" | "sql";
+export type PositionKey = string;
 
 export interface CreateRequest {
   cellType: Celltype;
+  position_key: PositionKey;
   [k: string]: unknown;
 }

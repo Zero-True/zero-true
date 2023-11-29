@@ -34,6 +34,7 @@ class DeleteRequest(BaseModel):
 
 class CreateRequest(BaseModel):
     cellType: str = Field(enum=['code', 'markdown', 'text', 'sql'])
+    position_key: str
 
 class SaveRequest(BaseModel):
     id: str

@@ -25,6 +25,23 @@
       <PackageComponent v-if="$devMode" :dependencies="dependencies"/>
     </v-app-bar>
     <v-main>
+      <v-container>
+        <v-menu transition="scale-transition">
+          <template v-slot:activator="{ props }">
+            <v-btn v-bind="props" block>
+              <v-row>
+                <v-icon color="primary">mdi-plus</v-icon>
+              </v-row>
+            </v-btn>
+          </template>
+
+          <v-list>
+            <v-list-item v-for="(item, i) in menu_items" :key="i">
+              <v-btn block @click="createCodeCell('', item.title)">{{ item.title }}</v-btn>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </v-container>
       <v-container v-for="codeCell in notebook.cells">
         <component
           :is="getComponent(codeCell.cellType)"
@@ -33,25 +50,9 @@
           @saveCell="saveCell"
           @componentChange="componentValueChange"
           @deleteCell="deleteCell"
+          @createCell="createCodeCell"
         />
       </v-container>
-      <v-toolbar v-if="$devMode" color="bluegrey">
-        <v-btn variant="flat" color="accent" @click="createCodeCell('code')"
-          >Add Code Cell</v-btn
-        >
-        <v-spacer />
-        <v-btn variant="flat" color="accent" @click="createCodeCell('sql')"
-          >Add SQL Cell</v-btn
-        >
-        <v-spacer />
-        <v-btn variant="flat" color="accent" @click="createCodeCell('markdown')"
-          >Add Markdown Cell</v-btn
-        >
-        <v-spacer />
-        <v-btn variant="flat" color="accent" @click="createCodeCell('text')"
-          >Add Text Cell</v-btn
-        >
-      </v-toolbar>
     </v-main>
   </v-app>
 </template>
@@ -90,6 +91,12 @@ export default {
       isCodeRunning: false,
       requestQueue: [] as string[],
       componentChangeQueue: [] as  any[],
+      menu_items: [
+          { title: 'Code' },
+          { title: 'SQL' },
+          { title: 'Markdown' },
+          { title: 'Text' },
+        ],
     };
   },
 
@@ -254,14 +261,24 @@ export default {
       );
     },
 
-    async createCodeCell(cellType: string) {
-      const cellRequest: CreateRequest = { cellType: cellType as Celltype };
+    async createCodeCell(position_key: string, cellType: string) {
+      const cellRequest: CreateRequest = { cellType: cellType.toLowerCase() as Celltype, position_key: position_key };
       const response = await axios.post(
         import.meta.env.VITE_BACKEND_URL + "api/create_cell",
         cellRequest
       );
       const cell: CodeCell = response.data;
-      this.notebook.cells[cell.id] = cell;
+      let cells: Record<string, CodeCell> = {};
+      if (!position_key){
+        cells[cell.id] = cell
+      }
+      for (let key in this.notebook.cells) {
+        cells[key] = this.notebook.cells[key]
+        if (position_key===key){
+          cells[cell.id] = cell
+        }
+      }
+      this.notebook.cells = cells;
     },
 
     async deleteCell(cellId: string) {

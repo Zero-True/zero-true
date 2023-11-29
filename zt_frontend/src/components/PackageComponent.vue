@@ -68,7 +68,7 @@ export default {
                 enableSnippets: true,
                 enableLiveAutocompletion: true,
                 autoScrollEditorIntoView: true,
-                minlines: 1,
+                minLines: 1,
                 maxLines: Infinity,
             };
         }

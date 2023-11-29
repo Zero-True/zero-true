@@ -8,6 +8,7 @@ from zt_backend.runner.code_cell_parser import parse_cells,build_dependency_grap
 from zt_backend.models.components.layout import Layout
 from datetime import datetime
 import logging
+import traceback
 
 now = datetime.now()
 logger = logging.getLogger("__name__")
@@ -56,7 +57,6 @@ def get_parent_vars(cell_id: str, code_components: CodeDict, cell_outputs_dict: 
 
 
 #issue right now is that the request is sending the entire notebook. The request should send the ID of the cell you are running.
-#also right now there is no special handling for the 
 def execute_request(request: request.Request,cell_outputs_dict: Dict):
     logger.debug("Code execution started")
     cell_outputs = []
@@ -76,7 +76,7 @@ def execute_request(request: request.Request,cell_outputs_dict: Dict):
             if no_longer_dependent_cells:
                 downstream_cells.extend(list(OrderedDict.fromkeys(no_longer_dependent_cells)))
         except Exception as e:
-            logger.error("Error while updating cell dependencies: %s", e)
+            logger.error("Error while updating cell dependencies: %s", traceback.format_exc())
     else:
         downstream_cells = [cell.id for cell in request.cells if cell.cellType in ['code', 'sql']]
  

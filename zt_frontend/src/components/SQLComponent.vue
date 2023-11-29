@@ -63,6 +63,21 @@
     </v-container>
     <div class="text-p">{{ cellData.output }}</div>
   </v-card>
+  <v-menu transition="scale-transition">
+    <template v-slot:activator="{ props }">
+      <v-btn v-bind="props" block>
+        <v-row>
+          <v-icon color="primary">mdi-plus</v-icon>
+        </v-row>
+      </v-btn>
+    </template>
+
+    <v-list>
+      <v-list-item v-for="(item, i) in items" :key="i">
+        <v-btn block @click="createCell(item.title)">{{ item.title }}</v-btn>
+      </v-list-item>
+    </v-list>
+  </v-menu>
 </template>
 
 <script lang="ts">
@@ -91,7 +106,7 @@ export default {
         autoScrollEditorIntoView: true,
         highlightActiveLine: this.$devMode && this.isFocused,
         highlightGutterLine: this.$devMode && this.isFocused,
-        minlines: 1,
+        minLines: 1,
         maxLines: Infinity,
       };
     },
@@ -99,6 +114,12 @@ export default {
   data() {
     return {
       isFocused: false, // add this line to keep track of the focus state
+      items: [
+        { title: 'Code' },
+        { title: 'SQL' },
+        { title: 'Markdown' },
+        { title: 'Text' },
+      ],
     };
   },
   props: {
@@ -143,6 +164,9 @@ export default {
     deleteCell() {
       this.$emit("deleteCell", this.cellData.id);
     },
+    createCell(cellType: string){
+      this.$emit("createCell", this.cellData.id, cellType);
+    }
   },
 };
 </script>
