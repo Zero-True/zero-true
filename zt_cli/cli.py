@@ -87,7 +87,8 @@ def app(host: Annotated[Optional[str], typer.Argument(help="Host address to bind
 
     with open(log_path) as f:
         log_config_dict = yaml.full_load(f)
-        uvicorn.run('zt_backend.main:app', host=host, port=port, log_config=log_config_dict)
+    
+    uvicorn.run('zt_backend.main:app', host=host, port=port, log_config=log_config_dict)
 
 @cli_app.command()
 def notebook(host: Annotated[Optional[str], typer.Argument(help="Host address to bind to.")]="localhost",
@@ -104,7 +105,8 @@ def notebook(host: Annotated[Optional[str], typer.Argument(help="Host address to
 
     with open(log_path) as f:
         log_config_dict = yaml.full_load(f)
-        uvicorn.run('zt_backend.main:app', host=host, port=port, log_config=log_config_dict)
+    
+    uvicorn.run('zt_backend.main:app', host=host, port=port, log_config=log_config_dict)
 
 if __name__ == "__main__":
     cli_app()

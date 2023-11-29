@@ -2,7 +2,7 @@ from pydantic import Field, field_validator, validator
 from zt_backend.models.components.zt_component import ZTComponent
 from zt_backend.models.validations import validate_color, validate_min_less_than_max
 from zt_backend.models.state import component_values
-from typing import Optional
+from typing import Optional, Union
 
 class Slider(ZTComponent):
     """A slider component that allows you to capture numeric input from a user. 
@@ -13,13 +13,13 @@ class Slider(ZTComponent):
     
     """
     component: str = Field("v-slider", description="Vue component name.")
-    value: int = Field(0, description="Current value of the slider.")
-    min: int = Field(0, ge=0, description="Minimum value of the slider.")
-    max: int = Field(100, ge=0, description="Maximum value of the slider.")
-    step: int = Field(1, gt=0, description="Step increment of the slider.")
+    value: Union[int,float] = Field(0, description="Current value of the slider.")
+    min: Union[int,float] = Field(0,  description="Minimum value of the slider.")
+    max: Union[int,float] = Field(100, description="Maximum value of the slider.")
+    step: Union[int,float] = Field(1,  description="Step increment of the slider.")
     thumb_label: bool = Field(False, description="Displays the thumb label.")
     thumb_size: int = Field(0, description="Size of the thumb.")
-    tick_labels: bool = Field(False, description="Displays the tick labels.")
+    tick_labels: str = Field('always', description="Displays the tick labels.")
     ticks: list = Field([], description="Displays the ticks.")
     color: str = Field('primary', pre=True, description="Color of the range slider. Can be custom or standard Material color.")
     size: str = Field('large', description="Size of the slider.")

@@ -20,7 +20,7 @@ export type Component = string;
 /**
  * Current value range of the slider.
  */
-export type Value = number[];
+export type Value = (number | number)[];
 /**
  * Minimum value of the slider.
  */
