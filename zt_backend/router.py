@@ -1,5 +1,6 @@
 import subprocess
 from fastapi import APIRouter,BackgroundTasks
+from typing import OrderedDict
 from zt_backend.models import request, notebook, response
 from zt_backend.runner.execute_code import execute_request
 from zt_backend.config import settings
@@ -248,13 +249,18 @@ def get_notebook_db(id=''):
     return notebook.Notebook(**json.loads(notebook_data[0][0]))
 
 
-def globalStateUpdate(newCell: notebook.CodeCell=None, deletedCell: str=None, saveCell: request.SaveRequest=None, run_request: request.Request=None, run_response: response.Response=None):
+def globalStateUpdate(newCell: notebook.CodeCell=None, position_key:str=None, deletedCell: str=None, saveCell: request.SaveRequest=None, run_request: request.Request=None, run_response: response.Response=None):
     zt_notebook = get_notebook()
     logger.debug("Updating state for notebook %s", zt_notebook.notebookId)
     try:        
         old_state = zt_notebook.model_dump()
-        if newCell is not None:
-            zt_notebook.cells[newCell.id] = newCell
+        if newCell is not None and position_key is not None:
+            new_cell_dict = OrderedDict()
+            for k, v in zt_notebook.cells:
+                new_cell_dict[k] = v
+                if k==position_key:
+                    new_cell_dict[newCell.id] = newCell
+            zt_notebook.cells = new_cell_dict
         if deletedCell is not None:
             del zt_notebook.cells[deletedCell]
         if saveCell is not None:

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, SerializeAsAny, model_validator
-from typing import OrderedDict, List, Dict, Any,Optional
+from typing import OrderedDict, List, Dict, Any
 from uuid import uuid4
 from zt_backend.models.components.zt_component import ZTComponent
 from zt_backend.models.components.slider import Slider
