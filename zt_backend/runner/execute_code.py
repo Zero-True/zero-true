@@ -7,9 +7,10 @@ from zt_backend.models.state import component_values, created_components, contex
 from zt_backend.runner.code_cell_parser import parse_cells,build_dependency_graph, find_downstream_cells, CodeDict
 from zt_backend.models.components.layout import Layout
 from datetime import datetime
+import logging
 
 now = datetime.now()
-
+logger = logging.getLogger("uvicorn")
 
 def try_pickle(obj):
     """
@@ -19,8 +20,8 @@ def try_pickle(obj):
     try:
         return pickle.loads(pickle.dumps(obj))
     except Exception as e:
+        logger.warning("Error during pickle: %s", e)
         return obj
-
 
 def get_parent_vars(cell_id: str, code_components: CodeDict, cell_outputs_dict: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -34,11 +35,10 @@ def get_parent_vars(cell_id: str, code_components: CodeDict, cell_outputs_dict: 
     Returns:
         dict: Dictionary containing the parent variables for the cell.
     """  
-    #print(code_components)
     if cell_id not in code_components.cells:
         # Print localstorage_data and stop execution if cell is not in code_components
         for key in cell_outputs_dict.keys():
-            print('Key',key, 'Value', cell_outputs_dict[key])
+            logger.debug("Key: %s, Value: %s", key, cell_outputs_dict[key])
         raise KeyError(f"'{cell_id}' is not present in code_components. Execution stopped.")
 
     parent_vars = []
@@ -58,16 +58,15 @@ def get_parent_vars(cell_id: str, code_components: CodeDict, cell_outputs_dict: 
 #issue right now is that the request is sending the entire notebook. The request should send the ID of the cell you are running.
 #also right now there is no special handling for the 
 def execute_request(request: request.Request,cell_outputs_dict: Dict):
+    logger.debug("Code execution started")
     cell_outputs = []
     component_values.update(request.components)
     component_globals={'global_state': component_values}
     dependency_graph = build_dependency_graph(parse_cells(request))
     if request.originId:
-        
         downstream_cells = [request.originId]
         downstream_cells.extend(find_downstream_cells(dependency_graph, request.originId))
-        
-        
+
         try:
             old_downstream_cells = [request.originId]
             old_downstream_cells.extend(find_downstream_cells(cell_outputs_dict['previous_dependecy_graph'],request.originId))
@@ -75,18 +74,15 @@ def execute_request(request: request.Request,cell_outputs_dict: Dict):
             no_longer_dependent_cells = set(old_downstream_cells) - set(downstream_cells)
     
             if no_longer_dependent_cells:
-                
                 downstream_cells.extend(list(OrderedDict.fromkeys(no_longer_dependent_cells)))
         except Exception as e:
-            print(e)
-    
+            logger.error("Error while updating cell dependencies: %s", e)
     else:
         downstream_cells = [cell.id for cell in request.cells if cell.cellType in ['code', 'sql']]
  
     #go through each item in dependency graph (we should just go through the downstream cells)
     for code_cell_id in list(OrderedDict.fromkeys(downstream_cells)):
         code_cell = dependency_graph.cells[code_cell_id]
-
         f = StringIO()
         with redirect_stdout(f):
             try:
@@ -98,14 +94,14 @@ def execute_request(request: request.Request,cell_outputs_dict: Dict):
                 exec(code_cell.code, temp_globals)
 
             except Exception as e:
-                print(e)
+                logger.error("Error during code execution: %s", e)
         context_globals['exec_mode'] = False
-
         cell_outputs_dict[code_cell_id] = {k: try_pickle(v) for k, v in temp_globals.items() if k != '__builtins__'}
 
         try:
             layout = current_cell_layout[0]
-        except Exception:
+        except Exception as e:
+            logger.warning("Error while getting cell layout, setting empty layout: %s", e)
             layout = Layout(**{})
         
         for component in current_cell_components:
@@ -116,10 +112,10 @@ def execute_request(request: request.Request,cell_outputs_dict: Dict):
         current_cell_components.clear()
         current_cell_layout.clear()
     
-    
     cell_outputs_dict['previous_dependecy_graph'] = dependency_graph
 
     component_values.clear()
     created_components.clear()
     context_globals['exec_mode'] = False
+    logger.debug("Code execution completed successfully")
     return response.Response(cells=cell_outputs)
