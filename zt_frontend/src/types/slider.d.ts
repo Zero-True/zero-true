@@ -44,7 +44,7 @@ export type ThumbSize = number;
 /**
  * Displays the tick labels.
  */
-export type TickLabels = boolean;
+export type TickLabels = string;
 /**
  * Displays the ticks.
  */

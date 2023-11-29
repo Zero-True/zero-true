@@ -11,7 +11,7 @@ class CodeRequest(BaseModel):
 class Request(BaseModel):
     originId: str
     cells: List[CodeRequest]
-    components: Dict[str, Union[str, bool, int, List, None]]
+    components: Dict[str, Union[str, bool, int, float, List, None]]
 
 class Cell(BaseModel):
     code: str
@@ -26,7 +26,7 @@ class CodeDict(BaseModel):
 
 class ComponentRequest(BaseModel):
     originId: str
-    components: Dict[str, Union[str, bool, int, List, None]]
+    components: Dict[str, Union[str, bool, float, int, List, None]]
     userId: str
 
 class DeleteRequest(BaseModel):
