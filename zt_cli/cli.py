@@ -8,6 +8,8 @@ from typing import Optional
 from rich import print
 import shutil
 import requests
+import pkg_resources
+import yaml
 
 cli_app = typer.Typer()
 
@@ -79,10 +81,13 @@ def app(host: Annotated[Optional[str], typer.Argument(help="Host address to bind
 
     print_ascii_logo()
     os.environ['RUN_MODE'] = 'app'
+    log_path = os.path.normpath(pkg_resources.resource_filename('zt_cli', 'log_config.yaml'))
         
     print(f"[yellow]Starting Zero-True in app mode on http://{host}:{port}[/yellow]")
 
-    uvicorn.run('zt_backend.main:app', host=host, port=port, log_level='info')
+    with open(log_path) as f:
+        log_config_dict = yaml.full_load(f)
+        uvicorn.run('zt_backend.main:app', host=host, port=port, log_config=log_config_dict)
 
 @cli_app.command()
 def notebook(host: Annotated[Optional[str], typer.Argument(help="Host address to bind to.")]="localhost",
@@ -93,10 +98,13 @@ def notebook(host: Annotated[Optional[str], typer.Argument(help="Host address to
 
     print_ascii_logo()
     os.environ['RUN_MODE'] = 'dev'
+    log_path = os.path.normpath(pkg_resources.resource_filename('zt_cli', 'log_config.yaml'))
         
     print(f"[yellow]Starting Zero-True in notebook mode on http://{host}:{port}[/yellow]")
 
-    uvicorn.run('zt_backend.main:app', host=host, port=port, log_level='info')
+    with open(log_path) as f:
+        log_config_dict = yaml.full_load(f)
+        uvicorn.run('zt_backend.main:app', host=host, port=port, log_config=log_config_dict)
 
 if __name__ == "__main__":
     cli_app()

@@ -1,2 +1,4 @@
 recursive-include zt_backend/dist_dev *
 recursive-include zt_backend/dist_app *
+include zt_cli/log_config.yaml
+include zt_dev_cli/log_config.yaml

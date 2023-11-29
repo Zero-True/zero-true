@@ -4,7 +4,9 @@ from zt_backend.models.request import Request,Cell,CodeDict
 import duckdb
 import uuid
 import re
+import logging
 
+logger = logging.getLogger("__name__")
 
 def get_imports(module) -> List[str]:
     import_froms = [node.names[0][1] or node.names[0][0] for node in module.nodes_of_class(astroid.ImportFrom)]
@@ -28,14 +30,12 @@ def get_loaded_modules(module) -> List[str]:
     try:
         return [node.expr.name for node in module.nodes_of_class(astroid.Attribute) if hasattr(node.expr, 'name')]
     except Exception as e:
-        print(f"Error occurred with modules: {e}")
+        logger.error("Error getting loaded modules: %s", e)
         return []
 
 def get_loaded_names(module, defined_names) -> List[str]:
     function_names, function_arguments = get_functions(module)
     return [usenode.name for usenode in module.nodes_of_class(astroid.Name) if usenode.name not in function_arguments]
-
-
 
 def generate_sql_code(cell, uuid_value, db_file='my_database.db'):
     """Generate SQL code for the given cell."""
@@ -94,7 +94,7 @@ def parse_cells(request: Request) -> CodeDict:
                 'defined_names': defined_names,
                 'loaded_names': list(set(loaded_names))})
         except Exception as e:
-            print(e)
+            logger.error("Error while parsing cells, returning empty names lists: %s", e)
             cell_dict[cell.id] = Cell(**{
                 'code': cell.code,
                 'defined_names': [],
@@ -142,12 +142,9 @@ def add_child_cells(code_dictionary: CodeDict, prev_components: Dict[str, Any]) 
         cell.previous_child_cells = prev_components.get(key, {}).get('child_cells', [])
     return add_parent_cells(code_dictionary)
 
-
-
 def print_astroid_tree(code):
     module = astroid.parse(code)
     print(module.repr_tree())
-
 
 def find_downstream_cells(code_dictionary: CodeDict, start_cell_id, visited=None):
     if visited is None:
