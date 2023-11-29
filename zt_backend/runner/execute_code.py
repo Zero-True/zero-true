@@ -94,7 +94,8 @@ def execute_request(request: request.Request,cell_outputs_dict: Dict):
                 exec(code_cell.code, temp_globals)
 
             except Exception as e:
-                logger.error("Error during code execution: %s", e)
+                logger.error("Error during code execution")
+                print(e)
         context_globals['exec_mode'] = False
         cell_outputs_dict[code_cell_id] = {k: try_pickle(v) for k, v in temp_globals.items() if k != '__builtins__'}
 
