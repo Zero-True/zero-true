@@ -14,9 +14,9 @@ class Slider(ZTComponent):
     """
     component: str = Field("v-slider", description="Vue component name.")
     value: Union[int,float] = Field(0, description="Current value of the slider.")
-    min: Union[int,float] = Field(0, ge=0, description="Minimum value of the slider.")
-    max: Union[int,float] = Field(100, ge=0, description="Maximum value of the slider.")
-    step: Union[int,float] = Field(1, gt=0, description="Step increment of the slider.")
+    min: Union[int,float] = Field(0, description="Minimum value of the slider.")
+    max: Union[int,float] = Field(100, description="Maximum value of the slider.")
+    step: Union[int,float] = Field(1, description="Step increment of the slider.")
     thumb_label: bool = Field(False, description="Displays the thumb label.")
     thumb_size: int = Field(0, description="Size of the thumb.")
     tick_labels: bool = Field(True, description="Displays the tick labels.")
