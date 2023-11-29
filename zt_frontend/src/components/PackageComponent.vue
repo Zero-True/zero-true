@@ -1,8 +1,7 @@
 <template>
-<v-row justify="center">
-    <v-dialog v-model="updatingDependencies" persistent width="1024">
+<v-dialog v-model="updatingDependencies" persistent width="1024">
     <template v-slot:activator="{ props }">
-        <v-btn color="primary" v-bind="props"> Dependencies </v-btn>
+        <v-btn color="primary" v-bind="props" icon="mdi-graph"></v-btn>
     </template>
     <v-card>
         <v-card-title>
@@ -34,8 +33,7 @@
         </v-btn>
         </v-card-actions>
     </v-card>
-    </v-dialog>
-</v-row>
+</v-dialog>
 </template>
 
 <script lang="ts">

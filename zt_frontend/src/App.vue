@@ -5,7 +5,6 @@
         <v-icon start size="x-large" icon="custom:ZTIcon"></v-icon>
         Zero-True
       </v-btn>
-      <PackageComponent v-if="$devMode" :dependencies="dependencies"/>
       <v-spacer></v-spacer>
       <div v-if="isCodeRunning" class="d-flex align-center">
         <v-progress-circular
@@ -23,6 +22,7 @@
           Queue Length: {{ componentChangeQueue.length }}
         </v-chip>
       </div>
+      <PackageComponent v-if="$devMode" :dependencies="dependencies"/>
     </v-app-bar>
     <v-main>
       <v-container v-for="codeCell in notebook.cells">

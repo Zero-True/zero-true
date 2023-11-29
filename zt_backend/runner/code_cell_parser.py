@@ -6,7 +6,7 @@ import uuid
 import re
 import logging
 
-logger = logging.getLogger("uvicorn")
+logger = logging.getLogger("__name__")
 
 def get_imports(module) -> List[str]:
     import_froms = [node.names[0][1] or node.names[0][0] for node in module.nodes_of_class(astroid.ImportFrom)]

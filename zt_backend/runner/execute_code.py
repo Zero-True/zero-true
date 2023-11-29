@@ -10,7 +10,7 @@ from datetime import datetime
 import logging
 
 now = datetime.now()
-logger = logging.getLogger("uvicorn")
+logger = logging.getLogger("__name__")
 
 def try_pickle(obj):
     """

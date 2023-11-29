@@ -11,7 +11,7 @@ import subprocess
 import logging
 
 app = FastAPI()
-logger = logging.getLogger("uvicorn")
+logger = logging.getLogger("__name__")
 
 current_path = os.path.dirname(os.path.abspath(__file__))
 

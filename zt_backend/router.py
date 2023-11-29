@@ -33,7 +33,7 @@ user_states={}
 cell_outputs_dict={}
 run_mode = settings.run_mode
 
-logger = logging.getLogger("uvicorn")
+logger = logging.getLogger("__name__")
 
 @router.get("/health")
 def health():

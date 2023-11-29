@@ -8,6 +8,7 @@ from zt_backend.models.generate_schema import generate_schema
 from typing_extensions import Annotated
 from typing import Optional
 from rich import print
+import pkg_resources
 
 cli_app = typer.Typer()
 
@@ -37,7 +38,7 @@ def build_frontend():
         shutil.rmtree('zt_backend/dist_dev')
         shutil.rmtree('zt_backend/dist_app')
     except Exception as e:
-        print(e)
+        typer.echo(e)
     os.chdir('zt_frontend')
     os.system('yarn install')
     os.system('yarn run build')
@@ -61,9 +62,10 @@ def app(port: Annotated[Optional[int], typer.Argument(help="Port number to bind 
     
     print_ascii_logo()
 
+    log_path = os.path.normpath(pkg_resources.resource_filename('zt_dev_cli', 'log_config.yaml'))
     os.environ['RUN_MODE'] = 'app'
     frontend_cmd = ["yarn", "run", "app", str(port)]
-    backend_cmd = ["start", "uvicorn", "zt_backend.main:app", "--reload", "--log-level", "debug"]
+    backend_cmd = ["start", "uvicorn", "zt_backend.main:app", "--reload", f"--log-config={log_path}"]
 
     backend_process = subprocess.Popen(backend_cmd, shell=True)
     os.chdir("zt_frontend")
@@ -77,9 +79,10 @@ def notebook(port: Annotated[Optional[int], typer.Argument(help="Port number to 
     
     print_ascii_logo()
 
+    log_path = os.path.normpath(pkg_resources.resource_filename('zt_dev_cli', 'log_config.yaml'))
     os.environ['RUN_MODE'] = 'dev'
     frontend_cmd = ["yarn", "run", "dev", str(port)]
-    backend_cmd = ["start", "uvicorn", "zt_backend.main:app", "--reload", "--log-level", "debug"]
+    backend_cmd = ["start", "uvicorn", "zt_backend.main:app", "--reload", f"--log-config={log_path}"]
 
     backend_process = subprocess.Popen(backend_cmd, shell=True)
     os.chdir("zt_frontend")
