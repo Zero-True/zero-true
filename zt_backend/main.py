@@ -9,6 +9,7 @@ import os
 import uuid
 import subprocess
 import logging
+import traceback
 
 app = FastAPI()
 logger = logging.getLogger("__name__")
@@ -55,7 +56,7 @@ def open_project():
                 file.write('zero-true')
                 subprocess.run("lock requirements.txt")
     except Exception as e:
-        logger.error("Error creating new files on startup: %s", e)
+        logger.error("Error creating new files on startup: %s", traceback.format_exc())
         
 if run_mode=='app':
     app.mount(route_prefix, StaticFiles(directory=os.path.join(current_path, "dist_app"), html=True), name="assets")

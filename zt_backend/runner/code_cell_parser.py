@@ -5,6 +5,7 @@ import duckdb
 import uuid
 import re
 import logging
+import traceback
 
 logger = logging.getLogger("__name__")
 
@@ -30,7 +31,7 @@ def get_loaded_modules(module) -> List[str]:
     try:
         return [node.expr.name for node in module.nodes_of_class(astroid.Attribute) if hasattr(node.expr, 'name')]
     except Exception as e:
-        logger.error("Error getting loaded modules: %s", e)
+        logger.error("Error getting loaded modules: %s", traceback.format_exc())
         return []
 
 def get_loaded_names(module, defined_names) -> List[str]:
@@ -94,7 +95,7 @@ def parse_cells(request: Request) -> CodeDict:
                 'defined_names': defined_names,
                 'loaded_names': list(set(loaded_names))})
         except Exception as e:
-            logger.error("Error while parsing cells, returning empty names lists: %s", e)
+            logger.error("Error while parsing cells, returning empty names lists: %s", traceback.format_exc())
             cell_dict[cell.id] = Cell(**{
                 'code': cell.code,
                 'defined_names': [],

@@ -95,14 +95,14 @@ def execute_request(request: request.Request,cell_outputs_dict: Dict):
 
             except Exception as e:
                 logger.error("Error during code execution")
-                print(e)
+                print(traceback.format_exc())
         context_globals['exec_mode'] = False
         cell_outputs_dict[code_cell_id] = {k: try_pickle(v) for k, v in temp_globals.items() if k != '__builtins__'}
 
         try:
             layout = current_cell_layout[0]
         except Exception as e:
-            logger.warning("Error while getting cell layout, setting empty layout: %s", e)
+            logger.warning("Error while getting cell layout, setting empty layout: %s", traceback.format_exc())
             layout = Layout(**{})
         
         for component in current_cell_components:

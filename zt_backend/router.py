@@ -13,6 +13,7 @@ import uuid
 import os
 import toml
 import threading
+import traceback
 
 router = APIRouter()
 
@@ -103,7 +104,7 @@ def delete_cell(deleteRequest: request.DeleteRequest):
         try:
             cell_outputs_dict.pop(cell_id, None)
         except Exception as e:
-            logger.error("Error when deleting cell %s from cell_outputs_dict: %s", cell_id, e)
+            logger.error("Error when deleting cell %s from cell_outputs_dict: %s", cell_id, traceback.format_exc())
         try:
             cell_dict = cell_outputs_dict['previous_dependecy_graph'].cells
             if cell_id in cell_dict:
@@ -117,7 +118,7 @@ def delete_cell(deleteRequest: request.DeleteRequest):
                     cell["parent_cells"].pop(cell_id, None)
 
         except Exception as e:
-            logger.error("Error when deleting cell %s from cell dicts: %s", cell_id, e)
+            logger.error("Error when deleting cell %s from cell dicts: %s", cell_id, traceback.format_exc())
         logger.debug("Cell %s deleted successfully", cell_id)
         globalStateUpdate(deletedCell=cell_id)
 
@@ -150,7 +151,7 @@ def dependency_update(dependencyRequest: request.DependencyRequest):
                 subprocess.run("lock requirements.txt")
                 logger.debug("Successfully updated dependencies")
         except Exception as e:
-            logger.error('Error while updating requirements: %s', e)
+            logger.error('Error while updating requirements: %s', traceback.format_exc())
 
 @router.get("/api/notebook")
 def load_notebook():
@@ -200,7 +201,7 @@ def get_notebook(id=''):
             zt_notebook = get_notebook_db(id)
             return(zt_notebook)
         except Exception as e:
-            logger.warning("Error when getting notebook %s from db: %s", id, e)
+            logger.warning("Error when getting notebook %s from db: %s", id, traceback.format_exc())
 
     try:
         logger.debug("Notebook id is empty")            
@@ -234,7 +235,7 @@ def get_notebook(id=''):
         return zt_notebook
 
     except Exception as e:
-        logger.error("Error when loading notebook, return empty notebook: %s", e)
+        logger.error("Error when loading notebook, return empty notebook: %s", traceback.format_exc())
         # Handle any exceptions appropriately and return a valid notebook object
         return notebook.Notebook(cells={},userId='')
 
@@ -284,7 +285,7 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, position_key:str=None, de
         differences = list(diff(old_state, new_state))
         save_toml(zt_notebook)
     except Exception as e:
-        logger.error("Error while updating state for notebook %s: %s", zt_notebook.notebookId, e)
+        logger.error("Error while updating state for notebook %s: %s", zt_notebook.notebookId, traceback.format_exc())
 
 def save_toml(zt_notebook):
     tmp_uuid_file = f'notebook_{uuid.uuid4()}.toml'
@@ -309,13 +310,13 @@ def save_toml(zt_notebook):
                 project_file.write(f'code = """\n{escaped_code}"""\n\n')
         os.replace(tmp_uuid_file, 'notebook.toml')
     except Exception as e:
-        logger.error("Error saving notebook %s toml file: %s", zt_notebook.notebookId, e)
+        logger.error("Error saving notebook %s toml file: %s", zt_notebook.notebookId, traceback.format_exc())
         
     finally:
         try:
             os.remove(tmp_uuid_file)
         except Exception as e:
-            logger.warning("Error while deleting temporary toml file for notebook %s: %s", zt_notebook.notebookId, e)
+            logger.warning("Error while deleting temporary toml file for notebook %s: %s", zt_notebook.notebookId, traceback.format_exc())
             pass  # Handle error silently
     logger.debug("Toml saved for notebook %s", zt_notebook.notebookId)
 
@@ -330,7 +331,7 @@ def remove_user_state(user_id):
             del user_states[user_id]
             logger.debug("User state removed for user %s", user_id)
     except Exception as e:
-        logger.error("Error removing user state for user %s: %s", user_id, e)
+        logger.error("Error removing user state for user %s: %s", user_id, traceback.format_exc())
 
 def timer_set(user_id, timeout_seconds):
     logger.debug("Starting timer for user %s", user_id)
