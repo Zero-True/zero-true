@@ -95,7 +95,11 @@ def execute_request(request: request.Request,cell_outputs_dict: Dict):
 
             except Exception as e:
                 logger.error("Error during code execution")
-                print(traceback.format_exc())
+                tb_list = traceback.format_exc().splitlines(keepends=True)
+                tb_list = [tb_list[0]]+tb_list[3:]
+                print("".join(tb_list))
+                
+
         context_globals['exec_mode'] = False
         cell_outputs_dict[code_cell_id] = {k: try_pickle(v) for k, v in temp_globals.items() if k != '__builtins__'}
 
