@@ -168,6 +168,7 @@ import {
 import { VDataTable } from "vuetify/labs/VDataTable";
 import { CodeCell, Layout } from "@/types/notebook";
 import LayoutComponent from "@/components/LayoutComponent.vue";
+import TextComponent from "@/components/TextComponent.vue"
 
 export default {
   components: {
@@ -184,6 +185,7 @@ export default {
     "v-data-table": VDataTable,
     "v-autocomplete": VAutocomplete,
     "v-card": VCard,
+    "v-text": TextComponent,
     "plotly-plot": PlotlyPlot,
     "layout-component": LayoutComponent,
   },

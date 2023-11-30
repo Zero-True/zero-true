@@ -45,3 +45,4 @@ def generate_schema():
     generate_json(Layout,'layout')
     generate_json(Autocomplete,'autocomplete')
     generate_json(Card,'card')
+    generate_json(Text,'text')

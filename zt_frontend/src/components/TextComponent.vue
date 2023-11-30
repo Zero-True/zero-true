@@ -1,5 +1,5 @@
 <template>
-  <div :class="text_type" :style="{ color: color }">
+  <div :class="type" :style="{ color: color }">
     {{ text }}
   </div>
 </template>
@@ -13,7 +13,7 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    text_type: {
+    type: {
       type: String,
       required: true,
     },
