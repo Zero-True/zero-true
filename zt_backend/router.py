@@ -11,7 +11,7 @@ import json
 import duckdb
 import uuid
 import os
-import toml
+import rtoml
 import threading
 import traceback
 
@@ -206,7 +206,7 @@ def get_notebook(id=''):
         logger.debug("Notebook id is empty")            
         # If it doesn't exist in the database, load it from the TOML file
         with open('notebook.toml', "r") as project_file:
-            toml_data = toml.load(project_file)
+            toml_data = rtoml.load(project_file)
 
         try:
             #get notebook from the database
@@ -306,7 +306,7 @@ def save_toml(zt_notebook):
                     project_file.write(f'variable_name = "{cell.variable_name}"\n')
                 
                 # Format code as a multi-line string
-                escaped_code = cell.code.encode().decode('unicode_escape')
+                escaped_code = cell.code.encode().decode('unicode_escape').replace('"""',"'''")
                 project_file.write(f'code = """\n{escaped_code}"""\n\n')
         os.replace(tmp_uuid_file, 'notebook.toml')
     except Exception as e:
