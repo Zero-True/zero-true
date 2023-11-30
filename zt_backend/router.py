@@ -261,8 +261,9 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, position_key:str=None, de
                         new_cell_dict[newCell.id] = newCell
                 zt_notebook.cells = new_cell_dict
             else:
-                zt_notebook.cells[newCell.id] = newCell
-                zt_notebook.cells.move_to_end(newCell.id, last=False)
+                new_cell_dict = OrderedDict({newCell.id: newCell})
+                new_cell_dict.update(zt_notebook.cells)
+                zt_notebook.cells = new_cell_dict
         if deletedCell is not None:
             del zt_notebook.cells[deletedCell]
         if saveCell is not None:
