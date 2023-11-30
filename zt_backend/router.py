@@ -48,7 +48,6 @@ async def runcode(request: request.Request,background_tasks: BackgroundTasks):
         background_tasks.add_task(globalStateUpdate,run_request=request.model_copy(deep=True))
         response = execute_request(request, cell_outputs_dict)
         background_tasks.add_task(globalStateUpdate,run_response=response)
-        logger.debug("Code execution completed")
         return response
 
 @router.post("/api/component_run")
@@ -118,7 +117,7 @@ def delete_cell(deleteRequest: request.DeleteRequest):
                     cell["parent_cells"].pop(cell_id, None)
 
         except Exception as e:
-            logger.error("Error when deleting cell %s from cell dicts: %s", cell_id, traceback.format_exc())
+            logger.debug("Error when deleting cell %s from cell dicts: %s", cell_id, traceback.format_exc())
         logger.debug("Cell %s deleted successfully", cell_id)
         globalStateUpdate(deletedCell=cell_id)
 
@@ -201,7 +200,7 @@ def get_notebook(id=''):
             zt_notebook = get_notebook_db(id)
             return(zt_notebook)
         except Exception as e:
-            logger.warning("Error when getting notebook %s from db: %s", id, traceback.format_exc())
+            logger.debug("Error when getting notebook %s from db: %s", id, traceback.format_exc())
 
     try:
         logger.debug("Notebook id is empty")            
@@ -261,8 +260,9 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, position_key:str=None, de
                         new_cell_dict[newCell.id] = newCell
                 zt_notebook.cells = new_cell_dict
             else:
-                zt_notebook.cells[newCell.id] = newCell
-                zt_notebook.cells.move_to_end(newCell.id, last=False)
+                new_cell_dict = OrderedDict({newCell.id: newCell})
+                new_cell_dict.update(zt_notebook.cells)
+                zt_notebook.cells = new_cell_dict
         if deletedCell is not None:
             del zt_notebook.cells[deletedCell]
         if saveCell is not None:
@@ -316,7 +316,7 @@ def save_toml(zt_notebook):
         try:
             os.remove(tmp_uuid_file)
         except Exception as e:
-            logger.warning("Error while deleting temporary toml file for notebook %s: %s", zt_notebook.notebookId, traceback.format_exc())
+            logger.debug("Error while deleting temporary toml file for notebook %s: %s", zt_notebook.notebookId, traceback.format_exc())
             pass  # Handle error silently
     logger.debug("Toml saved for notebook %s", zt_notebook.notebookId)
 

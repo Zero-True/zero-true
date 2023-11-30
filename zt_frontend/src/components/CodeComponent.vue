@@ -123,7 +123,7 @@
       </v-row>
       <v-row>
         <v-col>
-          <div class="text-p">{{ cellData.output }}</div>
+          <pre class="text-p">{{ cellData.output }}</pre>
         </v-col>
       </v-row>
     </v-container>

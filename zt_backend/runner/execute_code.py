@@ -21,7 +21,7 @@ def try_pickle(obj):
     try:
         return pickle.loads(pickle.dumps(obj))
     except Exception as e:
-        logger.warning("Error during pickle: %s", e)
+        logger.debug("Error during pickle: %s", e)
         return obj
 
 def get_parent_vars(cell_id: str, code_components: CodeDict, cell_outputs_dict: Dict[str, Any]) -> Dict[str, Any]:
@@ -94,15 +94,19 @@ def execute_request(request: request.Request,cell_outputs_dict: Dict):
                 exec(code_cell.code, temp_globals)
 
             except Exception as e:
-                logger.error("Error during code execution")
-                print(traceback.format_exc())
+                logger.debug("Error during code execution")
+                tb_list = traceback.format_exc().splitlines(keepends=True)
+                tb_list = [tb_list[0]]+tb_list[3:]
+                print("".join(tb_list))
+                
+
         context_globals['exec_mode'] = False
         cell_outputs_dict[code_cell_id] = {k: try_pickle(v) for k, v in temp_globals.items() if k != '__builtins__'}
 
         try:
             layout = current_cell_layout[0]
         except Exception as e:
-            logger.warning("Error while getting cell layout, setting empty layout: %s", traceback.format_exc())
+            logger.debug("Error while getting cell layout, setting empty layout: %s", traceback.format_exc())
             layout = Layout(**{})
         
         for component in current_cell_components:
@@ -118,5 +122,4 @@ def execute_request(request: request.Request,cell_outputs_dict: Dict):
     component_values.clear()
     created_components.clear()
     context_globals['exec_mode'] = False
-    logger.debug("Code execution completed successfully")
     return response.Response(cells=cell_outputs)
