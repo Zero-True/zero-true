@@ -8,7 +8,7 @@ class Text(ZTComponent):
     """A class for static text components inheriting from ZTComponent."""
     component: str = Field("v-text", description="Vue component name for static text.")
     text: str = Field("", description="The actual text content.")
-    text_type: str = Field('text-body-1', enum=[
+    type: str = Field('text-body-1', enum=[
         'text-h1', 'text-h2', 'text-h3', 'text-h4', 'text-h5', 'text-h6',
         'text-subtitle-1', 'text-subtitle-2', 'text-body-1', 'text-body-2',
         'text-button', 'text-caption', 'text-overline'

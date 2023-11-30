@@ -24,7 +24,7 @@ export type Text1 = string;
 /**
  * Text type for text-related components.
  */
-export type TextType =
+export type Type =
   | "text-h1"
   | "text-h2"
   | "text-h3"
@@ -55,7 +55,7 @@ export interface Text {
   variable_name?: VariableName;
   component?: Component;
   text?: Text1;
-  text_type?: TextType;
+  type?: Type;
   color?: Color;
   triggerEvent?: Triggerevent;
   [k: string]: unknown;
