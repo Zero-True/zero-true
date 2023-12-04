@@ -21,16 +21,17 @@
       label="Enter SQL variable name"
       density="compact"
     />
-    <ace-editor
+    <codemirror
       v-if="$devMode"
-      v-model:value="cellData.code"
-      ref="editor"
-      class="editor"
-      theme="dracula"
-      lang="sql"
+      v-model="cellData.code"
+      :style="{ height: '400px' }"
+      :autofocus="true"
+      :indent-with-tab="true"
+      :tab-size="2"
+      :viewportMargin="Infinity"
+      :extensions="extensions"
       @focus="handleFocus(true)"
       @blur="handleFocus(false)"
-      :options="editorOptions"
     />
     <v-expansion-panels v-else>
       <v-expansion-panel>
@@ -38,13 +39,17 @@
           View Source Code
         </v-expansion-panel-title>
         <v-expansion-panel-text>
-          <ace-editor
-            v-model:value="cellData.code"
-            class="editor"
-            theme="dracula"
-            lang="sql"
-            :readonly="true"
-            :options="editorOptions"
+          <codemirror
+            v-if="$devMode"
+            v-model="cellData.code"
+            :style="{ height: '400px' }"
+            :autofocus="true"
+            :indent-with-tab="true"
+            :tab-size="2"
+            :viewportMargin="Infinity"
+            :extensions="extensions"
+            @focus="handleFocus(true)"
+            @blur="handleFocus(false)"
           />
         </v-expansion-panel-text>
       </v-expansion-panel>
@@ -82,35 +87,24 @@
 
 <script lang="ts">
 import type { PropType } from "vue";
-import { VAceEditor } from "vue3-ace-editor";
 import { VDataTable } from "vuetify/labs/VDataTable";
-import "ace-builds/src-noconflict/mode-sql";
-import "ace-builds/src-noconflict/snippets/sql";
-import "ace-builds/src-noconflict/ext-language_tools";
-import "ace-builds/src-noconflict/theme-dracula";
+import { Codemirror } from 'vue-codemirror'
+import { sql } from '@codemirror/lang-sql'
+import { oneDark } from '@codemirror/theme-one-dark'
+import { EditorView } from '@codemirror/view'
+import { autocompletion, CompletionResult, CompletionContext } from '@codemirror/autocomplete'
 import { CodeCell } from "@/types/notebook";
 
 export default {
   components: {
-    "ace-editor": VAceEditor,
+    "codemirror": Codemirror,
     "v-data-table": VDataTable,
   },
 
   computed: {
-    editorOptions() {
-      return {
-        showPrintMargin: false,
-        enableBasicAutocompletion: true,
-        enableSnippets: true,
-        enableLiveAutocompletion: true,
-        autoScrollEditorIntoView: true,
-        highlightActiveLine: this.$devMode && this.isFocused,
-        highlightGutterLine: this.$devMode && this.isFocused,
-        minLines: 1,
-        maxLines: Infinity,
-      };
-    },
+    extensions() {return [sql(), oneDark, autocompletion({ override: [] })]},
   },
+  
   data() {
     return {
       isFocused: false, // add this line to keep track of the focus state
@@ -130,10 +124,6 @@ export default {
   },
   mounted() {
     // Attach the event listener when the component is mounted
-    if(this.$devMode){
-      const aceComponent = this.$refs.editor as any;
-      aceComponent._editor.renderer.$cursorLayer.element.style.display = "none";
-    }
     window.addEventListener("keydown", this.handleKeyDown);
   },
   beforeUnmount() {
@@ -148,14 +138,6 @@ export default {
       }
     },
     handleFocus(state: boolean) {
-      if (state) {
-        const aceComponent = this.$refs.editor as any;
-        aceComponent._editor.renderer.$cursorLayer.element.style.display = "";
-      } else {
-        const aceComponent = this.$refs.editor as any;
-        aceComponent._editor.renderer.$cursorLayer.element.style.display =
-          "none";
-      }
       this.isFocused = state;
     },
     runCode() {

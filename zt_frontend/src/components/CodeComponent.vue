@@ -19,14 +19,15 @@
         </v-icon>
       </v-col>
     </v-row>
-    <ace-editor
+    <codemirror
       v-if="$devMode"
-      v-model:value="cellData.code"
-      ref="editor"
-      class="editor"
-      theme="dracula"
-      lang="python"
-      :options="editorOptions"
+      v-model="cellData.code"
+      :style="{ height: '400px' }"
+      :autofocus="true"
+      :indent-with-tab="true"
+      :tab-size="2"
+      :viewportMargin="Infinity"
+      :extensions="extensions"
       @focus="handleFocus(true)"
       @blur="handleFocus(false)"
     />
@@ -36,13 +37,16 @@
           View Source Code
         </v-expansion-panel-title>
         <v-expansion-panel-text>
-          <ace-editor
-            v-model:value="cellData.code"
-            class="editor"
-            theme="dracula"
-            lang="python"
-            :readonly="true"
-            :options="editorOptions"
+          <codemirror
+            v-model="cellData.code"
+            :style="{ height: '400px' }"
+            :autofocus="true"
+            :indent-with-tab="true"
+            :tab-size="2"
+            :viewportMargin="Infinity"
+            :extensions="extensions"
+            @focus="handleFocus(true)"
+            @blur="handleFocus(false)"
           />
         </v-expansion-panel-text>
       </v-expansion-panel>
@@ -148,11 +152,11 @@
 <script lang="ts">
 import type { PropType } from "vue";
 import PlotlyPlot from "@/components/PlotlyComponent.vue";
-import { VAceEditor } from "vue3-ace-editor";
-import "ace-builds/src-noconflict/mode-python";
-import "ace-builds/src-noconflict/snippets/python";
-import "ace-builds/src-noconflict/ext-language_tools";
-import "ace-builds/src-noconflict/theme-dracula";
+import { Codemirror } from 'vue-codemirror'
+import { python } from '@codemirror/lang-python'
+import { oneDark } from '@codemirror/theme-one-dark'
+import { EditorView } from '@codemirror/view'
+import { autocompletion, CompletionResult, CompletionContext } from '@codemirror/autocomplete'
 import {
   VSlider,
   VTextField,
@@ -172,7 +176,7 @@ import TextComponent from "@/components/TextComponent.vue"
 
 export default {
   components: {
-    "ace-editor": VAceEditor,
+    "codemirror": Codemirror,
     "v-slider": VSlider,
     "v-text-field": VTextField,
     "v-number-field": VTextField,
@@ -208,10 +212,6 @@ export default {
   },
   mounted() {
     // Attach the event listener when the component is mounted
-    if (this.$devMode){
-      const aceComponent = this.$refs.editor as any;
-      aceComponent._editor.renderer.$cursorLayer.element.style.display = "none";
-    }
     window.addEventListener("keydown", this.handleKeyDown);
   },
   beforeUnmount() {
@@ -224,19 +224,8 @@ export default {
       return this.cellData.layout?.columns || [];
     },
 
-    editorOptions() {
-      return {
-        showPrintMargin: false,
-        enableBasicAutocompletion: true,
-        enableSnippets: true,
-        enableLiveAutocompletion: true,
-        autoScrollEditorIntoView: true,
-        highlightActiveLine: this.$devMode && this.isFocused,
-        highlightGutterLine: this.$devMode && this.isFocused,
-        minLines: 1,
-        maxLines: Infinity,
-      };
-    },
+    extensions() {return [python(), oneDark, autocompletion({ override: [] })]},
+
     unplacedComponents() {
       const findPlacedIds = (items: any[]): string[] => {
         let ids: string[] = [];
@@ -281,14 +270,6 @@ export default {
       }
     },
     handleFocus(state: boolean) {
-      if (state) {
-        const aceComponent = this.$refs.editor as any;
-        aceComponent._editor.renderer.$cursorLayer.element.style.display = "";
-      } else {
-        const aceComponent = this.$refs.editor as any;
-        aceComponent._editor.renderer.$cursorLayer.element.style.display =
-          "none";
-      }
       this.isFocused = state;
     },
     runCode(fromComponent: boolean, componentId: string, componentValue: any) {

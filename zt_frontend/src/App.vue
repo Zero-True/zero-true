@@ -320,20 +320,7 @@ export default {
 </script>
 
 <style>
-.editor {
-  background-color: #1b2f3c;
-  filter: none;
-  height: 300px;
-  width: 100%;
-  margin-bottom: 5px;
-}
-.editor .ace_gutter {
-  background: #1b2f3c;
-}
-.editor .ace_active-line {
-  background: #0e1b23 !important;
-}
-.editor .ace_gutter-active-line {
-  background: #0e1b23 !important;
+.cm-editor {
+  height: auto !important;
 }
 </style>
