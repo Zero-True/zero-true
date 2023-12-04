@@ -24,13 +24,8 @@
       :tab-size="2"
       :viewportMargin="Infinity"
       :extensions="extensions"
-      @focus="handleFocus(true)"
-      @blur="handleFocus(false)"
+      @keyup="saveCell"
     />
-    <div v-if="$devMode">
-      <p class="text-caption text-disabled text-right">
-        CTRL+Enter to save</p>
-    </div>
     <div class="markdown-content" v-html="compiledMarkdown"></div>
   </v-card>
   <v-menu transition="scale-transition">
@@ -89,25 +84,9 @@ export default {
       required: true,
     },
   },
-  mounted() {
-    // Attach the event listener when the component is mounted
-    window.addEventListener("keydown", this.handleKeyDown);
-  },
-  beforeUnmount() {
-    // Remove the event listener before the component is destroyed
-    window.removeEventListener("keydown", this.handleKeyDown);
-  },
   methods: {
-    handleKeyDown(event: KeyboardEvent) {
-      if (this.isFocused && event.ctrlKey && event.key === "Enter") {
-        this.saveCell();
-      }
-    },
-    handleFocus(state: boolean) {
-      this.isFocused = state;
-    },
     saveCell() {
-      this.$emit("saveCell", this.cellData.id);
+      this.$emit("saveCell", this.cellData.id, this.cellData.code, '', '');
     },
     deleteCell() {
       this.$emit("deleteCell", this.cellData.id);

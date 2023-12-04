@@ -7,9 +7,13 @@
 
 export type Id = string;
 export type Text = string;
+export type Line = string;
+export type Column = string;
 
 export interface SaveRequest {
   id: Id;
   text: Text;
+  line?: Line;
+  column?: Column;
   [k: string]: unknown;
 }

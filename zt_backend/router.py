@@ -1,5 +1,5 @@
 import subprocess
-from fastapi import APIRouter,BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, WebSocket, WebSocketDisconnect
 from typing import OrderedDict
 from zt_backend.models import request, notebook, response
 from zt_backend.runner.execute_code import execute_request
@@ -12,10 +12,30 @@ import duckdb
 import uuid
 import os
 import rtoml
+import jedi
 import threading
 import traceback
 
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: list[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def send_text(self, message: str, websocket: WebSocket):
+        await websocket.send_text(message)
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            await connection.send_text(message)
+
 router = APIRouter()
+manager = ConnectionManager()
 
 #connect to db for saving notebook
 notebook_db_dir =  site.USER_SITE+'/.zero_true/'
@@ -121,11 +141,24 @@ def delete_cell(deleteRequest: request.DeleteRequest):
         logger.debug("Cell %s deleted successfully", cell_id)
         globalStateUpdate(deletedCell=cell_id)
 
-@router.post("/api/save_text")
-def save_text(saveRequest: request.SaveRequest):
-     if(run_mode=='dev'):
-        logger.debug("Save cell request received")
-        globalStateUpdate(saveCell=saveRequest)
+@router.websocket("/ws/save_text")
+async def save_text(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_json()
+            if(run_mode=='dev'):
+                cell_type = data.get("cellType")
+                code = data.get("text")
+                save_request = request.SaveRequest(id=data.get("id"), text=code, cellType=cell_type)
+                globalStateUpdate(saveCell=save_request)
+                if cell_type=="code":
+                    line = data.get("line")
+                    column = data.get("column")
+                    completions = get_code_completions(code, line, column)
+                    await websocket.send_json(completions)
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
 
 @router.post("/api/clear_state")
 def clear_state(clearRequest: request.ClearRequest):
@@ -320,6 +353,10 @@ def save_toml(zt_notebook):
             pass  # Handle error silently
     logger.debug("Toml saved for notebook %s", zt_notebook.notebookId)
 
+def get_code_completions(code: str, line: int, column: int) -> list:
+    script = jedi.Script(code)
+    completions = script.complete(line, column)
+    return [{"label": completion.name, "type": completion.type} for completion in completions]
 
 def remove_user_state(user_id):
     try:

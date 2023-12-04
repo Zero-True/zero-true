@@ -82,10 +82,12 @@ export default {
     SQLComponent,
     PackageComponent
   },
+
   data() {
     return {
       notebook: {} as Notebook,
       dependencies: {} as Dependencies,
+      save_socket: new WebSocket(import.meta.env.VITE_WS_URL + 'ws/save_text'),
       timer: 0, // The timer value
       timerInterval: null as ReturnType<typeof setInterval> | null, // To hold the timer interval
       isCodeRunning: false,
@@ -108,6 +110,12 @@ export default {
   beforeUnmount() {
     window.removeEventListener("beforeunload", this.clearState);
     window.removeEventListener("unload", this.clearState);
+  },
+
+  mounted(){
+    this.save_socket.onmessage = function (event) {
+        console.log('Message from server:', event.data);
+      };
   },
 
   async created() {
@@ -290,15 +298,15 @@ export default {
       delete this.notebook.cells[cellId];
     },
 
-    async saveCell(cellId: string) {
+    async saveCell(cellId: string, text: string, line: string, column: string) {
       const saveRequest: SaveRequest = {
         id: cellId,
-        text: this.notebook.cells[cellId].code,
+        text: text,
+        cellType: this.notebook.cells[cellId].cellType,
+        line: line,
+        column: column,
       };
-      await axios.post(
-        import.meta.env.VITE_BACKEND_URL + "api/save_text",
-        saveRequest
-      );
+      this.save_socket.send(JSON.stringify(saveRequest))
     },
 
     getComponent(cellType: string) {

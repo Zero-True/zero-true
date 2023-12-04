@@ -14,7 +14,7 @@
         </v-icon>
       </v-col>
     </v-row>
-    <tiny-editor v-if="$devMode" v-model="cellData.code" :init="init" />
+    <tiny-editor v-if="$devMode" v-model="cellData.code" :init="init" @keyUp="saveCell" />
     <tiny-editor v-else v-model="cellData.code" :init="init" :disabled="true" />
   </v-card>
   <v-menu transition="scale-transition">
@@ -103,7 +103,7 @@ export default {
   },
   methods: {
     saveCell() {
-      this.$emit("saveCell", this.cellData.id);
+      this.$emit("saveCell", this.cellData.id, this.cellData.code, '', '');
     },
     deleteCell() {
       this.$emit("deleteCell", this.cellData.id);

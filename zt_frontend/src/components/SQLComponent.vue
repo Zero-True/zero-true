@@ -30,8 +30,7 @@
       :tab-size="2"
       :viewportMargin="Infinity"
       :extensions="extensions"
-      @focus="handleFocus(true)"
-      @blur="handleFocus(false)"
+      @keyup="saveCell"
     />
     <v-expansion-panels v-else>
       <v-expansion-panel>
@@ -48,8 +47,6 @@
             :tab-size="2"
             :viewportMargin="Infinity"
             :extensions="extensions"
-            @focus="handleFocus(true)"
-            @blur="handleFocus(false)"
           />
         </v-expansion-panel-text>
       </v-expansion-panel>
@@ -91,7 +88,8 @@ import { VDataTable } from "vuetify/labs/VDataTable";
 import { Codemirror } from 'vue-codemirror'
 import { sql } from '@codemirror/lang-sql'
 import { oneDark } from '@codemirror/theme-one-dark'
-import { EditorView } from '@codemirror/view'
+import { EditorView, keymap } from '@codemirror/view'
+import { Prec } from "@codemirror/state";
 import { autocompletion, CompletionResult, CompletionContext } from '@codemirror/autocomplete'
 import { CodeCell } from "@/types/notebook";
 
@@ -102,7 +100,7 @@ export default {
   },
 
   computed: {
-    extensions() {return [sql(), oneDark, autocompletion({ override: [] })]},
+    extensions() {return [Prec.highest(this.keyMap), sql(), oneDark, autocompletion({ override: [] })]},
   },
   
   data() {
@@ -114,6 +112,9 @@ export default {
         { title: 'Markdown' },
         { title: 'Text' },
       ],
+      keyMap: keymap.of([
+          { key: "Ctrl-Enter", run: this.handleCtrlEnter }
+        ]),
     };
   },
   props: {
@@ -122,23 +123,11 @@ export default {
       required: true,
     },
   },
-  mounted() {
-    // Attach the event listener when the component is mounted
-    window.addEventListener("keydown", this.handleKeyDown);
-  },
-  beforeUnmount() {
-    // Remove the event listener before the component is destroyed
-    window.removeEventListener("keydown", this.handleKeyDown);
-  },
 
   methods: {
-    handleKeyDown(event: KeyboardEvent) {
-      if (this.isFocused && event.ctrlKey && event.key === "Enter") {
-        this.runCode();
-      }
-    },
-    handleFocus(state: boolean) {
-      this.isFocused = state;
+    handleCtrlEnter(){
+      this.runCode();
+      return true
     },
     runCode() {
       this.$emit("runCode", this.cellData.id);
@@ -148,7 +137,10 @@ export default {
     },
     createCell(cellType: string){
       this.$emit("createCell", this.cellData.id, cellType);
-    }
+    },
+    saveCell() {
+      this.$emit("saveCell", this.cellData.id, this.cellData.code, '', '');
+    },
   },
 };
 </script>

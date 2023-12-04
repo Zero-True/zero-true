@@ -28,8 +28,7 @@
       :tab-size="2"
       :viewportMargin="Infinity"
       :extensions="extensions"
-      @focus="handleFocus(true)"
-      @blur="handleFocus(false)"
+      @keyup="saveCell"
     />
     <v-expansion-panels v-else>
       <v-expansion-panel>
@@ -45,8 +44,6 @@
             :tab-size="2"
             :viewportMargin="Infinity"
             :extensions="extensions"
-            @focus="handleFocus(true)"
-            @blur="handleFocus(false)"
           />
         </v-expansion-panel-text>
       </v-expansion-panel>
@@ -150,12 +147,14 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from "vue";
+import type { PropType, ShallowRef } from "vue";
+import { shallowRef } from "vue";
 import PlotlyPlot from "@/components/PlotlyComponent.vue";
 import { Codemirror } from 'vue-codemirror'
 import { python } from '@codemirror/lang-python'
 import { oneDark } from '@codemirror/theme-one-dark'
-import { EditorView } from '@codemirror/view'
+import { EditorView, keymap } from '@codemirror/view'
+import { Prec } from "@codemirror/state";
 import { autocompletion, CompletionResult, CompletionContext } from '@codemirror/autocomplete'
 import {
   VSlider,
@@ -208,15 +207,11 @@ export default {
         { title: 'Markdown' },
         { title: 'Text' },
       ],
+      keyMap: keymap.of([
+          { key: "Ctrl-Enter", run: this.handleCtrlEnter }
+        ]),
+      view: shallowRef(null)
     };
-  },
-  mounted() {
-    // Attach the event listener when the component is mounted
-    window.addEventListener("keydown", this.handleKeyDown);
-  },
-  beforeUnmount() {
-    // Remove the event listener before the component is destroyed
-    window.removeEventListener("keydown", this.handleKeyDown);
   },
 
   computed: {
@@ -224,7 +219,7 @@ export default {
       return this.cellData.layout?.columns || [];
     },
 
-    extensions() {return [python(), oneDark, autocompletion({ override: [] })]},
+    extensions() {return [Prec.highest(this.keyMap), python(), oneDark, autocompletion({ override: [] })]},
 
     unplacedComponents() {
       const findPlacedIds = (items: any[]): string[] => {
@@ -263,15 +258,13 @@ export default {
       );
     },
   },
+
   methods: {
-    handleKeyDown(event: KeyboardEvent) {
-      if (this.isFocused && event.ctrlKey && event.key === "Enter") {
-        this.runCode(false, this.cellData.id, "");
-      }
+    handleCtrlEnter(){
+      this.runCode(false, this.cellData.id, "");
+      return true
     },
-    handleFocus(state: boolean) {
-      this.isFocused = state;
-    },
+
     runCode(fromComponent: boolean, componentId: string, componentValue: any) {
       if (!this.$devMode && fromComponent) {
         this.$emit(
@@ -320,7 +313,14 @@ export default {
     },
     createCell(cellType: string){
       this.$emit("createCell", this.cellData.id, cellType);
-    }
+    },
+    saveCell() {
+      if (!view.value) return
+      const position = view.value.state.selection.main.head;
+      const line = view.value.state.doc.lineAt(position).number;
+      const column = position - view.value.state.doc.line(line).from;
+      this.$emit("saveCell", this.cellData.id, this.cellData.code, line, column);
+    },
   },
 };
 </script>
