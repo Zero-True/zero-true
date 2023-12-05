@@ -215,32 +215,26 @@ export default {
     const view: ShallowRef<EditorView|null>=shallowRef(null);
     const handleReady = (payload:any) => {view.value = payload.view};
 
-    // Create a method to handle Ctrl+Enter
-    const handleCtrlEnter = () => {
-      console.log('Ctrl-Enter pressed');
-      // Replace with the actual logic to execute on Ctrl+Enter
-      // For example, you can emit an event or call a method here
-    };
-
-    // Define the keymap for Ctrl-Enter
-    const keyMap = keymap.of([
-      { 
-        key: "Ctrl-Enter", 
-        run: () => {
-          handleCtrlEnter();
-          return true;
-        }
-      }
-    ]);
-
-    // Define the extensions including the keyMap
-    const extensions = [Prec.highest(keyMap), python(), oneDark, autocompletion({ override: [] })];
-
-    return { view, handleReady, extensions, handleCtrlEnter };
+    return { view, handleReady };
   },
 
 
   computed: {
+    extensions(){
+      const handleCtrlEnter = () => {
+        this.runCode(false,'','')
+      }
+      const keyMap = keymap.of([
+      { 
+          key: "Ctrl-Enter", 
+          run: () => {
+            handleCtrlEnter();
+            return true;
+          }
+        }
+      ]);
+      return [Prec.highest(keyMap), python(), oneDark, autocompletion({ override: [] })]
+    },
 
     columns() {
       return this.cellData.layout?.columns || [];
@@ -285,11 +279,6 @@ export default {
   },
 
   methods: {
-    handleCtrlEnter(){
-      this.runCode(false, this.cellData.id, "");
-      return true
-    },
-
     runCode(fromComponent: boolean, componentId: string, componentValue: any) {
       if (!this.$devMode && fromComponent) {
         this.$emit(
