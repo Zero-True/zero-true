@@ -28,6 +28,7 @@
       :tab-size="2"
       :viewportMargin="Infinity"
       :extensions="extensions"
+      @ready="handleReady"
       @keyup="saveCell"
     />
     <v-expansion-panels v-else>
@@ -210,11 +211,17 @@ export default {
       keyMap: keymap.of([
           { key: "Ctrl-Enter", run: this.handleCtrlEnter }
         ]),
-      view: shallowRef(null)
     };
   },
 
+  setup() {    
+  const view: ShallowRef<EditorView|null>=shallowRef(null)
+  const handleReady = (payload:any) => {view.value = payload.view}
+  return{view,handleReady}
+  },
+
   computed: {
+
     columns() {
       return this.cellData.layout?.columns || [];
     },
@@ -315,10 +322,10 @@ export default {
       this.$emit("createCell", this.cellData.id, cellType);
     },
     saveCell() {
-      if (!view.value) return
-      const position = view.value.state.selection.main.head;
-      const line = view.value.state.doc.lineAt(position).number;
-      const column = position - view.value.state.doc.line(line).from;
+      if (!this.view.value) return
+      const position = this.view.value.state.selection.main.head;
+      const line = this.view.value.state.doc.lineAt(position).number;
+      const column = position - this.view.value.state.doc.line(line).from;
       this.$emit("saveCell", this.cellData.id, this.cellData.code, line, column);
     },
   },
