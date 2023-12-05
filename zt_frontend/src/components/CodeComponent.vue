@@ -208,25 +208,43 @@ export default {
         { title: 'Markdown' },
         { title: 'Text' },
       ],
-      keyMap: keymap.of([
-          { key: "Ctrl-Enter", run: this.handleCtrlEnter }
-        ]),
     };
   },
 
   setup() {    
-  const view: ShallowRef<EditorView|null>=shallowRef(null)
-  const handleReady = (payload:any) => {view.value = payload.view}
-  return{view,handleReady}
+    const view: ShallowRef<EditorView|null>=shallowRef(null);
+    const handleReady = (payload:any) => {view.value = payload.view};
+
+    // Create a method to handle Ctrl+Enter
+    const handleCtrlEnter = () => {
+      console.log('Ctrl-Enter pressed');
+      // Replace with the actual logic to execute on Ctrl+Enter
+      // For example, you can emit an event or call a method here
+    };
+
+    // Define the keymap for Ctrl-Enter
+    const keyMap = keymap.of([
+      { 
+        key: "Ctrl-Enter", 
+        run: () => {
+          handleCtrlEnter();
+          return true;
+        }
+      }
+    ]);
+
+    // Define the extensions including the keyMap
+    const extensions = [Prec.highest(keyMap), python(), oneDark, autocompletion({ override: [] })];
+
+    return { view, handleReady, extensions, handleCtrlEnter };
   },
+
 
   computed: {
 
     columns() {
       return this.cellData.layout?.columns || [];
     },
-
-    extensions() {return [Prec.highest(this.keyMap), python(), oneDark, autocompletion({ override: [] })]},
 
     unplacedComponents() {
       const findPlacedIds = (items: any[]): string[] => {
@@ -322,10 +340,10 @@ export default {
       this.$emit("createCell", this.cellData.id, cellType);
     },
     saveCell() {
-      if (!this.view.value) return
-      const position = this.view.value.state.selection.main.head;
-      const line = this.view.value.state.doc.lineAt(position).number;
-      const column = position - this.view.value.state.doc.line(line).from;
+      if (!this.view?.hasFocus) return
+      const position = this.view?.state.selection.main.head;
+      const line = this.view?.state.doc.lineAt(position).number;
+      const column = position - this.view?.state.doc.line(line).from;
       this.$emit("saveCell", this.cellData.id, this.cellData.code, line, column);
     },
   },
