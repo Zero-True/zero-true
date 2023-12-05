@@ -21,6 +21,13 @@
         <v-chip v-else class="ml-2" color="white" text-color="black">
           Queue Length: {{ componentChangeQueue.length }}
         </v-chip>
+        <v-icon
+          large
+          color="error"
+          @click="stopCodeExecution()"
+        >
+          mdi-stop
+        </v-icon>
       </div>
       <PackageComponent v-if="$devMode" :dependencies="dependencies"/>
     </v-app-bar>
@@ -46,7 +53,7 @@
         <component
           :is="getComponent(codeCell.cellType)"
           :cellData="codeCell"
-          @runCode="runCodeTemp"
+          @runCode="runCode"
           @saveCell="saveCell"
           @componentChange="componentValueChange"
           @deleteCell="deleteCell"
@@ -89,6 +96,7 @@ export default {
       dependencies: {} as Dependencies,
       save_socket: new WebSocket(import.meta.env.VITE_WS_URL + 'ws/save_text'),
       run_socket: new WebSocket(import.meta.env.VITE_WS_URL + 'ws/run_code'),
+      stop_socket: new WebSocket(import.meta.env.VITE_WS_URL + 'ws/stop_execution'),
       timer: 0, // The timer value
       timerInterval: null as ReturnType<typeof setInterval> | null, // To hold the timer interval
       isCodeRunning: false,
@@ -142,7 +150,12 @@ export default {
       }
     },
 
-    async runCodeTemp(originId: string){
+    async runCode(originId: string){
+      if (!originId) return;
+      if (this.isCodeRunning) {
+        this.requestQueue.push(originId);
+        return;
+      }
       const cellRequests: CodeRequest[] = [];
       const requestComponents: { [key: string]: any } = {};
       for (let key in this.notebook.cells) {
@@ -162,13 +175,14 @@ export default {
         cells: cellRequests,
         components: requestComponents,
       };
+      this.isCodeRunning = true;
+      this.startTimer();
       this.run_socket.send(JSON.stringify(request))
     },
 
     initializeRunSocket(){
       this.run_socket.onmessage = (event) => {
         const response = JSON.parse(event.data)
-
         if (response.cell_id){
           if (response.clear_output){
             this.notebook.cells[response.cell_id].output=""
@@ -177,6 +191,16 @@ export default {
             this.notebook.cells[response.cell_id].output = this.notebook.cells[response.cell_id].output.concat(response.output)
           }
         }
+
+        else if (response.complete){
+          this.isCodeRunning = false;
+          this.stopTimer();
+          if (this.requestQueue.length > 0){
+            const currentOriginId = this.requestQueue.shift() || "";
+            this.runCode(currentOriginId)
+          }
+        }
+
         else {
           const components_response = JSON.parse(response)
           this.notebook.cells[components_response.id].components = components_response.components;
@@ -185,56 +209,6 @@ export default {
             | undefined;
         }
       };
-    },
-
-    async runCode(originId: string) {
-      this.requestQueue.push(originId);
-
-      if (this.isCodeRunning) {
-        return;
-      }
-
-      while (this.requestQueue.length > 0) {
-        const currentOriginId = this.requestQueue.shift();
-        if (!currentOriginId) continue;
-        const cellRequests: CodeRequest[] = [];
-        const requestComponents: { [key: string]: any } = {};
-        for (let key in this.notebook.cells) {
-          const cellRequest: CodeRequest = {
-            id: key,
-            code: this.notebook.cells[key].code,
-            variable_name: this.notebook.cells[key].variable_name || "",
-            cellType: this.notebook.cells[key].cellType,
-          };
-          for (const c of this.notebook.cells[key].components) {
-            requestComponents[c.id] = c.value;
-          }
-          cellRequests.push(cellRequest);
-        }
-        const request: Request = {
-          originId: originId,
-          cells: cellRequests,
-          components: requestComponents,
-        };
-
-        this.isCodeRunning = true;
-        this.startTimer();
-        const axiosResponse = await axios.post(
-          import.meta.env.VITE_BACKEND_URL + "api/runcode",
-          request
-        );
-        this.stopTimer();
-        this.isCodeRunning = false;
-        const response: Response = axiosResponse.data;
-        for (const cellResponse of response.cells) {
-          this.notebook.cells[cellResponse.id].components =
-            cellResponse.components;
-          this.notebook.cells[cellResponse.id].output = cellResponse.output;
-          this.notebook.cells[cellResponse.id].layout = cellResponse.layout as
-            | Layout
-            | undefined;
-        }
-      }
     },
 
     async componentValueChange(originId: string, componentId: string, newValue: any) {
@@ -354,6 +328,13 @@ export default {
         column: column,
       };
       this.save_socket.send(JSON.stringify(saveRequest))
+    },
+
+    async stopCodeExecution(){
+      this.requestQueue = []
+      this.isCodeRunning = false;
+      this.stopTimer();
+      this.stop_socket.send("")
     },
 
     getComponent(cellType: string) {
