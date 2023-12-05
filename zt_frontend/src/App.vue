@@ -46,7 +46,7 @@
         <component
           :is="getComponent(codeCell.cellType)"
           :cellData="codeCell"
-          @runCode="runCode"
+          @runCode="runCodeTemp"
           @saveCell="saveCell"
           @componentChange="componentValueChange"
           @deleteCell="deleteCell"
@@ -88,6 +88,7 @@ export default {
       notebook: {} as Notebook,
       dependencies: {} as Dependencies,
       save_socket: new WebSocket(import.meta.env.VITE_WS_URL + 'ws/save_text'),
+      run_socket: new WebSocket(import.meta.env.VITE_WS_URL + 'ws/run_code'),
       timer: 0, // The timer value
       timerInterval: null as ReturnType<typeof setInterval> | null, // To hold the timer interval
       isCodeRunning: false,
@@ -116,6 +117,7 @@ export default {
     this.save_socket.onmessage = function (event) {
         console.log('Message from server:', event.data);
       };
+    this.initializeRunSocket()
   },
 
   async created() {
@@ -138,6 +140,51 @@ export default {
         clearInterval(this.timerInterval);
         this.timerInterval = null;
       }
+    },
+
+    async runCodeTemp(originId: string){
+      const cellRequests: CodeRequest[] = [];
+      const requestComponents: { [key: string]: any } = {};
+      for (let key in this.notebook.cells) {
+        const cellRequest: CodeRequest = {
+          id: key,
+          code: this.notebook.cells[key].code,
+          variable_name: this.notebook.cells[key].variable_name || "",
+          cellType: this.notebook.cells[key].cellType,
+        };
+        for (const c of this.notebook.cells[key].components) {
+          requestComponents[c.id] = c.value;
+        }
+        cellRequests.push(cellRequest);
+      }
+      const request: Request = {
+        originId: originId,
+        cells: cellRequests,
+        components: requestComponents,
+      };
+      this.run_socket.send(JSON.stringify(request))
+    },
+
+    initializeRunSocket(){
+      this.run_socket.onmessage = (event) => {
+        const response = JSON.parse(event.data)
+
+        if (response.cell_id){
+          if (response.clear_output){
+            this.notebook.cells[response.cell_id].output=""
+          }
+          else{
+            this.notebook.cells[response.cell_id].output = this.notebook.cells[response.cell_id].output.concat(response.output)
+          }
+        }
+        else {
+          const components_response = JSON.parse(response)
+          this.notebook.cells[components_response.id].components = components_response.components;
+          this.notebook.cells[components_response.id].layout = components_response.layout as
+            | Layout
+            | undefined;
+        }
+      };
     },
 
     async runCode(originId: string) {

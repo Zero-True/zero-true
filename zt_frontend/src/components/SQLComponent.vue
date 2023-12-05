@@ -83,7 +83,8 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from "vue";
+import type { PropType, ShallowRef } from "vue";
+import { shallowRef } from "vue";
 import { VDataTable } from "vuetify/labs/VDataTable";
 import { Codemirror } from 'vue-codemirror'
 import { sql } from '@codemirror/lang-sql'
@@ -100,7 +101,21 @@ export default {
   },
 
   computed: {
-    extensions() {return [Prec.highest(this.keyMap), sql(), oneDark, autocompletion({ override: [] })]},
+    extensions(){
+      const handleCtrlEnter = () => {
+        this.runCode()
+      }
+      const keyMap = keymap.of([
+      { 
+          key: "Ctrl-Enter", 
+          run: () => {
+            handleCtrlEnter();
+            return true;
+          }
+        }
+      ]);
+      return [Prec.highest(keyMap), sql(), oneDark, autocompletion({ override: [] })]
+    },
   },
   
   data() {
@@ -111,10 +126,7 @@ export default {
         { title: 'SQL' },
         { title: 'Markdown' },
         { title: 'Text' },
-      ],
-      keyMap: keymap.of([
-          { key: "Ctrl-Enter", run: this.handleCtrlEnter }
-        ]),
+      ]
     };
   },
   props: {
@@ -124,11 +136,14 @@ export default {
     },
   },
 
+  setup() {    
+    const view: ShallowRef<EditorView|null>=shallowRef(null);
+    const handleReady = (payload:any) => {view.value = payload.view};
+
+    return { view, handleReady };
+  },
+
   methods: {
-    handleCtrlEnter(){
-      this.runCode();
-      return true
-    },
     runCode() {
       this.$emit("runCode", this.cellData.id);
     },

@@ -61,6 +61,21 @@ logger = logging.getLogger("__name__")
 def health():
     return('UP')
 
+
+@router.websocket("/ws/run_code")
+async def save_text(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_json()
+            if(run_mode=='dev'):
+                ws_request = request.Request(**data)
+                globalStateUpdate(run_request=ws_request.model_copy(deep=True))
+                ws_response = await execute_request(ws_request, cell_outputs_dict, websocket)
+                globalStateUpdate(run_response=ws_response)
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+
 @router.post("/api/runcode")
 async def runcode(request: request.Request,background_tasks: BackgroundTasks):
     if(run_mode=='dev'):
@@ -97,7 +112,6 @@ def runcode(component_request: request.ComponentRequest):
         logger.debug("Existing user execution with id: %s", component_request.userId)
         timer_set(component_request.userId, 1800)
         return execute_request(code_request, user_states[component_request.userId])
-
 
 
 @router.post("/api/create_cell")
