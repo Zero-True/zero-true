@@ -111,7 +111,7 @@ async def run_code(websocket: WebSocket):
             manager.disconnect(websocket)
 
 @router.websocket("/ws/stop_execution")
-async def save_text(websocket: WebSocket):
+async def stop_execution(websocket: WebSocket):
     global current_thread
     await manager.connect(websocket)
     try:
