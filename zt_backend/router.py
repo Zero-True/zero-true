@@ -122,15 +122,6 @@ async def save_text(websocket: WebSocket):
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
-@router.post("/api/runcode")
-async def runcode(request: request.Request,background_tasks: BackgroundTasks):
-    if(run_mode=='dev'):
-        logger.debug("Code execution starting")
-        background_tasks.add_task(globalStateUpdate,run_request=request.model_copy(deep=True))
-        response = execute_request(request, cell_outputs_dict)
-        background_tasks.add_task(globalStateUpdate,run_response=response)
-        return response
-
 @router.post("/api/component_run")
 def runcode(component_request: request.ComponentRequest):
     logger.debug("Component change code execution started")
@@ -210,12 +201,13 @@ async def save_text(websocket: WebSocket):
             if(run_mode=='dev'):
                 cell_type = data.get("cellType")
                 code = data.get("text")
-                save_request = request.SaveRequest(id=data.get("id"), text=code, cellType=cell_type)
+                cell_id = data.get("id")
+                save_request = request.SaveRequest(id=cell_id, text=code, cellType=cell_type)
                 globalStateUpdate(saveCell=save_request)
                 if cell_type=="code":
                     line = data.get("line")
                     column = data.get("column")
-                    completions = get_code_completions(code, line, column)
+                    completions = get_code_completions(cell_id, code, line, column)
                     await websocket.send_json(completions)
     except WebSocketDisconnect:
         manager.disconnect(websocket)

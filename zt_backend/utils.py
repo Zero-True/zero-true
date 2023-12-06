@@ -142,7 +142,7 @@ def save_toml(zt_notebook):
             pass  # Handle error silently
     logger.debug("Toml saved for notebook %s", zt_notebook.notebookId)
 
-def get_code_completions(code: str, line: int, column: int) -> list:
+def get_code_completions(cell_id:str, code: str, line: int, column: int) -> list:
     script = jedi.Script(code)
     completions = script.complete(line, column)
-    return [{"label": completion.name, "type": completion.type} for completion in completions]
+    return {"cell_id": cell_id, "completions": [{"label": completion.name, "type": completion.type} for completion in completions]}
