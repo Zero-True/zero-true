@@ -352,7 +352,11 @@ export default {
     createCell(cellType: string){
       this.$emit("createCell", this.cellData.id, cellType);
     },
-    saveCell() {
+    saveCell(event: { ctrlKey: any; keyCode: number; }) {
+      if (event.ctrlKey && event.keyCode === 13) {
+        // Do not save if Ctrl+Enter is pressed
+        return;
+      }
       if (!this.view?.hasFocus) return
       const position = this.view?.state.selection.main.head;
       const line = this.view?.state.doc.lineAt(position).number;
