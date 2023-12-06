@@ -5,17 +5,15 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export type Id = string;
-export type Text = string;
-export type Celltype = string;
-export type Line = string;
-export type Column = string;
+export type CellId = string;
+export type Completions1 = unknown[];
 
-export interface SaveRequest {
-  id: Id;
-  text: Text;
-  cellType: Celltype;
-  line?: Line;
-  column?: Column;
+export interface Completions {
+  cell_id: CellId;
+  cell_completions: Completion;
+  [k: string]: unknown;
+}
+export interface Completion {
+  completions: Completions1;
   [k: string]: unknown;
 }

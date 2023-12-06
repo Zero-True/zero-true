@@ -50,7 +50,17 @@
         </v-menu>
       </v-container>
       <v-container v-for="codeCell in notebook.cells">
-        <component
+        <component v-if="codeCell.cellType==='code'"
+          :is="getComponent(codeCell.cellType)"
+          :cellData="codeCell"
+          :completions="completions[codeCell.id]"
+          @runCode="runCode"
+          @saveCell="saveCell"
+          @componentChange="componentValueChange"
+          @deleteCell="deleteCell"
+          @createCell="createCodeCell"
+        />
+        <component v-else
           :is="getComponent(codeCell.cellType)"
           :cellData="codeCell"
           @runCode="runCode"
@@ -74,6 +84,7 @@ import { CreateRequest, Celltype } from "./types/create_request";
 import { ClearRequest } from "./types/clear_request";
 import { Response } from "./types/response";
 import { Notebook, CodeCell, Layout } from "./types/notebook";
+import { Completions, Completion } from "./types/completions";
 import { Dependencies } from "./types/notebook_response";
 import CodeComponent from "@/components/CodeComponent.vue";
 import MarkdownComponent from "@/components/MarkdownComponent.vue";
@@ -94,6 +105,7 @@ export default {
     return {
       notebook: {} as Notebook,
       dependencies: {} as Dependencies,
+      completions: {} as Completions,
       save_socket: new WebSocket(import.meta.env.VITE_WS_URL + 'ws/save_text'),
       run_socket: new WebSocket(import.meta.env.VITE_WS_URL + 'ws/run_code'),
       stop_socket: new WebSocket(import.meta.env.VITE_WS_URL + 'ws/stop_execution'),
@@ -122,9 +134,7 @@ export default {
   },
 
   mounted(){
-    this.save_socket.onmessage = function (event) {
-        console.log('Message from server:', event.data);
-      };
+    this.initializeSaveSocket()
     this.initializeRunSocket()
   },
 
@@ -133,6 +143,14 @@ export default {
       import.meta.env.VITE_BACKEND_URL + "api/notebook"
     );
     this.notebook = response.data.notebook;
+    for (let cell_id in this.notebook.cells){
+      if (this.notebook.cells[cell_id].cellType==='code'){
+        const completion: Completion = {
+          completions: []
+        }
+        this.completions[cell_id] = completion
+      }
+    }
     this.dependencies = response.data.dependencies;
   },
 
@@ -208,6 +226,23 @@ export default {
             | Layout
             | undefined;
         }
+      };
+    },
+
+    initializeSaveSocket() {
+      const parseServerMessage = (message: string) => {
+        // Parse the message from the server
+        // Ensure this always returns an array
+        try {
+          const data = JSON.parse(message);
+          // Assuming data is an array of completion objects
+          this.completions[data.cell_id] = Array.isArray(data.completions) ? data.completions : [];
+        } catch (error) {
+          console.error('Error parsing server message:', error);
+        }
+      };
+      this.save_socket.onmessage = (event) => {
+        parseServerMessage(event.data);
       };
     },
 
@@ -307,6 +342,9 @@ export default {
           cells[cell.id] = cell
         }
       }
+      if (cell.cellType==='code'){
+        this.completions[cell.id] = []
+      }
       this.notebook.cells = cells;
     },
 
@@ -316,6 +354,9 @@ export default {
         import.meta.env.VITE_BACKEND_URL + "api/delete_cell",
         deleteRequest
       );
+      if (this.notebook.cells[cellId].cellType==='code'){
+        delete this.completions[cellId]
+      }
       delete this.notebook.cells[cellId];
     },
 

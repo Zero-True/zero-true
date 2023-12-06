@@ -171,6 +171,7 @@ import {
 } from "vuetify/lib/components/index.mjs";
 import { VDataTable } from "vuetify/labs/VDataTable";
 import { CodeCell, Layout } from "@/types/notebook";
+import { Completion } from "@/types/completions";
 import LayoutComponent from "@/components/LayoutComponent.vue";
 import TextComponent from "@/components/TextComponent.vue"
 
@@ -198,6 +199,10 @@ export default {
       type: Object as PropType<CodeCell>,
       required: true,
     },
+    completions: {
+      type: Object as PropType<Completion>,
+      required: true
+    }
   },
   data() {
     return {
@@ -233,7 +238,26 @@ export default {
           }
         }
       ]);
-      return [Prec.highest(keyMap), python(), oneDark, autocompletion({ override: [] })]
+      const customCompletionSource = async (context: CompletionContext) => {
+        console.log('here')
+        const word = context.matchBefore(/\w*/);
+        const from = word ? word.from : context.pos;
+
+        return {
+              from: from,
+              options: this.completions.map((completion: { label: any; type: any; }) => ({
+                label: completion.label,
+                type: completion.type,
+                apply: (view: { dispatch: (arg0: { changes: { from: any; to: any; insert: any } }) => void }, completion: { label: any }, from: any, to: any) => {
+                  const insertText = completion.label;
+                  view.dispatch({
+                    changes: { from: from, to: to ?? context.pos, insert: insertText }
+                  });
+                }
+              }))
+            };
+          };
+      return [Prec.highest(keyMap), python(), oneDark, autocompletion({ override: [customCompletionSource] })]
     },
 
     columns() {

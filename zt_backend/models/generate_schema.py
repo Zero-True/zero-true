@@ -2,6 +2,7 @@ from .request import DependencyRequest, Request, ComponentRequest, DeleteRequest
 from .response import Response
 from .notebook import Notebook
 from .notebook import NotebookResponse
+from .notebook import Completions
 from .components.slider import Slider
 from .components.text_input import TextInput
 from .components.text_area_input import TextArea
@@ -32,6 +33,7 @@ def generate_schema():
     generate_json(Response, 'response')
     generate_json(Slider, 'slider')
     generate_json(Notebook, 'notebook')
+    generate_json(Completions, 'completions')
     generate_json(NotebookResponse, 'notebook_response')
     generate_json(TextInput, 'text_input')
     generate_json(TextArea,'text_area')
