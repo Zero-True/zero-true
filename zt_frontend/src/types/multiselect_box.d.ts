@@ -28,32 +28,32 @@ export type Value = (string | number | null)[] | string | number | null;
 /**
  * Label for the select box.
  */
-export type Label = string;
+export type Label = string | null;
 export type Multiple = string;
 /**
  * Determines if the select box is dense.
  */
-export type Dense = boolean;
+export type Dense = boolean | null;
 /**
  * Determines if the select box has an outlined style.
  */
-export type Outlined = boolean;
+export type Outlined = boolean | null;
 /**
  * Determines if the select box has a clearable option.
  */
-export type Clearable = boolean;
+export type Clearable = boolean | null;
 /**
  * Determines if the select box is disabled.
  */
-export type Disabled = boolean;
+export type Disabled = boolean | null;
 /**
  * Determines if the select box is read-only.
  */
-export type Readonly = boolean;
+export type Readonly = boolean | null;
 /**
  * Color of the range slider. Can be custom or standard Material color.
  */
-export type Color = string;
+export type Color = string | null;
 /**
  * Trigger event for when to run the slider
  */

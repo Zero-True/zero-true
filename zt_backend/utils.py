@@ -37,7 +37,7 @@ def get_notebook(id=''):
             logger.debug("Notebook retrieved from db with id %s", toml_data['notebookId'])
             return(zt_notebook)
         except Exception as e:
-            logger.debug("Notebook with id %s does not exist in db", toml_data['notebookId'])
+            logger.debug("Error loading notebook with id %s from db: %s", toml_data['notebookId'], traceback.format_exc())
             pass
         # Convert TOML data to a Notebook object
         notebook_data = {
@@ -102,7 +102,7 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, position_key:str=None, de
         new_state = zt_notebook.model_dump()
         new_notebook = zt_notebook.model_dump_json()
         conn = duckdb.connect(notebook_db_path)
-        conn.execute("INSERT OR REPLACE INTO notebooks (id, notebook) VALUES (?, ?)", [zt_notebook.notebookId,new_notebook])
+        conn.execute("INSERT OR REPLACE INTO notebooks (id, notebook) VALUES (?, ?)", [zt_notebook.notebookId, new_notebook])
         conn.close()
         differences = list(diff(old_state, new_state))
         save_toml(zt_notebook)

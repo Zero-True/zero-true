@@ -7,10 +7,10 @@ class NumberInput(ZTComponent):
     """A class for TextInput components inheriting from ZTComponent."""
     component: str = Field("v-number-field", description="Vue component name.")
     value: Union[int,float,None] = Field (None,description="The input text value")
-    placeholder: str = Field(None, description="Placeholder text.")
-    label: str = Field(None, description="Label for the text input.")
-    readonly: bool = Field(None, description="If true, the input is read-only.")
-    disabled: bool = Field(None, description="If true, the input is disabled.")
+    placeholder: Optional[str] = Field(None, description="Placeholder text.")
+    label: Optional[str] = Field(None, description="Label for the text input.")
+    readonly: Optional[bool] = Field(None, description="If true, the input is read-only.")
+    disabled: Optional[bool] = Field(None, description="If true, the input is disabled.")
     type: str = Field('number',description="Ensures that only numbers are accepted on the frontend")
     triggerEvent: str = Field('input',description="Trigger event to send code to the backend")
     

@@ -96,19 +96,19 @@ def health():
 
 
 @router.websocket("/ws/run_code")
-async def save_text(websocket: WebSocket):
+async def run_code(websocket: WebSocket):
     global current_thread
-    await manager.connect(websocket)
-    try:
-        while True:
-            data = await websocket.receive_json()
-            if(run_mode=='dev'):
+    if(run_mode=='dev'):
+        await manager.connect(websocket)
+        try:
+            while True:
+                data = await websocket.receive_json()
+                logger.info('RUN CODE MESSAGE HERE')
                 ws_request = request.Request(**data)
-                globalStateUpdate(run_request=ws_request.model_copy(deep=True))
                 current_thread = KThread(target = execute_request, args=(ws_request, cell_outputs_dict, websocket))
                 current_thread.start()
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
+        except WebSocketDisconnect:
+            manager.disconnect(websocket)
 
 @router.websocket("/ws/stop_execution")
 async def save_text(websocket: WebSocket):
@@ -194,11 +194,12 @@ def delete_cell(deleteRequest: request.DeleteRequest):
 
 @router.websocket("/ws/save_text")
 async def save_text(websocket: WebSocket):
-    await manager.connect(websocket)
-    try:
-        while True:
-            data = await websocket.receive_json()
-            if(run_mode=='dev'):
+    if(run_mode=='dev'):
+        await manager.connect(websocket)
+        try:
+            while True:
+                data = await websocket.receive_json()
+                logger.info('THIS IS SAVE COMPONENT')
                 cell_type = data.get("cellType")
                 code = data.get("text")
                 cell_id = data.get("id")
@@ -209,8 +210,8 @@ async def save_text(websocket: WebSocket):
                     column = data.get("column")
                     completions = get_code_completions(cell_id, code, line, column)
                     await websocket.send_json(completions)
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
+        except WebSocketDisconnect:
+            manager.disconnect(websocket)
 
 @router.post("/api/clear_state")
 def clear_state(clearRequest: request.ClearRequest):
@@ -265,7 +266,7 @@ def load_notebook():
             cells=cells,
             components=components
         )
-        response = execute_request(code_request, user_states[userId])
+        response = execute_request(code_request, user_states[userId], None)
         for responseCell in response.cells:
             notebook_start.cells[responseCell.id].components = responseCell.components
             notebook_start.cells[responseCell.id].output = responseCell.output

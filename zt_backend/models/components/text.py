@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import Field
 from zt_backend.models.components.zt_component import ZTComponent
 from zt_backend.models.state import component_values
@@ -13,5 +14,5 @@ class Text(ZTComponent):
         'text-subtitle-1', 'text-subtitle-2', 'text-body-1', 'text-body-2',
         'text-button', 'text-caption', 'text-overline'
     ], description="Text type for text-related components.")
-    color: str = Field(None, description="Color of the text.")
+    color: Optional[str] = Field(None, description="Color of the text.")
     triggerEvent: str = Field(None, description="Trigger event to send code to the backend. None for static text.")

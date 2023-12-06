@@ -41,7 +41,7 @@ export type Type =
 /**
  * Color of the text.
  */
-export type Color = string;
+export type Color = string | null;
 /**
  * Trigger event to send code to the backend. None for static text.
  */
