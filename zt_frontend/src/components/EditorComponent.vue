@@ -103,6 +103,7 @@ export default {
   },
   methods: {
     saveCell() {
+      if (!this.$devMode) return
       this.$emit("saveCell", this.cellData.id, this.cellData.code, '', '');
     },
     deleteCell() {

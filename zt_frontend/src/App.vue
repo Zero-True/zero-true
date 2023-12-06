@@ -107,7 +107,7 @@ export default {
       dependencies: {} as Dependencies,
       completions: {} as Completions,
       save_socket: new WebSocket(import.meta.env.VITE_WS_URL + 'ws/save_text'),
-      run_socket: new WebSocket(import.meta.env.VITE_WS_URL + 'ws/run_code'),
+      run_socket: this.$devMode ? new WebSocket(import.meta.env.VITE_WS_URL + 'ws/run_code') : new WebSocket(import.meta.env.VITE_WS_URL + 'ws/component_run'),
       stop_socket: new WebSocket(import.meta.env.VITE_WS_URL + 'ws/stop_execution'),
       timer: 0, // The timer value
       timerInterval: null as ReturnType<typeof setInterval> | null, // To hold the timer interval
@@ -134,7 +134,9 @@ export default {
   },
 
   mounted(){
-    this.initializeSaveSocket()
+    if (this.$devMode){
+      this.initializeSaveSocket()
+    }
     this.initializeRunSocket()
   },
 
@@ -201,7 +203,11 @@ export default {
     initializeRunSocket(){
       this.run_socket.onmessage = (event) => {
         const response = JSON.parse(event.data)
-        if (response.cell_id){
+        if (!this.$devMode && response.refresh) {
+          this.notebookRefresh()
+        }
+
+        else if (response.cell_id){
           if (response.clear_output){
             this.notebook.cells[response.cell_id].output=""
           }
@@ -213,9 +219,18 @@ export default {
         else if (response.complete){
           this.isCodeRunning = false;
           this.stopTimer();
-          if (this.requestQueue.length > 0){
+          if (this.$devMode && this.requestQueue.length > 0){
             const currentOriginId = this.requestQueue.shift() || "";
             this.runCode(currentOriginId)
+          }
+          else if (!this.$devMode && this.componentChangeQueue.length > 0){
+            const componentChangeRequest = this.componentChangeQueue.shift() || {};
+            const componentRequest: ComponentRequest = {
+              originId: componentChangeRequest.originId,
+              components: componentChangeRequest.components,
+              userId: componentChangeRequest.userId,
+            };
+            this.sendComponentRequest(componentRequest)
           }
         }
 
@@ -264,53 +279,38 @@ export default {
       };
 
       // Updating the queue: if the componentId already exists, update the value; otherwise, add to the queue
-      const existingRequestIndex = this.componentChangeQueue.findIndex(req => req.componentId === componentId);
-      if (existingRequestIndex !== -1) {
-        this.componentChangeQueue[existingRequestIndex] = componentChangeRequest;
-      } else {
-        this.componentChangeQueue.push(componentChangeRequest);
-      }
-
       // If code is already running, exit the function to wait for the current execution to finish
       if (this.isCodeRunning) {
+        const existingRequestIndex = this.componentChangeQueue.findIndex(req => req.componentId === componentId);
+        if (existingRequestIndex !== -1) {
+          this.componentChangeQueue[existingRequestIndex] = componentChangeRequest;
+        } else {
+          this.componentChangeQueue.push(componentChangeRequest);
+        }
         return;
       }
 
-      // Process the queue
-      while (this.componentChangeQueue.length > 0) {
-        const currentRequest = this.componentChangeQueue.shift();
-        if (!currentRequest) continue;
+      const componentRequest: ComponentRequest = {
+        originId: componentChangeRequest.originId,
+        components: componentChangeRequest.components,
+        userId: componentChangeRequest.userId,
+      };
 
+      this.sendComponentRequest(componentRequest)
+    },
 
-        const componentRequest: ComponentRequest = {
-          originId: currentRequest.originId,
-          components: currentRequest.components,
-          userId: currentRequest.userId,
-        };
+    sendComponentRequest(componentRequest: ComponentRequest) {
+      this.isCodeRunning = true;
+      this.startTimer();
+      this.run_socket.send(JSON.stringify(componentRequest))
+    },
 
-        this.isCodeRunning = true;
-        this.startTimer();
-        const axiosResponse = await axios.post(
-          import.meta.env.VITE_BACKEND_URL + "api/component_run",
-          componentRequest
-        );
-        this.stopTimer();
-        this.isCodeRunning = false;
-        const response: Response = axiosResponse.data;
-        if (response.refresh) {
-          const notebookResponse = await axios.get(
-            import.meta.env.VITE_BACKEND_URL + "api/notebook"
-          );
-          this.notebook = notebookResponse.data.notebook;
-          this.dependencies = notebookResponse.data.dependencies;
-        } else {
-          for (const cellResponse of response.cells) {
-            this.notebook.cells[cellResponse.id].components = cellResponse.components;
-            this.notebook.cells[cellResponse.id].output = cellResponse.output;
-            this.notebook.cells[cellResponse.id].layout = cellResponse.layout as Layout | undefined;
-          }
-        }
-      }
+    async notebookRefresh(){
+      const notebookResponse = await axios.get(
+        import.meta.env.VITE_BACKEND_URL + "api/notebook"
+      );
+      this.notebook = notebookResponse.data.notebook;
+      this.dependencies = notebookResponse.data.dependencies;
     },
 
     navigateToApp() {

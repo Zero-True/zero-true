@@ -155,7 +155,7 @@ import { Codemirror } from 'vue-codemirror'
 import { python } from '@codemirror/lang-python'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { EditorView, keymap } from '@codemirror/view'
-import { Prec } from "@codemirror/state";
+import { Prec, EditorState } from "@codemirror/state";
 import { autocompletion, CompletionResult, CompletionContext } from '@codemirror/autocomplete'
 import {
   VSlider,
@@ -257,7 +257,10 @@ export default {
               }))
             };
           };
-      return [Prec.highest(keyMap), python(), oneDark, autocompletion({ override: [customCompletionSource] })]
+      if (this.$devMode){
+        return [Prec.highest(keyMap), python(), oneDark, autocompletion({ override: [customCompletionSource] })]
+      }
+      return [EditorState.readOnly.of(true), Prec.highest(keyMap), python(), oneDark, autocompletion({ override: [customCompletionSource] })]
     },
 
     columns() {
@@ -353,7 +356,7 @@ export default {
       this.$emit("createCell", this.cellData.id, cellType);
     },
     saveCell() {
-      if (!this.view?.hasFocus) return
+      if (!this.$devMode || !this.view?.hasFocus) return
       const position = this.view?.state.selection.main.head;
       const line = this.view?.state.doc.lineAt(position).number;
       const column = position - this.view?.state.doc.line(line).from;

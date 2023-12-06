@@ -14,14 +14,16 @@ import rtoml
 logger = logging.getLogger("__name__")
 notebook_db_dir =  site.USER_SITE+'/.zero_true/'
 notebook_db_path = notebook_db_dir+'notebook.db'
+zt_notebook = notebook.Notebook(cells={},userId='')
 
 def get_notebook(id=''):
+    global zt_notebook
     if id!='':
         try:
             logger.debug("Getting notebook from db with id %s", id)
             #get notebook from the database
             zt_notebook = get_notebook_db(id)
-            return(zt_notebook)
+            return
         except Exception as e:
             logger.debug("Error when getting notebook %s from db: %s", id, traceback.format_exc())
 
@@ -35,7 +37,7 @@ def get_notebook(id=''):
             #get notebook from the database
             zt_notebook = get_notebook_db(toml_data['notebookId'])
             logger.debug("Notebook retrieved from db with id %s", toml_data['notebookId'])
-            return(zt_notebook)
+            return
         except Exception as e:
             logger.debug("Error loading notebook with id %s from db: %s", toml_data['notebookId'], traceback.format_exc())
             pass
@@ -54,12 +56,13 @@ def get_notebook(id=''):
         conn.execute("INSERT OR REPLACE INTO notebooks (id, notebook) VALUES (?, ?)", [zt_notebook.notebookId,new_notebook])
         conn.close()
         logger.debug("Notebook with id %s loaded from toml and new db entry created", toml_data['notebookId'])
-        return zt_notebook
 
     except Exception as e:
         logger.error("Error when loading notebook, return empty notebook: %s", traceback.format_exc())
-        # Handle any exceptions appropriately and return a valid notebook object
-        return notebook.Notebook(cells={},userId='')
+
+def get_notebook_request():
+    global zt_notebook
+    return zt_notebook
 
 def get_notebook_db(id=''):
     conn = duckdb.connect(notebook_db_path)
@@ -69,7 +72,7 @@ def get_notebook_db(id=''):
     return notebook.Notebook(**json.loads(notebook_data[0][0]))
 
 def globalStateUpdate(newCell: notebook.CodeCell=None, position_key:str=None, deletedCell: str=None, saveCell: request.SaveRequest=None, run_request: request.Request=None, run_response: response.Response=None):
-    zt_notebook = get_notebook()
+    global zt_notebook
     logger.debug("Updating state for notebook %s", zt_notebook.notebookId)
     try:        
         old_state = zt_notebook.model_dump()
@@ -105,11 +108,11 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, position_key:str=None, de
         conn.execute("INSERT OR REPLACE INTO notebooks (id, notebook) VALUES (?, ?)", [zt_notebook.notebookId, new_notebook])
         conn.close()
         differences = list(diff(old_state, new_state))
-        save_toml(zt_notebook)
+        save_toml()
     except Exception as e:
         logger.error("Error while updating state for notebook %s: %s", zt_notebook.notebookId, traceback.format_exc())
 
-def save_toml(zt_notebook):
+def save_toml():
     tmp_uuid_file = f'notebook_{uuid.uuid4()}.toml'
     logger.debug("Saving toml for notebook %s", zt_notebook.notebookId)
     try:

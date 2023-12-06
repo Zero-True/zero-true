@@ -1,9 +1,6 @@
 from typing import Optional
 from pydantic import Field
 from zt_backend.models.components.zt_component import ZTComponent
-from zt_backend.models.state import component_values
-
-
 
 class Text(ZTComponent):
     """A class for static text components inheriting from ZTComponent."""

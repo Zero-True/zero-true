@@ -1,5 +1,5 @@
 import pandas as pd
-from pydantic import Field, validator, BaseModel
+from pydantic import Field, BaseModel
 import numpy as np
 from zt_backend.models.components.zt_component import ZTComponent
 from typing import List, Dict,Any

@@ -90,7 +90,7 @@ import { Codemirror } from 'vue-codemirror'
 import { sql } from '@codemirror/lang-sql'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { EditorView, keymap } from '@codemirror/view'
-import { Prec } from "@codemirror/state";
+import { Prec, EditorState } from "@codemirror/state";
 import { autocompletion, CompletionResult, CompletionContext } from '@codemirror/autocomplete'
 import { CodeCell } from "@/types/notebook";
 
@@ -114,7 +114,10 @@ export default {
           }
         }
       ]);
-      return [Prec.highest(keyMap), sql(), oneDark, autocompletion({ override: [] })]
+      if(this.$devMode){
+        return [Prec.highest(keyMap), sql(), oneDark, autocompletion({ override: [] })]
+      }
+      return [ EditorState.readOnly.of(true), Prec.highest(keyMap), sql(), oneDark, autocompletion({ override: [] })]
     },
   },
   
@@ -154,6 +157,7 @@ export default {
       this.$emit("createCell", this.cellData.id, cellType);
     },
     saveCell() {
+      if (!this.$devMode) return
       this.$emit("saveCell", this.cellData.id, this.cellData.code, '', '');
     },
   },

@@ -2,7 +2,7 @@ from pydantic import Field, validator,field_validator
 from zt_backend.models.components.zt_component import ZTComponent
 from zt_backend.models.validations import validate_color
 from typing import List, Union, Optional
-from zt_backend.models.state import component_values
+from zt_backend.runner.user_state import UserContext
 
 class SelectBox(ZTComponent):
     """A class for SelectBox components inheriting from ZTComponent."""
@@ -27,9 +27,10 @@ class SelectBox(ZTComponent):
     @validator('value', always=True) #TODO: debug and replace with field validator
     def get_value_from_global_state(cls, value, values):
         id = values['id'] # Get the id if it exists in the field values
+        execution_state = UserContext.get_state()
         try:
-            if id and id in component_values:  # Check if id exists in global_state
-                return component_values[id]  # Return the value associated with id in global_state
+            if execution_state and id and id in execution_state.component_values:  # Check if id exists in global_state
+                return execution_state.component_values[id]  # Return the value associated with id in global_state
         except Exception as e:
             e
         return value  # If id doesn't exist in global_state, return the original value

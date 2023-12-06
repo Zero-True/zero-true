@@ -4,6 +4,7 @@ from zt_backend.models import request, notebook, response
 from zt_backend.runner.execute_code import execute_request
 from zt_backend.config import settings
 from zt_backend.utils import *
+from zt_backend.runner.user_state import UserState
 import logging
 import site 
 import duckdb
@@ -85,7 +86,8 @@ conn.execute('''
 ''')
 conn.close()
 user_states={}
-cell_outputs_dict={}
+user_timers={}
+notebook_state=UserState('')
 run_mode = settings.run_mode
 
 logger = logging.getLogger("__name__")
@@ -104,7 +106,7 @@ async def run_code(websocket: WebSocket):
             while True:
                 data = await websocket.receive_json()
                 ws_request = request.Request(**data)
-                current_thread = KThread(target = execute_request, args=(ws_request, cell_outputs_dict, websocket))
+                current_thread = KThread(target = execute_request, args=(ws_request, notebook_state, websocket))
                 current_thread.start()
         except WebSocketDisconnect:
             manager.disconnect(websocket)
@@ -121,34 +123,42 @@ async def stop_execution(websocket: WebSocket):
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
-@router.post("/api/component_run")
-def runcode(component_request: request.ComponentRequest):
-    logger.debug("Component change code execution started")
-    notebook = get_notebook()
-    cells = []
-    for cell_key, cell in notebook.cells.items():
-        cell_request=request.CodeRequest(
-            id=cell.id, 
-            code=cell.code,
-            variable_name=cell.variable_name,
-            cellType=cell.cellType
-        )
-        cells.append(cell_request)
-    code_request = request.Request(
-        originId=component_request.originId,
-        cells=cells,
-        components=component_request.components
-    )
-    if(run_mode=='dev'):
-        return execute_request(code_request, cell_outputs_dict)
-    else:
-        if component_request.userId not in user_states:
-            logger.debug("New user execution with id: %s, sending refresh", component_request.userId)
-            return response.Response(cells=[], refresh=True)
-        logger.debug("Existing user execution with id: %s", component_request.userId)
-        timer_set(component_request.userId, 1800)
-        return execute_request(code_request, user_states[component_request.userId])
-
+@router.websocket("/ws/component_run")
+async def component_run(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_json()
+            logger.debug("Component change code execution started")
+            notebook = get_notebook_request()
+            component_request = request.ComponentRequest(**data)
+            cells = []
+            for cell_key, cell in notebook.cells.items():
+                cell_request=request.CodeRequest(
+                    id=cell.id, 
+                    code=cell.code,
+                    variable_name=cell.variable_name,
+                    cellType=cell.cellType
+                )
+                cells.append(cell_request)
+            code_request = request.Request(
+                originId=component_request.originId,
+                cells=cells,
+                components=component_request.components
+            )
+            if(run_mode=='dev'):
+                current_thread = KThread(target = execute_request, args=(code_request, notebook_state, websocket))
+                current_thread.start()
+            else:
+                if component_request.userId not in user_states:
+                    logger.debug("New user execution with id: %s, sending refresh", component_request.userId)
+                    websocket.send_json({"refresh": True})
+                logger.debug("Existing user execution with id: %s", component_request.userId)
+                timer_set(component_request.userId, 1800)
+                user_thread = KThread(target = execute_request, args=(code_request, user_states[component_request.userId], websocket))
+                user_thread.start()
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
 
 @router.post("/api/create_cell")
 def create_cell(cellRequest: request.CreateRequest):
@@ -171,11 +181,11 @@ def delete_cell(deleteRequest: request.DeleteRequest):
      cell_id = deleteRequest.cellId
      if(run_mode=='dev'):
         try:
-            cell_outputs_dict.pop(cell_id, None)
+            notebook_state.cell_outputs_dict.pop(cell_id, None)
         except Exception as e:
             logger.error("Error when deleting cell %s from cell_outputs_dict: %s", cell_id, traceback.format_exc())
         try:
-            cell_dict = cell_outputs_dict['previous_dependecy_graph'].cells
+            cell_dict = notebook_state.cell_outputs_dict['previous_dependecy_graph'].cells
             if cell_id in cell_dict:
                 cell_dict.pop(cell_id, None)
 
@@ -217,7 +227,6 @@ def clear_state(clearRequest: request.ClearRequest):
         logger.debug("Clearing state for user %s", clearRequest.userId)
         user_states.pop(clearRequest.userId, None)
 
-
 @router.post("/api/dependency_update")
 def dependency_update(dependencyRequest: request.DependencyRequest):
      if(run_mode=='dev'):
@@ -239,11 +248,11 @@ def dependency_update(dependencyRequest: request.DependencyRequest):
 @router.get("/api/notebook")
 def load_notebook():
     logger.debug("Get notebook request received")
-    notebook_start = get_notebook()
+    notebook_start = get_notebook_request()
     if (run_mode=='app'):
         userId = str(uuid.uuid4())
         notebook_start.userId = userId
-        user_states[userId]={}
+        user_states[userId]=UserState(userId)
         timer_set(userId, 1800)
         cells = []
         components={}
@@ -269,29 +278,32 @@ def load_notebook():
             notebook_start.cells[responseCell.id].components = responseCell.components
             notebook_start.cells[responseCell.id].output = responseCell.output
             notebook_start.cells[responseCell.id].layout = responseCell.layout
-    try:
-        with open('requirements.txt', 'r', encoding='utf-8') as file:
-            contents = file.read()
+        return notebook.NotebookResponse(notebook=notebook_start, dependencies=notebook.Dependencies(value=''))
+    else:
+        try:
+            with open('requirements.txt', 'r', encoding='utf-8') as file:
+                contents = file.read()
             return notebook.NotebookResponse(notebook=notebook_start, dependencies=notebook.Dependencies(value=contents))
-    except FileNotFoundError:
-        logger.error('Requirements file not found')
+        except FileNotFoundError:
+            logger.error('Requirements file not found')
 
 def remove_user_state(user_id):
     try:
-        if user_id in user_states:
+        if user_id in user_timers:
             # Cancel and remove the associated timer
-            timer = user_states[user_id]['timer']
+            timer = user_timers[user_id]
             if timer:
                 timer.cancel()
-            del user_states[user_id]
+            del user_timers[user_id]
+            #remove user state as well
             logger.debug("User state removed for user %s", user_id)
     except Exception as e:
         logger.error("Error removing user state for user %s: %s", user_id, traceback.format_exc())
 
 def timer_set(user_id, timeout_seconds):
     logger.debug("Starting timer for user %s", user_id)
-    if user_id in user_states:
-        existing_timer = user_states[user_id].get('timer')
+    if user_id in user_timers:
+        existing_timer = user_timers[user_id]
         if existing_timer:
             existing_timer.cancel()
         
@@ -299,4 +311,4 @@ def timer_set(user_id, timeout_seconds):
         timer.daemon=True
         timer.start()
         
-        user_states[user_id]['timer'] = timer
+        user_timers[user_id] = timer
