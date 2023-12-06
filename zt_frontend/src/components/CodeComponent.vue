@@ -245,7 +245,7 @@ export default {
 
         return {
               from: from,
-              options: this.completions.map((completion: { label: any; type: any; }) => ({
+              options: (this.completions as unknown as { label: string; type: string }[]).map(completion => ({
                 label: completion.label,
                 type: completion.type,
                 apply: (view: { dispatch: (arg0: { changes: { from: any; to: any; insert: any } }) => void }, completion: { label: any }, from: any, to: any) => {

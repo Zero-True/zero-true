@@ -103,7 +103,6 @@ async def run_code(websocket: WebSocket):
         try:
             while True:
                 data = await websocket.receive_json()
-                logger.info('RUN CODE MESSAGE HERE')
                 ws_request = request.Request(**data)
                 current_thread = KThread(target = execute_request, args=(ws_request, cell_outputs_dict, websocket))
                 current_thread.start()
@@ -199,7 +198,6 @@ async def save_text(websocket: WebSocket):
         try:
             while True:
                 data = await websocket.receive_json()
-                logger.info('THIS IS SAVE COMPONENT')
                 cell_type = data.get("cellType")
                 code = data.get("text")
                 cell_id = data.get("id")
