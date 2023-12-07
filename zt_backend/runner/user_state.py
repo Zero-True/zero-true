@@ -9,6 +9,8 @@ class UserState:
         self.current_cell_components = []
         self.current_cell_layout = []
         self.cell_outputs_dict = {}
+        self.websocket = None
+        self.io_output = None
 
 class UserContext:
     _state = threading.local()

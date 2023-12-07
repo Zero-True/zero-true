@@ -106,9 +106,10 @@ export default {
       notebook: {} as Notebook,
       dependencies: {} as Dependencies,
       completions: {} as Completions,
-      save_socket: new WebSocket(import.meta.env.VITE_WS_URL + 'ws/save_text'),
-      run_socket: this.$devMode ? new WebSocket(import.meta.env.VITE_WS_URL + 'ws/run_code') : new WebSocket(import.meta.env.VITE_WS_URL + 'ws/component_run'),
-      stop_socket: new WebSocket(import.meta.env.VITE_WS_URL + 'ws/stop_execution'),
+      notebook_socket: null as WebSocket | null,
+      save_socket: null as WebSocket | null,
+      run_socket: null as WebSocket | null,
+      stop_socket: null as WebSocket | null,
       timer: 0, // The timer value
       timerInterval: null as ReturnType<typeof setInterval> | null, // To hold the timer interval
       isCodeRunning: false,
@@ -133,27 +134,16 @@ export default {
     window.removeEventListener("unload", this.clearState);
   },
 
-  mounted(){
+  async mounted(){
+    await this.initializeNotebookSocket()
+    await this.initializeRunSocket()
+    await this.initializeStopSocket()
     if (this.$devMode){
-      this.initializeSaveSocket()
+      await this.initializeSaveSocket()
     }
-    this.initializeRunSocket()
-  },
-
-  async created() {
-    const response = await axios.get(
-      import.meta.env.VITE_BACKEND_URL + "api/notebook"
-    );
-    this.notebook = response.data.notebook;
-    for (let cell_id in this.notebook.cells){
-      if (this.notebook.cells[cell_id].cellType==='code'){
-        const completion: Completion = {
-          completions: []
-        }
-        this.completions[cell_id] = completion
-      }
-    }
-    this.dependencies = response.data.dependencies;
+    this.isCodeRunning = true;
+    this.startTimer();
+    this.notebook_socket!.send("")
   },
 
   methods: {
@@ -197,11 +187,67 @@ export default {
       };
       this.isCodeRunning = true;
       this.startTimer();
-      this.run_socket.send(JSON.stringify(request))
+      this.run_socket!.send(JSON.stringify(request))
+    },
+
+    initializeNotebookSocket(){
+      this.notebook_socket = new WebSocket(import.meta.env.VITE_WS_URL + 'ws/notebook')
+      this.notebook_socket!.onmessage = (event) => {
+        const response = JSON.parse(event.data)        
+        if (response.cell_id){
+          if (response.clear_output){
+            this.notebook.cells[response.cell_id].output=""
+          }
+          else{
+            this.notebook.cells[response.cell_id].output = this.notebook.cells[response.cell_id].output.concat(response.output)
+          }
+        }
+
+        else if (response.complete){
+          this.isCodeRunning = false;
+          this.stopTimer();
+        }
+
+        else {
+          const cell_response = JSON.parse(response)
+          if (cell_response.notebook){
+            this.notebook = cell_response.notebook;
+            for (let cell_id in this.notebook.cells){
+              if (this.notebook.cells[cell_id].cellType==='code'){
+                const completion: Completion = {
+                  completions: []
+                }
+                this.completions[cell_id] = completion
+              }
+            }
+            this.dependencies = cell_response.dependencies;
+          }
+          else {
+            this.notebook.cells[cell_response.id].components = cell_response.components;
+            this.notebook.cells[cell_response.id].layout = cell_response.layout as
+              | Layout
+              | undefined;
+          }
+        }
+      };
+      return new Promise<void>((resolve, reject) => {
+        // Resolve the promise when the connection is open
+        this.notebook_socket!.onopen = () => {
+          console.log("Notebook socket connected");
+          resolve();
+        };
+
+        // Reject the promise on connection error
+        this.notebook_socket!.onerror = (error) => {
+          console.error("Notebook socket connection error:", error);
+          reject(error);
+        };
+      });
     },
 
     initializeRunSocket(){
-      this.run_socket.onmessage = (event) => {
+      this.run_socket = this.$devMode ? new WebSocket(import.meta.env.VITE_WS_URL + 'ws/run_code') : new WebSocket(import.meta.env.VITE_WS_URL + 'ws/component_run')
+      this.run_socket!.onmessage = (event) => {
         const response = JSON.parse(event.data)
         if (!this.$devMode && response.refresh) {
           this.notebookRefresh()
@@ -242,23 +288,62 @@ export default {
             | undefined;
         }
       };
+      return new Promise<void>((resolve, reject) => {
+        // Resolve the promise when the connection is open
+        this.run_socket!.onopen = () => {
+          console.log("Run socket connected");
+          resolve();
+        };
+
+        // Reject the promise on connection error
+        this.run_socket!.onerror = (error) => {
+          console.error("Run socket connection error:", error);
+          reject(error);
+        };
+      });
     },
 
     initializeSaveSocket() {
-      const parseServerMessage = (message: string) => {
-        // Parse the message from the server
-        // Ensure this always returns an array
+      this.save_socket = new WebSocket(import.meta.env.VITE_WS_URL + 'ws/save_text')
+      this.save_socket!.onmessage = (event) => {
         try {
-          const data = JSON.parse(message);
+          const data = JSON.parse(event.data);
           // Assuming data is an array of completion objects
           this.completions[data.cell_id] = Array.isArray(data.completions) ? data.completions : [];
         } catch (error) {
           console.error('Error parsing server message:', error);
         }
       };
-      this.save_socket.onmessage = (event) => {
-        parseServerMessage(event.data);
-      };
+      return new Promise<void>((resolve, reject) => {
+        // Resolve the promise when the connection is open
+        this.save_socket!.onopen = () => {
+          console.log("Save socket connected");
+          resolve();
+        };
+
+        // Reject the promise on connection error
+        this.save_socket!.onerror = (error) => {
+          console.error("Save socket connection error:", error);
+          reject(error);
+        };
+      });
+    },
+
+    initializeStopSocket(){
+      this.stop_socket = new WebSocket(import.meta.env.VITE_WS_URL + 'ws/stop_execution')
+      return new Promise<void>((resolve, reject) => {
+        // Resolve the promise when the connection is open
+        this.stop_socket!.onopen = () => {
+          console.log("Stop socket connected");
+          resolve();
+        };
+
+        // Reject the promise on connection error
+        this.stop_socket!.onerror = (error) => {
+          console.error("Stop socket connection error:", error);
+          reject(error);
+        };
+      });
     },
 
     async componentValueChange(originId: string, componentId: string, newValue: any) {
@@ -302,15 +387,13 @@ export default {
     sendComponentRequest(componentRequest: ComponentRequest) {
       this.isCodeRunning = true;
       this.startTimer();
-      this.run_socket.send(JSON.stringify(componentRequest))
+      this.run_socket!.send(JSON.stringify(componentRequest))
     },
 
-    async notebookRefresh(){
-      const notebookResponse = await axios.get(
-        import.meta.env.VITE_BACKEND_URL + "api/notebook"
-      );
-      this.notebook = notebookResponse.data.notebook;
-      this.dependencies = notebookResponse.data.dependencies;
+    async notebookRefresh(){//TODO: Fix this
+      this.isCodeRunning = true;
+      this.startTimer();
+      this.notebook_socket!.send('start')
     },
 
     navigateToApp() {
@@ -368,14 +451,20 @@ export default {
         line: line,
         column: column,
       };
-      this.save_socket.send(JSON.stringify(saveRequest))
+      this.save_socket!.send(JSON.stringify(saveRequest))
     },
 
     async stopCodeExecution(){
-      this.requestQueue = []
+      if (this.$devMode) {
+        this.requestQueue = []
+        this.stop_socket!.send("")
+      }
+      else {
+        this.componentChangeQueue = []
+        this.stop_socket!.send(this.notebook.userId)
+      }
       this.isCodeRunning = false;
       this.stopTimer();
-      this.stop_socket.send("")
     },
 
     getComponent(cellType: string) {

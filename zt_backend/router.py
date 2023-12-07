@@ -1,6 +1,6 @@
 import subprocess
-from fastapi import APIRouter, BackgroundTasks, WebSocket, WebSocketDisconnect
-from zt_backend.models import request, notebook, response
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from zt_backend.models import request, notebook
 from zt_backend.runner.execute_code import execute_request
 from zt_backend.config import settings
 from zt_backend.utils import *
@@ -87,6 +87,7 @@ conn.execute('''
 conn.close()
 user_states={}
 user_timers={}
+user_threads={}
 notebook_state=UserState('')
 run_mode = settings.run_mode
 
@@ -95,7 +96,6 @@ logger = logging.getLogger("__name__")
 @router.get("/health")
 def health():
     return('UP')
-
 
 @router.websocket("/ws/run_code")
 async def run_code(websocket: WebSocket):
@@ -106,25 +106,16 @@ async def run_code(websocket: WebSocket):
             while True:
                 data = await websocket.receive_json()
                 ws_request = request.Request(**data)
+                notebook_state.websocket = websocket
                 current_thread = KThread(target = execute_request, args=(ws_request, notebook_state, websocket))
                 current_thread.start()
         except WebSocketDisconnect:
             manager.disconnect(websocket)
 
-@router.websocket("/ws/stop_execution")
-async def stop_execution(websocket: WebSocket):
-    global current_thread
-    await manager.connect(websocket)
-    try:
-        while True:
-            data = await websocket.receive_text()
-            if current_thread:
-                current_thread.kill()
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
-
 @router.websocket("/ws/component_run")
 async def component_run(websocket: WebSocket):
+    global current_thread
+    global user_threads
     await manager.connect(websocket)
     try:
         while True:
@@ -152,11 +143,12 @@ async def component_run(websocket: WebSocket):
             else:
                 if component_request.userId not in user_states:
                     logger.debug("New user execution with id: %s, sending refresh", component_request.userId)
-                    websocket.send_json({"refresh": True})
+                    await websocket.send_json({"refresh": True})
                 logger.debug("Existing user execution with id: %s", component_request.userId)
                 timer_set(component_request.userId, 1800)
-                user_thread = KThread(target = execute_request, args=(code_request, user_states[component_request.userId], websocket))
-                user_thread.start()
+                user_states[component_request.userId].websocket = websocket
+                user_threads[component_request.userId] = KThread(target = execute_request, args=(code_request, user_states[component_request.userId], websocket))
+                user_threads[component_request.userId].start()
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
@@ -245,47 +237,81 @@ def dependency_update(dependencyRequest: request.DependencyRequest):
         except Exception as e:
             logger.error('Error while updating requirements: %s', traceback.format_exc())
 
-@router.get("/api/notebook")
-def load_notebook():
-    logger.debug("Get notebook request received")
-    notebook_start = get_notebook_request()
-    if (run_mode=='app'):
-        userId = str(uuid.uuid4())
-        notebook_start.userId = userId
-        user_states[userId]=UserState(userId)
-        timer_set(userId, 1800)
-        cells = []
-        components={}
+@router.websocket("/ws/notebook")
+async def load_notebook(websocket: WebSocket):
+    global user_threads
+    await manager.connect(websocket)
+    try:
+        while True:
+            await websocket.receive_text()
+            logger.debug("Get notebook request received")
+            notebook_start = get_notebook_request()
+            if (run_mode=='app'):
+                userId = str(uuid.uuid4())
+                notebook_start.userId = userId
+                user_states[userId]=UserState(userId)
+                timer_set(userId, 1800)
+                cells = []
+                components={}
 
-        for cell_key, cell in notebook_start.cells.items():
-            cell_request=request.CodeRequest(
-                id=cell.id, 
-                code=cell.code,
-                variable_name=cell.variable_name,
-                cellType=cell.cellType
-            )
-            for comp in cell.components:
-                if hasattr(comp, 'value'):
-                    components[comp.id] = comp.value
-            cells.append(cell_request)
-        code_request = request.Request(
-            originId='',
-            cells=cells,
-            components=components
-        )
-        response = execute_request(code_request, user_states[userId], None)
-        for responseCell in response.cells:
-            notebook_start.cells[responseCell.id].components = responseCell.components
-            notebook_start.cells[responseCell.id].output = responseCell.output
-            notebook_start.cells[responseCell.id].layout = responseCell.layout
-        return notebook.NotebookResponse(notebook=notebook_start, dependencies=notebook.Dependencies(value=''))
-    else:
-        try:
-            with open('requirements.txt', 'r', encoding='utf-8') as file:
-                contents = file.read()
-            return notebook.NotebookResponse(notebook=notebook_start, dependencies=notebook.Dependencies(value=contents))
-        except FileNotFoundError:
-            logger.error('Requirements file not found')
+                for cell_key, cell in notebook_start.cells.items():
+                    cell_request=request.CodeRequest(
+                        id=cell.id, 
+                        code=cell.code,
+                        variable_name=cell.variable_name,
+                        cellType=cell.cellType
+                    )
+                    for comp in cell.components:
+                        if hasattr(comp, 'value'):
+                            components[comp.id] = comp.value
+                    cells.append(cell_request)
+                code_request = request.Request(
+                    originId='',
+                    cells=cells,
+                    components=components
+                )
+                notebook_response = notebook.NotebookResponse(notebook=notebook_start, dependencies=notebook.Dependencies(value=''))
+                await websocket.send_json(notebook_response.model_dump_json())
+                user_states[userId].websocket = websocket
+                user_threads[userId] = KThread(target = execute_request, args=(code_request, user_states[userId], websocket))
+                user_threads[userId].start()
+            else:
+                try:
+                    with open('requirements.txt', 'r', encoding='utf-8') as file:
+                        contents = file.read()
+                    notebook_response =  notebook.NotebookResponse(notebook=notebook_start, dependencies=notebook.Dependencies(value=contents))
+                    await websocket.send_json(notebook_response.model_dump_json())
+                    await websocket.send_json({"complete": True})
+                except FileNotFoundError:
+                    logger.error('Requirements file not found')
+
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+
+@router.websocket("/ws/stop_execution")
+async def stop_execution(websocket: WebSocket):
+    global current_thread
+    global user_threads
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            if run_mode=='dev' and current_thread:
+                current_thread.kill()
+                notebook_state.current_cell_components.clear()
+                notebook_state.current_cell_layout.clear()
+                notebook_state.component_values.clear()
+                notebook_state.created_components.clear()
+                notebook_state.context_globals['exec_mode'] = False
+            if run_mode=='app' and user_threads[data]:
+                user_threads[data].kill()
+                user_states[data].current_cell_components.clear()
+                user_states[data].current_cell_layout.clear()
+                user_states[data].component_values.clear()
+                user_states[data].created_components.clear()
+                user_states[data].context_globals['exec_mode'] = False
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
 
 def remove_user_state(user_id):
     try:

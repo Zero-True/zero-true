@@ -8,6 +8,7 @@ from zt_backend.runner.code_cell_parser import parse_cells, build_dependency_gra
 from zt_backend.runner.user_state import UserState, UserContext
 from zt_backend.models.components.layout import Layout
 from zt_backend.utils import globalStateUpdate
+from zt_backend.config import settings
 from datetime import datetime
 import logging
 import traceback
@@ -87,10 +88,9 @@ def execute_request(request: request.Request, state: UserState, websocket: WebSo
 
         for code_cell_id in downstream_cells:
             code_cell = dependency_graph.cells[code_cell_id]
-            io_output = StringIO()
-            if websocket:
-                asyncio.run(websocket.send_json({"cell_id": code_cell_id, "clear_output": True}))
-            execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, execution_state, websocket, io_output)
+            asyncio.run(websocket.send_json({"cell_id": code_cell_id, "clear_output": True}))
+            execution_state.io_output = StringIO()
+            execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, execution_state, websocket)
             try:
                 layout = execution_state.current_cell_layout[0]
             except Exception as e:
@@ -100,10 +100,10 @@ def execute_request(request: request.Request, state: UserState, websocket: WebSo
             for component in execution_state.current_cell_components:
                 if component.component == 'v-btn':
                     component.value = False
-            cell_response = response.CellResponse(id=code_cell_id, layout=layout, components=execution_state.current_cell_components, output=io_output.getvalue())
+
+            cell_response = response.CellResponse(id=code_cell_id, layout=layout, components=execution_state.current_cell_components, output=execution_state.io_output.getvalue())
             cell_outputs.append(cell_response)
-            if websocket:
-                asyncio.run(websocket.send_json(cell_response.model_dump_json()))
+            asyncio.run(websocket.send_json(cell_response.model_dump_json()))
 
             execution_state.current_cell_components.clear()
             execution_state.current_cell_layout.clear()
@@ -112,52 +112,35 @@ def execute_request(request: request.Request, state: UserState, websocket: WebSo
         execution_state.created_components.clear()
         execution_state.context_globals['exec_mode'] = False
         execution_response = response.Response(cells=cell_outputs)
-        globalStateUpdate(run_response=execution_response)
-        if websocket:
-            asyncio.run(websocket.send_json({"complete": True}))
+        if settings.run_mode=='dev':
+            globalStateUpdate(run_response=execution_response)
+        asyncio.run(websocket.send_json({"complete": True}))
         return execution_response
 
-def execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, execution_state: UserContext, websocket, io_output):
+def execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, execution_state: UserContext, websocket):
     class WebSocketStream:
-        def __init__(self, websocket):
-            self.websocket = websocket
-
         def write(self, message):
-            io_output.write(message)
-            asyncio.run(self.websocket.send_json({"cell_id": code_cell_id, "output": message}))
+            user_state = UserContext.get_state()
+            if user_state:
+                user_state.io_output.write(message)
+                asyncio.run(user_state.websocket.send_json({"cell_id": code_cell_id, "output": message}))
 
         def flush(self):
             pass
-    if websocket:
-        with contextlib.redirect_stdout(WebSocketStream(websocket)), \
-            contextlib.redirect_stderr(WebSocketStream(websocket)):
-            try:
-                if code_cell.parent_cells == []:
-                    temp_globals = component_globals
-                else:
-                    temp_globals = get_parent_vars(cell_id=code_cell_id,code_components=dependency_graph,cell_outputs_dict=execution_state.cell_outputs_dict)
-                execution_state.context_globals['exec_mode'] = True
-                exec(code_cell.code, temp_globals)
+    with contextlib.redirect_stdout(WebSocketStream()), \
+        contextlib.redirect_stderr(WebSocketStream()):
+        try:
+            if code_cell.parent_cells == []:
+                temp_globals = component_globals
+            else:
+                temp_globals = get_parent_vars(cell_id=code_cell_id,code_components=dependency_graph,cell_outputs_dict=execution_state.cell_outputs_dict)
+            execution_state.context_globals['exec_mode'] = True
+            exec(code_cell.code, temp_globals)
 
-            except Exception:
-                logger.debug("Error during code execution")
-                tb_list = traceback.format_exc().splitlines(keepends=True)
-                tb_list = [tb_list[0]]+tb_list[3:]
-                print("".join(tb_list))
-    else:
-        with contextlib.redirect_stdout(io_output):
-            try:
-                if code_cell.parent_cells == []:
-                    temp_globals = component_globals
-                else:
-                    temp_globals = get_parent_vars(cell_id=code_cell_id,code_components=dependency_graph,cell_outputs_dict=execution_state.cell_outputs_dict)
-                execution_state.context_globals['exec_mode'] = True
-                exec(code_cell.code, temp_globals)
-
-            except Exception:
-                logger.debug("Error during code execution")
-                tb_list = traceback.format_exc().splitlines(keepends=True)
-                tb_list = [tb_list[0]]+tb_list[3:]
-                print("".join(tb_list))
+        except Exception:
+            logger.debug("Error during code execution")
+            tb_list = traceback.format_exc().splitlines(keepends=True)
+            tb_list = [tb_list[0]]+tb_list[3:]
+            print("".join(tb_list))
     execution_state.context_globals['exec_mode'] = False
     execution_state.cell_outputs_dict[code_cell_id] = {k: try_pickle(v) for k, v in temp_globals.items() if k != '__builtins__'}
