@@ -17,7 +17,7 @@
     <tiny-editor v-if="$devMode" v-model="cellData.code" :init="init" @keyUp="saveCell" />
     <tiny-editor v-else v-model="cellData.code" :init="init" :disabled="true" />
   </v-card>
-  <v-menu transition="scale-transition">
+  <v-menu v-if="$devMode" transition="scale-transition">
     <template v-slot:activator="{ props }">
       <v-btn v-bind="props" block>
         <v-row>

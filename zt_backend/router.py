@@ -107,7 +107,7 @@ async def run_code(websocket: WebSocket):
                 data = await websocket.receive_json()
                 ws_request = request.Request(**data)
                 notebook_state.websocket = websocket
-                current_thread = KThread(target = execute_request, args=(ws_request, notebook_state, websocket))
+                current_thread = KThread(target = execute_request, args=(ws_request, notebook_state))
                 current_thread.start()
         except WebSocketDisconnect:
             manager.disconnect(websocket)
@@ -138,7 +138,8 @@ async def component_run(websocket: WebSocket):
                 components=component_request.components
             )
             if(run_mode=='dev'):
-                current_thread = KThread(target = execute_request, args=(code_request, notebook_state, websocket))
+                notebook_state.websocket = websocket
+                current_thread = KThread(target = execute_request, args=(code_request, notebook_state))
                 current_thread.start()
             else:
                 if component_request.userId not in user_states:
@@ -147,7 +148,7 @@ async def component_run(websocket: WebSocket):
                 logger.debug("Existing user execution with id: %s", component_request.userId)
                 timer_set(component_request.userId, 1800)
                 user_states[component_request.userId].websocket = websocket
-                user_threads[component_request.userId] = KThread(target = execute_request, args=(code_request, user_states[component_request.userId], websocket))
+                user_threads[component_request.userId] = KThread(target = execute_request, args=(code_request, user_states[component_request.userId]))
                 user_threads[component_request.userId].start()
     except WebSocketDisconnect:
         manager.disconnect(websocket)
@@ -273,7 +274,7 @@ async def load_notebook(websocket: WebSocket):
                 notebook_response = notebook.NotebookResponse(notebook=notebook_start, dependencies=notebook.Dependencies(value=''))
                 await websocket.send_json(notebook_response.model_dump_json())
                 user_states[userId].websocket = websocket
-                user_threads[userId] = KThread(target = execute_request, args=(code_request, user_states[userId], websocket))
+                user_threads[userId] = KThread(target = execute_request, args=(code_request, user_states[userId]))
                 user_threads[userId].start()
             else:
                 try:

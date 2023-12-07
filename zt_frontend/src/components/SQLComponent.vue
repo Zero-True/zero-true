@@ -65,7 +65,7 @@
     </v-container>
     <div class="text-p">{{ cellData.output }}</div>
   </v-card>
-  <v-menu transition="scale-transition">
+  <v-menu v-if="$devMode" transition="scale-transition">
     <template v-slot:activator="{ props }">
       <v-btn v-bind="props" block>
         <v-row>

@@ -3,7 +3,6 @@ from typing import Dict, Any, OrderedDict
 from io import StringIO
 import pickle
 from zt_backend.models import request, response
-# from zt_backend.models.state import component_values, created_components, context_globals, current_cell_components, current_cell_layout
 from zt_backend.runner.code_cell_parser import parse_cells, build_dependency_graph, find_downstream_cells, CodeDict
 from zt_backend.runner.user_state import UserState, UserContext
 from zt_backend.models.components.layout import Layout
@@ -61,8 +60,7 @@ def get_parent_vars(cell_id: str, code_components: CodeDict, cell_outputs_dict: 
     return exec_parents
 
 
-#issue right now is that the request is sending the entire notebook. The request should send the ID of the cell you are running.
-def execute_request(request: request.Request, state: UserState, websocket: WebSocket):
+def execute_request(request: request.Request, state: UserState):
     with UserContext(state) as execution_state:
         logger.debug("Code execution started")
         cell_outputs = []
@@ -88,9 +86,9 @@ def execute_request(request: request.Request, state: UserState, websocket: WebSo
 
         for code_cell_id in downstream_cells:
             code_cell = dependency_graph.cells[code_cell_id]
-            asyncio.run(websocket.send_json({"cell_id": code_cell_id, "clear_output": True}))
+            asyncio.run(execution_state.websocket.send_json({"cell_id": code_cell_id, "clear_output": True}))
             execution_state.io_output = StringIO()
-            execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, execution_state, websocket)
+            execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, execution_state)
             try:
                 layout = execution_state.current_cell_layout[0]
             except Exception as e:
@@ -103,8 +101,7 @@ def execute_request(request: request.Request, state: UserState, websocket: WebSo
 
             cell_response = response.CellResponse(id=code_cell_id, layout=layout, components=execution_state.current_cell_components, output=execution_state.io_output.getvalue())
             cell_outputs.append(cell_response)
-            asyncio.run(websocket.send_json(cell_response.model_dump_json()))
-
+            asyncio.run(execution_state.websocket.send_json(cell_response.model_dump_json()))
             execution_state.current_cell_components.clear()
             execution_state.current_cell_layout.clear()
         execution_state.cell_outputs_dict['previous_dependecy_graph'] = dependency_graph
@@ -114,10 +111,10 @@ def execute_request(request: request.Request, state: UserState, websocket: WebSo
         execution_response = response.Response(cells=cell_outputs)
         if settings.run_mode=='dev':
             globalStateUpdate(run_response=execution_response)
-        asyncio.run(websocket.send_json({"complete": True}))
+        asyncio.run(execution_state.websocket.send_json({"complete": True}))
         return execution_response
 
-def execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, execution_state: UserContext, websocket):
+def execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, execution_state: UserContext):
     class WebSocketStream:
         def write(self, message):
             user_state = UserContext.get_state()

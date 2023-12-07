@@ -33,7 +33,7 @@
     </v-app-bar>
     <v-main>
       <v-container>
-        <v-menu transition="scale-transition">
+        <v-menu v-if="$devMode" transition="scale-transition">
           <template v-slot:activator="{ props }">
             <v-btn v-bind="props" block>
               <v-row>
@@ -82,7 +82,6 @@ import { DeleteRequest } from "./types/delete_request";
 import { SaveRequest } from "./types/save_request";
 import { CreateRequest, Celltype } from "./types/create_request";
 import { ClearRequest } from "./types/clear_request";
-import { Response } from "./types/response";
 import { Notebook, CodeCell, Layout } from "./types/notebook";
 import { Completions, Completion } from "./types/completions";
 import { Dependencies } from "./types/notebook_response";
@@ -113,7 +112,7 @@ export default {
       timer: 0, // The timer value
       timerInterval: null as ReturnType<typeof setInterval> | null, // To hold the timer interval
       isCodeRunning: false,
-      requestQueue: [] as string[],
+      requestQueue: [] as any[],
       componentChangeQueue: [] as  any[],
       menu_items: [
           { title: 'Code' },
@@ -162,10 +161,6 @@ export default {
 
     async runCode(originId: string){
       if (!originId) return;
-      if (this.isCodeRunning) {
-        this.requestQueue.push(originId);
-        return;
-      }
       const cellRequests: CodeRequest[] = [];
       const requestComponents: { [key: string]: any } = {};
       for (let key in this.notebook.cells) {
@@ -185,6 +180,21 @@ export default {
         cells: cellRequests,
         components: requestComponents,
       };
+
+      if (this.isCodeRunning) {
+        const existingRequestIndex = this.requestQueue.findIndex(req => req.originId === originId);
+        if (existingRequestIndex !== -1) {
+          this.requestQueue[existingRequestIndex] = request;
+        } else {
+          this.requestQueue.push(request);
+        }
+        return;
+      }
+      
+      this.sendRunCodeRequest(request)
+    },
+
+    sendRunCodeRequest(request: Request) {
       this.isCodeRunning = true;
       this.startTimer();
       this.run_socket!.send(JSON.stringify(request))
@@ -266,8 +276,8 @@ export default {
           this.isCodeRunning = false;
           this.stopTimer();
           if (this.$devMode && this.requestQueue.length > 0){
-            const currentOriginId = this.requestQueue.shift() || "";
-            this.runCode(currentOriginId)
+            const currentRequest = this.requestQueue.shift() || {};
+            this.sendRunCodeRequest(currentRequest)
           }
           else if (!this.$devMode && this.componentChangeQueue.length > 0){
             const componentChangeRequest = this.componentChangeQueue.shift() || {};

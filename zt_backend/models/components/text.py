@@ -12,4 +12,3 @@ class Text(ZTComponent):
         'text-button', 'text-caption', 'text-overline'
     ], description="Text type for text-related components.")
     color: Optional[str] = Field(None, description="Color of the text.")
-    triggerEvent: str = Field(None, description="Trigger event to send code to the backend. None for static text.")
