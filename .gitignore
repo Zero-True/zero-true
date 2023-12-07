@@ -163,7 +163,7 @@ cython_debug/
 #.idea/
 
 #Custom stuff
-**/notebook.toml
+**/notebook.ztnb
 docs/html/
 **/my_database.db
 **/my_database.db.wal

@@ -14,7 +14,15 @@ import rtoml
 logger = logging.getLogger("__name__")
 notebook_db_dir =  site.USER_SITE+'/.zero_true/'
 notebook_db_path = notebook_db_dir+'notebook.db'
-zt_notebook = notebook.Notebook(cells={},userId='')
+codeCell = notebook.CodeCell(
+                id=str(uuid.uuid4()),
+                code='',
+                components=[],
+                variable_name='',
+                output='',
+                cellType='code'
+            )
+zt_notebook = notebook.Notebook(userId='', cells=OrderedDict([(codeCell.id, codeCell)]))
 
 def get_notebook(id=''):
     global zt_notebook
@@ -30,7 +38,7 @@ def get_notebook(id=''):
     try:
         logger.debug("Notebook id is empty")            
         # If it doesn't exist in the database, load it from the TOML file
-        with open('notebook.toml', "r") as project_file:
+        with open('notebook.ztnb', "r") as project_file:
             toml_data = rtoml.load(project_file)
 
         try:
@@ -113,7 +121,7 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, position_key:str=None, de
         logger.error("Error while updating state for notebook %s: %s", zt_notebook.notebookId, traceback.format_exc())
 
 def save_toml():
-    tmp_uuid_file = f'notebook_{uuid.uuid4()}.toml'
+    tmp_uuid_file = f'notebook_{uuid.uuid4()}.ztnb'
     logger.debug("Saving toml for notebook %s", zt_notebook.notebookId)
     try:
         with open(tmp_uuid_file, "w") as project_file:
@@ -133,7 +141,7 @@ def save_toml():
                 # Format code as a multi-line string
                 escaped_code = cell.code.encode().decode('unicode_escape').replace('"""',"'''")
                 project_file.write(f'code = """\n{escaped_code}"""\n\n')
-        os.replace(tmp_uuid_file, 'notebook.toml')
+        os.replace(tmp_uuid_file, 'notebook.ztnb')
     except Exception as e:
         logger.error("Error saving notebook %s toml file: %s", zt_notebook.notebookId, traceback.format_exc())
         
