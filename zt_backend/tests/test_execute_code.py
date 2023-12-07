@@ -4,18 +4,19 @@ from zt_backend.models.request import Request, CodeRequest
 from unittest.mock import Mock, AsyncMock
 import threading
 
-notebook_state=UserState('')
-websocket = Mock()
-websocket.send_json = AsyncMock()
+
 
 # Initialize or clear cell_outputs_dict
 def setup_function():
     notebook_state=UserState('')
+    websocket = Mock()
+    websocket.send_json = AsyncMock()
     notebook_state.websocket = websocket
+    return notebook_state
 
 # Test for simple variable assignment
 def test_execute_request_simple_variable():
-    setup_function()
+    notebook_state = setup_function()
     req = Request(originId="0", cells=[CodeRequest(id="0", code="a = 1", variable_name="", cellType='code')], components={})
     execute_thread = threading.Thread(target=execute_request, args=(req, notebook_state))
     execute_thread.start()
@@ -25,7 +26,7 @@ def test_execute_request_simple_variable():
 
 # Test for function definition
 def test_execute_request_function_definition():
-    setup_function()
+    notebook_state = setup_function()
     req = Request(originId="1", cells=[CodeRequest(id="1", code="def add(x, y): return x + y", variable_name="", cellType='code')], components={})
     execute_thread = threading.Thread(target=execute_request, args=(req, notebook_state))
     execute_thread.start()
@@ -34,7 +35,7 @@ def test_execute_request_function_definition():
 
 # Test for importing modules
 def test_execute_request_import_module():
-    setup_function()
+    notebook_state = setup_function()
     req = Request(originId="2", cells=[CodeRequest(id="2", code="import math", variable_name="", cellType='code')], components={})
     execute_thread = threading.Thread(target=execute_request, args=(req, notebook_state))
     execute_thread.start()
@@ -43,7 +44,7 @@ def test_execute_request_import_module():
 
 # Test for multiple cells with dependencies
 def test_execute_request_multiple_cells_with_dependencies():
-    setup_function()
+    notebook_state = setup_function()
     req = Request(originId="3", cells=[CodeRequest(id="3", code="a = 1", variable_name="", cellType='code'),
                         CodeRequest(id="4", code="b = a + 1", variable_name="", cellType='code')], components={})
     execute_thread = threading.Thread(target=execute_request, args=(req, notebook_state))
