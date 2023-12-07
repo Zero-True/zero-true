@@ -322,7 +322,7 @@ def remove_user_state(user_id):
             if timer:
                 timer.cancel()
             del user_timers[user_id]
-            #remove user state as well
+            if user_id in user_states: del user_states[user_id]
             logger.debug("User state removed for user %s", user_id)
     except Exception as e:
         logger.error("Error removing user state for user %s: %s", user_id, traceback.format_exc())
