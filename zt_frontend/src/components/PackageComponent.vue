@@ -7,14 +7,16 @@
         <v-card-title>
         <span class="text-h5">Add Dependencies</span>
         </v-card-title>
-        <ace-editor
-            v-model:value="dependencies.value"
-            ref="editor"
-            class="editor"
-            theme="dracula"
-            lang="text"
-            :options="editorOptions"
-            />
+        <codemirror
+            v-if="$devMode"
+            v-model="dependencies.value"
+            :style="{ height: '400px' }"
+            :autofocus="true"
+            :indent-with-tab="true"
+            :tab-size="2"
+            :viewportMargin="Infinity"
+            :extensions="extensions"
+        />
         <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn
@@ -38,18 +40,18 @@
 
 <script lang="ts">
 import type { PropType } from "vue";
-import { VAceEditor } from "vue3-ace-editor";
+import { Codemirror } from 'vue-codemirror'
+import { markdown } from '@codemirror/lang-markdown'
+import { oneDark } from '@codemirror/theme-one-dark'
+import { EditorView } from '@codemirror/view'
+import { autocompletion, CompletionResult, CompletionContext } from '@codemirror/autocomplete'
 import { Dependencies } from "@/types/notebook_response";
 import { DependencyRequest } from "@/types/dependency_request";
-import "ace-builds/src-noconflict/mode-text";
-import "ace-builds/src-noconflict/snippets/text";
-import "ace-builds/src-noconflict/ext-language_tools";
-import "ace-builds/src-noconflict/theme-dracula";
 import axios from "axios";
 
 export default {
     components: {
-        "ace-editor": VAceEditor,   
+        "codemirror": Codemirror,  
     },
     data: () => ({
         updatingDependencies: false
@@ -61,17 +63,7 @@ export default {
         },
     },
     computed: {
-        editorOptions() {
-            return {
-                showPrintMargin: false,
-                enableBasicAutocompletion: true,
-                enableSnippets: true,
-                enableLiveAutocompletion: true,
-                autoScrollEditorIntoView: true,
-                minLines: 1,
-                maxLines: Infinity,
-            };
-        }
+        extensions() {return [markdown(), oneDark, autocompletion({ override: [] })]},
     },
     methods: {
         async updateDependencies() {

@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import OrderedDict
 from zt_backend.models.notebook import Notebook, CodeCell
 from zt_backend.config import settings
+from zt_backend.utils import get_notebook
 import zt_backend.router as router
 import os
 import uuid
@@ -55,6 +56,7 @@ def open_project():
             with open('requirements.txt', 'w') as file:
                 file.write('zero-true')
                 subprocess.run("lock requirements.txt")
+        get_notebook()
     except Exception as e:
         logger.error("Error creating new files on startup: %s", traceback.format_exc())
         

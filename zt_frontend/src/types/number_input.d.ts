@@ -24,19 +24,19 @@ export type Value = number | null;
 /**
  * Placeholder text.
  */
-export type Placeholder = string;
+export type Placeholder = string | null;
 /**
  * Label for the text input.
  */
-export type Label = string;
+export type Label = string | null;
 /**
  * If true, the input is read-only.
  */
-export type Readonly = boolean;
+export type Readonly = boolean | null;
 /**
  * If true, the input is disabled.
  */
-export type Disabled = boolean;
+export type Disabled = boolean | null;
 /**
  * Ensures that only numbers are accepted on the frontend
  */

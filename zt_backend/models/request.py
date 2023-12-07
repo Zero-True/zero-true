@@ -39,6 +39,9 @@ class CreateRequest(BaseModel):
 class SaveRequest(BaseModel):
     id: str
     text: str
+    cellType: str
+    line: str = Field("")
+    column: str = Field("")
 
 class ClearRequest(BaseModel):
     userId: str

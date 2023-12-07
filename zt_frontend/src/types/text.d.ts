@@ -41,11 +41,7 @@ export type Type =
 /**
  * Color of the text.
  */
-export type Color = string;
-/**
- * Trigger event to send code to the backend. None for static text.
- */
-export type Triggerevent = string;
+export type Color = string | null;
 
 /**
  * A class for static text components inheriting from ZTComponent.
@@ -57,6 +53,5 @@ export interface Text {
   text?: Text1;
   type?: Type;
   color?: Color;
-  triggerEvent?: Triggerevent;
   [k: string]: unknown;
 }

@@ -21,12 +21,19 @@
         <v-chip v-else class="ml-2" color="white" text-color="black">
           Queue Length: {{ componentChangeQueue.length }}
         </v-chip>
+        <v-icon
+          large
+          color="error"
+          @click="stopCodeExecution()"
+        >
+          mdi-stop
+        </v-icon>
       </div>
       <PackageComponent v-if="$devMode" :dependencies="dependencies"/>
     </v-app-bar>
     <v-main>
       <v-container>
-        <v-menu transition="scale-transition">
+        <v-menu v-if="$devMode" transition="scale-transition">
           <template v-slot:activator="{ props }">
             <v-btn v-bind="props" block>
               <v-row>
@@ -43,7 +50,17 @@
         </v-menu>
       </v-container>
       <v-container v-for="codeCell in notebook.cells">
-        <component
+        <component v-if="codeCell.cellType==='code'"
+          :is="getComponent(codeCell.cellType)"
+          :cellData="codeCell"
+          :completions="completions[codeCell.id]"
+          @runCode="runCode"
+          @saveCell="saveCell"
+          @componentChange="componentValueChange"
+          @deleteCell="deleteCell"
+          @createCell="createCodeCell"
+        />
+        <component v-else
           :is="getComponent(codeCell.cellType)"
           :cellData="codeCell"
           @runCode="runCode"
@@ -65,8 +82,8 @@ import { DeleteRequest } from "./types/delete_request";
 import { SaveRequest } from "./types/save_request";
 import { CreateRequest, Celltype } from "./types/create_request";
 import { ClearRequest } from "./types/clear_request";
-import { Response } from "./types/response";
 import { Notebook, CodeCell, Layout } from "./types/notebook";
+import { Completions, Completion } from "./types/completions";
 import { Dependencies } from "./types/notebook_response";
 import CodeComponent from "@/components/CodeComponent.vue";
 import MarkdownComponent from "@/components/MarkdownComponent.vue";
@@ -82,14 +99,20 @@ export default {
     SQLComponent,
     PackageComponent
   },
+
   data() {
     return {
       notebook: {} as Notebook,
       dependencies: {} as Dependencies,
+      completions: {} as Completions,
+      notebook_socket: null as WebSocket | null,
+      save_socket: null as WebSocket | null,
+      run_socket: null as WebSocket | null,
+      stop_socket: null as WebSocket | null,
       timer: 0, // The timer value
       timerInterval: null as ReturnType<typeof setInterval> | null, // To hold the timer interval
       isCodeRunning: false,
-      requestQueue: [] as string[],
+      requestQueue: [] as any[],
       componentChangeQueue: [] as  any[],
       menu_items: [
           { title: 'Code' },
@@ -110,12 +133,16 @@ export default {
     window.removeEventListener("unload", this.clearState);
   },
 
-  async created() {
-    const response = await axios.get(
-      import.meta.env.VITE_BACKEND_URL + "api/notebook"
-    );
-    this.notebook = response.data.notebook;
-    this.dependencies = response.data.dependencies;
+  async mounted(){
+    await this.initializeNotebookSocket()
+    await this.initializeRunSocket()
+    await this.initializeStopSocket()
+    if (this.$devMode){
+      await this.initializeSaveSocket()
+    }
+    this.isCodeRunning = true;
+    this.startTimer();
+    this.notebook_socket!.send("")
   },
 
   methods: {
@@ -132,54 +159,201 @@ export default {
       }
     },
 
-    async runCode(originId: string) {
-      this.requestQueue.push(originId);
+    async runCode(originId: string){
+      if (!originId) return;
+      const cellRequests: CodeRequest[] = [];
+      const requestComponents: { [key: string]: any } = {};
+      for (let key in this.notebook.cells) {
+        const cellRequest: CodeRequest = {
+          id: key,
+          code: this.notebook.cells[key].code,
+          variable_name: this.notebook.cells[key].variable_name || "",
+          cellType: this.notebook.cells[key].cellType,
+        };
+        for (const c of this.notebook.cells[key].components) {
+          requestComponents[c.id] = c.value;
+        }
+        cellRequests.push(cellRequest);
+      }
+      const request: Request = {
+        originId: originId,
+        cells: cellRequests,
+        components: requestComponents,
+      };
 
       if (this.isCodeRunning) {
+        const existingRequestIndex = this.requestQueue.findIndex(req => req.originId === originId);
+        if (existingRequestIndex !== -1) {
+          this.requestQueue[existingRequestIndex] = request;
+        } else {
+          this.requestQueue.push(request);
+        }
         return;
       }
+      
+      this.sendRunCodeRequest(request)
+    },
 
-      while (this.requestQueue.length > 0) {
-        const currentOriginId = this.requestQueue.shift();
-        if (!currentOriginId) continue;
-        const cellRequests: CodeRequest[] = [];
-        const requestComponents: { [key: string]: any } = {};
-        for (let key in this.notebook.cells) {
-          const cellRequest: CodeRequest = {
-            id: key,
-            code: this.notebook.cells[key].code,
-            variable_name: this.notebook.cells[key].variable_name || "",
-            cellType: this.notebook.cells[key].cellType,
-          };
-          for (const c of this.notebook.cells[key].components) {
-            requestComponents[c.id] = c.value;
+    sendRunCodeRequest(request: Request) {
+      this.isCodeRunning = true;
+      this.startTimer();
+      this.run_socket!.send(JSON.stringify(request))
+    },
+
+    initializeNotebookSocket(){
+      this.notebook_socket = new WebSocket(import.meta.env.VITE_WS_URL + 'ws/notebook')
+      this.notebook_socket!.onmessage = (event) => {
+        const response = JSON.parse(event.data)        
+        if (response.cell_id){
+          if (response.clear_output){
+            this.notebook.cells[response.cell_id].output=""
           }
-          cellRequests.push(cellRequest);
+          else{
+            this.notebook.cells[response.cell_id].output = this.notebook.cells[response.cell_id].output.concat(response.output)
+          }
         }
-        const request: Request = {
-          originId: originId,
-          cells: cellRequests,
-          components: requestComponents,
+
+        else if (response.complete){
+          this.isCodeRunning = false;
+          this.stopTimer();
+        }
+
+        else {
+          const cell_response = JSON.parse(response)
+          if (cell_response.notebook){
+            this.notebook = cell_response.notebook;
+            for (let cell_id in this.notebook.cells){
+              if (this.notebook.cells[cell_id].cellType==='code'){
+                const completion: Completion = {
+                  completions: []
+                }
+                this.completions[cell_id] = completion
+              }
+            }
+            this.dependencies = cell_response.dependencies;
+          }
+          else {
+            this.notebook.cells[cell_response.id].components = cell_response.components;
+            this.notebook.cells[cell_response.id].layout = cell_response.layout as
+              | Layout
+              | undefined;
+          }
+        }
+      };
+      return new Promise<void>((resolve, reject) => {
+        // Resolve the promise when the connection is open
+        this.notebook_socket!.onopen = () => {
+          console.log("Notebook socket connected");
+          resolve();
         };
 
-        this.isCodeRunning = true;
-        this.startTimer();
-        const axiosResponse = await axios.post(
-          import.meta.env.VITE_BACKEND_URL + "api/runcode",
-          request
-        );
-        this.stopTimer();
-        this.isCodeRunning = false;
-        const response: Response = axiosResponse.data;
-        for (const cellResponse of response.cells) {
-          this.notebook.cells[cellResponse.id].components =
-            cellResponse.components;
-          this.notebook.cells[cellResponse.id].output = cellResponse.output;
-          this.notebook.cells[cellResponse.id].layout = cellResponse.layout as
+        // Reject the promise on connection error
+        this.notebook_socket!.onerror = (error) => {
+          console.error("Notebook socket connection error:", error);
+          reject(error);
+        };
+      });
+    },
+
+    initializeRunSocket(){
+      this.run_socket = this.$devMode ? new WebSocket(import.meta.env.VITE_WS_URL + 'ws/run_code') : new WebSocket(import.meta.env.VITE_WS_URL + 'ws/component_run')
+      this.run_socket!.onmessage = (event) => {
+        const response = JSON.parse(event.data)
+        if (!this.$devMode && response.refresh) {
+          this.notebookRefresh()
+        }
+
+        else if (response.cell_id){
+          if (response.clear_output){
+            this.notebook.cells[response.cell_id].output=""
+          }
+          else{
+            this.notebook.cells[response.cell_id].output = this.notebook.cells[response.cell_id].output.concat(response.output)
+          }
+        }
+
+        else if (response.complete){
+          this.isCodeRunning = false;
+          this.stopTimer();
+          if (this.$devMode && this.requestQueue.length > 0){
+            const currentRequest = this.requestQueue.shift() || {};
+            this.sendRunCodeRequest(currentRequest)
+          }
+          else if (!this.$devMode && this.componentChangeQueue.length > 0){
+            const componentChangeRequest = this.componentChangeQueue.shift() || {};
+            const componentRequest: ComponentRequest = {
+              originId: componentChangeRequest.originId,
+              components: componentChangeRequest.components,
+              userId: componentChangeRequest.userId,
+            };
+            this.sendComponentRequest(componentRequest)
+          }
+        }
+
+        else {
+          const components_response = JSON.parse(response)
+          this.notebook.cells[components_response.id].components = components_response.components;
+          this.notebook.cells[components_response.id].layout = components_response.layout as
             | Layout
             | undefined;
         }
-      }
+      };
+      return new Promise<void>((resolve, reject) => {
+        // Resolve the promise when the connection is open
+        this.run_socket!.onopen = () => {
+          console.log("Run socket connected");
+          resolve();
+        };
+
+        // Reject the promise on connection error
+        this.run_socket!.onerror = (error) => {
+          console.error("Run socket connection error:", error);
+          reject(error);
+        };
+      });
+    },
+
+    initializeSaveSocket() {
+      this.save_socket = new WebSocket(import.meta.env.VITE_WS_URL + 'ws/save_text')
+      this.save_socket!.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          // Assuming data is an array of completion objects
+          this.completions[data.cell_id] = Array.isArray(data.completions) ? data.completions : [];
+        } catch (error) {
+          console.error('Error parsing server message:', error);
+        }
+      };
+      return new Promise<void>((resolve, reject) => {
+        // Resolve the promise when the connection is open
+        this.save_socket!.onopen = () => {
+          console.log("Save socket connected");
+          resolve();
+        };
+
+        // Reject the promise on connection error
+        this.save_socket!.onerror = (error) => {
+          console.error("Save socket connection error:", error);
+          reject(error);
+        };
+      });
+    },
+
+    initializeStopSocket(){
+      this.stop_socket = new WebSocket(import.meta.env.VITE_WS_URL + 'ws/stop_execution')
+      return new Promise<void>((resolve, reject) => {
+        // Resolve the promise when the connection is open
+        this.stop_socket!.onopen = () => {
+          console.log("Stop socket connected");
+          resolve();
+        };
+
+        // Reject the promise on connection error
+        this.stop_socket!.onerror = (error) => {
+          console.error("Stop socket connection error:", error);
+          reject(error);
+        };
+      });
     },
 
     async componentValueChange(originId: string, componentId: string, newValue: any) {
@@ -200,53 +374,36 @@ export default {
       };
 
       // Updating the queue: if the componentId already exists, update the value; otherwise, add to the queue
-      const existingRequestIndex = this.componentChangeQueue.findIndex(req => req.componentId === componentId);
-      if (existingRequestIndex !== -1) {
-        this.componentChangeQueue[existingRequestIndex] = componentChangeRequest;
-      } else {
-        this.componentChangeQueue.push(componentChangeRequest);
-      }
-
       // If code is already running, exit the function to wait for the current execution to finish
       if (this.isCodeRunning) {
+        const existingRequestIndex = this.componentChangeQueue.findIndex(req => req.componentId === componentId);
+        if (existingRequestIndex !== -1) {
+          this.componentChangeQueue[existingRequestIndex] = componentChangeRequest;
+        } else {
+          this.componentChangeQueue.push(componentChangeRequest);
+        }
         return;
       }
 
-      // Process the queue
-      while (this.componentChangeQueue.length > 0) {
-        const currentRequest = this.componentChangeQueue.shift();
-        if (!currentRequest) continue;
+      const componentRequest: ComponentRequest = {
+        originId: componentChangeRequest.originId,
+        components: componentChangeRequest.components,
+        userId: componentChangeRequest.userId,
+      };
 
+      this.sendComponentRequest(componentRequest)
+    },
 
-        const componentRequest: ComponentRequest = {
-          originId: currentRequest.originId,
-          components: currentRequest.components,
-          userId: currentRequest.userId,
-        };
+    sendComponentRequest(componentRequest: ComponentRequest) {
+      this.isCodeRunning = true;
+      this.startTimer();
+      this.run_socket!.send(JSON.stringify(componentRequest))
+    },
 
-        this.isCodeRunning = true;
-        this.startTimer();
-        const axiosResponse = await axios.post(
-          import.meta.env.VITE_BACKEND_URL + "api/component_run",
-          componentRequest
-        );
-        this.stopTimer();
-        this.isCodeRunning = false;
-        const response: Response = axiosResponse.data;
-        if (response.refresh) {
-          const notebookResponse = await axios.get(
-            import.meta.env.VITE_BACKEND_URL + "api/notebook"
-          );
-          this.notebook = notebookResponse.data.notebook;
-          this.dependencies = notebookResponse.data.dependencies;
-        } else {
-          for (const cellResponse of response.cells) {
-            this.notebook.cells[cellResponse.id].components = cellResponse.components;
-            this.notebook.cells[cellResponse.id].output = cellResponse.output;
-            this.notebook.cells[cellResponse.id].layout = cellResponse.layout as Layout | undefined;
-          }
-        }
-      }
+    async notebookRefresh(){//TODO: Fix this
+      this.isCodeRunning = true;
+      this.startTimer();
+      this.notebook_socket!.send('start')
     },
 
     navigateToApp() {
@@ -278,6 +435,9 @@ export default {
           cells[cell.id] = cell
         }
       }
+      if (cell.cellType==='code'){
+        this.completions[cell.id] = []
+      }
       this.notebook.cells = cells;
     },
 
@@ -287,18 +447,34 @@ export default {
         import.meta.env.VITE_BACKEND_URL + "api/delete_cell",
         deleteRequest
       );
+      if (this.notebook.cells[cellId].cellType==='code'){
+        delete this.completions[cellId]
+      }
       delete this.notebook.cells[cellId];
     },
 
-    async saveCell(cellId: string) {
+    async saveCell(cellId: string, text: string, line: string, column: string) {
       const saveRequest: SaveRequest = {
         id: cellId,
-        text: this.notebook.cells[cellId].code,
+        text: text,
+        cellType: this.notebook.cells[cellId].cellType,
+        line: line,
+        column: column,
       };
-      await axios.post(
-        import.meta.env.VITE_BACKEND_URL + "api/save_text",
-        saveRequest
-      );
+      this.save_socket!.send(JSON.stringify(saveRequest))
+    },
+
+    async stopCodeExecution(){
+      if (this.$devMode) {
+        this.requestQueue = []
+        this.stop_socket!.send("")
+      }
+      else {
+        this.componentChangeQueue = []
+        this.stop_socket!.send(this.notebook.userId)
+      }
+      this.isCodeRunning = false;
+      this.stopTimer();
     },
 
     getComponent(cellType: string) {
@@ -320,20 +496,7 @@ export default {
 </script>
 
 <style>
-.editor {
-  background-color: #1b2f3c;
-  filter: none;
-  height: 300px;
-  width: 100%;
-  margin-bottom: 5px;
-}
-.editor .ace_gutter {
-  background: #1b2f3c;
-}
-.editor .ace_active-line {
-  background: #0e1b23 !important;
-}
-.editor .ace_gutter-active-line {
-  background: #0e1b23 !important;
+.cm-editor {
+  height: auto !important;
 }
 </style>

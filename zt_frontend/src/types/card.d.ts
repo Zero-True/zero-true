@@ -24,20 +24,24 @@ export type Cardchildren = string[];
 /**
  * Background color of the card.
  */
-export type Color = string;
+export type Color = string | null;
 /**
  * Elevation level of the card. Must be between 0 and 24.
  */
-export type Elevation = number;
+export type Elevation = number | null;
 /**
  * Density of the component
  */
-export type Density = "default" | "comfortable" | "compact";
+export type Density = Density1 & Density2;
+export type Density1 = string | null;
+export type Density2 = "default" | "comfortable" | "compact";
 /**
  * Width of the card.
  */
-export type Width = number;
-export type Location = "center";
+export type Width = number | null;
+export type Location = Location1 & Location2;
+export type Location1 = string | null;
+export type Location2 = "center";
 
 /**
  * A class for Card components inheriting from ZTComponent.

@@ -1,14 +1,18 @@
+from fastapi import WebSocket
+from typing import Dict, Any, OrderedDict
 from io import StringIO
-from typing import Dict,Any,OrderedDict
 import pickle
-from contextlib import redirect_stdout
 from zt_backend.models import request, response
-from zt_backend.models.state import component_values, created_components, context_globals, current_cell_components,current_cell_layout
-from zt_backend.runner.code_cell_parser import parse_cells,build_dependency_graph, find_downstream_cells, CodeDict
+from zt_backend.runner.code_cell_parser import parse_cells, build_dependency_graph, find_downstream_cells, CodeDict
+from zt_backend.runner.user_state import UserState, UserContext
 from zt_backend.models.components.layout import Layout
+from zt_backend.utils import globalStateUpdate
+from zt_backend.config import settings
 from datetime import datetime
 import logging
 import traceback
+import contextlib
+import asyncio
 
 now = datetime.now()
 logger = logging.getLogger("__name__")
@@ -56,70 +60,84 @@ def get_parent_vars(cell_id: str, code_components: CodeDict, cell_outputs_dict: 
     return exec_parents
 
 
-#issue right now is that the request is sending the entire notebook. The request should send the ID of the cell you are running.
-def execute_request(request: request.Request,cell_outputs_dict: Dict):
-    logger.debug("Code execution started")
-    cell_outputs = []
-    component_values.update(request.components)
-    component_globals={'global_state': component_values}
-    dependency_graph = build_dependency_graph(parse_cells(request))
-    if request.originId:
-        downstream_cells = [request.originId]
-        downstream_cells.extend(find_downstream_cells(dependency_graph, request.originId))
+def execute_request(request: request.Request, state: UserState):
+    with UserContext(state) as execution_state:
+        logger.debug("Code execution started")
+        cell_outputs = []
+        execution_state.component_values.update(request.components)
+        component_globals={'global_state': execution_state.component_values}
+        dependency_graph = build_dependency_graph(parse_cells(request))
+        if request.originId:
+            downstream_cells = [request.originId]
+            downstream_cells.extend(find_downstream_cells(dependency_graph, request.originId))
 
-        try:
-            old_downstream_cells = [request.originId]
-            old_downstream_cells.extend(find_downstream_cells(cell_outputs_dict['previous_dependecy_graph'],request.originId))
-             # Find cells that are no longer dependent
-            no_longer_dependent_cells = set(old_downstream_cells) - set(downstream_cells)
-    
-            if no_longer_dependent_cells:
-                downstream_cells.extend(list(OrderedDict.fromkeys(no_longer_dependent_cells)))
-        except Exception as e:
-            logger.error("Error while updating cell dependencies: %s", traceback.format_exc())
-    else:
-        downstream_cells = [cell.id for cell in request.cells if cell.cellType in ['code', 'sql']]
- 
-    #go through each item in dependency graph (we should just go through the downstream cells)
-    for code_cell_id in list(OrderedDict.fromkeys(downstream_cells)):
-        code_cell = dependency_graph.cells[code_cell_id]
-        f = StringIO()
-        with redirect_stdout(f):
             try:
-                if code_cell.parent_cells == []:
-                    temp_globals = component_globals
-                else:
-                    temp_globals = get_parent_vars(cell_id=code_cell_id,code_components=dependency_graph,cell_outputs_dict=cell_outputs_dict)
-                context_globals['exec_mode'] = True
-                exec(code_cell.code, temp_globals)
-
-            except Exception as e:
-                logger.debug("Error during code execution")
-                tb_list = traceback.format_exc().splitlines(keepends=True)
-                tb_list = [tb_list[0]]+tb_list[3:]
-                print("".join(tb_list))
-                
-
-        context_globals['exec_mode'] = False
-        cell_outputs_dict[code_cell_id] = {k: try_pickle(v) for k, v in temp_globals.items() if k != '__builtins__'}
-
-        try:
-            layout = current_cell_layout[0]
-        except Exception as e:
-            logger.debug("Error while getting cell layout, setting empty layout: %s", traceback.format_exc())
-            layout = Layout(**{})
+                old_downstream_cells = [request.originId]
+                old_downstream_cells.extend(find_downstream_cells(execution_state.cell_outputs_dict['previous_dependecy_graph'],request.originId))
+                # Find cells that are no longer dependent
+                no_longer_dependent_cells = set(old_downstream_cells) - set(downstream_cells)
         
-        for component in current_cell_components:
-            if component.component == 'v-btn':
-                component.value = False
+                if no_longer_dependent_cells:
+                    downstream_cells.extend(list(OrderedDict.fromkeys(no_longer_dependent_cells)))
+            except Exception as e:
+                logger.error("Error while updating cell dependencies: %s", traceback.format_exc())
+        else:
+            downstream_cells = [cell.id for cell in request.cells if cell.cellType in ['code', 'sql']]
 
-        cell_outputs.append(response.CellResponse(id=code_cell_id,layout=layout, components=current_cell_components, output=f.getvalue()))
-        current_cell_components.clear()
-        current_cell_layout.clear()
-    
-    cell_outputs_dict['previous_dependecy_graph'] = dependency_graph
+        for code_cell_id in downstream_cells:
+            code_cell = dependency_graph.cells[code_cell_id]
+            asyncio.run(execution_state.websocket.send_json({"cell_id": code_cell_id, "clear_output": True}))
+            execution_state.io_output = StringIO()
+            execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, execution_state)
+            try:
+                layout = execution_state.current_cell_layout[0]
+            except Exception as e:
+                logger.debug("Error while getting cell layout, setting empty layout: %s", traceback.format_exc())
+                layout = Layout(**{})
+            
+            for component in execution_state.current_cell_components:
+                if component.component == 'v-btn':
+                    component.value = False
 
-    component_values.clear()
-    created_components.clear()
-    context_globals['exec_mode'] = False
-    return response.Response(cells=cell_outputs)
+            cell_response = response.CellResponse(id=code_cell_id, layout=layout, components=execution_state.current_cell_components, output=execution_state.io_output.getvalue())
+            cell_outputs.append(cell_response)
+            asyncio.run(execution_state.websocket.send_json(cell_response.model_dump_json()))
+            execution_state.current_cell_components.clear()
+            execution_state.current_cell_layout.clear()
+        execution_state.cell_outputs_dict['previous_dependecy_graph'] = dependency_graph
+        execution_state.component_values.clear()
+        execution_state.created_components.clear()
+        execution_state.context_globals['exec_mode'] = False
+        execution_response = response.Response(cells=cell_outputs)
+        if settings.run_mode=='dev':
+            globalStateUpdate(run_response=execution_response)
+        asyncio.run(execution_state.websocket.send_json({"complete": True}))
+        return execution_response
+
+def execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, execution_state: UserContext):
+    class WebSocketStream:
+        def write(self, message):
+            user_state = UserContext.get_state()
+            if user_state:
+                user_state.io_output.write(message)
+                asyncio.run(user_state.websocket.send_json({"cell_id": code_cell_id, "output": message}))
+
+        def flush(self):
+            pass
+    with contextlib.redirect_stdout(WebSocketStream()), \
+        contextlib.redirect_stderr(WebSocketStream()):
+        try:
+            if code_cell.parent_cells == []:
+                temp_globals = component_globals
+            else:
+                temp_globals = get_parent_vars(cell_id=code_cell_id,code_components=dependency_graph,cell_outputs_dict=execution_state.cell_outputs_dict)
+            execution_state.context_globals['exec_mode'] = True
+            exec(code_cell.code, temp_globals)
+
+        except Exception:
+            logger.debug("Error during code execution")
+            tb_list = traceback.format_exc().splitlines(keepends=True)
+            tb_list = [tb_list[0]]+tb_list[3:]
+            print("".join(tb_list))
+    execution_state.context_globals['exec_mode'] = False
+    execution_state.cell_outputs_dict[code_cell_id] = {k: try_pickle(v) for k, v in temp_globals.items() if k != '__builtins__'}

@@ -136,6 +136,7 @@ import {
 import { VDataTable } from "vuetify/labs/VDataTable";
 import { Column, ZTComponent, Row } from "@/types/notebook";
 import PlotlyPlot from "@/components/PlotlyComponent.vue";
+import TextComponent from "@/components/TextComponent.vue"
 
 export default {
   emits: ["runCode"],
@@ -152,6 +153,7 @@ export default {
     "v-data-table": VDataTable,
     "v-autocomplete": VAutocomplete,
     "v-card": VCard,
+    "v-text":TextComponent,
     "plotly-plot": PlotlyPlot,
   },
   props: {

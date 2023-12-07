@@ -28,27 +28,27 @@ export type Value = string | number | null;
 /**
  * Label for the autocomplete box.
  */
-export type Label = string;
+export type Label = string | null;
 /**
  * Determines if multiple selections are allowed.
  */
-export type Multiple = boolean;
+export type Multiple = boolean | null;
 /**
  * Determines if the autocomplete box has a clearable option.
  */
-export type Clearable = boolean;
+export type Clearable = boolean | null;
 /**
  * Determines if the autocomplete box is disabled.
  */
-export type Disabled = boolean;
+export type Disabled = boolean | null;
 /**
  * Determines if the autocomplete box is read-only.
  */
-export type Readonly = boolean;
+export type Readonly = boolean | null;
 /**
  * Color of the autocomplete component. Can be custom or standard Material color.
  */
-export type Color = string;
+export type Color = string | null;
 /**
  * Trigger event for when to run based on the selected value
  */

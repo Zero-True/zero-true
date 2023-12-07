@@ -1,7 +1,7 @@
 from pydantic import BaseModel,Field
 from typing import ForwardRef,Union
-from zt_backend.models.state import current_cell_layout,context_globals
 from typing import List
+from zt_backend.runner.user_state import UserContext
 
 Row = ForwardRef('Row')
 Column = ForwardRef('Column')
@@ -21,5 +21,6 @@ class Layout(BaseModel):
 
     def __init__(self, **data):
         super().__init__(**data)
-        if context_globals['exec_mode']:
-            current_cell_layout.append(self)
+        execution_state = UserContext.get_state()
+        if execution_state and execution_state.context_globals['exec_mode']:
+            execution_state.current_cell_layout.append(self)

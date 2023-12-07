@@ -21,16 +21,16 @@
       label="Enter SQL variable name"
       density="compact"
     />
-    <ace-editor
+    <codemirror
       v-if="$devMode"
-      v-model:value="cellData.code"
-      ref="editor"
-      class="editor"
-      theme="dracula"
-      lang="sql"
-      @focus="handleFocus(true)"
-      @blur="handleFocus(false)"
-      :options="editorOptions"
+      v-model="cellData.code"
+      :style="{ height: '400px' }"
+      :autofocus="true"
+      :indent-with-tab="true"
+      :tab-size="2"
+      :viewportMargin="Infinity"
+      :extensions="extensions"
+      @keyup="saveCell"
     />
     <v-expansion-panels v-else>
       <v-expansion-panel>
@@ -38,13 +38,15 @@
           View Source Code
         </v-expansion-panel-title>
         <v-expansion-panel-text>
-          <ace-editor
-            v-model:value="cellData.code"
-            class="editor"
-            theme="dracula"
-            lang="sql"
-            :readonly="true"
-            :options="editorOptions"
+          <codemirror
+            v-if="$devMode"
+            v-model="cellData.code"
+            :style="{ height: '400px' }"
+            :autofocus="true"
+            :indent-with-tab="true"
+            :tab-size="2"
+            :viewportMargin="Infinity"
+            :extensions="extensions"
           />
         </v-expansion-panel-text>
       </v-expansion-panel>
@@ -63,7 +65,7 @@
     </v-container>
     <div class="text-p">{{ cellData.output }}</div>
   </v-card>
-  <v-menu transition="scale-transition">
+  <v-menu v-if="$devMode" transition="scale-transition">
     <template v-slot:activator="{ props }">
       <v-btn v-bind="props" block>
         <v-row>
@@ -81,36 +83,44 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from "vue";
-import { VAceEditor } from "vue3-ace-editor";
+import type { PropType, ShallowRef } from "vue";
+import { shallowRef } from "vue";
 import { VDataTable } from "vuetify/labs/VDataTable";
-import "ace-builds/src-noconflict/mode-sql";
-import "ace-builds/src-noconflict/snippets/sql";
-import "ace-builds/src-noconflict/ext-language_tools";
-import "ace-builds/src-noconflict/theme-dracula";
+import { Codemirror } from 'vue-codemirror'
+import { sql } from '@codemirror/lang-sql'
+import { oneDark } from '@codemirror/theme-one-dark'
+import { EditorView, keymap } from '@codemirror/view'
+import { Prec, EditorState } from "@codemirror/state";
+import { autocompletion, CompletionResult, CompletionContext } from '@codemirror/autocomplete'
 import { CodeCell } from "@/types/notebook";
 
 export default {
   components: {
-    "ace-editor": VAceEditor,
+    "codemirror": Codemirror,
     "v-data-table": VDataTable,
   },
 
   computed: {
-    editorOptions() {
-      return {
-        showPrintMargin: false,
-        enableBasicAutocompletion: true,
-        enableSnippets: true,
-        enableLiveAutocompletion: true,
-        autoScrollEditorIntoView: true,
-        highlightActiveLine: this.$devMode && this.isFocused,
-        highlightGutterLine: this.$devMode && this.isFocused,
-        minLines: 1,
-        maxLines: Infinity,
-      };
+    extensions(){
+      const handleCtrlEnter = () => {
+        this.runCode()
+      }
+      const keyMap = keymap.of([
+      { 
+          key: "Ctrl-Enter", 
+          run: () => {
+            handleCtrlEnter();
+            return true;
+          }
+        }
+      ]);
+      if(this.$devMode){
+        return [Prec.highest(keyMap), sql(), oneDark, autocompletion({ override: [] })]
+      }
+      return [ EditorState.readOnly.of(true), Prec.highest(keyMap), sql(), oneDark, autocompletion({ override: [] })]
     },
   },
+  
   data() {
     return {
       isFocused: false, // add this line to keep track of the focus state
@@ -119,7 +129,7 @@ export default {
         { title: 'SQL' },
         { title: 'Markdown' },
         { title: 'Text' },
-      ],
+      ]
     };
   },
   props: {
@@ -128,36 +138,15 @@ export default {
       required: true,
     },
   },
-  mounted() {
-    // Attach the event listener when the component is mounted
-    if(this.$devMode){
-      const aceComponent = this.$refs.editor as any;
-      aceComponent._editor.renderer.$cursorLayer.element.style.display = "none";
-    }
-    window.addEventListener("keydown", this.handleKeyDown);
-  },
-  beforeUnmount() {
-    // Remove the event listener before the component is destroyed
-    window.removeEventListener("keydown", this.handleKeyDown);
+
+  setup() {    
+    const view: ShallowRef<EditorView|null>=shallowRef(null);
+    const handleReady = (payload:any) => {view.value = payload.view};
+
+    return { view, handleReady };
   },
 
   methods: {
-    handleKeyDown(event: KeyboardEvent) {
-      if (this.isFocused && event.ctrlKey && event.key === "Enter") {
-        this.runCode();
-      }
-    },
-    handleFocus(state: boolean) {
-      if (state) {
-        const aceComponent = this.$refs.editor as any;
-        aceComponent._editor.renderer.$cursorLayer.element.style.display = "";
-      } else {
-        const aceComponent = this.$refs.editor as any;
-        aceComponent._editor.renderer.$cursorLayer.element.style.display =
-          "none";
-      }
-      this.isFocused = state;
-    },
     runCode() {
       this.$emit("runCode", this.cellData.id);
     },
@@ -166,7 +155,11 @@ export default {
     },
     createCell(cellType: string){
       this.$emit("createCell", this.cellData.id, cellType);
-    }
+    },
+    saveCell() {
+      if (!this.$devMode) return
+      this.$emit("saveCell", this.cellData.id, this.cellData.code, '', '');
+    },
   },
 };
 </script>

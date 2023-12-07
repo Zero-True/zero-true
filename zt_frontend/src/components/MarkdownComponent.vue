@@ -15,24 +15,20 @@
         </v-icon>
       </v-col>
     </v-row>
-    <ace-editor
+    <codemirror
       v-if="$devMode"
-      v-model:value="cellData.code"
-      ref="editor"
-      class="editor"
-      theme="dracula"
-      lang="markdown"
-      @focus="handleFocus(true)"
-      @blur="handleFocus(false)"
-      :options="editorOptions"
+      v-model="cellData.code"
+      :style="{ height: '400px' }"
+      :autofocus="true"
+      :indent-with-tab="true"
+      :tab-size="2"
+      :viewportMargin="Infinity"
+      :extensions="extensions"
+      @keyup="saveCell"
     />
-    <div v-if="$devMode">
-      <p class="text-caption text-disabled text-right">
-        CTRL+Enter to save</p>
-    </div>
     <div class="markdown-content" v-html="compiledMarkdown"></div>
   </v-card>
-  <v-menu transition="scale-transition">
+  <v-menu v-if="$devMode" transition="scale-transition">
     <template v-slot:activator="{ props }">
       <v-btn v-bind="props" block>
         <v-row>
@@ -52,31 +48,20 @@
 <script lang="ts">
 import type { PropType } from "vue";
 import { marked } from 'marked';
-import { VAceEditor } from "vue3-ace-editor";
-import "ace-builds/src-noconflict/mode-markdown";
-import "ace-builds/src-noconflict/snippets/markdown";
-import "ace-builds/src-noconflict/ext-language_tools";
-import "ace-builds/src-noconflict/theme-dracula";
+import { Codemirror } from 'vue-codemirror'
+import { markdown } from '@codemirror/lang-markdown'
+import { oneDark } from '@codemirror/theme-one-dark'
+import { EditorView } from '@codemirror/view'
+import { autocompletion, CompletionResult, CompletionContext } from '@codemirror/autocomplete'
 import { CodeCell } from "@/types/notebook";
 
 export default {
   components: {
-    "ace-editor": VAceEditor,
+    "codemirror": Codemirror,
   },
   computed: {
-    editorOptions() {
-      return {
-        showPrintMargin: false,
-        enableBasicAutocompletion: true,
-        enableSnippets: true,
-        enableLiveAutocompletion: true,
-        autoScrollEditorIntoView: true,
-        highlightActiveLine: this.isFocused,
-        highlightGutterLine: this.isFocused,
-        minLines: 1,
-        maxLines: Infinity,
-      };
-    },
+    extensions() {return [markdown(), oneDark, autocompletion({ override: [] })]},
+
     compiledMarkdown() {
       const pasrsed_markdown = marked.parse(this.cellData.code,)
       return pasrsed_markdown;
@@ -99,37 +84,10 @@ export default {
       required: true,
     },
   },
-  mounted() {
-    // Attach the event listener when the component is mounted
-    if(this.$devMode){
-      const aceComponent = this.$refs.editor as any;
-      aceComponent._editor.renderer.$cursorLayer.element.style.display = "none";
-    }
-    window.addEventListener("keydown", this.handleKeyDown);
-  },
-  beforeUnmount() {
-    // Remove the event listener before the component is destroyed
-    window.removeEventListener("keydown", this.handleKeyDown);
-  },
   methods: {
-    handleKeyDown(event: KeyboardEvent) {
-      if (this.isFocused && event.ctrlKey && event.key === "Enter") {
-        this.saveCell();
-      }
-    },
-    handleFocus(state: boolean) {
-      if (state) {
-        const aceComponent = this.$refs.editor as any;
-        aceComponent._editor.renderer.$cursorLayer.element.style.display = "";
-      } else {
-        const aceComponent = this.$refs.editor as any;
-        aceComponent._editor.renderer.$cursorLayer.element.style.display =
-          "none";
-      }
-      this.isFocused = state;
-    },
     saveCell() {
-      this.$emit("saveCell", this.cellData.id);
+      if (!this.$devMode) return
+      this.$emit("saveCell", this.cellData.id, this.cellData.code, '', '');
     },
     deleteCell() {
       this.$emit("deleteCell", this.cellData.id);

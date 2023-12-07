@@ -19,16 +19,17 @@
         </v-icon>
       </v-col>
     </v-row>
-    <ace-editor
+    <codemirror
       v-if="$devMode"
-      v-model:value="cellData.code"
-      ref="editor"
-      class="editor"
-      theme="dracula"
-      lang="python"
-      :options="editorOptions"
-      @focus="handleFocus(true)"
-      @blur="handleFocus(false)"
+      v-model="cellData.code"
+      :style="{ height: '400px' }"
+      :autofocus="true"
+      :indent-with-tab="true"
+      :tab-size="2"
+      :viewportMargin="Infinity"
+      :extensions="extensions"
+      @ready="handleReady"
+      @keyup="saveCell"
     />
     <v-expansion-panels v-else>
       <v-expansion-panel>
@@ -36,13 +37,14 @@
           View Source Code
         </v-expansion-panel-title>
         <v-expansion-panel-text>
-          <ace-editor
-            v-model:value="cellData.code"
-            class="editor"
-            theme="dracula"
-            lang="python"
-            :readonly="true"
-            :options="editorOptions"
+          <codemirror
+            v-model="cellData.code"
+            :style="{ height: '400px' }"
+            :autofocus="true"
+            :indent-with-tab="true"
+            :tab-size="2"
+            :viewportMargin="Infinity"
+            :extensions="extensions"
           />
         </v-expansion-panel-text>
       </v-expansion-panel>
@@ -128,7 +130,7 @@
       </v-row>
     </v-container>
   </v-card>
-  <v-menu transition="scale-transition">
+  <v-menu v-if="$devMode" transition="scale-transition">
     <template v-slot:activator="{ props }">
       <v-btn v-bind="props" block>
         <v-row>
@@ -146,13 +148,15 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from "vue";
+import type { PropType, ShallowRef } from "vue";
+import { shallowRef } from "vue";
 import PlotlyPlot from "@/components/PlotlyComponent.vue";
-import { VAceEditor } from "vue3-ace-editor";
-import "ace-builds/src-noconflict/mode-python";
-import "ace-builds/src-noconflict/snippets/python";
-import "ace-builds/src-noconflict/ext-language_tools";
-import "ace-builds/src-noconflict/theme-dracula";
+import { Codemirror } from 'vue-codemirror'
+import { python } from '@codemirror/lang-python'
+import { oneDark } from '@codemirror/theme-one-dark'
+import { EditorView, keymap } from '@codemirror/view'
+import { Prec, EditorState } from "@codemirror/state";
+import { autocompletion, CompletionResult, CompletionContext } from '@codemirror/autocomplete'
 import {
   VSlider,
   VTextField,
@@ -167,12 +171,13 @@ import {
 } from "vuetify/lib/components/index.mjs";
 import { VDataTable } from "vuetify/labs/VDataTable";
 import { CodeCell, Layout } from "@/types/notebook";
+import { Completion } from "@/types/completions";
 import LayoutComponent from "@/components/LayoutComponent.vue";
 import TextComponent from "@/components/TextComponent.vue"
 
 export default {
   components: {
-    "ace-editor": VAceEditor,
+    "codemirror": Codemirror,
     "v-slider": VSlider,
     "v-text-field": VTextField,
     "v-number-field": VTextField,
@@ -194,6 +199,10 @@ export default {
       type: Object as PropType<CodeCell>,
       required: true,
     },
+    completions: {
+      type: Object as PropType<Completion>,
+      required: true
+    }
   },
   data() {
     return {
@@ -206,37 +215,58 @@ export default {
       ],
     };
   },
-  mounted() {
-    // Attach the event listener when the component is mounted
-    if (this.$devMode){
-      const aceComponent = this.$refs.editor as any;
-      aceComponent._editor.renderer.$cursorLayer.element.style.display = "none";
-    }
-    window.addEventListener("keydown", this.handleKeyDown);
-  },
-  beforeUnmount() {
-    // Remove the event listener before the component is destroyed
-    window.removeEventListener("keydown", this.handleKeyDown);
+
+  setup() {    
+    const view: ShallowRef<EditorView|null>=shallowRef(null);
+    const handleReady = (payload:any) => {view.value = payload.view};
+
+    return { view, handleReady };
   },
 
+
   computed: {
+    extensions(){
+      const handleCtrlEnter = () => {
+        this.runCode(false,'','')
+      }
+      const keyMap = keymap.of([
+      { 
+          key: "Ctrl-Enter", 
+          run: () => {
+            handleCtrlEnter();
+            return true;
+          }
+        }
+      ]);
+      const customCompletionSource = async (context: CompletionContext) => {
+        console.log('here')
+        const word = context.matchBefore(/\w*/);
+        const from = word ? word.from : context.pos;
+
+        return {
+              from: from,
+              options: (this.completions as unknown as { label: string; type: string }[]).map(completion => ({
+                label: completion.label,
+                type: completion.type,
+                apply: (view: { dispatch: (arg0: { changes: { from: any; to: any; insert: any } }) => void }, completion: { label: any }, from: any, to: any) => {
+                  const insertText = completion.label;
+                  view.dispatch({
+                    changes: { from: from, to: to ?? context.pos, insert: insertText }
+                  });
+                }
+              }))
+            };
+          };
+      if (this.$devMode){
+        return [Prec.highest(keyMap), python(), oneDark, autocompletion({ override: [customCompletionSource] })]
+      }
+      return [EditorState.readOnly.of(true), Prec.highest(keyMap), python(), oneDark, autocompletion({ override: [customCompletionSource] })]
+    },
+
     columns() {
       return this.cellData.layout?.columns || [];
     },
 
-    editorOptions() {
-      return {
-        showPrintMargin: false,
-        enableBasicAutocompletion: true,
-        enableSnippets: true,
-        enableLiveAutocompletion: true,
-        autoScrollEditorIntoView: true,
-        highlightActiveLine: this.$devMode && this.isFocused,
-        highlightGutterLine: this.$devMode && this.isFocused,
-        minLines: 1,
-        maxLines: Infinity,
-      };
-    },
     unplacedComponents() {
       const findPlacedIds = (items: any[]): string[] => {
         let ids: string[] = [];
@@ -274,23 +304,8 @@ export default {
       );
     },
   },
+
   methods: {
-    handleKeyDown(event: KeyboardEvent) {
-      if (this.isFocused && event.ctrlKey && event.key === "Enter") {
-        this.runCode(false, this.cellData.id, "");
-      }
-    },
-    handleFocus(state: boolean) {
-      if (state) {
-        const aceComponent = this.$refs.editor as any;
-        aceComponent._editor.renderer.$cursorLayer.element.style.display = "";
-      } else {
-        const aceComponent = this.$refs.editor as any;
-        aceComponent._editor.renderer.$cursorLayer.element.style.display =
-          "none";
-      }
-      this.isFocused = state;
-    },
     runCode(fromComponent: boolean, componentId: string, componentValue: any) {
       if (!this.$devMode && fromComponent) {
         this.$emit(
@@ -339,7 +354,14 @@ export default {
     },
     createCell(cellType: string){
       this.$emit("createCell", this.cellData.id, cellType);
-    }
+    },
+    saveCell() {
+      if (!this.$devMode || !this.view?.hasFocus) return
+      const position = this.view?.state.selection.main.head;
+      const line = this.view?.state.doc.lineAt(position).number;
+      const column = position - this.view?.state.doc.line(line).from;
+      this.$emit("saveCell", this.cellData.id, this.cellData.code, line, column);
+    },
   },
 };
 </script>
