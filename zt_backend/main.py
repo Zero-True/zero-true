@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import OrderedDict
 from zt_backend.models.notebook import Notebook, CodeCell
 from zt_backend.config import settings
-from zt_backend.utils import get_notebook
+from zt_backend.utils import get_notebook, save_toml
 import zt_backend.router as router
 import os
 import uuid
@@ -39,18 +39,9 @@ app.add_middleware(
 @app.on_event("startup")
 def open_project():
     try:
-        if not os.path.exists('notebook.toml'):
+        if not os.path.exists('notebook.ztnb'):
             logger.info("No toml file found, creating with empty notebook")
-            codeCell = CodeCell(
-                id=str(uuid.uuid4()),
-                code='',
-                components=[],
-                variable_name='',
-                output='',
-                cellType='code'
-            )
-            zt_notebook = Notebook(userId='', cells=OrderedDict([(codeCell.id, codeCell)]))
-            router.save_toml(zt_notebook=zt_notebook)
+            save_toml()
         if not os.path.exists('requirements.txt'):
             logger.info("No requirements file found, creating with base dependency")
             with open('requirements.txt', 'w') as file:
