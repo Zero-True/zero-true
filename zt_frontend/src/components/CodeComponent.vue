@@ -1,5 +1,5 @@
 <template>
-  <v-card flat color="bluegrey">
+  <v-card flat color="bluegrey" :id="'codeCard'+cellData.id">
     <v-row v-if="$devMode" no-gutters class="py-1 toolbar-bg">
       <v-col :cols="11">
         <span class="py-0 px-2">.py</span>
@@ -11,10 +11,11 @@
           class="mx-1"
           color="primary"
           @click="runCode(false, '', '')"
+          :id = "'runCode'+cellData.id"
         >
           mdi-play
         </v-icon>
-        <v-icon small class="mx-1" color="error" @click="deleteCell">
+        <v-icon small class="mx-1" color="error" @click="deleteCell" :id = "'deleteCell'+cellData.id">
           mdi-delete
         </v-icon>
       </v-col>
@@ -30,6 +31,8 @@
       :extensions="extensions"
       @ready="handleReady"
       @keyup="saveCell"
+      :code="cellData.code"
+      :id = "'codeMirrorDev'+cellData.id"
     />
     <v-expansion-panels v-else>
       <v-expansion-panel>
@@ -45,6 +48,7 @@
             :tab-size="2"
             :viewportMargin="Infinity"
             :extensions="extensions"
+            :id = "'codeMirrorApp'+cellData.id"
           />
         </v-expansion-panel-text>
       </v-expansion-panel>
@@ -72,7 +76,7 @@
         </v-col>
       </v-row>
       <!-- Render unplaced components at the bottom -->
-      <v-row>
+      <v-row :id = "'unplacedComponents'+cellData.id">
         <v-container
           class="pa-1"
           v-for="component in unplacedComponents"
@@ -125,7 +129,7 @@
       </v-row>
       <v-row>
         <v-col>
-          <pre class="text-p">{{ cellData.output }}</pre>
+          <pre class="text-p" :id = "'cellOutput'+cellData.id">{{ cellData.output }}</pre>
         </v-col>
       </v-row>
     </v-container>
@@ -134,14 +138,14 @@
     <template v-slot:activator="{ props }">
       <v-btn v-bind="props" block>
         <v-row>
-          <v-icon color="primary">mdi-plus</v-icon>
+          <v-icon color="primary"  :id = "'addCell'+cellData.id" >mdi-plus</v-icon>
         </v-row>
       </v-btn>
     </template>
 
     <v-list>
       <v-list-item v-for="(item, i) in items" :key="i">
-        <v-btn block @click="createCell(item.title)">{{ item.title }}</v-btn>
+        <v-btn :id = "'addCell_'+item.title+'_'+cellData.id" block @click="createCell(item.title)">{{ item.title }} </v-btn>
       </v-list-item>
     </v-list>
   </v-menu>

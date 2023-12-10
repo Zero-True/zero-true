@@ -1,7 +1,7 @@
 <template>
   <v-app style="background-color: #040607">
-    <v-app-bar app color="bluegrey">
-      <v-btn size="x-large" variant="text" @click="navigateToApp">
+    <v-app-bar app color="bluegrey" id="appBar">
+      <v-btn size="x-large" variant="text" @click="navigateToApp" id ="Navbutton">
         <v-icon start size="x-large" icon="custom:ZTIcon"></v-icon>
         Zero-True
       </v-btn>
@@ -11,20 +11,22 @@
           indeterminate
           color="white"
           size="24"
+          id = "codeRunProgress"
         ></v-progress-circular>
-        <v-chip class="ml-2" color="white" text-color="black">
+        <v-chip class="ml-2" color="white" text-color="black" id = "timerChip">
           {{ timer }}ms
         </v-chip>
-        <v-chip v-if="$devMode" class="ml-2" color="white" text-color="black">
+        <v-chip v-if="$devMode" class="ml-2" color="white" text-color="black" id = "queueLenghtChiptDev">
           Queue Length: {{ requestQueue.length }}
         </v-chip>
-        <v-chip v-else class="ml-2" color="white" text-color="black">
+        <v-chip v-else class="ml-2" color="white" text-color="black" id = "queueLenghtChipApp">
           Queue Length: {{ componentChangeQueue.length }}
         </v-chip>
         <v-icon
           large
           color="error"
           @click="stopCodeExecution()"
+          id = "stopIcon"
         >
           mdi-stop
         </v-icon>
