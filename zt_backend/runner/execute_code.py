@@ -86,7 +86,7 @@ def execute_request(request: request.Request, state: UserState):
 
         for code_cell_id in downstream_cells:
             code_cell = dependency_graph.cells[code_cell_id]
-            asyncio.run(execution_state.websocket.send_json({"cell_id": code_cell_id, "clear_output": True}))
+            execution_state.message_queue.put_nowait({"cell_id": code_cell_id, "clear_output": True})
             execution_state.io_output = StringIO()
             execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, execution_state)
             try:
@@ -101,7 +101,7 @@ def execute_request(request: request.Request, state: UserState):
 
             cell_response = response.CellResponse(id=code_cell_id, layout=layout, components=execution_state.current_cell_components, output=execution_state.io_output.getvalue())
             cell_outputs.append(cell_response)
-            asyncio.run(execution_state.websocket.send_json(cell_response.model_dump_json()))
+            execution_state.message_queue.put_nowait(cell_response.model_dump_json())
             execution_state.current_cell_components.clear()
             execution_state.current_cell_layout.clear()
         execution_state.cell_outputs_dict['previous_dependecy_graph'] = dependency_graph
@@ -111,8 +111,7 @@ def execute_request(request: request.Request, state: UserState):
         execution_response = response.Response(cells=cell_outputs)
         if settings.run_mode=='dev':
             globalStateUpdate(run_response=execution_response)
-        asyncio.run(execution_state.websocket.send_json({"complete": True}))
-        return execution_response
+        execution_state.message_queue.put_nowait({"complete": True})
 
 def execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, execution_state: UserContext):
     class WebSocketStream:
@@ -120,7 +119,7 @@ def execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, e
             user_state = UserContext.get_state()
             if user_state:
                 user_state.io_output.write(message)
-                asyncio.run(user_state.websocket.send_json({"cell_id": code_cell_id, "output": message}))
+                user_state.message_queue.put_nowait({"cell_id": code_cell_id, "output": message})
 
         def flush(self):
             pass

@@ -1,4 +1,5 @@
 import threading
+import asyncio
 
 class UserState:
     def __init__(self, user_id):
@@ -11,6 +12,7 @@ class UserState:
         self.cell_outputs_dict = {}
         self.websocket = None
         self.io_output = None
+        self.message_queue = asyncio.Queue()
 
 class UserContext:
     _state = threading.local()
