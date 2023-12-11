@@ -13,6 +13,7 @@ import os
 import threading
 import traceback
 import sys
+import asyncio
 import trace
 
 class ConnectionManager:
@@ -88,6 +89,7 @@ conn.close()
 user_states={}
 user_timers={}
 user_threads={}
+user_message_tasks={}
 notebook_state=UserState('')
 run_mode = settings.run_mode
 
@@ -105,6 +107,7 @@ def ws_url():
 async def run_code(websocket: WebSocket):
     global current_thread
     if(run_mode=='dev'):
+        message_send = asyncio.create_task(websocket_message_sender(notebook_state))
         await manager.connect(websocket)
         try:
             while True:
@@ -115,6 +118,8 @@ async def run_code(websocket: WebSocket):
                 current_thread.start()
         except WebSocketDisconnect:
             manager.disconnect(websocket)
+        finally:
+            message_send.cancel() 
 
 @router.websocket("/ws/component_run")
 async def component_run(websocket: WebSocket):
@@ -255,6 +260,7 @@ async def load_notebook(websocket: WebSocket):
                 userId = str(uuid.uuid4())
                 notebook_start.userId = userId
                 user_states[userId]=UserState(userId)
+                user_message_tasks[userId]=asyncio.create_task(websocket_message_sender(user_states[userId]))
                 timer_set(userId, 1800)
                 cells = []
                 components={}
@@ -318,14 +324,32 @@ async def stop_execution(websocket: WebSocket):
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
+@router.on_event('shutdown')
+def shutdown():
+    if current_thread:
+        current_thread.kill()
+    for user_id in user_threads:
+        if user_threads[user_id]:
+            user_threads[user_id].kill()
+    for user_id in user_timers:
+        if user_timers[user_id]:
+            user_timers[user_id].cancel()
+    for user_id in user_message_tasks:
+        if user_message_tasks[user_id]:
+            user_message_tasks[user_id].cancel()
+
 def remove_user_state(user_id):
     try:
         if user_id in user_timers:
             # Cancel and remove the associated timer
             timer = user_timers[user_id]
+            message_sender = user_message_tasks[user_id]
             if timer:
                 timer.cancel()
             del user_timers[user_id]
+            if message_sender:
+                message_sender.cancel() 
+            del user_message_tasks[user_id]
             if user_id in user_states: del user_states[user_id]
             logger.debug("User state removed for user %s", user_id)
     except Exception as e:

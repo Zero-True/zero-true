@@ -1,4 +1,5 @@
 from typing import OrderedDict
+from zt_backend.runner.user_state import UserState
 from zt_backend.models import request, notebook, response
 from dictdiffer import diff
 import logging
@@ -157,3 +158,8 @@ def get_code_completions(cell_id:str, code: str, line: int, column: int) -> list
     script = jedi.Script(code)
     completions = script.complete(line, column)
     return {"cell_id": cell_id, "completions": [{"label": completion.name, "type": completion.type} for completion in completions]}
+
+async def websocket_message_sender(execution_state: UserState):
+    while True:
+        message = await execution_state.message_queue.get()
+        await execution_state.websocket.send_json(message)
