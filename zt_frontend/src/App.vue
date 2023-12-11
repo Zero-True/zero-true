@@ -105,6 +105,7 @@ export default {
       notebook: {} as Notebook,
       dependencies: {} as Dependencies,
       completions: {} as Completions,
+      ws_url: '',
       notebook_socket: null as WebSocket | null,
       save_socket: null as WebSocket | null,
       run_socket: null as WebSocket | null,
@@ -134,6 +135,7 @@ export default {
   },
 
   async mounted(){
+    await this.get_ws_url()
     await this.initializeNotebookSocket()
     await this.initializeRunSocket()
     await this.initializeStopSocket()
@@ -157,6 +159,11 @@ export default {
         clearInterval(this.timerInterval);
         this.timerInterval = null;
       }
+    },
+
+    async get_ws_url() {
+        const response = await axios.get(import.meta.env.VITE_BACKEND_URL + "ws_url");
+        this.ws_url = response.data || import.meta.env.VITE_WS_URL
     },
 
     async runCode(originId: string){
@@ -201,7 +208,7 @@ export default {
     },
 
     initializeNotebookSocket(){
-      this.notebook_socket = new WebSocket(import.meta.env.VITE_WS_URL + 'ws/notebook')
+      this.notebook_socket = new WebSocket(this.ws_url + 'ws/notebook')
       this.notebook_socket!.onmessage = (event) => {
         const response = JSON.parse(event.data)        
         if (response.cell_id){
@@ -256,7 +263,7 @@ export default {
     },
 
     initializeRunSocket(){
-      this.run_socket = this.$devMode ? new WebSocket(import.meta.env.VITE_WS_URL + 'ws/run_code') : new WebSocket(import.meta.env.VITE_WS_URL + 'ws/component_run')
+      this.run_socket = this.$devMode ? new WebSocket(this.ws_url + 'ws/run_code') : new WebSocket(this.ws_url + 'ws/component_run')
       this.run_socket!.onmessage = (event) => {
         const response = JSON.parse(event.data)
         if (!this.$devMode && response.refresh) {
@@ -314,7 +321,7 @@ export default {
     },
 
     initializeSaveSocket() {
-      this.save_socket = new WebSocket(import.meta.env.VITE_WS_URL + 'ws/save_text')
+      this.save_socket = new WebSocket(this.ws_url + 'ws/save_text')
       this.save_socket!.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
@@ -340,7 +347,7 @@ export default {
     },
 
     initializeStopSocket(){
-      this.stop_socket = new WebSocket(import.meta.env.VITE_WS_URL + 'ws/stop_execution')
+      this.stop_socket = new WebSocket(this.ws_url + 'ws/stop_execution')
       return new Promise<void>((resolve, reject) => {
         // Resolve the promise when the connection is open
         this.stop_socket!.onopen = () => {

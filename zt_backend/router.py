@@ -97,6 +97,10 @@ logger = logging.getLogger("__name__")
 def health():
     return('UP')
 
+@router.get("/ws_url")
+def ws_url():
+    return settings.ws_url
+
 @router.websocket("/ws/run_code")
 async def run_code(websocket: WebSocket):
     global current_thread

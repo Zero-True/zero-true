@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     run_mode: str = "app"
     project_name: str = ""
     user_name: str = ""
+    ws_url: str = ""
 
 @lru_cache()
 def get_settings():
