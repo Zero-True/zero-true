@@ -65,4 +65,4 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install tox tox-gh-actions
       - name: Test with pytest
-        run: pytest
+        run: pytest -s

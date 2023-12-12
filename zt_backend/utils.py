@@ -60,6 +60,7 @@ def get_notebook(id=''):
             }
         }
         zt_notebook = notebook.Notebook(**notebook_data)
+        print(zt_notebook)
         new_notebook = zt_notebook.model_dump_json()
         conn = duckdb.connect(notebook_db_path)
         conn.execute("INSERT OR REPLACE INTO notebooks (id, notebook) VALUES (?, ?)", [zt_notebook.notebookId,new_notebook])
