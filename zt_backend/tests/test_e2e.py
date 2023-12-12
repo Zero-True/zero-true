@@ -30,9 +30,8 @@ def start_stop_app():
     notebook_filename = "notebook.ztnb"
 
     # Check if the file exists
-    if not os.path.exists(notebook_filename):
-         with open(notebook_filename,"w") as file:
-            file.write(notebook_str)
+    with open(notebook_filename,"w") as file:
+        file.write(notebook_str)
 
     app_process = subprocess.Popen(["zero-true", "notebook"])
     yield app_process
