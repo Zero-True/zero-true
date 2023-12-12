@@ -463,12 +463,28 @@ export default {
     },
 
     async saveCell(cellId: string, text: string, line: string, column: string) {
+      let concatenatedCode = '';
+
+      // Check if the current cell is a code cell
+      if (this.notebook.cells[cellId].cellType === 'code') {
+        // Iterate over all cells and concatenate code from previous code cells
+        for (let key in this.notebook.cells) {
+           // Stop when the current cell is reached
+          if (this.notebook.cells[key].cellType === 'code') {
+            concatenatedCode += this.notebook.cells[key].code;
+          }
+          if (key === cellId) break;
+        }
+      }
+      console.log(concatenatedCode.split(/\r\n|\r|\n/).length+line)
+      // The rest of the saveCell method remains unchanged
       const saveRequest: SaveRequest = {
         id: cellId,
-        text: text,
+        text: text, // Use the concatenated code from previous cells
         cellType: this.notebook.cells[cellId].cellType,
-        line: line,
+        line:  concatenatedCode.split(/\r\n|\r|\n/).length-text.split(/\r\n|\r|\n/).length+line,
         column: column,
+        code_w_context: concatenatedCode
       };
       this.save_socket!.send(JSON.stringify(saveRequest))
     },

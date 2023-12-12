@@ -218,7 +218,8 @@ async def save_text(websocket: WebSocket):
                 if cell_type=="code":
                     line = data.get("line")
                     column = data.get("column")
-                    completions = get_code_completions(cell_id, code, line, column)
+                    code_w_context= data.get("code_w_context")
+                    completions = get_code_completions(cell_id, code_w_context, line, column)
                     await websocket.send_json(completions)
         except WebSocketDisconnect:
             manager.disconnect(websocket)
