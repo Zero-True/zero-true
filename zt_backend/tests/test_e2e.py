@@ -33,6 +33,7 @@ def start_stop_app():
             file.write(notebook_str)
 
     app_process = subprocess.Popen(["zero-true", "notebook"])
+    time.sleep(5)
     yield app_process
 
     # Stop the application
