@@ -35,10 +35,11 @@ def start_stop_app():
 
     with open(notebook_filename,"r") as file:
         contents = file.read()
-        
+
     assert contents==notebook_str, 'Notebook not properly saved'
 
     app_process = subprocess.Popen(["zero-true", "notebook"])
+    time.sleep(10)
     yield app_process
 
     # Stop the application
