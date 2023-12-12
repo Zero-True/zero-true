@@ -64,6 +64,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install tox tox-gh-actions
-          grep localhost /etc/hosts
       - name: Test with pytest
         run: pytest
+        env:
+          DISPLAY: :99
