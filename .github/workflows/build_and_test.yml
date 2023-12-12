@@ -58,7 +58,7 @@ jobs:
           sphinx-build -b html docs docs/html
       
       - name: Setup Chrome
-        uses: nanasess/setup-chromedriver@v2
+        run: sudo apt-get install -y chromium-browser
 
       - name: Install dependencies and run tests
         run: |
@@ -66,5 +66,3 @@ jobs:
           python -m pip install tox tox-gh-actions
       - name: Test with pytest
         run: pytest
-        env:
-          DISPLAY: :99
