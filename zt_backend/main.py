@@ -39,7 +39,6 @@ app.add_middleware(
 @app.on_event("startup")
 def open_project():
     try:
-        print(os.getcwd())
         if not os.path.exists('notebook.ztnb'):
             logger.info("No toml file found, creating with empty notebook")
             save_toml()
@@ -47,7 +46,7 @@ def open_project():
             logger.info("No requirements file found, creating with base dependency")
             with open('requirements.txt', 'w') as file:
                 file.write('zero-true')
-                subprocess.run("lock requirements.txt")
+            subprocess.run("lock requirements.txt")
         get_notebook()
     except Exception as e:
         logger.error("Error creating new files on startup: %s", traceback.format_exc())
