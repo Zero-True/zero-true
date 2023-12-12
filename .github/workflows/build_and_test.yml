@@ -6,12 +6,8 @@ on:
       - main
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11']
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -26,7 +22,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.9
           cache: "pip"
       
       - name: Build Docs and Frontend
@@ -37,7 +33,45 @@ jobs:
           sphinx-build -b html docs docs/html
           npm install --global yarn
           zero-true-dev build
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: frontend-files
+          path: |
+            zt_backend/dist_app/
+            zt_backend/dist_dev/
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Remove Existing Frontend Files
+        run: |
+          rm -rf zt_backend/dist_dev
+          rm -rf zt_backend/dist_app
       
+      - name: Download Frontend Files
+        uses: actions/download-artifact@v3
+        with:
+          name: frontend-files
+      
+      - name: Install
+        run: |
+          pip install .
+
       - name: Setup Chrome
         run: sudo apt-get install -y chromium-browser
 
