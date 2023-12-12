@@ -1,13 +1,10 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from typing import OrderedDict
-from zt_backend.models.notebook import Notebook, CodeCell
 from zt_backend.config import settings
 from zt_backend.utils import get_notebook, save_toml
 import zt_backend.router as router
 import os
-import uuid
 import subprocess
 import logging
 import traceback
@@ -22,7 +19,7 @@ project_name = settings.project_name
 user_name = settings.user_name
 
 route_prefix = ''
-if project_name:
+if project_name and user_name:
     route_prefix = '/'+user_name+'/'+project_name
 
 app.include_router(router.router, prefix=route_prefix)
@@ -39,7 +36,9 @@ app.add_middleware(
 @app.on_event("startup")
 def open_project():
     try:
-        if not os.path.exists('notebook.ztnb'):
+        if project_name and os.path.exists(f'{project_name}.ztnb'):
+            logger.info("Project loading with name %s", project_name)
+        elif not os.path.exists('notebook.ztnb'):
             logger.info("No toml file found, creating with empty notebook")
             save_toml()
         if not os.path.exists('requirements.txt'):

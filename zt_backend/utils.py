@@ -1,6 +1,7 @@
 from typing import OrderedDict
 from zt_backend.runner.user_state import UserState
 from zt_backend.models import request, notebook, response
+from zt_backend.config import settings
 from dictdiffer import diff
 import logging
 import duckdb
@@ -15,6 +16,7 @@ import rtoml
 logger = logging.getLogger("__name__")
 notebook_db_dir =  site.USER_SITE+'/.zero_true/'
 notebook_db_path = notebook_db_dir+'notebook.db'
+project_name = settings.project_name
 codeCell = notebook.CodeCell(
                 id=str(uuid.uuid4()),
                 code='',
@@ -39,8 +41,12 @@ def get_notebook(id=''):
     try:
         logger.debug("Notebook id is empty")            
         # If it doesn't exist in the database, load it from the TOML file
-        with open('notebook.ztnb', "r") as project_file:
-            toml_data = rtoml.load(project_file)
+        if project_name and os.path.exists(project_name+'.ztnb'):
+            with open(f'{project_name}.ztnb', "r") as project_file:
+                toml_data = rtoml.load(project_file)
+        else:
+            with open('notebook.ztnb', "r") as project_file:
+                toml_data = rtoml.load(project_file)
 
         try:
             #get notebook from the database
@@ -142,7 +148,10 @@ def save_toml():
                 # Format code as a multi-line string
                 escaped_code = cell.code.encode().decode('unicode_escape').replace('"""',"'''")
                 project_file.write(f'code = """\n{escaped_code}"""\n\n')
-        os.replace(tmp_uuid_file, 'notebook.ztnb')
+        if project_name and os.path.exists(f'{project_name}.ztnb'):
+            os.replace(tmp_uuid_file, f'{project_name}.ztnb')
+        else:
+            os.replace(tmp_uuid_file, 'notebook.ztnb')
     except Exception as e:
         logger.error("Error saving notebook %s toml file: %s", zt_notebook.notebookId, traceback.format_exc())
         

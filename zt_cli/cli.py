@@ -73,14 +73,16 @@ def publish(key: Annotated[Optional[str],typer.Argument(help="The API key used t
     return signed_url
 
 @cli_app.command()
-def app(host: Annotated[Optional[str], typer.Argument(help="Host address to bind to.")]="localhost",
-        port: Annotated[Optional[int], typer.Argument(help="Port number to bind to.")]=2613):
+def app(host: Annotated[Optional[str], typer.Option(help="Host address to bind to.")]="localhost",
+        port: Annotated[Optional[int], typer.Option(help="Port number to bind to.")]=2613,
+        project_name: Annotated[Optional[str], typer.Option(help="Name of the project you want to load. A file with that name and the extension .ztnb should be in this folder.")]=""):
     """
     Start the Zero-True application.
     """
 
     print_ascii_logo()
     os.environ['RUN_MODE'] = 'app'
+    os.environ['PROJECT_NAME'] = project_name
     log_path = os.path.normpath(pkg_resources.resource_filename('zt_cli', 'log_config.yaml'))
         
     print(f"[yellow]Starting Zero-True in app mode on http://{host}:{port}[/yellow]")
@@ -91,14 +93,16 @@ def app(host: Annotated[Optional[str], typer.Argument(help="Host address to bind
     uvicorn.run('zt_backend.main:app', host=host, port=port, log_config=log_config_dict)
 
 @cli_app.command()
-def notebook(host: Annotated[Optional[str], typer.Argument(help="Host address to bind to.")]="localhost",
-        port: Annotated[Optional[int], typer.Argument(help="Port number to bind to.")]=1326):
+def notebook(host: Annotated[Optional[str], typer.Option(help="Host address to bind to.")]="localhost",
+        port: Annotated[Optional[int], typer.Option(help="Port number to bind to.")]=1326,
+        project_name: Annotated[Optional[str], typer.Option(help="Name of the project you want to load. A file with that name and the extension .ztnb should be in this folder.")]=""):
     """
     Start the Zero-True application.
     """
 
     print_ascii_logo()
     os.environ['RUN_MODE'] = 'dev'
+    os.environ['PROJECT_NAME'] = project_name
     log_path = os.path.normpath(pkg_resources.resource_filename('zt_cli', 'log_config.yaml'))
         
     print(f"[yellow]Starting Zero-True in notebook mode on http://{host}:{port}[/yellow]")

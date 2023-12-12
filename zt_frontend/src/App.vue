@@ -1,10 +1,32 @@
 <template>
   <v-app style="background-color: #040607">
-    <v-app-bar app color="bluegrey" id="appBar">
-      <v-btn size="x-large" variant="text" @click="navigateToApp" id ="Navbutton">
-        <v-icon start size="x-large" icon="custom:ZTIcon"></v-icon>
-        Zero-True
-      </v-btn>
+    <v-app-bar app color="bluegrey">
+      <v-app-bar-nav-icon size="x-large" icon="custom:ZTIcon" @click="navigateToApp" id ="Navbutton"/>
+      <v-app-bar-title>
+        <v-col cols="3">
+          <v-text-field v-if="projectNameEdit"
+              v-model="projectName"
+              variant="outlined"
+              bg-color="bluegrey"
+              hide-details
+              @blur="saveProjectName"
+              @keyup.enter="saveProjectName"
+              autofocus
+            >
+          </v-text-field>
+          <v-text-field v-else
+              v-model="projectName"
+              variant="solo"
+              bg-color="bluegrey"
+              flat
+              hide-details
+              :readonly="true"
+              @click="projectNameEdit=true"
+              autofocus
+            >
+          </v-text-field>
+        </v-col>
+      </v-app-bar-title>
       <v-spacer></v-spacer>
       <div v-if="isCodeRunning" class="d-flex align-center">
         <v-progress-circular
@@ -107,6 +129,8 @@ export default {
       notebook: {} as Notebook,
       dependencies: {} as Dependencies,
       completions: {} as Completions,
+      projectName: 'Zero-True',
+      projectNameEdit: false,
       ws_url: '',
       notebook_socket: null as WebSocket | null,
       save_socket: null as WebSocket | null,
@@ -486,6 +510,11 @@ export default {
       this.stopTimer();
     },
 
+    saveProjectName (){
+      console.log(this.projectName)
+      this.projectNameEdit=false
+    },
+
     getComponent(cellType: string) {
       switch (cellType) {
         case "code":
@@ -507,5 +536,8 @@ export default {
 <style>
 .cm-editor {
   height: auto !important;
+}
+.titleBar {
+  max-width: 200px !important;
 }
 </style>

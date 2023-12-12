@@ -58,12 +58,14 @@ def build():
     build_frontend()    
 
 @cli_app.command()
-def app(port: Annotated[Optional[int], typer.Argument(help="Port number to bind to.")]=5173):
+def app(port: Annotated[Optional[int], typer.Option(help="Port number to bind to.")]=5173,
+        project_name: Annotated[Optional[str], typer.Option(help="Name of the project you want to load. A file with that name and the extension .ztnb should be in this folder.")]=""):
     
     print_ascii_logo()
 
     log_path = os.path.normpath(pkg_resources.resource_filename('zt_dev_cli', 'log_config.yaml'))
     os.environ['RUN_MODE'] = 'app'
+    os.environ['PROJECT_NAME'] = project_name
     frontend_cmd = ["yarn", "run", "app", str(port)]
     backend_cmd = ["start", "uvicorn", "zt_backend.main:app", "--reload", f"--log-config={log_path}"]
 
@@ -75,12 +77,14 @@ def app(port: Annotated[Optional[int], typer.Argument(help="Port number to bind 
     frontend_process.wait()
 
 @cli_app.command()
-def notebook(port: Annotated[Optional[int], typer.Argument(help="Port number to bind to.")]=5173):
+def notebook(port: Annotated[Optional[int], typer.Option(help="Port number to bind to.")]=5173,
+        project_name: Annotated[Optional[str], typer.Option(help="Name of the project you want to load. A file with that name and the extension .ztnb should be in this folder.")]=""):
     
     print_ascii_logo()
 
     log_path = os.path.normpath(pkg_resources.resource_filename('zt_dev_cli', 'log_config.yaml'))
     os.environ['RUN_MODE'] = 'dev'
+    os.environ['PROJECT_NAME'] = project_name
     frontend_cmd = ["yarn", "run", "dev", str(port)]
     backend_cmd = ["start", "uvicorn", "zt_backend.main:app", "--reload", f"--log-config={log_path}"]
 
