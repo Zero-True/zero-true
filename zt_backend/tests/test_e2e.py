@@ -121,6 +121,8 @@ def wait_for_coderun(driver):
         EC.invisibility_of_element_located((By.ID, "codeRunProgress")))
 
 def test_notebook_content(driver):
+    
+    print(os.getcwd())
     with open(notebook_filename,"r") as file:
         contents = file.read()
 

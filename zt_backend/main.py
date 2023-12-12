@@ -39,6 +39,7 @@ app.add_middleware(
 @app.on_event("startup")
 def open_project():
     try:
+        print(os.getcwd())
         if not os.path.exists('notebook.ztnb'):
             logger.info("No toml file found, creating with empty notebook")
             save_toml()
