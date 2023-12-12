@@ -24,19 +24,13 @@ slider = zt.Slider(id='slide')
 zt.TextInput(id='text')"""
 '''
 
+notebook_filename = "notebook.ztnb"
+
 @pytest.fixture(scope="session", autouse=True)
 def start_stop_app():
     # Start the application
-    notebook_filename = "notebook.ztnb"
-
-    # Check if the file exists
     with open(notebook_filename,"w") as file:
         file.write(notebook_str)
-
-    with open(notebook_filename,"r") as file:
-        contents = file.read()
-
-    assert contents==notebook_str, 'Notebook not properly saved'
 
     app_process = subprocess.Popen(["zero-true", "notebook"], cwd=os.getcwd())
     time.sleep(10)
@@ -126,6 +120,11 @@ def wait_for_coderun(driver):
     WebDriverWait(driver, 10).until(
         EC.invisibility_of_element_located((By.ID, "codeRunProgress")))
 
+def test_notebook_content(driver):
+    with open(notebook_filename,"r") as file:
+        contents = file.read()
+
+    assert contents==notebook_str, 'Notebook not properly saved'
 
 def test_notebook_loading(driver):
     wait_for_load(driver)
