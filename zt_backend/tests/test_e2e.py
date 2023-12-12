@@ -9,6 +9,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
+import chromedriver_autoinstall
 import time 
 
 
@@ -24,6 +25,8 @@ zt.TextInput(id='text')"""
 
 @pytest.fixture(scope="session", autouse=True)
 def start_stop_app():
+    chromedriver_autoinstall.install()
+
     # Start the application
     notebook_filename = "notebook.ztnb"
 
@@ -33,7 +36,6 @@ def start_stop_app():
             file.write(notebook_str)
 
     app_process = subprocess.Popen(["zero-true", "notebook"])
-    time.sleep(5)
     yield app_process
 
     # Stop the application
