@@ -11,7 +11,6 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.utils import ChromeType
 import time 
 
 
@@ -44,7 +43,7 @@ def start_stop_app():
 
 @pytest.fixture(scope="session")
 def driver():
-    chrome_service = Service(ChromeDriverManager(chrome_type=ChromeType.GOOGLE).install())
+    chrome_service = Service(ChromeDriverManager().install())
 
     options = Options()
     options.add_argument("--no-sandbox") # Bypass OS security model
