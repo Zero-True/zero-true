@@ -6,8 +6,12 @@ on:
       - main
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -22,51 +26,17 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: ${{ matrix.python-version }}
           cache: "pip"
       
-      - name: Build and Copy Dev
-        run: |
-          npm install --global yarn
-          cd zt_frontend
-          yarn install
-          yarn run build
-          cd ..
-          rm -rf zt_backend/dist_dev
-          mkdir -p zt_backend/dist_dev
-          cp -r zt_frontend/dist/* zt_backend/dist_dev
-
-      - name: Build and Copy App
-        run: |
-          cd zt_frontend
-          yarn install
-          yarn run buildapp
-          cd ..
-          rm -rf zt_backend/dist_app
-          mkdir -p zt_backend/dist_app
-          cp -r zt_frontend/dist/* zt_backend/dist_app
-      
-      - name: Build Docs
+      - name: Build Docs and Frontend
         run: |
           python -m pip install --upgrade pip
           pip install .
           pip install -r docs/requirements.txt
           sphinx-build -b html docs docs/html
-
-  test:
-    runs-on: ubuntu-latest
-    needs:
-    - build
-    strategy:
-      matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11']
-
-    steps:
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: "pip"
+          npm install --global yarn
+          zero-true-dev build
       
       - name: Setup Chrome
         run: sudo apt-get install -y chromium-browser
