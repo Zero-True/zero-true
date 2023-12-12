@@ -46,7 +46,7 @@ def open_project():
             logger.info("No requirements file found, creating with base dependency")
             with open('requirements.txt', 'w') as file:
                 file.write('zero-true')
-            subprocess.run("lock requirements.txt")
+            #subprocess.run("lock requirements.txt")
         get_notebook()
     except Exception as e:
         logger.error("Error creating new files on startup: %s", traceback.format_exc())
