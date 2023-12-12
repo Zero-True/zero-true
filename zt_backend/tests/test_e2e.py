@@ -9,7 +9,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
-import chromedriver_autoinstaller
 import time 
 
 
@@ -25,8 +24,6 @@ zt.TextInput(id='text')"""
 
 @pytest.fixture(scope="session", autouse=True)
 def start_stop_app():
-    chromedriver_autoinstaller.install()
-
     # Start the application
     notebook_filename = "notebook.ztnb"
 
@@ -45,11 +42,12 @@ def start_stop_app():
 @pytest.fixture(scope="session")
 def driver():
     options = Options()
-    options.add_argument("--headless")
     options.add_argument("--no-sandbox") # Bypass OS security model
+    options.add_argument("--headless")
     options.add_argument("--disable-gpu") # applicable to windows os only
     options.add_argument("--disable-dev-shm-usage") # overcome limited resource problems
-    driver = webdriver.Chrome(options=options,executable_path = "/opt/hostedtoolcache/chromium/latest/x64/chrome")
+    options.add_argument("--remote-debugging-port=9222")
+    driver = webdriver.Chrome(options=options)
     yield driver
     driver.quit()
 
