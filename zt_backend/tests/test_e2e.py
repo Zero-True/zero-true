@@ -162,6 +162,7 @@ def test_adding_new_code_cell(driver):
         EC.presence_of_element_located((By.ID, f"addCell_Code_{cell_info['cell_id']}")))
     assert driver.find_element(By.ID, f"addCell_Code_{cell_info['cell_id']}"), "Add code cell below not found"
     add_code_cell = driver.find_element(By.ID,f"addCell_Code_{cell_info['cell_id']}")
+    time.sleep(4)
     add_code_cell.click()
     time.sleep(4)
     code_cells = find_code_cells(driver)
