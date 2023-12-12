@@ -6,12 +6,8 @@ on:
       - main
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11']
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -26,9 +22,9 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.9
           cache: "pip"
-
+      
       - name: Build and Copy Dev
         run: |
           npm install --global yarn
@@ -56,6 +52,21 @@ jobs:
           pip install .
           pip install -r docs/requirements.txt
           sphinx-build -b html docs docs/html
+
+  test:
+    runs-on: ubuntu-latest
+    needs:
+    - build
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
       
       - name: Setup Chrome
         run: sudo apt-get install -y chromium-browser
