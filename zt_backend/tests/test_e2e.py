@@ -49,7 +49,7 @@ def driver():
     options.add_argument("--no-sandbox") # Bypass OS security model
     options.add_argument("--disable-gpu") # applicable to windows os only
     options.add_argument("--disable-dev-shm-usage") # overcome limited resource problems
-    driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome(options=options,executable_path = "/opt/hostedtoolcache/chromium/latest/x64/chrome")
     yield driver
     driver.quit()
 
