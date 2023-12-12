@@ -38,7 +38,7 @@ def start_stop_app():
 
     assert contents==notebook_str, 'Notebook not properly saved'
 
-    app_process = subprocess.Popen(["zero-true", "notebook"])
+    app_process = subprocess.Popen(["zero-true", "notebook"], cwd=os.getcwd())
     time.sleep(10)
     yield app_process
 
