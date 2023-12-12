@@ -243,7 +243,6 @@ export default {
         }
       ]);
       const customCompletionSource = async (context: CompletionContext) => {
-        console.log('here')
         const word = context.matchBefore(/\w*/);
         const from = word ? word.from : context.pos;
 
