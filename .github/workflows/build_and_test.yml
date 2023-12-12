@@ -58,7 +58,7 @@ jobs:
           sphinx-build -b html docs docs/html
       
       - name: Setup Chrome
-      - uses: browser-actions/setup-chrome@v1
+        uses: browser-actions/setup-chrome@v1
 
       - name: Install dependencies and run tests
         run: |
