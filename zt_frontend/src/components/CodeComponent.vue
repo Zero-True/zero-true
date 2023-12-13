@@ -3,7 +3,7 @@
     <v-row v-if="$devMode" no-gutters class="py-1 toolbar-bg">
       <v-col :cols="11">
         <span class="py-0 px-2">.py</span>
-        <!-- Placeholder test for future content or can be empty -->
+        <!-- Placeholder for future content or can be empty -->
       </v-col>
       <v-col :cols="1" class="d-flex justify-end align-center py-0">
         <v-icon
@@ -57,7 +57,7 @@
       <p class="text-caption text-disabled text-right">
         CTRL+Enter to run</p>
     </div>
-    <v-container :id = "'outputContainer_'+cellData.id">
+    <v-container>
       <layout-component
         v-for="(row, rowIndex) in cellData.layout?.rows"
         :key="rowIndex"
@@ -243,6 +243,7 @@ export default {
         }
       ]);
       const customCompletionSource = async (context: CompletionContext) => {
+        console.log('here')
         const word = context.matchBefore(/\w*/);
         const from = word ? word.from : context.pos;
 

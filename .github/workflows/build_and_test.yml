@@ -78,17 +78,19 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
           cache-dependency-path: setup.cfg
-      - name: Remove Existing Frontend Files
-        if: needs.build-frontend.outputs.any_changed == 'true'
+      - name: Remove Existing Frontend Files (Windows)
+        if: runner.os == 'Windows' && needs.build-frontend.outputs.frontend-changed == 'true'
         run: |
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            Remove-Item zt_backend\dist_dev -Force -Recurse
-            Remove-Item zt_backend\dist_app -Force -Recurse
-          else
-            rm -rf zt_backend/dist_dev
-            rm -rf zt_backend/dist_app
-          fi
-        shell: bash
+          Remove-Item -Path zt_backend\dist_dev -Force -Recurse
+          Remove-Item -Path zt_backend\dist_app -Force -Recurse
+        shell: powershell
+        # Only run this step on Windows
+
+      - name: Remove Existing Frontend Files (Linux/Mac)
+        if: runner.os != 'Windows' && needs.build-frontend.outputs.frontend-changed == 'true'
+        run: |
+          rm -rf zt_backend/dist_dev
+          rm -rf zt_backend/dist_app
       - name: Download Frontend Files
         if: needs.build-frontend.outputs.any_changed == 'true'
         uses: actions/download-artifact@v3
