@@ -18,8 +18,8 @@ jobs:
           python-version: 3.9
           cache: "pip"
           cahce-dependency-path: |
-          setup.cfg
-          docs/requirements.txt
+            setup.cfg
+            docs/requirements.txt
       - name: Build Docs
         run: |
           python -m pip install --upgrade pip
