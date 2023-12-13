@@ -33,7 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 2
       - name: Check for changes in zt_frontend/
         id: check-changes
         uses: tj-actions/changed-files@v40
@@ -80,13 +80,14 @@ jobs:
       - name: Remove Existing Frontend Files
         if: needs.build-frontend.outputs.any_changed == 'true'
         run: |
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            powershell Remove-Item zt_backend\dist_dev -Force -Recurse
-            powershell Remove-Item zt_backend\dist_app -Force -Recurse
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            Remove-Item zt_backend\dist_dev -Force -Recurse
+            Remove-Item zt_backend\dist_app -Force -Recurse
           else
             rm -rf zt_backend/dist_dev
             rm -rf zt_backend/dist_app
           fi
+        shell: bash
       - name: Download Frontend Files
         if: needs.build-frontend.outputs.any_changed == 'true'
         uses: actions/download-artifact@v3
