@@ -30,17 +30,18 @@ jobs:
   build-frontend:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Setup Node for Frontend
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v3
         with:
-          node-version: '18'
-          cache: "yarn"
-          cache-dependency-path: "zt_frontend/yarn.lock"
+          fetch-depth: 0  # Ensures the entire history is available for comparison
 
-      - name: Build Frontend
+      - name: Check for changes in zt_frontend/
+        id: check-changes
+        uses: tj-actions/changed-files@v40
+        with:
+          files: zt_frontend/**
+
+      - name: Build Frontend if changed
+        if: steps.check-changes.outputs.any_changed == 'true'
         run: |
           npm install --global yarn
           ls -a
@@ -53,7 +54,8 @@ jobs:
           yarn run buildapp 
           cp -r dist/ ../zt_backend/dist_app/
 
-      - uses: actions/upload-artifact@v3
+      - name: Upload Frontend Artifacts
+        uses: actions/upload-artifact@v3
         with:
           name: frontend-files
           path: |
