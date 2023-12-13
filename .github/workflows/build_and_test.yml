@@ -11,7 +11,6 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-
       - name: Setup Python for Docs
         uses: actions/setup-python@v4
         with:
@@ -32,14 +31,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Ensures the entire history is available for comparison
-
+          fetch-depth: 0
       - name: Check for changes in zt_frontend/
         id: check-changes
         uses: tj-actions/changed-files@v40
         with:
           files: zt_frontend/**
-
       - name: Build Frontend if changed
         if: steps.check-changes.outputs.any_changed == 'true'
         run: |
@@ -53,8 +50,8 @@ jobs:
           cp -r dist/ ../zt_backend/dist_dev/
           yarn run buildapp 
           cp -r dist/ ../zt_backend/dist_app/
-
       - name: Upload Frontend Artifacts
+        if: steps.check-changes.outputs.any_changed == 'true'
         uses: actions/upload-artifact@v3
         with:
           name: frontend-files
@@ -68,35 +65,30 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.8', '3.9', '3.10', '3.11']
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
           cache-dependency-path: setup.cfg
-
       - name: Remove Existing Frontend Files
+        if: needs.build-frontend.outputs.any_changed == 'true'
         run: |
           rm -rf zt_backend/dist_dev
           rm -rf zt_backend/dist_app
-      
       - name: Download Frontend Files
+        if: needs.build-frontend.outputs.any_changed == 'true'
         uses: actions/download-artifact@v3
         with:
           name: frontend-files
           path: zt_backend/
-      
       - name: Install
         run: |
           pip install . --no-compile
-
       - name: Setup Chrome
         uses: nanasess/setup-chromedriver@v2
-
       - name: Test with pytest
         run: pytest
