@@ -39,6 +39,7 @@ jobs:
         uses: tj-actions/changed-files@v40
         with:
           files: zt_frontend/**
+          base_sha: ${{ github.event.pull_request.base.sha }}
       - name: Build Frontend if changed
         if: steps.check-changes.outputs.any_changed == 'true'
         run: |
