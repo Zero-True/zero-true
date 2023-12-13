@@ -7,6 +7,7 @@
 
 export type Id = string;
 export type Text = string;
+export type CodeWContext = string;
 export type Celltype = string;
 export type Line = string;
 export type Column = string;
@@ -14,6 +15,7 @@ export type Column = string;
 export interface SaveRequest {
   id: Id;
   text: Text;
+  code_w_context?: CodeWContext;
   cellType: Celltype;
   line?: Line;
   column?: Column;

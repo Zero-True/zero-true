@@ -1,4 +1,3 @@
-from fastapi import dependencies
 from pydantic import BaseModel, Field
 from typing import List, Dict, Union
 
@@ -39,6 +38,7 @@ class CreateRequest(BaseModel):
 class SaveRequest(BaseModel):
     id: str
     text: str
+    code_w_context: str = Field("")
     cellType: str
     line: str = Field("")
     column: str = Field("")
