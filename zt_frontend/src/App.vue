@@ -123,6 +123,11 @@ export default {
           { title: 'Markdown' },
           { title: 'Text' },
         ],
+      concatenatedCodeCache: {
+      lastCellId: null as string | null,
+      code: '' as string,
+      length: null as number | null
+    }
     };
   },
 
@@ -467,24 +472,33 @@ export default {
 
       // Check if the current cell is a code cell
       if (this.notebook.cells[cellId].cellType === 'code') {
-        // Iterate over all cells and concatenate code from previous code cells
-        for (let key in this.notebook.cells) {
-           // Stop when the current cell is reached
-          if (this.notebook.cells[key].cellType === 'code') {
-            concatenatedCode += this.notebook.cells[key].code;
+        if (this.concatenatedCodeCache.lastCellId !== cellId) {
+            let concatenatedCode = '';
+            let length = 0
+            for (let key in this.notebook.cells) {
+              if (key === cellId) break;
+              if (this.notebook.cells[key].cellType === 'code') {
+                concatenatedCode += this.notebook.cells[key].code+'\n';
+                length += this.notebook.cells[key].code.split(/\r\n|\r|\n/).length
+              }
+            }
+
+            // Update the cache
+            this.concatenatedCodeCache = {
+              lastCellId: cellId,
+              code: concatenatedCode,
+              length: length
+            };
           }
-          if (key === cellId) break;
-        }
       }
-      console.log(concatenatedCode.split(/\r\n|\r|\n/).length+line)
       // The rest of the saveCell method remains unchanged
       const saveRequest: SaveRequest = {
         id: cellId,
         text: text, // Use the concatenated code from previous cells
         cellType: this.notebook.cells[cellId].cellType,
-        line:  concatenatedCode.split(/\r\n|\r|\n/).length-text.split(/\r\n|\r|\n/).length+line,
+        line:  this.concatenatedCodeCache.length+line,
         column: column,
-        code_w_context: concatenatedCode
+        code_w_context: this.concatenatedCodeCache.code+text
       };
       this.save_socket!.send(JSON.stringify(saveRequest))
     },
