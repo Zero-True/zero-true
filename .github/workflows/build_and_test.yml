@@ -42,8 +42,8 @@ jobs:
         run: |
           npm install --global yarn
           ls -a
-          rmdir zt_backend/dist_dev/
-          rmdir zt_backend/dist_app/
+          rm -r zt_backend/dist_dev/
+          rm -r zt_backend/dist_app/
           cd zt_frontend
           yarn install 
           yarn run build
