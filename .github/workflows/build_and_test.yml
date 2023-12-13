@@ -41,11 +41,15 @@ jobs:
       - name: Build Frontend
         run: |
           npm install --global yarn
-          yarn install --cwd zt_frontend
-          yarn run build --cwd zt_frontend
-          shutil.copytree('zt_frontend/dist', 'zt_backend/dist_dev')
-          yarn run buildapp --cwd zt_frontend
-          shutil.copytree('zt_frontend/dist', 'zt_backend/dist_app')
+          ls -a
+          rmdir -r zt_backend/dist_dev
+          rmdir -r zt_backend/dist_app
+          cd zt_frontend
+          yarn install 
+          yarn run build
+          cp dist/ zt_backend/dist_dev/
+          yarn run buildapp 
+          cp dist/ zt_backend/dist_app/
 
       - uses: actions/upload-artifact@v3
         with:
