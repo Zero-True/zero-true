@@ -33,11 +33,3 @@ jobs:
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:zero-true-$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:zero-true-$IMAGE_TAG
-    - 
-
-
-
-
-
-
-
