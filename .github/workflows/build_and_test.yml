@@ -28,6 +28,8 @@ jobs:
 
   build-frontend:
     runs-on: ubuntu-latest
+    outputs:
+      any_changed: ${{ steps.check-changes.outputs.any_changed }}
     steps:
       - uses: actions/checkout@v3
         with:
