@@ -78,8 +78,13 @@ jobs:
       - name: Remove Existing Frontend Files
         if: needs.build-frontend.outputs.any_changed == 'true'
         run: |
-          rm -rf zt_backend/dist_dev
-          rm -rf zt_backend/dist_app
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            powershell Remove-Item zt_backend\dist_dev -Force -Recurse
+            powershell Remove-Item zt_backend\dist_app -Force -Recurse
+          else
+            rm -rf zt_backend/dist_dev
+            rm -rf zt_backend/dist_app
+          fi
       - name: Download Frontend Files
         if: needs.build-frontend.outputs.any_changed == 'true'
         uses: actions/download-artifact@v3

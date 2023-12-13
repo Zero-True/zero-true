@@ -3,8 +3,7 @@
     <v-row v-if="$devMode" no-gutters class="py-1 toolbar-bg">
       <v-col :cols="11">
         <span class="py-0 px-2">.py</span>
-        <!-- Placeholder for future content or can be empty -->
-      </v-col>
+git c      </v-col>
       <v-col :cols="1" class="d-flex justify-end align-center py-0">
         <v-icon
           small
