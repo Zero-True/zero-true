@@ -47,9 +47,9 @@ jobs:
           cd zt_frontend
           yarn install 
           yarn run build
-          cp dist/ ../zt_backend/dist_dev/
+          cp -r dist/ ../zt_backend/dist_dev/
           yarn run buildapp 
-          cp dist/ ../zt_backend/dist_app/
+          cp -r dist/ ../zt_backend/dist_app/
 
       - uses: actions/upload-artifact@v3
         with:
