@@ -1,4 +1,5 @@
-name: Build Launch Images
+name: Build and Push Images
+
 on:
   workflow_dispatch:
 permissions:
