@@ -91,7 +91,7 @@ jobs:
       
       - name: Install
         run: |
-          pip install .
+          pip install . --no-compile
 
       - name: Setup Chrome
         uses: nanasess/setup-chromedriver@v2
