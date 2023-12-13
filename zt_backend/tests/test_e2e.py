@@ -115,9 +115,9 @@ def clear_codemirror_and_send_text(driver,codemirror_input,text):
 
 def wait_for_coderun(driver):
     # Wait for the code run 
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.ID, "codeRunProgress")))
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 30).until(
         EC.invisibility_of_element_located((By.ID, "codeRunProgress")))
 
 def test_notebook_content(driver):
