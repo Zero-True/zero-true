@@ -17,7 +17,7 @@ jobs:
         with:
           python-version: 3.9
           cache: "pip"
-          cahce-dependency-path: |
+          cache-dependency-path: |
             setup.cfg
             docs/requirements.txt
       - name: Build Docs
