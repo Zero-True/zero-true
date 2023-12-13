@@ -14,4 +14,5 @@ RUN pip install .
 RUN rm -rf /usr/src/app
 
 # Run zero-true app when the container launches
-CMD ["zero-true", "app"]
+EXPOSE 1326
+CMD ["zero-true", "notebook", "--host=0.0.0.0"]
