@@ -175,7 +175,6 @@ import {
 } from "vuetify/lib/components/index.mjs";
 import { VDataTable } from "vuetify/labs/VDataTable";
 import { CodeCell, Layout } from "@/types/notebook";
-import { Completion } from "@/types/completions";
 import LayoutComponent from "@/components/LayoutComponent.vue";
 import TextComponent from "@/components/TextComponent.vue"
 
@@ -204,7 +203,7 @@ export default {
       required: true,
     },
     completions: {
-      type: Object as PropType<Completion>,
+      type: Object as PropType<any[]>,
       required: true
     }
   },
@@ -247,19 +246,19 @@ export default {
         const from = word ? word.from : context.pos;
 
         return {
-              from: from,
-              options: (this.completions as unknown as { label: string; type: string }[]).map(completion => ({
-                label: completion.label,
-                type: completion.type,
-                apply: (view: { dispatch: (arg0: { changes: { from: any; to: any; insert: any } }) => void }, completion: { label: any }, from: any, to: any) => {
-                  const insertText = completion.label;
-                  view.dispatch({
-                    changes: { from: from, to: to ?? context.pos, insert: insertText }
-                  });
-                }
-              }))
-            };
-          };
+          from: from,
+          options: (this.completions as unknown as { label: string; type: string }[]).map(completion => ({
+            label: completion.label,
+            type: completion.type,
+            apply: (view: { dispatch: (arg0: { changes: { from: any; to: any; insert: any } }) => void }, completion: { label: any }, from: any, to: any) => {
+              const insertText = completion.label;
+              view.dispatch({
+                changes: { from: from, to: to ?? context.pos, insert: insertText }
+              });
+            }
+          }))
+        };
+      };
       if (this.$devMode){
         return [Prec.highest(keyMap), python(), oneDark, autocompletion({ override: [customCompletionSource] })]
       }

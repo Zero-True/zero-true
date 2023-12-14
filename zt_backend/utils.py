@@ -155,9 +155,13 @@ def save_toml():
     logger.debug("Toml saved for notebook %s", zt_notebook.notebookId)
 
 def get_code_completions(cell_id:str, code: str, line: int, column: int) -> list:
-    script = jedi.Script(code)
-    completions = script.complete(line, column)
-    return {"cell_id": cell_id, "completions": [{"label": completion.name, "type": completion.type} for completion in completions]}
+    try:
+        script = jedi.Script(code)
+        completions = script.complete(line, column)
+        return {"cell_id": cell_id, "completions": [{"label": completion.name, "type": completion.type} for completion in completions]}
+    except Exception:
+        logger.debug("Error getting completions for cell_id %s: %s", cell_id, traceback.format_exc())
+        return {"cell_id": cell_id, "completions": []}
 
 async def websocket_message_sender(execution_state: UserState):
     while True:

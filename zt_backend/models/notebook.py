@@ -64,13 +64,6 @@ class Notebook(BaseModel):
 class Dependencies(BaseModel):
     value: str
 
-class Completion(BaseModel):
-    completions: list
-
-class Completions(BaseModel):
-    cell_id: str
-    cell_completions: Completion
-
 class NotebookResponse(BaseModel):
     notebook: Notebook
     dependencies: Dependencies

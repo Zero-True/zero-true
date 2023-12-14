@@ -12,10 +12,27 @@ jobs:
     steps:
     - name: Check out code
       uses: actions/checkout@v3
+    - name: Setup Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: "yarn"
+        cache-dependency-path: "zt_frontend/yarn.lock"
     - name: Set output
       id: release_tag
       run: echo "tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
-
+    - name: Build Frontend Files
+      run: |
+        npm install --global yarn
+        ls -a
+        rm -r zt_backend/dist_dev/
+        rm -r zt_backend/dist_app/
+        cd zt_frontend
+        yarn install
+        yarn run build
+        cp -r dist/ ../zt_backend/dist_dev/
+        yarn run buildapp
+        cp -r dist/ ../zt_backend/dist_app/
     - name: configure aws credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
