@@ -85,7 +85,6 @@ import { SaveRequest } from "./types/save_request";
 import { CreateRequest, Celltype } from "./types/create_request";
 import { ClearRequest } from "./types/clear_request";
 import { Notebook, CodeCell, Layout } from "./types/notebook";
-import { Completions, Completion } from "./types/completions";
 import { Dependencies } from "./types/notebook_response";
 import CodeComponent from "@/components/CodeComponent.vue";
 import MarkdownComponent from "@/components/MarkdownComponent.vue";
@@ -106,7 +105,7 @@ export default {
     return {
       notebook: {} as Notebook,
       dependencies: {} as Dependencies,
-      completions: {} as Completions,
+      completions: {} as {[key: string]: any[]},
       ws_url: '',
       notebook_socket: null as WebSocket | null,
       save_socket: null as WebSocket | null,
@@ -124,9 +123,9 @@ export default {
           { title: 'Text' },
         ],
       concatenatedCodeCache: {
-      lastCellId: null as string | null,
+      lastCellId: '' as string,
       code: '' as string,
-      length: null as number | null
+      length: 0 as number
     }
     };
   },
@@ -238,10 +237,7 @@ export default {
             this.notebook = cell_response.notebook;
             for (let cell_id in this.notebook.cells){
               if (this.notebook.cells[cell_id].cellType==='code'){
-                const completion: Completion = {
-                  completions: []
-                }
-                this.completions[cell_id] = completion
+                this.completions[cell_id] = []
               }
             }
             this.dependencies = cell_response.dependencies;
@@ -468,8 +464,6 @@ export default {
     },
 
     async saveCell(cellId: string, text: string, line: string, column: string) {
-      let concatenatedCode = '';
-
       // Check if the current cell is a code cell
       if (this.notebook.cells[cellId].cellType === 'code') {
         if (this.concatenatedCodeCache.lastCellId !== cellId) {

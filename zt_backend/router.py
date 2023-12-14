@@ -327,6 +327,8 @@ async def stop_execution(websocket: WebSocket):
 
 @router.on_event('shutdown')
 def shutdown():
+    global current_thread
+    global user_threads
     if current_thread:
         current_thread.kill()
     for user_id in user_threads:
