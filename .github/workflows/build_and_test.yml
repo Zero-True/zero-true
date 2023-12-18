@@ -2,9 +2,9 @@ name: Build Files and Run Tests
 
 on:
   pull_request_review:
-  types: [submitted]
-  branches:
-    - main
+    types: [submitted]
+    branches:
+      - main
 jobs:
   build-docs:
     runs-on: ubuntu-latest
