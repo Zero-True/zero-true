@@ -242,8 +242,8 @@ def dependency_update(dependencyRequest: request.DependencyRequest):
                 file.seek(0)
                 file.write(dependencyRequest.dependencies)
                 file.truncate()
-                subprocess.run("pip install -r requirements.txt")
-                subprocess.run("lock requirements.txt")
+                subprocess.run(['pip', 'install', '-r', 'requirements.txt'])
+                subprocess.run(['lock', 'requirements.txt'])
                 logger.debug("Successfully updated dependencies")
         except Exception as e:
             logger.error('Error while updating requirements: %s', traceback.format_exc())
