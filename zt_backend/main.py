@@ -47,7 +47,7 @@ def open_project():
             with open('requirements.txt', 'w') as file:
                 file.write('zero-true')
             try:
-                subprocess.run("lock requirements.txt")
+                subprocess.run(['lock', 'requirements.txt'])
             except Exception:
                 logger.error("Failed to lock requirements: %s", traceback.format_exc())
         get_notebook()
