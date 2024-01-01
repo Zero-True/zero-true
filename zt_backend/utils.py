@@ -40,7 +40,7 @@ def get_notebook(id=''):
         logger.debug("Notebook id is empty")            
         # If it doesn't exist in the database, load it from the TOML file
         with open('notebook.ztnb', "r") as project_file:
-            toml_data = rtoml.load(project_file)
+            toml_data = rtoml.loads(project_file.read().replace('\\','\\\\'))
 
         try:
             #get notebook from the database
