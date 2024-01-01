@@ -61,6 +61,7 @@ def get_parent_vars(cell_id: str, code_components: CodeDict, cell_outputs_dict: 
 
 
 def execute_request(request: request.Request, state: UserState):
+    globalStateUpdate(run_request=request)
     with UserContext(state) as execution_state:
         logger.debug("Code execution started")
         cell_outputs = []

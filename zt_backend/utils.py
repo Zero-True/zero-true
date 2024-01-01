@@ -110,7 +110,6 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, position_key:str=None, de
                 zt_notebook.cells[responseCell.id].components = responseCell.components
                 zt_notebook.cells[responseCell.id].output = responseCell.output
                 zt_notebook.cells[responseCell.id].layout = responseCell.layout
-        
         new_state = zt_notebook.model_dump()
         new_notebook = zt_notebook.model_dump_json()
         conn = duckdb.connect(notebook_db_path)
@@ -136,8 +135,9 @@ def save_toml():
                 # Write cellType and code for this cell
                 project_file.write(f'cellType = "{cell.cellType}"\n')
                 
-                if cell.cellType=='sql' and cell.variable_name:
-                    project_file.write(f'variable_name = "{cell.variable_name}"\n')
+                if cell.cellType=='sql':
+                    if cell.variable_name:
+                        project_file.write(f'variable_name = "{cell.variable_name}"\n')
                 
                 # Format code as a multi-line string
                 escaped_code = cell.code.encode().decode('unicode_escape').replace('"""',"'''")
