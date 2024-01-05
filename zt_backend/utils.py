@@ -40,7 +40,7 @@ def get_notebook(id=''):
         logger.debug("Notebook id is empty")            
         # If it doesn't exist in the database, load it from the TOML file
         with open('notebook.ztnb', "r") as project_file:
-            toml_data = rtoml.load(project_file)
+            toml_data = rtoml.loads(project_file.read().replace('\\','\\\\'))
 
         try:
             #get notebook from the database
@@ -103,20 +103,17 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, position_key:str=None, de
             zt_notebook.cells[saveCell.id].code=saveCell.text
         if run_request is not None:
             for requestCell in run_request.cells:
-                zt_notebook.cells[requestCell.id].code = requestCell.code
+                #zt_notebook.cells[requestCell.id].code = requestCell.code
                 zt_notebook.cells[requestCell.id].variable_name = requestCell.variable_name
         if run_response is not None:
             for responseCell in run_response.cells:
                 zt_notebook.cells[responseCell.id].components = responseCell.components
                 zt_notebook.cells[responseCell.id].output = responseCell.output
                 zt_notebook.cells[responseCell.id].layout = responseCell.layout
-        
-        new_state = zt_notebook.model_dump()
         new_notebook = zt_notebook.model_dump_json()
         conn = duckdb.connect(notebook_db_path)
         conn.execute("INSERT OR REPLACE INTO notebooks (id, notebook) VALUES (?, ?)", [zt_notebook.notebookId, new_notebook])
         conn.close()
-        differences = list(diff(old_state, new_state))
         save_toml()
     except Exception as e:
         logger.error("Error while updating state for notebook %s: %s", zt_notebook.notebookId, traceback.format_exc())
@@ -136,8 +133,9 @@ def save_toml():
                 # Write cellType and code for this cell
                 project_file.write(f'cellType = "{cell.cellType}"\n')
                 
-                if cell.cellType=='sql' and cell.variable_name:
-                    project_file.write(f'variable_name = "{cell.variable_name}"\n')
+                if cell.cellType=='sql':
+                    if cell.variable_name:
+                        project_file.write(f'variable_name = "{cell.variable_name}"\n')
                 
                 # Format code as a multi-line string
                 escaped_code = cell.code.encode().decode('unicode_escape').replace('"""',"'''")

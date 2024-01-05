@@ -58,7 +58,7 @@ def get_parent_vars(cell_id: str, code_components: CodeDict, cell_outputs_dict: 
     exec_parents = {key: try_pickle(val) for d in cell_dicts for key, val in d.items() if key in code_components.cells[cell_id].loaded_names}
 
     return exec_parents
-
+import time
 
 def execute_request(request: request.Request, state: UserState):
     with UserContext(state) as execution_state:
@@ -70,7 +70,6 @@ def execute_request(request: request.Request, state: UserState):
         if request.originId:
             downstream_cells = [request.originId]
             downstream_cells.extend(find_downstream_cells(dependency_graph, request.originId))
-
             try:
                 old_downstream_cells = [request.originId]
                 old_downstream_cells.extend(find_downstream_cells(execution_state.cell_outputs_dict['previous_dependecy_graph'],request.originId))
@@ -83,7 +82,6 @@ def execute_request(request: request.Request, state: UserState):
                 logger.error("Error while updating cell dependencies: %s", traceback.format_exc())
         else:
             downstream_cells = [cell.id for cell in request.cells if cell.cellType in ['code', 'sql']]
-
         for code_cell_id in downstream_cells:
             code_cell = dependency_graph.cells[code_cell_id]
             execution_state.message_queue.put_nowait({"cell_id": code_cell_id, "clear_output": True})
@@ -94,7 +92,6 @@ def execute_request(request: request.Request, state: UserState):
             except Exception as e:
                 logger.debug("Error while getting cell layout, setting empty layout: %s", traceback.format_exc())
                 layout = Layout(**{})
-            
             for component in execution_state.current_cell_components:
                 if component.component == 'v-btn':
                     component.value = False
@@ -109,9 +106,12 @@ def execute_request(request: request.Request, state: UserState):
         execution_state.created_components.clear()
         execution_state.context_globals['exec_mode'] = False
         execution_response = response.Response(cells=cell_outputs)
-        if settings.run_mode=='dev':
-            globalStateUpdate(run_response=execution_response)
         execution_state.message_queue.put_nowait({"complete": True})
+        start = time.time()
+        if settings.run_mode=='dev':
+            globalStateUpdate(run_response=execution_response,run_request=request)
+            logger.info("Global State Update in %s seconds", time.time()-start)
+
 
 def execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, execution_state: UserContext):
     class WebSocketStream:
