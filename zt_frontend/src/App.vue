@@ -184,7 +184,12 @@ export default {
           cellType: this.notebook.cells[key].cellType,
         };
         for (const c of this.notebook.cells[key].components) {
-          requestComponents[c.id] = c.value;
+          if (c.component === 'v-data-table') {
+            console.log('v-data-table')
+            requestComponents[c.id] = '';
+          } else {
+            requestComponents[c.id] = c.value;
+          }
         }
         cellRequests.push(cellRequest);
       }
@@ -371,8 +376,11 @@ export default {
       const requestComponents: { [key: string]: any } = {};
       for (let key in this.notebook.cells) {
         for (const c of this.notebook.cells[key].components) {
-          requestComponents[c.id] = c.value;
-        }
+          if (c.component === 'v-data-table') {
+            requestComponents[c.id] = '';
+          } else {
+            requestComponents[c.id] = c.value;
+          }        }
       }
 
       // Preparing the component change request
