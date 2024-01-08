@@ -93,6 +93,7 @@ def parse_cells(request: Request) -> CodeDict:
             cell_dict[cell.id] = Cell(**{
                 'code': cell.code,
                 'defined_names': defined_names,
+                'loaded_modules':get_imports(module),
                 'loaded_names': list(set(loaded_names))})
         except Exception as e:
             logger.error("Error while parsing cells, returning empty names lists: %s", traceback.format_exc())
@@ -123,7 +124,8 @@ def find_child_cells(cell: Cell, code_dictionary: CodeDict, idx: int) -> List[st
     for next_key in list(code_dictionary.cells.keys())[idx + 1:]:
         next_cell = code_dictionary.cells[next_key]
         next_loaded_names = next_cell.loaded_names
-        if set(names).intersection(set(next_loaded_names)):
+        next_loaded_modules = next_cell.loaded_modules
+        if set(names).intersection(set(next_loaded_names)-set(next_loaded_modules)):
             child_cells.append(next_key)
     return child_cells
 

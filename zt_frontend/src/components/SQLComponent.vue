@@ -38,8 +38,13 @@
           View Source Code
         </v-expansion-panel-title>
         <v-expansion-panel-text>
+          <v-text-field
+            v-model="cellData.variable_name"
+            label="Enter SQL variable name"
+            density="compact"
+            :readonly="true"
+          />
           <codemirror
-            v-if="$devMode"
             v-model="cellData.code"
             :style="{ height: '400px' }"
             :autofocus="true"
@@ -55,7 +60,7 @@
       <p class="text-caption text-disabled text-right">
         CTRL+Enter to run</p>
     </div>
-    <v-container v-for="component in cellData.components" :key="component.id">
+    <v-container v-if="$devMode" v-for="component in cellData.components" :key="component.id">
       <component
         :is="component.component"
         v-bind="component"
