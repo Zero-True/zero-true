@@ -23,7 +23,14 @@ def get_functions(module) -> Tuple[List[str], List[str]]:
     return function_names, argument_names
 
 def get_defined_names(module) -> List[str]:
-    defined_names = [target.name for defnode in module.nodes_of_class(astroid.Assign) for target in defnode.targets if hasattr(target, 'name')]
+    defined_names = []
+    for defnode in module.nodes_of_class(astroid.Assign):
+        for target in defnode.targets:
+            if hasattr(target, 'name'):  # Directly has a name (e.g., AssignName)
+                defined_names.append(target.name)
+            elif isinstance(target, astroid.Subscript):  # Is a subscript
+                if hasattr(target.value, 'name'):
+                    defined_names.append(target.value.name)    
     func_def_names = [arg.name for func in module.nodes_of_class(astroid.FunctionDef) for arg in func.args.args]
     return list(set(defined_names) - set(func_def_names))
 
