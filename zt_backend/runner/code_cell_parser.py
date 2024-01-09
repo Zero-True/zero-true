@@ -6,6 +6,8 @@ import uuid
 import re
 import logging
 import traceback
+from zt_backend.config import settings
+
 
 logger = logging.getLogger("__name__")
 
@@ -74,7 +76,10 @@ def generate_sql_code(cell, uuid_value, db_file='my_database.db'):
         
     else:
         # If variable_name is not provided, directly use the SQL execution
-        data_frame_conversion = f"zt.DataFrame.from_dataframe(id='{uuid_value}', df={sql_execution})"
+        if settings.run_mode == 'app':
+            data_frame_conversion = ''
+        else:
+            data_frame_conversion = f"zt.DataFrame.from_dataframe(id='{uuid_value}', df={sql_execution})"
         
         full_code = f"{base_code}\n{db_init}\n{data_frame_conversion}"
 
