@@ -42,7 +42,7 @@ jobs:
           fetch-depth: 2
       - name: Check for changes in zt_frontend/
         id: check-changes
-        uses: tj-actions/changed-files@v40
+        uses: tj-actions/changed-files@v41
         with:
           files: zt_frontend/**
           base_sha: ${{ github.event.pull_request.base.sha }}
