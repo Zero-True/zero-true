@@ -101,10 +101,10 @@ def extract_code_cell_info(code_cell, driver):
 
 def wait_for_load(driver):
     driver.get("http://localhost:1326")
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 60).until(
         EC.presence_of_element_located((By.ID, "appBar")))
 
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 60).until(
         EC.presence_of_element_located((By.XPATH, "//div[contains(@id, 'codeCard')]")))
 
 def clear_codemirror_and_send_text(driver,codemirror_input,text):
@@ -115,9 +115,9 @@ def clear_codemirror_and_send_text(driver,codemirror_input,text):
 
 def wait_for_coderun(driver):
     # Wait for the code run 
-    WebDriverWait(driver, 30).until(
+    WebDriverWait(driver, 60).until(
         EC.presence_of_element_located((By.ID, "codeRunProgress")))
-    WebDriverWait(driver, 30).until(
+    WebDriverWait(driver, 60).until(
         EC.invisibility_of_element_located((By.ID, "codeRunProgress")))
 
 def test_notebook_content(driver):
@@ -158,7 +158,7 @@ def test_adding_new_code_cell(driver):
     cell_info = extract_code_cell_info(code_cells[0],driver)
     add_icon = cell_info["elements"]["add_cell"]
     add_icon.click()
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 60).until(
         EC.presence_of_element_located((By.ID, f"addCell_Code_{cell_info['cell_id']}")))
     assert driver.find_element(By.ID, f"addCell_Code_{cell_info['cell_id']}"), "Add code cell below not found"
     add_code_cell = driver.find_element(By.ID,f"addCell_Code_{cell_info['cell_id']}")

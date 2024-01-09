@@ -6,6 +6,8 @@ import uuid
 import re
 import logging
 import traceback
+from zt_backend.config import settings
+
 
 logger = logging.getLogger("__name__")
 
@@ -23,7 +25,14 @@ def get_functions(module) -> Tuple[List[str], List[str]]:
     return function_names, argument_names
 
 def get_defined_names(module) -> List[str]:
-    defined_names = [target.name for defnode in module.nodes_of_class(astroid.Assign) for target in defnode.targets if hasattr(target, 'name')]
+    defined_names = []
+    for defnode in module.nodes_of_class(astroid.Assign):
+        for target in defnode.targets:
+            if hasattr(target, 'name'):  # Directly has a name (e.g., AssignName)
+                defined_names.append(target.name)
+            elif isinstance(target, astroid.Subscript):  # Is a subscript
+                if hasattr(target.value, 'name'):
+                    defined_names.append(target.value.name)    
     func_def_names = [arg.name for func in module.nodes_of_class(astroid.FunctionDef) for arg in func.args.args]
     return list(set(defined_names) - set(func_def_names))
 
@@ -67,7 +76,10 @@ def generate_sql_code(cell, uuid_value, db_file='my_database.db'):
         
     else:
         # If variable_name is not provided, directly use the SQL execution
-        data_frame_conversion = f"zt.DataFrame.from_dataframe(id='{uuid_value}', df={sql_execution})"
+        if settings.run_mode == 'app':
+            data_frame_conversion = ''
+        else:
+            data_frame_conversion = f"zt.DataFrame.from_dataframe(id='{uuid_value}', df={sql_execution})"
         
         full_code = f"{base_code}\n{db_init}\n{data_frame_conversion}"
 
@@ -93,6 +105,7 @@ def parse_cells(request: Request) -> CodeDict:
             cell_dict[cell.id] = Cell(**{
                 'code': cell.code,
                 'defined_names': defined_names,
+                'loaded_modules':get_imports(module),
                 'loaded_names': list(set(loaded_names))})
         except Exception as e:
             logger.error("Error while parsing cells, returning empty names lists: %s", traceback.format_exc())
@@ -123,7 +136,8 @@ def find_child_cells(cell: Cell, code_dictionary: CodeDict, idx: int) -> List[st
     for next_key in list(code_dictionary.cells.keys())[idx + 1:]:
         next_cell = code_dictionary.cells[next_key]
         next_loaded_names = next_cell.loaded_names
-        if set(names).intersection(set(next_loaded_names)):
+        next_loaded_modules = next_cell.loaded_modules
+        if set(names).intersection(set(next_loaded_names)-set(next_loaded_modules)):
             child_cells.append(next_key)
     return child_cells
 

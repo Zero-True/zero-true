@@ -16,6 +16,7 @@ class Cell(BaseModel):
     code: str
     defined_names: List[str]
     loaded_names: List[str]
+    loaded_modules: List[str] = []
     child_cells: List[int] = []
     parent_cells: List[int] = []
     previous_child_cells: List[int] = []
