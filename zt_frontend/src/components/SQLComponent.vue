@@ -114,7 +114,8 @@ export default {
       { 
           key: "Ctrl-Enter", 
           run: () => {
-            handleCtrlEnter();
+            if (this.$devMode){
+            handleCtrlEnter()};
             return true;
           }
         }
