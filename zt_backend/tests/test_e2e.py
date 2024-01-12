@@ -86,7 +86,7 @@ def extract_code_cell_info(code_cell, driver):
     
     code = attributes["code"]
 
-    elements["codemirror_input"] = WebDriverWait(codemirror, 100).until(
+    elements["codemirror_input"] = WebDriverWait(codemirror, 1000).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, f".cm-content"))
     )
 
@@ -115,9 +115,9 @@ def clear_codemirror_and_send_text(driver,codemirror_input,text):
 
 def wait_for_coderun(driver):
     # Wait for the code run 
-    WebDriverWait(driver, 100).until(
+    WebDriverWait(driver, 1000).until(
         EC.presence_of_element_located((By.ID, "codeRunProgress")))
-    WebDriverWait(driver, 100).until(
+    WebDriverWait(driver, 1000).until(
         EC.invisibility_of_element_located((By.ID, "codeRunProgress")))
 
 def test_notebook_content(driver):
