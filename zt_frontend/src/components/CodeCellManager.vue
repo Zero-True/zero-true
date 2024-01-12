@@ -107,23 +107,18 @@ import { PropType } from "vue";
       },
     
       runCode(cellId: string, componentId: string, code: string) {
-        console.log('running code')
         this.$emit("runCode", cellId,componentId);
       },
       deleteCell(cellId: string) {
-        console.log('deleting cell')
         this.$emit("deleteCell", cellId);
       },
       saveCell(cellId: string, text: string, line: string, column: string) {
-        console.log('saving cell')
         this.$emit("saveCell", cellId, text, line, column);
       },
       createCodeCell(position_key: string, cellType: string) {
-        console.log('creating cell')
         this.$emit("createCell", position_key, cellType);
       },
       componentValueChange(cell: CodeCell, componentId: string, componentValue: any) {
-        console.log('changing component value')
         this.$emit("componentChange", cell, componentId, componentValue);
       },
     
