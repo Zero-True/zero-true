@@ -41,7 +41,7 @@
       @saveCell="saveCell"
       @componentValueChange="componentValueChange"
       @deleteCell="deleteCell"
-      @createCodeCell="createCodeCell">
+      @createCell="createCodeCell">
     </code-cell-manager>
     </v-main>
   </v-app>
@@ -404,6 +404,7 @@ export default {
     },
 
     async createCodeCell(position_key: string, cellType: string) {
+      console.log('creating cell')
       const cellRequest: CreateRequest = { cellType: cellType.toLowerCase() as Celltype, position_key: position_key };
       const response = await axios.post(
         import.meta.env.VITE_BACKEND_URL + "api/create_cell",
