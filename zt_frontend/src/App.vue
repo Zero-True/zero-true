@@ -34,44 +34,15 @@
       <PackageComponent v-if="$devMode" :dependencies="dependencies"/>
     </v-app-bar>
     <v-main>
-      <v-container>
-        <v-menu v-if="$devMode" transition="scale-transition">
-          <template v-slot:activator="{ props }">
-            <v-btn v-bind="props" block>
-              <v-row>
-                <v-icon color="primary">mdi-plus</v-icon>
-              </v-row>
-            </v-btn>
-          </template>
-
-          <v-list>
-            <v-list-item v-for="(item, i) in menu_items" :key="i">
-              <v-btn block @click="createCodeCell('', item.title)">{{ item.title }}</v-btn>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </v-container>
-      <v-container v-for="codeCell in notebook.cells">
-        <component v-if="codeCell.cellType==='code'"
-          :is="getComponent(codeCell.cellType)"
-          :cellData="codeCell"
-          :completions="completions[codeCell.id]"
-          @runCode="runCode"
-          @saveCell="saveCell"
-          @componentChange="componentValueChange"
-          @deleteCell="deleteCell"
-          @createCell="createCodeCell"
-        />
-        <component v-else
-          :is="getComponent(codeCell.cellType)"
-          :cellData="codeCell"
-          @runCode="runCode"
-          @saveCell="saveCell"
-          @componentChange="componentValueChange"
-          @deleteCell="deleteCell"
-          @createCell="createCodeCell"
-        />
-      </v-container>
+      <code-cell-manager
+      :notebook="notebook"
+      :completions="completions"
+      @runCode="runCode"
+      @saveCell="saveCell"
+      @componentValueChange="componentValueChange"
+      @deleteCell="deleteCell"
+      @createCodeCell="createCodeCell">
+    </code-cell-manager>
     </v-main>
   </v-app>
 </template>
@@ -91,6 +62,7 @@ import MarkdownComponent from "@/components/MarkdownComponent.vue";
 import EditorComponent from "@/components/EditorComponent.vue";
 import SQLComponent from "@/components/SQLComponent.vue";
 import PackageComponent from "@/components/PackageComponent.vue";
+import CodeCellManager from "./components/CodeCellManager.vue";
 
 export default {
   components: {
@@ -98,7 +70,8 @@ export default {
     MarkdownComponent,
     EditorComponent,
     SQLComponent,
-    PackageComponent
+    PackageComponent,
+    CodeCellManager
   },
 
   data() {
@@ -116,12 +89,6 @@ export default {
       isCodeRunning: false,
       requestQueue: [] as any[],
       componentChangeQueue: [] as  any[],
-      menu_items: [
-          { title: 'Code' },
-          { title: 'SQL' },
-          { title: 'Markdown' },
-          { title: 'Text' },
-        ],
       concatenatedCodeCache: {
       lastCellId: '' as string,
       code: '' as string,
