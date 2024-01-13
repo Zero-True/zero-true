@@ -1,7 +1,7 @@
 <template>
   <v-main>
     <v-container>
-      <v-menu v-if="$devMode" transition="scale-transition">
+      <v-menu v-if="$devMode && !isAppRoute" transition="scale-transition">
         <template v-slot:activator="{ props }">
           <v-btn v-bind="props" block>
             <v-row>
@@ -53,6 +53,8 @@ import EditorComponent from "@/components/EditorComponent.vue";
 import SQLComponent from "@/components/SQLComponent.vue";
 import PackageComponent from "@/components/PackageComponent.vue";
 import { PropType } from "vue";
+import { useRoute } from "vue-router";
+
 
 export default {
   props: {
@@ -76,6 +78,7 @@ export default {
 
   data() {
     return {
+      isAppRoute: false as boolean,
       menu_items: [
         { title: "Code" },
         { title: "SQL" },
@@ -89,8 +92,16 @@ export default {
       },
     };
   },
-
+  mounted() {
+    this.checkRoute();
+  },
   methods: {
+    checkRoute() {
+      const route = useRoute();
+      if (route.path === '/app') {
+        this.isAppRoute = true;
+      }
+    },
     getComponent(cellType: string) {
       switch (cellType) {
         case "code":
