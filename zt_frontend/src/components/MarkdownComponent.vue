@@ -51,8 +51,7 @@ import { marked } from 'marked';
 import { Codemirror } from 'vue-codemirror'
 import { markdown } from '@codemirror/lang-markdown'
 import { oneDark } from '@codemirror/theme-one-dark'
-import { EditorView } from '@codemirror/view'
-import { autocompletion, CompletionResult, CompletionContext } from '@codemirror/autocomplete'
+import { autocompletion } from '@codemirror/autocomplete'
 import { CodeCell } from "@/types/notebook";
 
 export default {

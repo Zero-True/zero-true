@@ -1,48 +1,59 @@
 <template>
   <v-app style="background-color: #040607">
     <v-app-bar app color="bluegrey" id="appBar">
-      <v-btn size="x-large" variant="text" @click="navigateToApp" id ="Navbutton">
-        <v-icon start size="x-large" icon="custom:ZTIcon"></v-icon>
-        Zero-True
-      </v-btn>
-      <v-spacer></v-spacer>
-      <div v-if="isCodeRunning" class="d-flex align-center">
-        <v-progress-circular
-          indeterminate
-          color="white"
-          size="24"
-          id = "codeRunProgress"
-        ></v-progress-circular>
-        <v-chip class="ml-2" color="white" text-color="black" id = "timerChip">
-          {{ timer }}ms
-        </v-chip>
-        <v-chip v-if="$devMode" class="ml-2" color="white" text-color="black" id = "queueLenghtChiptDev">
-          Queue Length: {{ requestQueue.length }}
-        </v-chip>
-        <v-chip v-else class="ml-2" color="white" text-color="black" id = "queueLenghtChipApp">
-          Queue Length: {{ componentChangeQueue.length }}
-        </v-chip>
-        <v-icon
-          large
-          color="error"
-          @click="stopCodeExecution()"
-          id = "stopIcon"
-        >
-          mdi-stop
-        </v-icon>
-      </div>
-      <PackageComponent v-if="$devMode" :dependencies="dependencies"/>
+      <v-row class="d-flex flex-row">
+        <v-col>
+          <v-btn size="x-large" variant="text" @click="navigateToApp" id ="Navbutton">
+            <v-icon start size="x-large" icon="custom:ZTIcon"></v-icon>
+            Zero-True
+          </v-btn>
+        </v-col>
+        <v-col cols="auto">
+          <v-btn-group>
+            <v-btn to="/">App</v-btn>
+            <v-btn to="/dev">Dev</v-btn>
+          </v-btn-group>
+        </v-col>
+        <v-col class="d-flex justify-end">
+          <div v-if="isCodeRunning" class="d-flex align-center">
+            <v-progress-circular
+              indeterminate
+              color="white"
+              size="24"
+              id = "codeRunProgress"
+            ></v-progress-circular>
+            <v-chip class="ml-2" color="white" text-color="black" id = "timerChip">
+              {{ timer }}ms
+            </v-chip>
+            <v-chip v-if="$devMode" class="ml-2" color="white" text-color="black" id = "queueLenghtChiptDev">
+              Queue Length: {{ requestQueue.length }}
+            </v-chip>
+            <v-chip v-else class="ml-2" color="white" text-color="black" id = "queueLenghtChipApp">
+              Queue Length: {{ componentChangeQueue.length }}
+            </v-chip>
+            <v-icon
+              large
+              color="error"
+              @click="stopCodeExecution()"
+              id = "stopIcon"
+            >
+              mdi-stop
+            </v-icon>
+          </div>
+          <PackageComponent v-if="$devMode" :dependencies="dependencies"/>
+        </v-col>
+      </v-row>
     </v-app-bar>
     <v-main>
-      <code-cell-manager
-      :notebook="notebook"
-      :completions="completions"
-      @runCode="runCode"
-      @saveCell="saveCell"
-      @componentValueChange="componentValueChange"
-      @deleteCell="deleteCell"
-      @createCell="createCodeCell">
-    </code-cell-manager>
+      <router-view 
+        :notebook="notebook"
+        :completions="completions"
+        @runCode="runCode"
+        @saveCell="saveCell"
+        @componentValueChange="componentValueChange"
+        @deleteCell="deleteCell"
+        @createCell="createCodeCell"
+       />
     </v-main>
   </v-app>
 </template>
