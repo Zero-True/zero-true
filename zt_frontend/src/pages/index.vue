@@ -2,11 +2,11 @@
   <code-cell-manager
     :notebook="notebook"
     :completions="completions"
-    @runCode="runCode"
-    @saveCell="saveCell"
-    @componentValueChange="componentValueChange"
-    @deleteCell="deleteCell"
-    @createCell="createCodeCell"
+    :runCode="runCode"
+    :saveCell="saveCell"
+    :componentValueChange="componentValueChange"
+    :deleteCell="deleteCell"
+    :createCell="createCodeCell"
   ></code-cell-manager>
   </template>
 
@@ -32,6 +32,26 @@ export default {
       type: Object as PropType<{ [key: string]: string[] }>,
       required: true,
     },
+    runCode: {
+      type: Function,
+      required: true,
+    },
+    saveCell: {
+      type: Function,
+      required: true,
+    },
+    componentValueChange: {
+      type: Function,
+      required: true,
+    },
+    deleteCell: {
+      type: Function,
+      required: true,
+    },
+    createCodeCell: {
+      type: Function,
+      required: true,
+    },
   },
 
   components: {
@@ -54,25 +74,7 @@ export default {
       }
     },
 
-    runCode(cellId: string, componentId: string, code: string) {
-      this.$emit("runCode", cellId, componentId);
-    },
-    deleteCell(cellId: string) {
-      this.$emit("deleteCell", cellId);
-    },
-    saveCell(cellId: string, text: string, line: string, column: string) {
-      this.$emit("saveCell", cellId, text, line, column);
-    },
-    createCodeCell(position_key: string, cellType: string) {
-      this.$emit("createCell", position_key, cellType);
-    },
-    componentValueChange(
-      cell: CodeCell,
-      componentId: string,
-      componentValue: any
-    ) {
-      this.$emit("componentChange", cell, componentId, componentValue);
-    },
+    
   },
 };
 </script>
