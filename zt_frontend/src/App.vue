@@ -10,8 +10,8 @@
         </v-col>
         <v-col cols="auto">
           <v-btn-group>
-            <v-btn to="/">App</v-btn>
-            <v-btn to="/dev">Dev</v-btn>
+            <v-btn to="/">Dev</v-btn>
+            <v-btn to="/app">App</v-btn>
           </v-btn-group>
         </v-col>
         <v-col class="d-flex justify-end">

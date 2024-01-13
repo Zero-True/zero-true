@@ -16,6 +16,8 @@ import CodeCellManager from "@/components/CodeCellManager.vue";
 import { Notebook, CodeCell } from "@/types/notebook";
 import { PropType } from "vue";
 
+
+
 export default {
   props: {
     notebook: {

@@ -16,6 +16,13 @@ import { Notebook, CodeCell } from "@/types/notebook";
 import { PropType } from "vue";
 
 export default {
+  metaInfo() {
+    return {
+      meta: {
+        dev: true,
+      },
+    };
+  },
   props: {
     notebook: {
       type: Object as PropType<Notebook>,

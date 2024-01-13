@@ -1,6 +1,6 @@
 <template>
   <v-card flat color="bluegrey">
-    <v-row v-if="$devMode" no-gutters class="py-1 toolbar-bg">
+    <v-row v-if="$devMode && !isAppRoute" no-gutters class="py-1 toolbar-bg">
       <v-col :cols="11">
         <span class="py-0 px-2">.doc</span>
         <!-- Placeholder for future content or can be empty -->
@@ -14,10 +14,11 @@
         </v-icon>
       </v-col>
     </v-row>
-    <tiny-editor v-if="$devMode" v-model="cellData.code" :init="init" @keyUp="saveCell" />
+    <tiny-editor v-if="$devMode && !isAppRoute" v-model="cellData.code" :init="init" @keyUp="saveCell" />
+    <tiny-editor v-else-if="$devMode && isAppRoute" v-model="cellData.code" :init="app_init" @keyUp="saveCell" />
     <tiny-editor v-else v-model="cellData.code" :init="init" :disabled="true" />
   </v-card>
-  <v-menu v-if="$devMode" transition="scale-transition">
+  <v-menu v-if="$devMode && !isAppRoute" transition="scale-transition">
     <template v-slot:activator="{ props }">
       <v-btn v-bind="props" block>
         <v-row>
@@ -44,7 +45,7 @@ import "tinymce/skins/ui/tinymce-5-dark/skin.css";
 import "tinymce/plugins/autoresize";
 import Editor from "@tinymce/tinymce-vue";
 import { CodeCell } from "@/types/notebook";
-
+import { useRoute } from "vue-router";
 export default {
   components: {
     "tiny-editor": Editor,
@@ -72,6 +73,18 @@ export default {
           autoresize_bottom_margin: 10,
           min_height: 100,
         },
+        app_init: {
+          plugins: "autoresize",
+          toolbar: false,
+          branding: false,
+          menubar: false,
+          statusbar: false,
+          skin: false,
+          content_css: false,
+          content_style:
+            "body { background-color: #1B2F3C; color: #FFFFFF; } main { border-radius: 0; }",
+        },
+        isAppRoute: false,
         items: [
           { title: 'Code' },
           { title: 'SQL' },
@@ -92,6 +105,7 @@ export default {
           content_style:
             "body { background-color: #1B2F3C; color: #FFFFFF; } main { border-radius: 0; }",
         },
+        isAppRoute: false,
         items: [
           { title: 'Code' },
           { title: 'SQL' },
@@ -101,7 +115,16 @@ export default {
       };
     }
   },
+  mounted() {
+    this.checkRoute();
+  },
   methods: {
+    checkRoute() {
+      const route = useRoute();
+      if (route.path === '/app') {
+        this.isAppRoute = true;
+      }
+    },
     saveCell() {
       if (!this.$devMode) return
       this.$emit("saveCell", this.cellData.id, this.cellData.code, '', '');
