@@ -329,7 +329,8 @@ export default {
           componentId,
           componentValue
         );
-      } else {
+      } 
+      else {
         this.$emit("runCode", this.cellData.id, componentId);
       }
     },
