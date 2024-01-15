@@ -8,7 +8,7 @@
             Zero-True
           </v-btn>
         </v-col>
-        <v-col cols="auto">
+        <v-col v-if="$devMode" cols="auto">
           <v-btn-group>
             <v-btn to="/">Dev</v-btn>
             <v-btn to="/app">App</v-btn>
