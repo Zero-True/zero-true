@@ -7,8 +7,8 @@ const getBaseUrl = async () => {
   return response.data
 }
 
-const router = createRouter({
-  history: createWebHistory(await getBaseUrl()),
-})
+const router = getBaseUrl().then((url) => createRouter({
+  history: createWebHistory(url),
+}))
 
 export default router
