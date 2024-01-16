@@ -104,7 +104,7 @@ def ws_url():
     return settings.ws_url
 
 @router.get("/base_path")
-def ws_url():
+def base_path():
     return settings.user_name + '/' + settings.project_name
 
 @router.websocket("/ws/run_code")
