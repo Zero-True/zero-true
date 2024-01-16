@@ -1,77 +1,59 @@
 <template>
   <v-app style="background-color: #040607">
     <v-app-bar app color="bluegrey" id="appBar">
-      <v-btn size="x-large" variant="text" @click="navigateToApp" id ="Navbutton">
-        <v-icon start size="x-large" icon="custom:ZTIcon"></v-icon>
-        Zero-True
-      </v-btn>
-      <v-spacer></v-spacer>
-      <div v-if="isCodeRunning" class="d-flex align-center">
-        <v-progress-circular
-          indeterminate
-          color="white"
-          size="24"
-          id = "codeRunProgress"
-        ></v-progress-circular>
-        <v-chip class="ml-2" color="white" text-color="black" id = "timerChip">
-          {{ timer }}ms
-        </v-chip>
-        <v-chip v-if="$devMode" class="ml-2" color="white" text-color="black" id = "queueLenghtChiptDev">
-          Queue Length: {{ requestQueue.length }}
-        </v-chip>
-        <v-chip v-else class="ml-2" color="white" text-color="black" id = "queueLenghtChipApp">
-          Queue Length: {{ componentChangeQueue.length }}
-        </v-chip>
-        <v-icon
-          large
-          color="error"
-          @click="stopCodeExecution()"
-          id = "stopIcon"
-        >
-          mdi-stop
-        </v-icon>
-      </div>
-      <PackageComponent v-if="$devMode" :dependencies="dependencies"/>
+      <v-row class="d-flex flex-row">
+        <v-col>
+          <v-btn size="x-large" variant="text" @click="navigateToApp" id ="Navbutton">
+            <v-icon start size="x-large" icon="custom:ZTIcon"></v-icon>
+            Zero-True
+          </v-btn>
+        </v-col>
+        <v-col v-if="$devMode" cols="auto">
+          <v-btn-group>
+            <v-btn to="/">Dev</v-btn>
+            <v-btn to="/app">App</v-btn>
+          </v-btn-group>
+        </v-col>
+        <v-col class="d-flex justify-end">
+          <div v-if="isCodeRunning" class="d-flex align-center">
+            <v-progress-circular
+              indeterminate
+              color="white"
+              size="24"
+              id = "codeRunProgress"
+            ></v-progress-circular>
+            <v-chip class="ml-2" color="white" text-color="black" id = "timerChip">
+              {{ timer }}ms
+            </v-chip>
+            <v-chip v-if="$devMode" class="ml-2" color="white" text-color="black" id = "queueLenghtChiptDev">
+              Queue Length: {{ requestQueue.length }}
+            </v-chip>
+            <v-chip v-else class="ml-2" color="white" text-color="black" id = "queueLenghtChipApp">
+              Queue Length: {{ componentChangeQueue.length }}
+            </v-chip>
+            <v-icon
+              large
+              color="error"
+              @click="stopCodeExecution()"
+              id = "stopIcon"
+            >
+              mdi-stop
+            </v-icon>
+          </div>
+          <PackageComponent v-if="$devMode" :dependencies="dependencies"/>
+        </v-col>
+      </v-row>
     </v-app-bar>
     <v-main>
-      <v-container>
-        <v-menu v-if="$devMode" transition="scale-transition">
-          <template v-slot:activator="{ props }">
-            <v-btn v-bind="props" block>
-              <v-row>
-                <v-icon color="primary">mdi-plus</v-icon>
-              </v-row>
-            </v-btn>
-          </template>
-
-          <v-list>
-            <v-list-item v-for="(item, i) in menu_items" :key="i">
-              <v-btn block @click="createCodeCell('', item.title)">{{ item.title }}</v-btn>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </v-container>
-      <v-container v-for="codeCell in notebook.cells">
-        <component v-if="codeCell.cellType==='code'"
-          :is="getComponent(codeCell.cellType)"
-          :cellData="codeCell"
-          :completions="completions[codeCell.id]"
-          @runCode="runCode"
-          @saveCell="saveCell"
-          @componentChange="componentValueChange"
-          @deleteCell="deleteCell"
-          @createCell="createCodeCell"
-        />
-        <component v-else
-          :is="getComponent(codeCell.cellType)"
-          :cellData="codeCell"
-          @runCode="runCode"
-          @saveCell="saveCell"
-          @componentChange="componentValueChange"
-          @deleteCell="deleteCell"
-          @createCell="createCodeCell"
-        />
-      </v-container>
+      <router-view 
+        :notebook="notebook"
+        :completions="completions"
+        @runCode="runCode"
+        @saveCell="saveCell"
+        @componentValueChange="componentValueChange"
+        @deleteCell="deleteCell"
+        @createCell="createCodeCell"
+       />
     </v-main>
   </v-app>
 </template>
@@ -91,6 +73,7 @@ import MarkdownComponent from "@/components/MarkdownComponent.vue";
 import EditorComponent from "@/components/EditorComponent.vue";
 import SQLComponent from "@/components/SQLComponent.vue";
 import PackageComponent from "@/components/PackageComponent.vue";
+import CodeCellManager from "./components/CodeCellManager.vue";
 
 export default {
   components: {
@@ -98,7 +81,8 @@ export default {
     MarkdownComponent,
     EditorComponent,
     SQLComponent,
-    PackageComponent
+    PackageComponent,
+    CodeCellManager
   },
 
   data() {
@@ -116,12 +100,6 @@ export default {
       isCodeRunning: false,
       requestQueue: [] as any[],
       componentChangeQueue: [] as  any[],
-      menu_items: [
-          { title: 'Code' },
-          { title: 'SQL' },
-          { title: 'Markdown' },
-          { title: 'Text' },
-        ],
       concatenatedCodeCache: {
       lastCellId: '' as string,
       code: '' as string,
@@ -437,6 +415,7 @@ export default {
     },
 
     async createCodeCell(position_key: string, cellType: string) {
+      console.log('creating cell')
       const cellRequest: CreateRequest = { cellType: cellType.toLowerCase() as Celltype, position_key: position_key };
       const response = await axios.post(
         import.meta.env.VITE_BACKEND_URL + "api/create_cell",

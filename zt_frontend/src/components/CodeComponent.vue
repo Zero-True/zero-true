@@ -1,6 +1,6 @@
 <template>
   <v-card flat color="bluegrey" :id="'codeCard'+cellData.id">
-    <v-row v-if="$devMode" no-gutters class="py-1 toolbar-bg">
+    <v-row v-if="$devMode && !isAppRoute" no-gutters class="py-1 toolbar-bg">
       <v-col :cols="11">
         <span class="py-0 px-2">.py</span>
         <!-- Placeholder for future content or can be empty -->
@@ -21,7 +21,7 @@
       </v-col>
     </v-row>
     <codemirror
-      v-if="$devMode"
+      v-if="$devMode && !isAppRoute"
       v-model="cellData.code"
       :style="{ height: '400px' }"
       :autofocus="true"
@@ -53,7 +53,7 @@
         </v-expansion-panel-text>
       </v-expansion-panel>
     </v-expansion-panels>
-    <div v-if="$devMode">
+    <div v-if="$devMode && !isAppRoute">
       <p class="text-caption text-disabled text-right">
         CTRL+Enter to run</p>
     </div>
@@ -134,7 +134,7 @@
       </v-row>
     </v-container>
   </v-card>
-  <v-menu v-if="$devMode" transition="scale-transition">
+  <v-menu v-if="$devMode && !isAppRoute" transition="scale-transition">
     <template v-slot:activator="{ props }">
       <v-btn v-bind="props" block>
         <v-row>
@@ -177,6 +177,9 @@ import { VDataTable } from "vuetify/labs/VDataTable";
 import { CodeCell, Layout } from "@/types/notebook";
 import LayoutComponent from "@/components/LayoutComponent.vue";
 import TextComponent from "@/components/TextComponent.vue"
+import { useRoute } from 'vue-router'
+
+
 
 export default {
   components: {
@@ -209,6 +212,7 @@ export default {
   },
   data() {
     return {
+      isAppRoute: false,
       isFocused: false, // add this line to keep track of the focus state
       items: [
         { title: 'Code' },
@@ -307,8 +311,16 @@ export default {
       );
     },
   },
-
+  mounted() {
+    this.checkRoute();
+  },
   methods: {
+    checkRoute() {
+      const route = useRoute();
+      if (route.path === '/app') {
+        this.isAppRoute = true;
+      }
+    },
     runCode(fromComponent: boolean, componentId: string, componentValue: any) {
       if (!this.$devMode && fromComponent) {
         this.$emit(
@@ -317,7 +329,8 @@ export default {
           componentId,
           componentValue
         );
-      } else {
+      } 
+      else {
         this.$emit("runCode", this.cellData.id, componentId);
       }
     },
