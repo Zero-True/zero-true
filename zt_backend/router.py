@@ -103,6 +103,10 @@ def health():
 def ws_url():
     return settings.ws_url
 
+@router.get("/base_path")
+def base_path():
+    return settings.user_name + '/' + settings.project_name
+
 @router.websocket("/ws/run_code")
 async def run_code(websocket: WebSocket):
     global current_thread
