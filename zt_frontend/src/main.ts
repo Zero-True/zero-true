@@ -4,8 +4,8 @@ import "@mdi/font/css/materialdesignicons.css";
 import { registerPlugins } from "@/plugins";
 
 const app = createApp(App);
-await registerPlugins(app);
+registerPlugins(app).then(() => {
+    app.config.globalProperties.$devMode = "dev" === import.meta.env.VITE_APP_MODE;
 
-app.config.globalProperties.$devMode = "dev" === import.meta.env.VITE_APP_MODE;
-
-app.mount("#app");
+    app.mount("#app");    
+});
