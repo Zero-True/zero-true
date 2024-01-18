@@ -65,11 +65,11 @@ def app(port: Annotated[Optional[int], typer.Argument(help="Port number to bind 
     log_path = os.path.normpath(pkg_resources.resource_filename('zt_dev_cli', 'log_config.yaml'))
     os.environ['RUN_MODE'] = 'app'
     frontend_cmd = ["yarn", "run", "app", str(port)]
-    backend_cmd = ["start", "uvicorn", "zt_backend.main:app", "--reload", f"--log-config={log_path}"]
+    backend_cmd = ["uvicorn", "zt_backend.main:app", "--reload", f"--log-config={log_path}"]
 
-    backend_process = subprocess.Popen(backend_cmd, shell=True)
+    backend_process = subprocess.Popen(backend_cmd, shell=(os.name == 'nt'))
     os.chdir("zt_frontend")
-    frontend_process = subprocess.Popen(frontend_cmd, shell=True)
+    frontend_process = subprocess.Popen(frontend_cmd, shell=(os.name == 'nt'))
 
     backend_process.wait()
     frontend_process.wait()
@@ -82,11 +82,12 @@ def notebook(port: Annotated[Optional[int], typer.Argument(help="Port number to 
     log_path = os.path.normpath(pkg_resources.resource_filename('zt_dev_cli', 'log_config.yaml'))
     os.environ['RUN_MODE'] = 'dev'
     frontend_cmd = ["yarn", "run", "dev", str(port)]
-    backend_cmd = ["start", "uvicorn", "zt_backend.main:app", "--reload", f"--log-config={log_path}"]
+    backend_cmd = ["uvicorn", "zt_backend.main:app", "--reload", f"--log-config={log_path}"]
 
-    backend_process = subprocess.Popen(backend_cmd, shell=True)
+
+    backend_process = subprocess.Popen(backend_cmd, shell=(os.name == 'nt'))
     os.chdir("zt_frontend")
-    frontend_process = subprocess.Popen(frontend_cmd, shell=True)
+    frontend_process = subprocess.Popen(frontend_cmd, shell=(os.name == 'nt'))
 
     backend_process.wait()
     frontend_process.wait()
