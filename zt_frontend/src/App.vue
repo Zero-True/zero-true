@@ -62,7 +62,19 @@
               mdi-stop
             </v-icon>
           </div>
-          <PackageComponent v-if="$devMode" :dependencies="dependencies"/>
+          <div>
+            <v-btn icon="$undo"></v-btn>
+            <v-btn icon="$redo"></v-btn>
+            <v-btn icon="$message"></v-btn>
+            <PackageComponent v-if="$devMode" :dependencies="dependencies"/>
+            <v-btn icon="$play"></v-btn>
+            <v-btn
+              prepend-icon="$share"
+              variant="flat"
+              color="primary"
+              class="text-bluegrey-darken-4"
+            >Share</v-btn>
+          </div> 
         </v-col>
       </template>
     </v-app-bar>

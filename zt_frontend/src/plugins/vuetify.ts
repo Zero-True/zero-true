@@ -7,6 +7,11 @@ export default createVuetify({
     global: {
       elevation: 0 
     },
+    VAppBar: {
+      VBtn: {
+        color: 'white'
+      }
+    },
     VBtn: {
       style:[{ 'text-transform': 'capitalize' }]
     },
@@ -37,6 +42,7 @@ export default createVuetify({
           info: "#4CBCFC",
           success: "#16B48E",
           warning: "#F49E6E",
+          white: 'white'
         },
       },
     },
