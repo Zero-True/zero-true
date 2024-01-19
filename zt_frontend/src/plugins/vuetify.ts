@@ -1,30 +1,20 @@
-import { mdi } from "vuetify/iconsets/mdi";
-import { h } from "vue";
 import "vuetify/styles";
-import type { IconSet, IconProps } from "vuetify";
-import ZTIcon from "@/components/ZTIcon.vue";
 import { createVuetify } from "vuetify";
-
-const customSvgNameToComponent: any = { ZTIcon };
-
-const customIcons: IconSet = {
-  component: (props: IconProps) =>
-    h(props.tag, [
-      h(customSvgNameToComponent[props.icon as string], {
-        class: "v-icon__svg",
-      }),
-    ]),
-};
+import { aliases, ztIconSet } from '../iconsets/custom'
 
 export default createVuetify({
   defaults: {
     global: {
       elevation: 0 
     },
+    VBtn: {
+      style:[{ 'text-transform': 'capitalize' }]
+    },
     VBtnToggle: {
       density: 'comfortable',
       VBtn: {
-        style: [{ borderRadius: 'inherit' }]
+        style: [{ borderRadius: 'inherit' }],
+        class: [ 'text-bluegrey-darken-1']
       }
     }
   },
@@ -35,7 +25,7 @@ export default createVuetify({
         dark: true,
         colors: {
           background: '#0d1316',
-          primary: "#AE9FE8",
+          primary: "#ae9ee8",
           secondary: "#424242",
           bluegrey: "#5F7F93",
           'bluegrey-darken-1': '#3A586B',
@@ -52,10 +42,17 @@ export default createVuetify({
     },
   },
   icons: {
-    defaultSet: "mdi",
+    defaultSet: 'ztIconSet',
+    aliases,
     sets: {
-      mdi,
-      custom: customIcons,
+      ztIconSet,
     },
   },
+  // icons: {
+  //   defaultSet: "mdi",
+  //   sets: {
+  //     mdi,
+  //     custom: customIcons,
+  //   },
+  // },
 });

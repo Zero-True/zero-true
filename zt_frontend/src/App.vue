@@ -7,7 +7,7 @@
       id="appBar"
     >
       <v-btn size="x-large" variant="text" @click="navigateToApp" id ="Navbutton">
-        <v-icon start size="x-large" icon="custom:ZTIcon"></v-icon>
+        <v-icon start size="x-large" icon="$logo"></v-icon>
         Zero-True
       </v-btn>
       <template v-slot:extension >
@@ -21,12 +21,15 @@
               :color="modeSelected === 0 ? 'primary': 'bluegrey-darken-1'"
               :variant="modeSelected === 0 ? 'flat': 'text'" 
               :class="{ 'text-bluegrey-darken-4' : modeSelected === 0 }"
+              prepend-icon="$notebook"
               to="/"
-            >Notebook</v-btn>
+            >
+            Notebook</v-btn>
             <v-btn 
               :color="modeSelected === 1 ? 'primary': 'bluegrey-darken-1'"
               :variant="modeSelected === 1 ? 'flat': 'text'" 
               :class="{ 'text-bluegrey-darken-4' : modeSelected === 1 }"
+              prepend-icon="$monitor"
               to="/app"
             >App</v-btn>
           </v-btn-toggle>
