@@ -12,10 +12,24 @@
       </v-btn>
       <template v-slot:extension >
         <div class="toggle-group bg-background">
-          <v-btn-group height="40">
-            <v-btn to="/">Dev</v-btn>
-            <v-btn to="/app">App</v-btn>
-          </v-btn-group>
+          <v-btn-toggle
+            v-model="modeSelected"
+            :multiple="false"
+            mandatory
+          >
+            <v-btn
+              :color="modeSelected === 0 ? 'primary': 'bluegrey-darken-1'"
+              :variant="modeSelected === 0 ? 'flat': 'text'" 
+              :class="{ 'text-bluegrey-darken-4' : modeSelected === 0 }"
+              to="/"
+            >Notebook</v-btn>
+            <v-btn 
+              :color="modeSelected === 1 ? 'primary': 'bluegrey-darken-1'"
+              :variant="modeSelected === 1 ? 'flat': 'text'" 
+              :class="{ 'text-bluegrey-darken-4' : modeSelected === 1 }"
+              to="/app"
+            >App</v-btn>
+          </v-btn-toggle>
         </div>
       </template>
       <template v-slot:append>
@@ -92,6 +106,7 @@ export default {
 
   data() {
     return {
+      modeSelected: 0,
       notebook: {} as Notebook,
       dependencies: {} as Dependencies,
       completions: {} as {[key: string]: any[]},
@@ -124,6 +139,7 @@ export default {
   },
 
   async mounted(){
+    console.log('-hererer--', this.$refs['notebook-toggle-btn'])
     await this.get_ws_url()
     await this.initializeNotebookSocket()
     await this.initializeRunSocket()

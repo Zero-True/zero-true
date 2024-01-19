@@ -21,8 +21,11 @@ export default createVuetify({
     global: {
       elevation: 0 
     },
-    VBtnGroup: {
-      density: 'comfortable'
+    VBtnToggle: {
+      density: 'comfortable',
+      VBtn: {
+        style: [{ borderRadius: 'inherit' }]
+      }
     }
   },
   theme: {
