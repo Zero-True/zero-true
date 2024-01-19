@@ -17,16 +17,28 @@ const customIcons: IconSet = {
 };
 
 export default createVuetify({
+  defaults: {
+    global: {
+      elevation: 0 
+    },
+    VBtnGroup: {
+      density: 'comfortable'
+    }
+  },
   theme: {
-    defaultTheme: "light",
+    defaultTheme: "dark",
     themes: {
-      light: {
+      dark: {
         dark: true,
         colors: {
+          background: '#0d1316',
           primary: "#AE9FE8",
           secondary: "#424242",
-          bluegrey: "#0E1B23",
-          bluegrey2: "#1B2F3C",
+          bluegrey: "#5F7F93",
+          'bluegrey-darken-1': '#3A586B',
+          'bluegrey-darken-2': '#294455',
+          'bluegrey-darken-3': '#1B2F3C', 
+          'bluegrey-darken-4': '#0E1B23',
           accent: "#FFDCA7",
           error: "#FF6F6F",
           info: "#4CBCFC",

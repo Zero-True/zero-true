@@ -1,19 +1,24 @@
 <template>
-  <v-app style="background-color: #040607">
-    <v-app-bar app color="bluegrey" id="appBar">
-      <v-row class="d-flex flex-row">
-        <v-col>
-          <v-btn size="x-large" variant="text" @click="navigateToApp" id ="Navbutton">
-            <v-icon start size="x-large" icon="custom:ZTIcon"></v-icon>
-            Zero-True
-          </v-btn>
-        </v-col>
-        <v-col v-if="$devMode" cols="auto">
-          <v-btn-group>
+  <v-app>
+    <v-app-bar 
+      app 
+      color="bluegrey-darken-4"
+      extension-height="112" 
+      id="appBar"
+    >
+      <v-btn size="x-large" variant="text" @click="navigateToApp" id ="Navbutton">
+        <v-icon start size="x-large" icon="custom:ZTIcon"></v-icon>
+        Zero-True
+      </v-btn>
+      <template v-slot:extension >
+        <div class="toggle-group bg-background">
+          <v-btn-group height="40">
             <v-btn to="/">Dev</v-btn>
             <v-btn to="/app">App</v-btn>
           </v-btn-group>
-        </v-col>
+        </div>
+      </template>
+      <template v-slot:append>
         <v-col class="d-flex justify-end">
           <div v-if="isCodeRunning" class="d-flex align-center">
             <v-progress-circular
@@ -42,9 +47,9 @@
           </div>
           <PackageComponent v-if="$devMode" :dependencies="dependencies"/>
         </v-col>
-      </v-row>
+      </template>
     </v-app-bar>
-    <v-main>
+    <v-main :scrollable="false">
       <router-view 
         :notebook="notebook"
         :completions="completions"
@@ -515,8 +520,17 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
+
 .cm-editor {
   height: auto !important;
+}
+
+.toggle-group {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 24px 0 32px;
 }
 </style>

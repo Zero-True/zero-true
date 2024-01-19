@@ -8,11 +8,11 @@
     :deleteCell="deleteCell"
     :createCell="createCodeCell"
   ></code-cell-manager>
-  </template>
+</template>
 
 <script lang="ts">
 import CodeCellManager from "@/components/CodeCellManager.vue";
-import { Notebook, CodeCell } from "@/types/notebook";
+import { Notebook } from "@/types/notebook";
 import { PropType } from "vue";
 
 export default {
