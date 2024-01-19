@@ -9,14 +9,13 @@
         <v-icon
           small
           class="mx-1"
-          color="primary"
+          icon="$play"
+          color="bluegrey"
           @click="runCode(false, '', '')"
           :id = "'runCode'+cellData.id"
         >
-          mdi-play
         </v-icon>
-        <v-icon small class="mx-1" color="error" @click="deleteCell" :id = "'deleteCell'+cellData.id">
-          mdi-delete
+        <v-icon small icon="$delete" class="mx-1" color="error" @click="deleteCell" :id = "'deleteCell'+cellData.id">
         </v-icon>
       </v-col>
     </v-row>

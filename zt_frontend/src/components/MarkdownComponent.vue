@@ -7,11 +7,9 @@
         <!-- Placeholder for future content or can be empty -->
       </v-col>
       <v-col :cols="1" class="d-flex justify-end align-center py-0">
-        <v-icon small class="mx-1" color="primary" @click="saveCell">
-          mdi-content-save
+        <v-icon small icon="$save" class="mx-1" color="primary" @click="saveCell">
         </v-icon>
-        <v-icon small class="mx-1" color="error" @click="deleteCell">
-          mdi-delete
+        <v-icon small icon="$delete" class="mx-1" color="error" @click="deleteCell">
         </v-icon>
       </v-col>
     </v-row>
