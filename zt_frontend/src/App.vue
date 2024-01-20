@@ -119,6 +119,20 @@
         @createCell="createCodeCell"
        />
     </v-main>
+    <v-footer 
+      app
+      class="footer bg-bluegrey-darken-4 text-bluegrey"
+    >
+      <v-icon
+        class="footer__code-version"
+        icon="$cubic" 
+      />
+      <span>Python 3.9</span>
+      <v-icon class="footer__dot-divider" icon="$dot"/>
+      <span>Zero-True v1.1</span>
+      <v-icon class="footer__dot-divider" icon="$dot"/>
+      <span>4 cells</span>
+    </v-footer>
   </v-app>
 </template>
 
@@ -617,6 +631,14 @@ export default {
       letter-spacing: normal;
     }
   } 
+}
+.footer {
+  &__dot-divider {
+    margin: 0 24px;
+  }
+  &__code-version {
+    margin-right: 12px;
+  }
 }
 
 .toggle-group {
