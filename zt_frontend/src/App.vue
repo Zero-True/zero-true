@@ -15,13 +15,14 @@
           <v-btn
             color="bluegrey-darken-1"
             icon="$edit"
-            @click="() => editingProjectName = true"
+            @click="toggleProjectName"
           />
         </div> 
         <div class="click-edit__edit-field" v-if="editingProjectName">
           <v-text-field 
             v-model="projectName"   
-            variant="plain" 
+            variant="plain"
+            ref="projectNameField" 
           />
           <v-btn
             color="bluegrey-darken-1"
@@ -30,6 +31,7 @@
           <v-btn
             color="bluegrey-darken-1"
             icon="$close"
+            @click="toggleProjectName"
           />
         </div> 
       </div> 
@@ -118,6 +120,7 @@
 
 <script lang="ts">
 import axios from "axios";
+import { nextTick } from 'vue';
 import { Request, CodeRequest } from "./types/request";
 import { ComponentRequest } from "./types/component_request";
 import { DeleteRequest } from "./types/delete_request";
@@ -132,6 +135,7 @@ import EditorComponent from "@/components/EditorComponent.vue";
 import SQLComponent from "@/components/SQLComponent.vue";
 import PackageComponent from "@/components/PackageComponent.vue";
 import CodeCellManager from "./components/CodeCellManager.vue";
+import type { VTextField } from "vuetify/lib/components/index.mjs";
 
 export default {
   components: {
@@ -193,6 +197,14 @@ export default {
   },
 
   methods: {
+    toggleProjectName() {
+      this.editingProjectName = !this.editingProjectName
+      nextTick(() => {
+        if (this.editingProjectName) {
+          (this.$refs.projectNameField as VTextField).focus();
+        }
+      }) 
+    },
     startTimer() {
       this.timer = 0;
       this.timerInterval = setInterval(() => {
