@@ -11,18 +11,22 @@
       </v-btn>
       <div class="click-edit">
         <div class="click-edit__show-text" v-if="!editingProjectName">
-          <h2 class="click-edit__name">{{ projectName }}</h2> 
+          <h5 class="click-edit__name text-h5
+">{{ projectName }}</h5> 
           <v-btn
             color="bluegrey-darken-1"
             icon="$edit"
             @click="toggleProjectName"
           />
         </div> 
-        <div class="click-edit__edit-field" v-if="editingProjectName">
+        <div class="click-edit__edit-field-wrapper" v-if="editingProjectName">
           <v-text-field 
             v-model="projectName"   
+            density="compact" 
             variant="plain"
+            hide-details
             ref="projectNameField" 
+            class="click-edit__edit-field" 
           />
           <v-btn
             color="bluegrey-darken-1"
@@ -595,16 +599,24 @@ export default {
 }
 
 .click-edit {
-  max-width: 250px;
+  max-width: 280px;
   width: 100%;
   &__name {
     font-weight: normal;
   }
   &__show-text,
-  &__edit-field {
+  &__edit-field-wrapper {
     display: flex;
     align-items: center;
   }
+
+  &__edit-field {
+    margin-top: -11px; 
+    & :deep(.v-field__input) {
+      font-size: 1.5rem;
+      letter-spacing: normal;
+    }
+  } 
 }
 
 .toggle-group {
