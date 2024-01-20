@@ -54,11 +54,4 @@ export default createVuetify({
       ztIconSet,
     },
   },
-  // icons: {
-  //   defaultSet: "mdi",
-  //   sets: {
-  //     mdi,
-  //     custom: customIcons,
-  //   },
-  // },
 });

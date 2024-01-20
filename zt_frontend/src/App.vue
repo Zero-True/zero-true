@@ -8,8 +8,32 @@
     >
       <v-btn size="x-large" variant="text" @click="navigateToApp" id ="Navbutton">
         <v-icon start size="x-large" icon="$logo"></v-icon>
-        Zero-True
       </v-btn>
+      <div class="click-edit">
+        <div class="click-edit__show-text" v-if="!editingProjectName">
+          <h2 class="click-edit__name">{{ projectName }}</h2> 
+          <v-btn
+            color="bluegrey-darken-1"
+            icon="$edit"
+            @click="() => editingProjectName = true"
+          />
+        </div> 
+        <div class="click-edit__edit-field" v-if="editingProjectName">
+          <v-text-field 
+            v-model="projectName"   
+            variant="plain" 
+          />
+          <v-btn
+            color="bluegrey-darken-1"
+            icon="$save"
+          />
+          <v-btn
+            color="bluegrey-darken-1"
+            icon="$close"
+          />
+        </div> 
+      </div> 
+      
       <template v-slot:extension >
         <div class="toggle-group bg-background">
           <v-btn-toggle
@@ -121,6 +145,8 @@ export default {
 
   data() {
     return {
+      projectName: 'Super Project', 
+      editingProjectName: false, 
       modeSelected: 0,
       notebook: {} as Notebook,
       dependencies: {} as Dependencies,
@@ -154,7 +180,6 @@ export default {
   },
 
   async mounted(){
-    console.log('-hererer--', this.$refs['notebook-toggle-btn'])
     await this.get_ws_url()
     await this.initializeNotebookSocket()
     await this.initializeRunSocket()
@@ -551,10 +576,23 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 
 .cm-editor {
   height: auto !important;
+}
+
+.click-edit {
+  max-width: 250px;
+  width: 100%;
+  &__name {
+    font-weight: normal;
+  }
+  &__show-text,
+  &__edit-field {
+    display: flex;
+    align-items: center;
+  }
 }
 
 .toggle-group {

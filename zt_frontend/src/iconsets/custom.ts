@@ -4,7 +4,7 @@ import type { IconSet, IconAliases, IconProps } from 'vuetify'
 const aliases: IconAliases = {
 	complete: '',
 	cancel: '',
-	close: '',
+	close: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M18 7.05L16.95 6L12 10.95L7.05 6L6 7.05L10.95 12L6 16.95L7.05 18L12 13.05L16.95 18L18 16.95L13.05 12L18 7.05Z" fill="currentColor"/></svg>',
 	delete: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9 9H10.5V18H9V9ZM13.5 9H15V18H13.5V9Z" fill="currentColor"/><path d="M3 4.5V6H4.5V21C4.5 21.3978 4.65804 21.7794 4.93934 22.0607C5.22064 22.342 5.60218 22.5 6 22.5H18C18.3978 22.5 18.7794 22.342 19.0607 22.0607C19.342 21.7794 19.5 21.3978 19.5 21V6H21V4.5H3ZM6 21V6H18V21H6ZM9 1.5H15V3H9V1.5Z" fill="currentColor"/></svg>',
 	clear: '',
 	success: '',
@@ -25,7 +25,7 @@ const aliases: IconAliases = {
 	dropdown: '',
 	radioOn: '',
 	radioOff: '',
-	edit: '',
+	edit: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M1.5 19.5H22.5V21H1.5V19.5ZM19.05 6.75C19.65 6.15 19.65 5.25 19.05 4.65L16.35 1.95C15.75 1.35 14.85 1.35 14.25 1.95L3 13.2V18H7.8L19.05 6.75ZM15.3 3L18 5.7L15.75 7.95L13.05 5.25L15.3 3ZM4.5 16.5V13.8L12 6.3L14.7 9L7.2 16.5H4.5Z" fill="currentColor"/></svg>',
 	ratingEmpty: '',
 	ratingFull: '',
 	ratingHalf: '',
