@@ -324,7 +324,7 @@ export default {
     runCode(fromComponent: boolean, componentId: string, componentValue: any) {
       if (!this.$devMode && fromComponent) {
         this.$emit(
-          "componentChange",
+          "componentValueChange",
           this.cellData.id,
           componentId,
           componentValue

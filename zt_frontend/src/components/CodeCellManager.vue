@@ -27,7 +27,7 @@
         :completions="completions[codeCell.id]"
         @runCode="runCode"
         @saveCell="saveCell"
-        @componentChange="componentValueChange"
+        @componentValueChange="componentValueChange"
         @deleteCell="deleteCell"
         @createCell="createCodeCell"
       />
@@ -37,7 +37,7 @@
         :cellData="codeCell"
         @runCode="runCode"
         @saveCell="saveCell"
-        @componentChange="componentValueChange"
+        @componentValueChange="componentValueChange"
         @deleteCell="deleteCell"
         @createCell="createCodeCell"
       />
@@ -134,7 +134,7 @@ export default {
       componentId: string,
       componentValue: any
     ) {
-      this.$emit("componentChange", cell, componentId, componentValue);
+      this.$emit("componentValueChange", cell, componentId, componentValue);
     },
   },
 };
