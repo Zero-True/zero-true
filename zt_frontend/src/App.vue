@@ -123,15 +123,73 @@
       app
       class="footer bg-bluegrey-darken-4 text-bluegrey"
     >
-      <v-icon
-        class="footer__code-version"
-        icon="$cubic" 
-      />
-      <span>Python 3.9</span>
-      <v-icon class="footer__dot-divider" icon="$dot"/>
-      <span>Zero-True v1.1</span>
-      <v-icon class="footer__dot-divider" icon="$dot"/>
-      <span>4 cells</span>
+      <div class="footer__left-container">
+        <v-icon
+          class="footer__code-version"
+          icon="$cubic" 
+        />
+        <span>Python 3.9</span>
+        <v-icon class="footer__dot-divider" icon="$dot"/>
+        <span>Zero-True v1.1</span>
+        <v-icon class="footer__dot-divider" icon="$dot"/>
+        <span>4 cells</span>
+      </div> 
+      <div class="footer__right-container">
+        <v-chip>602ms</v-chip>
+        <v-btn 
+          class="footer__queue-length-btn"
+          density="comfortable"
+          append-icon="mdi:mdi-chevron-down"
+          rounded
+          variant="tonal"
+        >
+          Queue Length: 3
+          <v-menu 
+            activator="parent"
+            :offset="-5"
+            >
+            <v-list>
+              <v-list-item
+                :key="1"
+                :value="1"
+              >
+                <v-list-item-title>1</v-list-item-title>
+              </v-list-item>
+              <v-list-item
+                :key="2"
+                :value="2"
+              >
+                <v-list-item-title>2</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </v-btn>
+        <!-- <v-chip>Queue Length: 3</v-chip> -->
+        <span>
+          <v-icon 
+            icon="$clock" 
+          />
+          Saved 5mins ago
+        </span>
+        <v-icon class="footer__dot-divider" icon="$dot"/>
+        <div class="footer__status">
+          <v-icon icon="$status"/>
+          <span>Running</span>
+        </div>
+        <!-- <div class="footer__status footer__status--error">
+          <v-icon icon="$status"/>
+          <span>Stopped</span>
+        </div> -->
+        <v-btn 
+          density="comfortable"
+          icon="mdi:mdi-chevron-down"
+          variant="plain"
+          :ripple="false" 
+          rounded
+        >
+        </v-btn>
+      </div> 
+      
     </v-footer>
   </v-app>
 </template>
@@ -607,7 +665,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 .cm-editor {
   height: auto !important;
 }
@@ -633,11 +690,29 @@ export default {
   } 
 }
 .footer {
+  display: flex;
+  justify-content: space-between;
+  &__left-container,
+  &__right-container {
+    display: flex;
+    align-items: center;
+  }
+
   &__dot-divider {
     margin: 0 24px;
   }
   &__code-version {
     margin-right: 12px;
+  }
+  &__queue-length-btn {
+    margin: 0 8px 0 24px;
+  }
+
+  &__status {
+    color: rgba(var(--v-theme-success));
+    &--error {
+      color: rgba(var(--v-theme-error));
+    }
   }
 }
 
