@@ -328,7 +328,6 @@ export default {
       if (!originId) return;
       const cellRequests: CodeRequest[] = [];
       const requestComponents: { [key: string]: any } = {};
-      console.log('----', this.notebook) 
       for (let key in this.notebook.cells) {
         const cellRequest: CodeRequest = {
           id: key,
