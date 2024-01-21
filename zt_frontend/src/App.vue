@@ -141,12 +141,11 @@
           density="comfortable"
           append-icon="mdi:mdi-chevron-down"
           rounded
-          variant="tonal"
+          variant="flat"
         >
           Queue Length: 3
           <v-menu 
             activator="parent"
-            :offset="-5"
             >
             <v-list>
               <v-list-item
