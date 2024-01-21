@@ -132,7 +132,7 @@
         <v-icon class="footer__dot-divider" icon="$dot"/>
         <span>Zero-True v1.1</span>
         <v-icon class="footer__dot-divider" icon="$dot"/>
-        <span>4 cells</span>
+        <span>{{ cellLength }} cells</span>
       </div> 
       <div class="footer__right-container">
         <div>
@@ -291,6 +291,12 @@ export default {
     this.notebook_socket!.send("")
   },
 
+  computed: {
+    cellLength() {
+      return this.notebook.cells ? Object.keys(this.notebook.cells).length : 0
+    }
+  },
+
   methods: {
     toggleProjectName() {
       this.editingProjectName = !this.editingProjectName
@@ -322,6 +328,7 @@ export default {
       if (!originId) return;
       const cellRequests: CodeRequest[] = [];
       const requestComponents: { [key: string]: any } = {};
+      console.log('----', this.notebook) 
       for (let key in this.notebook.cells) {
         const cellRequest: CodeRequest = {
           id: key,
