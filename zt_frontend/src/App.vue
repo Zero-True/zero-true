@@ -135,7 +135,15 @@
         <span>4 cells</span>
       </div> 
       <div class="footer__right-container">
-        <v-chip>602ms</v-chip>
+        <div>
+          <v-progress-circular
+            indeterminate
+            color="bluegrey"
+            size="24"
+            class="footer__code-running-loader"
+          ></v-progress-circular>
+          <v-chip>{{ timer }}ms</v-chip>
+        </div> 
         <v-btn 
           class="footer__queue-length-btn"
           density="comfortable"
@@ -143,22 +151,26 @@
           rounded
           variant="flat"
         >
-          Queue Length: 3
+          Queue Length: {{ requestQueue.length }}
           <v-menu 
             activator="parent"
             >
-            <v-list>
+            <v-list class="footer__queue-list">
               <v-list-item
-                :key="1"
-                :value="1"
+                v-for="(item, i) in requestQueue"
+                :key="i"
+                class="footer__queue-list-item"
               >
-                <v-list-item-title>1</v-list-item-title>
+                <span class="text-bluegrey">Python #2</span>
+                <template v-slot:append>
+                  <v-icon icon="$done" color="success"/>
+                </template>
               </v-list-item>
               <v-list-item
-                :key="2"
-                :value="2"
+                :key="3"
+                class="footer__queue-list-item--pending"
               >
-                <v-list-item-title>2</v-list-item-title>
+                <span>Python #2</span>
               </v-list-item>
             </v-list>
           </v-menu>
@@ -238,7 +250,15 @@ export default {
       timer: 0, // The timer value
       timerInterval: null as ReturnType<typeof setInterval> | null, // To hold the timer interval
       isCodeRunning: false,
-      requestQueue: [] as any[],
+      // dummy initial data for demo purpose
+      requestQueue: [
+        {
+          originId: 'ced20f01-43fd-4064-a731-f4f90432da09'
+        },
+        {
+          originId: 'ced20f01-43fd-4064-a731-f4f90432da07'
+        }
+      ] as any[],
       componentChangeQueue: [] as  any[],
       concatenatedCodeCache: {
       lastCellId: '' as string,
@@ -325,6 +345,7 @@ export default {
         components: requestComponents,
       };
 
+      console.log('----', this.requestQueue, originId) 
       if (this.isCodeRunning) {
         const existingRequestIndex = this.requestQueue.findIndex(req => req.originId === originId);
         if (existingRequestIndex !== -1) {
@@ -706,7 +727,17 @@ export default {
   &__queue-length-btn {
     margin: 0 8px 0 24px;
   }
-
+  &__code-running-loader {
+    margin-right: 10px;
+  }
+  &__queue-list {
+    font-size: 0.625rem;
+  }
+  &__queue-list-item {
+    &--pending {
+      color: rgba(var(--v-theme-bluegrey-darken-2));
+    }
+  }
   &__status {
     color: rgba(var(--v-theme-success));
     &--error {

@@ -23,6 +23,11 @@ export default createVuetify({
         style: [{ borderRadius: 'inherit' }],
         class: [ 'text-bluegrey-darken-1']
       }
+    },
+    VFooter: {
+      VListItem: {
+        minHeight: 15
+      }
     }
   },
   theme: {
