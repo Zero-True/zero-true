@@ -354,7 +354,6 @@ export default {
         components: requestComponents,
       };
 
-      console.log('----', this.requestQueue, originId) 
       if (this.isCodeRunning) {
         const existingRequestIndex = this.requestQueue.findIndex(req => req.originId === originId);
         if (existingRequestIndex !== -1) {
