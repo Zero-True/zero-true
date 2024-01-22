@@ -43,22 +43,21 @@
       <template v-slot:extension >
         <div class="toggle-group bg-background">
           <v-btn-toggle
-            v-model="modeSelected"
             :multiple="false"
             mandatory
           >
             <v-btn
-              :color="modeSelected === 0 ? 'primary': 'bluegrey-darken-1'"
-              :variant="modeSelected === 0 ? 'flat': 'text'" 
-              :class="{ 'text-bluegrey-darken-4' : modeSelected === 0 }"
+              :color="!isAppRoute ? 'primary': 'bluegrey-darken-1'"
+              :variant="!isAppRoute ? 'flat': 'text'" 
+              :class="{ 'text-bluegrey-darken-4' : !isAppRoute }"
               prepend-icon="$notebook"
               to="/"
             >
             Notebook</v-btn>
             <v-btn 
-              :color="modeSelected === 1 ? 'primary': 'bluegrey-darken-1'"
-              :variant="modeSelected === 1 ? 'flat': 'text'" 
-              :class="{ 'text-bluegrey-darken-4' : modeSelected === 1 }"
+              :color="isAppRoute ? 'primary': 'bluegrey-darken-1'"
+              :variant="isAppRoute ? 'flat': 'text'" 
+              :class="{ 'text-bluegrey-darken-4' : isAppRoute }"
               prepend-icon="$monitor"
               to="/app"
             >App</v-btn>
@@ -208,6 +207,7 @@
 <script lang="ts">
 import axios from "axios";
 import { nextTick } from 'vue';
+import { useRoute } from "vue-router";
 import { Request, CodeRequest } from "./types/request";
 import { ComponentRequest } from "./types/component_request";
 import { DeleteRequest } from "./types/delete_request";
@@ -238,7 +238,6 @@ export default {
     return {
       projectName: 'Super Project', 
       editingProjectName: false, 
-      modeSelected: 0,
       notebook: {} as Notebook,
       dependencies: {} as Dependencies,
       completions: {} as {[key: string]: any[]},
@@ -292,6 +291,10 @@ export default {
   },
 
   computed: {
+    isAppRoute() {
+      const route = useRoute()
+      return route.path === '/app'
+    }, 
     cellLength() {
       return this.notebook.cells ? Object.keys(this.notebook.cells).length : 0
     }
