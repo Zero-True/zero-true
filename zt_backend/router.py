@@ -5,6 +5,7 @@ from zt_backend.runner.execute_code import execute_request
 from zt_backend.config import settings
 from zt_backend.utils import *
 from zt_backend.runner.user_state import UserState
+from fastapi.responses import HTMLResponse
 import logging
 import site 
 import duckdb
@@ -71,6 +72,7 @@ trace."""
 
 router = APIRouter()
 manager = ConnectionManager()
+current_path = os.path.dirname(os.path.abspath(__file__))
 
 #connect to db for saving notebook
 notebook_db_dir =  site.USER_SITE+'/.zero_true/'
@@ -94,6 +96,11 @@ notebook_state=UserState('')
 run_mode = settings.run_mode
 
 logger = logging.getLogger("__name__")
+
+@router.get("/app", response_class=HTMLResponse)
+async def catch_all():
+    if(run_mode=='dev'):
+        return HTMLResponse(open(os.path.join(current_path, "dist_dev", "index.html")).read())
 
 @router.get("/health")
 def health():
