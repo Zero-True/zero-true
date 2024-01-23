@@ -80,7 +80,7 @@ def get_notebook_db(id=''):
     conn.close()
     return notebook.Notebook(**json.loads(notebook_data[0][0]))
 
-def globalStateUpdate(newCell: notebook.CodeCell=None, position_key:str=None, deletedCell: str=None, saveCell: request.SaveRequest=None, run_request: request.Request=None, run_response: response.Response=None):
+def globalStateUpdate(newCell: notebook.CodeCell=None, position_key:str=None, deletedCell: str=None, saveCell: request.SaveRequest=None, run_request: request.Request=None, run_response: response.Response=None, new_notebook_name: str=""):
     global zt_notebook
     logger.debug("Updating state for notebook %s", zt_notebook.notebookId)
     try:        
@@ -110,6 +110,8 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, position_key:str=None, de
                 zt_notebook.cells[responseCell.id].components = responseCell.components
                 zt_notebook.cells[responseCell.id].output = responseCell.output
                 zt_notebook.cells[responseCell.id].layout = responseCell.layout
+        if new_notebook_name:
+            zt_notebook.notebookName = new_notebook_name
         new_notebook = zt_notebook.model_dump_json()
         conn = duckdb.connect(notebook_db_path)
         conn.execute("INSERT OR REPLACE INTO notebooks (id, notebook) VALUES (?, ?)", [zt_notebook.notebookId, new_notebook])
@@ -124,7 +126,7 @@ def save_toml():
     try:
         with open(tmp_uuid_file, "w") as project_file:
             # Write notebookId
-            project_file.write(f'notebookId = "{zt_notebook.notebookId}"\n\n')
+            project_file.write(f'notebookId = "{zt_notebook.notebookId}"\nnotebookName = "{zt_notebook.notebookName}"\n\n')
 
             for cell_id, cell in zt_notebook.cells.items():
                 # Write cell_id as a sub-section under cells

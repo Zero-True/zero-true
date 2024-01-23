@@ -165,5 +165,5 @@ cython_debug/
 #Custom stuff
 **/notebook.ztnb
 docs/html/
-**/my_database.db
-**/my_database.db.wal
+**/zt_db.db
+**/zt_db.db.wal

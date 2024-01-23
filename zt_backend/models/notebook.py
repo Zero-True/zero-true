@@ -57,6 +57,7 @@ class CodeCell(BaseModel):
         return values
     
 class Notebook(BaseModel):
+    notebookName: str = Field("Something")
     notebookId: str = Field(default=str(uuid4()))  # Added notebook UUID
     cells: OrderedDict[str, CodeCell]
     userId: str

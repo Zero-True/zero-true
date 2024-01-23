@@ -247,6 +247,7 @@ export default {
       projectName: null, 
       editingProjectName: false, 
       notebook: {} as Notebook,
+      notebookName: '',
       dependencies: {} as Dependencies,
       completions: {} as {[key: string]: any[]},
       ws_url: '',
@@ -385,6 +386,10 @@ export default {
       this.notebook_socket = new WebSocket(this.ws_url + 'ws/notebook')
       this.notebook_socket!.onmessage = (event) => {
         const response = JSON.parse(event.data)        
+        if (response.notebook_name) {
+          this.notebookName = response.notebook_name
+          document.title = this.notebookName
+        }
         if (response.cell_id){
           if (response.clear_output){
             this.notebook.cells[response.cell_id].output=""

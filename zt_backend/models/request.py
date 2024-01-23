@@ -32,6 +32,9 @@ class ComponentRequest(BaseModel):
 class DeleteRequest(BaseModel):
     cellId: str
 
+class NotebookNameRequest(BaseModel):
+    notebookName: str
+
 class CreateRequest(BaseModel):
     cellType: str = Field(enum=['code', 'markdown', 'text', 'sql'])
     position_key: str
