@@ -66,7 +66,7 @@
       </template>
       <template v-slot:append>
         <v-col class="d-flex justify-end">
-          <div v-if="isCodeRunning" class="d-flex align-center">
+          <!-- <div v-if="isCodeRunning" class="d-flex align-center">
             <v-progress-circular
               indeterminate
               color="white"
@@ -90,7 +90,7 @@
             >
               mdi-stop
             </v-icon>
-          </div>
+          </div> -->
           <div>
             <v-btn icon="$undo"></v-btn>
             <v-btn icon="$redo"></v-btn>
@@ -134,7 +134,7 @@
         <span>{{ cellLength }} cells</span>
       </div> 
       <div class="footer__right-container">
-        <div>
+        <div v-if="isCodeRunning">
           <v-progress-circular
             indeterminate
             color="bluegrey"
@@ -142,38 +142,40 @@
             class="footer__code-running-loader"
           ></v-progress-circular>
           <v-chip>{{ timer }}ms</v-chip>
+          <v-btn 
+            class="footer__queue-length-btn"
+            density="comfortable"
+            append-icon="mdi:mdi-chevron-down"
+            rounded
+            variant="flat"
+          >
+            Queue Length: {{ requestQueue.length }}
+            <v-menu 
+              activator="parent"
+              >
+              <v-list class="footer__queue-list">
+                <v-list-item
+                  v-for="(item, i) in requestQueue"
+                  :key="i"
+                  class="footer__queue-list-item"
+                >
+                  <span class="text-bluegrey">Python #2</span>
+                  <template v-slot:append>
+                    <v-icon icon="$done" color="success"/>
+                  </template>
+                </v-list-item>
+                <v-list-item
+                  v-for="(item, i) in componentChangeQueue"
+                  :key="i"
+                  class="footer__queue-list-item--pending"
+                >
+                  <span>Python #2</span>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </v-btn>
         </div> 
-        <v-btn 
-          class="footer__queue-length-btn"
-          density="comfortable"
-          append-icon="mdi:mdi-chevron-down"
-          rounded
-          variant="flat"
-        >
-          Queue Length: {{ requestQueue.length }}
-          <v-menu 
-            activator="parent"
-            >
-            <v-list class="footer__queue-list">
-              <v-list-item
-                v-for="(item, i) in requestQueue"
-                :key="i"
-                class="footer__queue-list-item"
-              >
-                <span class="text-bluegrey">Python #2</span>
-                <template v-slot:append>
-                  <v-icon icon="$done" color="success"/>
-                </template>
-              </v-list-item>
-              <v-list-item
-                :key="3"
-                class="footer__queue-list-item--pending"
-              >
-                <span>Python #2</span>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </v-btn>
+        
         <!-- <v-chip>Queue Length: 3</v-chip> -->
         <span>
           <v-icon 
@@ -182,19 +184,26 @@
           Saved 5mins ago
         </span>
         <v-icon class="footer__dot-divider" icon="$dot"/>
-        <div class="footer__status">
+        <div
+          v-if="isCodeRunning"
+          class="footer__status"
+        >
           <v-icon icon="$status"/>
           <span>Running</span>
         </div>
-        <!-- <div class="footer__status footer__status--error">
+        <div
+          v-if="!isCodeRunning"
+          class="footer__status footer__status--error"
+        >
           <v-icon icon="$status"/>
           <span>Stopped</span>
-        </div> -->
+        </div>
         <v-btn 
           density="comfortable"
           icon="mdi:mdi-chevron-down"
           variant="plain"
           :ripple="false" 
+          @click="stopCodeExecution()"
           rounded
         >
         </v-btn>
@@ -249,15 +258,7 @@ export default {
       timer: 0, // The timer value
       timerInterval: null as ReturnType<typeof setInterval> | null, // To hold the timer interval
       isCodeRunning: false,
-      // dummy initial data for demo purpose
-      requestQueue: [
-        {
-          originId: 'ced20f01-43fd-4064-a731-f4f90432da09'
-        },
-        {
-          originId: 'ced20f01-43fd-4064-a731-f4f90432da07'
-        }
-      ] as any[],
+      requestQueue: [] as any[],
       componentChangeQueue: [] as  any[],
       concatenatedCodeCache: {
       lastCellId: '' as string,
@@ -358,6 +359,8 @@ export default {
         const existingRequestIndex = this.requestQueue.findIndex(req => req.originId === originId);
         if (existingRequestIndex !== -1) {
           this.requestQueue[existingRequestIndex] = request;
+        
+          console.log('---here---', this.requestQueue)
         } else {
           this.requestQueue.push(request);
         }
