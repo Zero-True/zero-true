@@ -100,6 +100,7 @@
             <v-btn
               prepend-icon="$share"
               variant="flat"
+              ripple
               color="primary"
               class="text-bluegrey-darken-4"
             >Share</v-btn>
@@ -120,6 +121,7 @@
     </v-main>
     <v-footer 
       app
+      height="52"
       class="footer bg-bluegrey-darken-4 text-bluegrey"
     >
       <div class="footer__left-container">
@@ -147,9 +149,10 @@
             density="comfortable"
             append-icon="mdi:mdi-chevron-down"
             rounded
+            :disabled="queueLength === 0"
             variant="flat"
           >
-            Queue Length: {{ requestQueue.length }}
+            Queue Length: {{ queueLength }}
             <v-menu 
               activator="parent"
               >
@@ -199,8 +202,10 @@
           <span>Stopped</span>
         </div>
         <v-btn 
+          v-if="isCodeRunning"
           density="comfortable"
-          icon="mdi:mdi-chevron-down"
+          icon="$stop"
+          color="bluegrey"
           variant="plain"
           :ripple="false" 
           @click="stopCodeExecution()"
@@ -298,6 +303,9 @@ export default {
     }, 
     cellLength() {
       return this.notebook.cells ? Object.keys(this.notebook.cells).length : 0
+    },
+    queueLength() {
+      return this.$devMode ? this.requestQueue.length : this.componentChangeQueue.length; 
     }
   },
 

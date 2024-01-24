@@ -34,8 +34,12 @@
       :id = "'codeMirrorDev'+cellData.id"
     />
     <v-expansion-panels v-else>
-      <v-expansion-panel>
-        <v-expansion-panel-title color="bluegrey2">
+      <v-expansion-panel
+        bg-color="#212121"
+      >
+        <v-expansion-panel-title 
+          color="#1c2e3c"
+        >
           View Source Code
         </v-expansion-panel-title>
         <v-expansion-panel-text>

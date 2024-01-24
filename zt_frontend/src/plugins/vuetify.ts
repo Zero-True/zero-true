@@ -11,7 +11,8 @@ export default createVuetify({
     },
     VAppBar: {
       VBtn: {
-        color: 'white'
+        color: 'white',
+        ripple: false
       }
     },
     VBtn: {
