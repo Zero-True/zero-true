@@ -57,13 +57,9 @@ export default createVuetify({
   },
   icons: {
     defaultSet: 'ztIconSet',
-    aliases: {
-      ...mdiAliases,
-      ...aliases, 
-    },
+    aliases,
     sets: {
       ztIconSet,
-      mdi
     },
   },
 });

@@ -137,7 +137,7 @@
     <template v-slot:activator="{ props }">
       <v-btn v-bind="props" block>
         <v-row>
-          <v-icon color="primary"  :id = "'addCell'+cellData.id" >mdi-plus</v-icon>
+          <v-icon color="primary" :id = "'addCell'+cellData.id" icon="mdi:mdi-plus"></v-icon>
         </v-row>
       </v-btn>
     </template>

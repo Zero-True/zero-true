@@ -11,8 +11,7 @@
       </v-btn>
       <div class="click-edit">
         <div class="click-edit__show-text" v-if="!editingProjectName">
-          <h5 class="click-edit__name text-h5
-">{{ projectName }}</h5> 
+          <h5 class="click-edit__name text-h5">{{ projectName ?? 'Project Name' }}</h5> 
           <v-btn
             color="bluegrey-darken-1"
             icon="$edit"
@@ -22,6 +21,7 @@
         <div class="click-edit__edit-field-wrapper" v-if="editingProjectName">
           <v-text-field 
             v-model="projectName"   
+            placeholder="Project Name"
             density="compact" 
             variant="plain"
             hide-details
@@ -245,7 +245,7 @@ export default {
 
   data() {
     return {
-      projectName: 'Super Project', 
+      projectName: null, 
       editingProjectName: false, 
       notebook: {} as Notebook,
       dependencies: {} as Dependencies,
@@ -357,10 +357,10 @@ export default {
 
       if (this.isCodeRunning) {
         const existingRequestIndex = this.requestQueue.findIndex(req => req.originId === originId);
+        console.log('---here---', this.requestQueue)
         if (existingRequestIndex !== -1) {
           this.requestQueue[existingRequestIndex] = request;
         
-          console.log('---here---', this.requestQueue)
         } else {
           this.requestQueue.push(request);
         }

@@ -20,7 +20,7 @@
     <template v-slot:activator="{ props }">
       <v-btn v-bind="props" block>
         <v-row>
-          <v-icon color="primary">mdi-plus</v-icon>
+          <v-icon color="primary" icon="mdi:mdi-plus"></v-icon>
         </v-row>
       </v-btn>
     </template>
