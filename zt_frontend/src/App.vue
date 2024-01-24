@@ -158,7 +158,7 @@
               >
               <v-list class="footer__queue-list">
                 <v-list-item
-                  v-for="(item, i) in requestQueue"
+                  v-for="(item, i) in runningQueue"
                   :key="i"
                   class="footer__queue-list-item"
                 >
@@ -166,13 +166,6 @@
                   <template v-slot:append>
                     <v-icon icon="$done" color="success"/>
                   </template>
-                </v-list-item>
-                <v-list-item
-                  v-for="(item, i) in componentChangeQueue"
-                  :key="i"
-                  class="footer__queue-list-item--pending"
-                >
-                  <span>Python #2</span>
                 </v-list-item>
               </v-list>
             </v-menu>
@@ -304,8 +297,11 @@ export default {
     cellLength() {
       return this.notebook.cells ? Object.keys(this.notebook.cells).length : 0
     },
+    runningQueue() {
+      return this.$devMode ? this.requestQueue : this.componentChangeQueue; 
+    },
     queueLength() {
-      return this.$devMode ? this.requestQueue.length : this.componentChangeQueue.length; 
+      return this.runningQueue.length; 
     }
   },
 
