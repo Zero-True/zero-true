@@ -1,5 +1,5 @@
 <template>
-  <v-card flat color="bluegrey">
+  <v-card flat color="bluegrey-darken-4">
     <v-row v-if="$devMode" no-gutters class="py-1 toolbar-bg">
       <v-col :cols="11">
         <span class="py-0 px-2">.md</span>
@@ -28,7 +28,7 @@
   </v-card>
   <v-menu v-if="$devMode" transition="scale-transition">
     <template v-slot:activator="{ props }">
-      <v-btn v-bind="props" block>
+      <v-btn v-bind="props" color="#212121" block>
         <v-row>
           <v-icon color="primary" icon="mdi:mdi-plus"></v-icon>
         </v-row>

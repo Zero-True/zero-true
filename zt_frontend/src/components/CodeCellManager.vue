@@ -2,7 +2,7 @@
   <v-container>
     <v-menu v-if="$devMode && !isAppRoute" transition="scale-transition">
       <template v-slot:activator="{ props }">
-        <v-btn v-bind="props" block>
+        <v-btn color="#212121" v-bind="props" block>
           <v-row>
             <v-icon color="primary" icon="mdi:mdi-plus"></v-icon>
           </v-row>

@@ -75,7 +75,7 @@
   </v-card>
   <v-menu v-if="$devMode && !isAppRoute" transition="scale-transition">
     <template v-slot:activator="{ props }">
-      <v-btn v-bind="props" block>
+      <v-btn v-bind="props" color="#212121" block>
         <v-row>
           <v-icon color="primary">mdi-plus</v-icon>
         </v-row>

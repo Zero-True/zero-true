@@ -1,5 +1,5 @@
 <template>
-  <v-card flat color="bluegrey" :id="'codeCard'+cellData.id">
+  <v-card flat color="bluegrey-darken-4" :id="'codeCard'+cellData.id">
     <v-row v-if="$devMode && !isAppRoute" no-gutters class="py-1 toolbar-bg">
       <v-col :cols="11">
         <span class="py-0 px-2">.py</span>
@@ -135,7 +135,7 @@
   </v-card>
   <v-menu v-if="$devMode && !isAppRoute" transition="scale-transition">
     <template v-slot:activator="{ props }">
-      <v-btn v-bind="props" block>
+      <v-btn v-bind="props" color="#212121" block>
         <v-row>
           <v-icon color="primary" :id = "'addCell'+cellData.id" icon="mdi:mdi-plus"></v-icon>
         </v-row>
