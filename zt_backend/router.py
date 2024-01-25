@@ -15,6 +15,7 @@ import threading
 import traceback
 import sys
 import asyncio
+import pkg_resources
 import trace
 
 class ConnectionManager:
@@ -106,9 +107,13 @@ async def catch_all():
 def health():
     return('UP')
 
-@router.get("/ws_url")
-def ws_url():
-    return settings.ws_url
+@router.get("/env_data")
+def env_data():
+    return {
+        "ws_url": settings.ws_url,
+        "python_version": f'{sys.version_info.major}.{sys.version_info.minor}',
+        "zt_version": pkg_resources.get_distribution('zero-true').version
+    }
 
 @router.get("/base_path")
 def base_path():

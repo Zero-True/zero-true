@@ -11,7 +11,7 @@
       </v-btn>
       <div class="click-edit">
         <div class="click-edit__show-text" v-if="!editingProjectName">
-          <h5 class="click-edit__name text-h5">{{ projectName ?? 'Project Name' }}</h5> 
+          <h5 class="click-edit__name text-h5">{{ notebookName ?? 'Zero True' }}</h5> 
           <v-btn
             color="bluegrey-darken-1"
             icon="$edit"
@@ -20,8 +20,8 @@
         </div> 
         <div class="click-edit__edit-field-wrapper" v-if="editingProjectName">
           <v-text-field 
-            v-model="projectName"   
-            placeholder="Project Name"
+            v-model="notebookName"   
+            placeholder="Zero True"
             density="compact" 
             variant="plain"
             hide-details
@@ -31,6 +31,7 @@
           <v-btn
             color="bluegrey-darken-1"
             icon="$save"
+            @click="saveProjectName"
           />
           <v-btn
             color="bluegrey-darken-1"
@@ -66,44 +67,19 @@
       </template>
       <template v-slot:append>
         <v-col class="d-flex justify-end">
-          <!-- <div v-if="isCodeRunning" class="d-flex align-center">
-            <v-progress-circular
-              indeterminate
-              color="white"
-              size="24"
-              id = "codeRunProgress"
-            ></v-progress-circular>
-            <v-chip class="ml-2" color="white" text-color="black" id = "timerChip">
-              {{ timer }}ms
-            </v-chip>
-            <v-chip v-if="$devMode" class="ml-2" color="white" text-color="black" id = "queueLenghtChiptDev">
-              Queue Length: {{ requestQueue.length }}
-            </v-chip>
-            <v-chip v-else class="ml-2" color="white" text-color="black" id = "queueLenghtChipApp">
-              Queue Length: {{ componentChangeQueue.length }}
-            </v-chip>
-            <v-icon
-              large
-              color="error"
-              @click="stopCodeExecution()"
-              id = "stopIcon"
-            >
-              mdi-stop
-            </v-icon>
-          </div> -->
           <div>
-            <v-btn icon="$undo"></v-btn>
+            <!-- <v-btn icon="$undo"></v-btn>
             <v-btn icon="$redo"></v-btn>
-            <v-btn icon="$message"></v-btn>
+            <v-btn icon="$message"></v-btn> -->
             <PackageComponent v-if="$devMode" :dependencies="dependencies"/>
-            <v-btn icon="$play"></v-btn>
+            <!-- <v-btn icon="$play"></v-btn>
             <v-btn
               prepend-icon="$share"
               variant="flat"
               ripple
               color="primary"
               class="text-bluegrey-darken-4"
-            >Share</v-btn>
+            >Share</v-btn> -->
           </div> 
         </v-col>
       </template>
@@ -129,9 +105,9 @@
           class="footer__code-version"
           icon="$cubic" 
         />
-        <span>Python 3.9</span>
+        <span>Python {{pythonVersion}}</span>
         <v-icon class="footer__dot-divider" icon="$dot"/>
-        <span>Zero-True v1.1</span>
+        <span>Zero-True {{ztVersion}}</span>
         <v-icon class="footer__dot-divider" icon="$dot"/>
         <span>{{ cellLength }} cells</span>
       </div> 
@@ -172,15 +148,13 @@
             </v-menu>
           </v-btn>
         </div> 
-        
-        <!-- <v-chip>Queue Length: 3</v-chip> -->
-        <span>
+        <!-- <span>
           <v-icon 
             icon="$clock" 
           />
           Saved 5mins ago
-        </span>
-        <v-icon class="footer__dot-divider" icon="$dot"/>
+        </span> -->
+        <!-- <v-icon class="footer__dot-divider" icon="$dot"/> -->
         <div
           v-if="isCodeRunning"
           class="footer__status"
@@ -222,6 +196,7 @@ import { DeleteRequest } from "./types/delete_request";
 import { SaveRequest } from "./types/save_request";
 import { CreateRequest, Celltype } from "./types/create_request";
 import { ClearRequest } from "./types/clear_request";
+import { NotebookNameRequest } from "./types/notebook_name_request";
 import { Notebook, CodeCell, Layout } from "./types/notebook";
 import { Dependencies } from "./types/notebook_response";
 import CodeComponent from "@/components/CodeComponent.vue";
@@ -244,13 +219,14 @@ export default {
 
   data() {
     return {
-      projectName: null, 
       editingProjectName: false, 
       notebook: {} as Notebook,
       notebookName: '',
       dependencies: {} as Dependencies,
       completions: {} as {[key: string]: any[]},
       ws_url: '',
+      pythonVersion: '',
+      ztVersion: '',
       notebook_socket: null as WebSocket | null,
       save_socket: null as WebSocket | null,
       run_socket: null as WebSocket | null,
@@ -316,6 +292,14 @@ export default {
         }
       }) 
     },
+    async saveProjectName() {
+      const notebookNameRequest: NotebookNameRequest = {
+        notebookName: this.notebookName,
+      };
+      await axios.post(import.meta.env.VITE_BACKEND_URL + "api/notebook_name_update", notebookNameRequest);
+      document.title = this.notebookName
+      this.editingProjectName = !this.editingProjectName
+    },
     startTimer() {
       this.timer = 0;
       this.timerInterval = setInterval(() => {
@@ -330,8 +314,11 @@ export default {
     },
 
     async get_ws_url() {
-        const response = await axios.get(import.meta.env.VITE_BACKEND_URL + "ws_url");
-        this.ws_url = response.data || import.meta.env.VITE_WS_URL
+        const response = await axios.get(import.meta.env.VITE_BACKEND_URL + "env_data");
+        const envData = response.data
+        this.ws_url = envData.ws_url || import.meta.env.VITE_WS_URL
+        this.pythonVersion = envData.python_version
+        this.ztVersion = envData.zt_version
     },
 
     async runCode(originId: string){
