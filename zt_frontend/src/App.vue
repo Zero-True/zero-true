@@ -255,7 +255,7 @@ export default {
   },
 
   async mounted(){
-    await this.get_ws_url()
+    await this.get_env_data()
     await this.initializeNotebookSocket()
     await this.initializeRunSocket()
     await this.initializeStopSocket()
@@ -313,7 +313,7 @@ export default {
       }
     },
 
-    async get_ws_url() {
+    async get_env_data() {
         const response = await axios.get(import.meta.env.VITE_BACKEND_URL + "env_data");
         const envData = response.data
         this.ws_url = envData.ws_url || import.meta.env.VITE_WS_URL
