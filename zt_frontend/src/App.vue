@@ -18,6 +18,7 @@
             @click="toggleProjectName"
           />
         </div> 
+        
         <div class="click-edit__edit-field-wrapper" v-if="editingProjectName">
           <v-text-field 
             v-model="notebookName"   
@@ -39,32 +40,30 @@
             @click="toggleProjectName"
           />
         </div> 
-      </div> 
-      
-      <template v-slot:extension >
-        <div class="toggle-group bg-background">
-          <v-btn-toggle
-            :multiple="false"
-            mandatory
+      </div>
+      <div class="toggle-group">
+        <v-btn-toggle
+          :multiple="false"
+          mandatory
+        >
+          <v-btn
+            :color="!isAppRoute ? 'primary': 'bluegrey-darken-1'"
+            :variant="!isAppRoute ? 'flat': 'text'" 
+            :class="{ 'text-bluegrey-darken-4' : !isAppRoute }"
+            prepend-icon="$notebook"
+            to="/"
           >
-            <v-btn
-              :color="!isAppRoute ? 'primary': 'bluegrey-darken-1'"
-              :variant="!isAppRoute ? 'flat': 'text'" 
-              :class="{ 'text-bluegrey-darken-4' : !isAppRoute }"
-              prepend-icon="$notebook"
-              to="/"
-            >
-            Notebook</v-btn>
-            <v-btn 
-              :color="isAppRoute ? 'primary': 'bluegrey-darken-1'"
-              :variant="isAppRoute ? 'flat': 'text'" 
-              :class="{ 'text-bluegrey-darken-4' : isAppRoute }"
-              prepend-icon="$monitor"
-              to="/app"
-            >App</v-btn>
-          </v-btn-toggle>
-        </div>
-      </template>
+          Notebook</v-btn>
+          <v-btn 
+            :color="isAppRoute ? 'primary': 'bluegrey-darken-1'"
+            :variant="isAppRoute ? 'flat': 'text'" 
+            :class="{ 'text-bluegrey-darken-4' : isAppRoute }"
+            prepend-icon="$monitor"
+            to="/app"
+          >App</v-btn>
+        </v-btn-toggle>
+      </div>
+      
       <template v-slot:append>
         <v-col class="d-flex justify-end">
           <div>
@@ -757,8 +756,8 @@ export default {
 .toggle-group {
   display: flex;
   justify-content: center;
-  width: 100%;
-  height: 100%;
-  padding: 24px 0 32px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 </style>
