@@ -5,15 +5,9 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export type CellId = string;
-export type Completions1 = unknown[];
+export type Notebookname = string;
 
-export interface Completions {
-  cell_id: CellId;
-  cell_completions: Completion;
-  [k: string]: unknown;
-}
-export interface Completion {
-  completions: Completions1;
+export interface NotebookNameRequest {
+  notebookName: Notebookname;
   [k: string]: unknown;
 }

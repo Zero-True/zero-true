@@ -5,6 +5,7 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
+export type Notebookname = string;
 export type Notebookid = string;
 export type Id = string;
 export type Code = string;
@@ -40,6 +41,7 @@ export type Celltype = "code" | "markdown" | "text" | "sql";
 export type Userid = string;
 
 export interface Notebook {
+  notebookName?: Notebookname;
   notebookId?: Notebookid;
   cells: Cells;
   userId: Userid;

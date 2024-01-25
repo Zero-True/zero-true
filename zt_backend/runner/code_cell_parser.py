@@ -47,7 +47,7 @@ def get_loaded_names(module, defined_names) -> List[str]:
     function_names, function_arguments = get_functions(module)
     return [usenode.name for usenode in module.nodes_of_class(astroid.Name) if usenode.name not in function_arguments]
 
-def generate_sql_code(cell, uuid_value, db_file='my_database.db'):
+def generate_sql_code(cell, uuid_value, db_file='zt_db.db'):
     """Generate SQL code for the given cell."""
     
     # Common import statements

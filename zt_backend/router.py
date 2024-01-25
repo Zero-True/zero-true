@@ -15,6 +15,7 @@ import threading
 import traceback
 import sys
 import asyncio
+import pkg_resources
 import trace
 
 class ConnectionManager:
@@ -106,9 +107,13 @@ async def catch_all():
 def health():
     return('UP')
 
-@router.get("/ws_url")
-def ws_url():
-    return settings.ws_url
+@router.get("/env_data")
+def env_data():
+    return {
+        "ws_url": settings.ws_url,
+        "python_version": f'{sys.version_info.major}.{sys.version_info.minor}',
+        "zt_version": pkg_resources.get_distribution('zero-true').version
+    }
 
 @router.get("/base_path")
 def base_path():
@@ -268,6 +273,7 @@ async def load_notebook(websocket: WebSocket):
             await websocket.receive_text()
             logger.debug("Get notebook request received")
             notebook_start = get_notebook_request()
+            await websocket.send_json({"notebook_name": notebook_start.notebookName})
             if (run_mode=='app'):
                 userId = str(uuid.uuid4())
                 notebook_start.userId = userId
@@ -335,6 +341,11 @@ async def stop_execution(websocket: WebSocket):
                 user_states[data].context_globals['exec_mode'] = False
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+
+@router.post("/api/notebook_name_update")
+def notebook_name_update(notebook_name: request.NotebookNameRequest):
+    if(run_mode=='dev'):
+        globalStateUpdate(new_notebook_name=notebook_name.notebookName)
 
 @router.on_event('shutdown')
 def shutdown():
