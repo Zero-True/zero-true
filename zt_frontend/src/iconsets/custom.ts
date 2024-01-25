@@ -26,7 +26,8 @@ const aliases = {
 }
 
 const ztIconSet: IconSet = {
-  component: (props: IconProps) => h(props.tag, { innerHTML:  props.icon as string}),
-}
+	component: (props: IconProps) => h(props.tag, { ...props, innerHTML: props.icon as string }),
+  };
+  
 
 export { aliases, ztIconSet }

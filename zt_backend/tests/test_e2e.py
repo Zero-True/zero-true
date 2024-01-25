@@ -50,6 +50,8 @@ def driver():
     options.add_argument("--disable-gpu") # applicable to windows os only
     options.add_argument("--disable-dev-shm-usage") # overcome limited resource problems
     options.add_argument("--remote-debugging-port=9222")
+    options.add_argument('--window-size=1920,1080')  
+
     driver = webdriver.Chrome(service=chrome_service, options=options)
     yield driver
     driver.quit()
@@ -62,6 +64,9 @@ def find_element_attributes(driver,element):
     return attributes
 
 def find_code_cells(driver):
+    WebDriverWait(driver, 100).until(
+    EC.presence_of_element_located((By.XPATH, "//div[contains(@id, 'codeCard')]"))
+    )
     code_cells = driver.find_elements(By.XPATH, "//div[contains(@id, 'codeCard')]")
     return code_cells
 
@@ -69,7 +74,7 @@ def extract_code_cell_info(code_cell, driver):
     cell_info = {}
 
     cell_id = code_cell.get_attribute('id').replace('codeCard', '')
-
+    print('cell_id',cell_id)
     # Accessing elements inside the code cell
     elements = {
         "run_icon": driver.find_element(By.ID, f"runCode{cell_id}"),
@@ -86,7 +91,7 @@ def extract_code_cell_info(code_cell, driver):
     
     code = attributes["code"]
 
-    elements["codemirror_input"] = WebDriverWait(codemirror, 1000).until(
+    elements["codemirror_input"] = WebDriverWait(codemirror, 10).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, f".cm-content"))
     )
 
@@ -115,9 +120,9 @@ def clear_codemirror_and_send_text(driver,codemirror_input,text):
 
 def wait_for_coderun(driver):
     # Wait for the code run 
-    WebDriverWait(driver, 1000).until(
+    WebDriverWait(driver, 100).until(
         EC.presence_of_element_located((By.ID, "codeRunProgress")))
-    WebDriverWait(driver, 1000).until(
+    WebDriverWait(driver, 100).until(
         EC.invisibility_of_element_located((By.ID, "codeRunProgress")))
 
 def test_notebook_content(driver):
@@ -136,7 +141,9 @@ def test_initial_code_cell(driver):
 
 def test_intial_code_cell_content(driver):
     code_cells = find_code_cells(driver)
+    print('code cells',code_cells)
     cell_info = extract_code_cell_info(code_cells[0],driver)
+    print(cell_info)
     expected_code = """
 import zero_true as zt
 slider = zt.Slider(id='slide')

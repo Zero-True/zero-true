@@ -8,14 +8,15 @@
       <v-col :cols="1" class="d-flex justify-end align-center py-0">
         <v-icon
           small
+          :id = "'runCode'+cellData.id"
           class="mx-1"
           icon="$play"
           color="bluegrey"
           @click="runCode(false, '', '')"
-          :id = "'runCode'+cellData.id"
+          
         >
         </v-icon>
-        <v-icon small icon="$delete" class="mx-1" color="error" @click="deleteCell" :id = "'deleteCell'+cellData.id">
+        <v-icon small :id = "'deleteCell'+cellData.id" icon="$delete" class="mx-1" color="error" @click="deleteCell" >
         </v-icon>
       </v-col>
     </v-row>
@@ -139,9 +140,9 @@
   </v-card>
   <v-menu v-if="$devMode && !isAppRoute" transition="scale-transition">
     <template v-slot:activator="{ props }">
-      <v-btn v-bind="props" color="#212121" block>
+      <v-btn v-bind="props" color="#212121" block :id = "'addCell'+cellData.id">
         <v-row>
-          <v-icon color="primary" :id = "'addCell'+cellData.id" icon="mdi:mdi-plus"></v-icon>
+          <v-icon color="primary"  icon="mdi:mdi-plus"></v-icon>
         </v-row>
       </v-btn>
     </template>

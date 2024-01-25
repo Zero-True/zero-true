@@ -142,6 +142,7 @@
             color="bluegrey"
             size="24"
             class="footer__code-running-loader"
+            id = "codeRunProgress"
           ></v-progress-circular>
           <v-chip>{{ timer }}ms</v-chip>
           <v-btn 
