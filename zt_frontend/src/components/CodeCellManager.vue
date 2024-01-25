@@ -1,22 +1,9 @@
 <template>
   <v-container>
-    <v-menu v-if="$devMode && !isAppRoute" transition="scale-transition">
-      <template v-slot:activator="{ props }">
-        <v-btn color="#212121" v-bind="props" block>
-          <v-row>
-            <v-icon color="primary" icon="mdi:mdi-plus"></v-icon>
-          </v-row>
-        </v-btn>
-      </template>
-
-      <v-list>
-        <v-list-item v-for="(item, i) in menu_items" :key="i">
-          <v-btn block @click="createCodeCell('', item.title)">{{
-            item.title
-          }}</v-btn>
-        </v-list-item>
-      </v-list>
-    </v-menu>
+    <add-cell 
+      v-if="$devMode && !isAppRoute" 
+      @createCodeCell="e => createCodeCell('', e)" 
+    />
   </v-container>
   <v-container v-for="codeCell in notebook.cells">
     <component
@@ -29,6 +16,7 @@
       @componentValueChange="componentValueChange"
       @deleteCell="deleteCell"
       @createCell="createCodeCell"
+      @copilotCompletion="copilotCompletion"
     />
     <component
       v-else
@@ -50,8 +38,10 @@ import MarkdownComponent from "@/components/MarkdownComponent.vue";
 import EditorComponent from "@/components/EditorComponent.vue";
 import SQLComponent from "@/components/SQLComponent.vue";
 import PackageComponent from "@/components/PackageComponent.vue";
+import AddCell from '@/components/AddCell.vue'
 import { PropType } from "vue";
 import { useRoute } from "vue-router";
+import { callbackify } from "util";
 
 
 export default {
@@ -66,9 +56,10 @@ export default {
     },
   },
   inheritAttrs: false,
-  emits: ['runCode', 'deleteCell', 'saveCell', 'createCell', 'componentValueChange'],
+  emits: ['runCode', 'deleteCell', 'saveCell', 'createCell', 'componentValueChange', 'copilotCompletion'],
 
   components: {
+    "add-cell": AddCell,
     CodeComponent,
     MarkdownComponent,
     EditorComponent,
@@ -92,6 +83,13 @@ export default {
       },
     };
   },
+  computed: {
+    isAppRoute() {
+      const route = useRoute()
+      return route.path === '/app'
+    },
+  },
+
   mounted() {
     this.checkRoute();
   },
@@ -129,12 +127,11 @@ export default {
     createCodeCell(position_key: string, cellType: string) {
       this.$emit("createCell", position_key, cellType);
     },
-    componentValueChange(
-      cell: CodeCell,
-      componentId: string,
-      componentValue: any
-    ) {
+    componentValueChange(cell: CodeCell, componentId: string, componentValue: any) {
       this.$emit("componentValueChange", cell, componentId, componentValue);
+    },
+    copilotCompletion(cellId: string, line: string, column: string, callback: any) {
+      this.$emit("copilotCompletion", cellId, line, column, callback);
     },
   },
 };

@@ -1,4 +1,5 @@
 @use 'vuetify/settings' with (
   $body-font-family: ('Pathway Extreme', sans-serif),
-	$btn-toggle-selected-opacity: 0
+	$btn-toggle-selected-opacity: 0,
+  $list-item-icon-margin-start: 0
 );

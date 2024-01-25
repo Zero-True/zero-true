@@ -11,3 +11,10 @@ h5,
 p {
   margin: 0;
 }
+
+.zt-menu {
+  border: 1px solid rgba(var(--v-theme-bluegrey));
+  .v-list-item__prepend {
+    margin-right: 12px;
+  }
+}

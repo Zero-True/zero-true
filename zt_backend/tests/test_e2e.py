@@ -14,7 +14,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 import time 
 
 
-notebook_str = '''notebookId = "08bdd530-3544-473b-af28-bb04f8646dbgfddg"
+notebook_str = '''notebookId = "08bdd530-3544-473b-af28-bb04f8646dbgfddgdfgfaa"
 
 [cells.57fbbd59-8f30-415c-87bf-8caae0374070]
 cellType = "code"
@@ -46,7 +46,7 @@ def driver():
 
     options = Options()
     options.add_argument("--no-sandbox") # Bypass OS security model
-    options.add_argument("--headless")
+    #options.add_argument("--headless")
     options.add_argument("--disable-gpu") # applicable to windows os only
     options.add_argument("--disable-dev-shm-usage") # overcome limited resource problems
     options.add_argument("--remote-debugging-port=9222")
@@ -64,7 +64,7 @@ def find_element_attributes(driver,element):
     return attributes
 
 def find_code_cells(driver):
-    WebDriverWait(driver, 100).until(
+    WebDriverWait(driver, 25).until(
     EC.presence_of_element_located((By.XPATH, "//div[contains(@id, 'codeCard')]"))
     )
     code_cells = driver.find_elements(By.XPATH, "//div[contains(@id, 'codeCard')]")
@@ -78,11 +78,12 @@ def extract_code_cell_info(code_cell, driver):
     # Accessing elements inside the code cell
     elements = {
         "run_icon": driver.find_element(By.ID, f"runCode{cell_id}"),
-        "delete_icon": driver.find_element(By.ID, f"deleteCell{cell_id}"),
+        "cell_toolbar": driver.find_element(By.ID, f"cellToolbar{cell_id}"),
         "codemirror": driver.find_element(By.ID, f"codeMirrorDev{cell_id}"),
         "output_container": driver.find_element(By.ID,f"outputContainer_{cell_id}"),
         "cell_output": driver.find_element(By.ID, f"cellOutput{cell_id}"),
         "add_cell": driver.find_element(By.ID, f"addCell{cell_id}"),
+        "cell_id": cell_id
     }
 
     # Retrieve and verify code from CodeMirror
@@ -106,10 +107,10 @@ def extract_code_cell_info(code_cell, driver):
 
 def wait_for_load(driver):
     driver.get("http://localhost:1326")
-    WebDriverWait(driver, 100).until(
+    WebDriverWait(driver, 25).until(
         EC.presence_of_element_located((By.ID, "appBar")))
 
-    WebDriverWait(driver, 100).until(
+    WebDriverWait(driver, 25).until(
         EC.presence_of_element_located((By.XPATH, "//div[contains(@id, 'codeCard')]")))
 
 def clear_codemirror_and_send_text(driver,codemirror_input,text):
@@ -120,9 +121,9 @@ def clear_codemirror_and_send_text(driver,codemirror_input,text):
 
 def wait_for_coderun(driver):
     # Wait for the code run 
-    WebDriverWait(driver, 800).until(
+    WebDriverWait(driver, 25).until(
         EC.presence_of_element_located((By.ID, "codeRunProgress")))
-    WebDriverWait(driver, 800).until(
+    WebDriverWait(driver, 25).until(
         EC.invisibility_of_element_located((By.ID, "codeRunProgress")))
 
 def test_notebook_content(driver):
@@ -165,7 +166,7 @@ def test_adding_new_code_cell(driver):
     cell_info = extract_code_cell_info(code_cells[0],driver)
     add_icon = cell_info["elements"]["add_cell"]
     add_icon.click()
-    WebDriverWait(driver, 100).until(
+    WebDriverWait(driver, 25).until(
         EC.presence_of_element_located((By.ID, f"addCell_Code_{cell_info['cell_id']}")))
     assert driver.find_element(By.ID, f"addCell_Code_{cell_info['cell_id']}"), "Add code cell below not found"
     add_code_cell = driver.find_element(By.ID,f"addCell_Code_{cell_info['cell_id']}")
@@ -217,7 +218,11 @@ def test_slider_interaction(driver):
 def test_deletion_of_new_code_cell(driver):
     code_cells = find_code_cells(driver)
     new_cell_info =  extract_code_cell_info(code_cells[1],driver)
-    new_cell_info["elements"]["delete_icon"].click()
+    new_cell_info["elements"]["cell_toolbar"].click()
+    WebDriverWait(driver, 25).until(
+        EC.presence_of_element_located((By.ID, f"deleteCell{new_cell_info['cell_id']}")))
+    delete_btn = driver.find_element(By.ID,f"deleteCell{new_cell_info['cell_id']}")
+    delete_btn.click()
     time.sleep(2)
     code_cells = find_code_cells(driver)
     assert len(code_cells) == 1 and code_cells[0].get_attribute('id') == 'codeCard57fbbd59-8f30-415c-87bf-8caae0374070', "Expected code cell not found."
