@@ -1,2 +1,0 @@
-zero-true==0.0.dev45
-numpy==1.26.3
