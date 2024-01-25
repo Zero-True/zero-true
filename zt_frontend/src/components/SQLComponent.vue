@@ -1,5 +1,5 @@
 <template>
-  <v-card flat color="bluegrey">
+  <v-card flat color="bluegrey-darken-4">
     <v-row v-if="$devMode && !isAppRoute" no-gutters class="py-1 toolbar-bg">
       <v-col :cols="11">
         <span class="py-0 px-2">.sql</span>
@@ -7,11 +7,14 @@
         <!-- Placeholder for future content or can be empty -->
       </v-col>
       <v-col :cols="1" class="d-flex justify-end align-center py-0">
-        <v-icon small class="mx-1" color="primary" @click="runCode">
-          mdi-play
+        <v-icon small
+         class="mx-1"
+         color="primary"
+         @click="runCode"
+         icon="$play"
+        >
         </v-icon>
-        <v-icon small class="mx-1" color="error" @click="deleteCell">
-          mdi-delete
+        <v-icon small class="mx-1" color="error" icon="$delete" @click="deleteCell">
         </v-icon>
       </v-col>
     </v-row>
@@ -33,8 +36,12 @@
       @keyup="saveCell"
     />
     <v-expansion-panels v-else>
-      <v-expansion-panel>
-        <v-expansion-panel-title color="bluegrey2">
+        <v-expansion-panel  
+          bg-color="#212121"
+        >
+        <v-expansion-panel-title 
+          color="#1c2e3c"
+        >
           View Source Code
         </v-expansion-panel-title>
         <v-expansion-panel-text>
@@ -75,9 +82,9 @@
   </v-card>
   <v-menu v-if="$devMode && !isAppRoute" transition="scale-transition">
     <template v-slot:activator="{ props }">
-      <v-btn v-bind="props" block>
+      <v-btn v-bind="props" color="#212121" block>
         <v-row>
-          <v-icon color="primary">mdi-plus</v-icon>
+          <v-icon color="primary" :id = "'addCell'+cellData.id" icon="mdi:mdi-plus"></v-icon>
         </v-row>
       </v-btn>
     </template>

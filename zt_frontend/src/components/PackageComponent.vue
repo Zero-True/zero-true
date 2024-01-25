@@ -1,7 +1,7 @@
 <template>
 <v-dialog v-model="updatingDependencies" persistent width="1024">
     <template v-slot:activator="{ props }">
-        <v-btn color="primary" v-bind="props" icon="mdi-graph"></v-btn>
+        <v-btn v-bind="props" icon="$settings"></v-btn>
     </template>
     <v-card>
         <v-card-title>

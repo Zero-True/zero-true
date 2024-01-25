@@ -1,48 +1,46 @@
 <template>
-  <v-main>
-    <v-container>
-      <v-menu v-if="$devMode && !isAppRoute" transition="scale-transition">
-        <template v-slot:activator="{ props }">
-          <v-btn v-bind="props" block>
-            <v-row>
-              <v-icon color="primary">mdi-plus</v-icon>
-            </v-row>
-          </v-btn>
-        </template>
+  <v-container>
+    <v-menu v-if="$devMode && !isAppRoute" transition="scale-transition">
+      <template v-slot:activator="{ props }">
+        <v-btn color="#212121" v-bind="props" block>
+          <v-row>
+            <v-icon color="primary" icon="mdi:mdi-plus"></v-icon>
+          </v-row>
+        </v-btn>
+      </template>
 
-        <v-list>
-          <v-list-item v-for="(item, i) in menu_items" :key="i">
-            <v-btn block @click="createCodeCell('', item.title)">{{
-              item.title
-            }}</v-btn>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-    </v-container>
-    <v-container v-for="codeCell in notebook.cells">
-      <component
-        v-if="codeCell.cellType === 'code'"
-        :is="getComponent(codeCell.cellType)"
-        :cellData="codeCell"
-        :completions="completions[codeCell.id]"
-        @runCode="runCode"
-        @saveCell="saveCell"
-        @componentValueChange="componentValueChange"
-        @deleteCell="deleteCell"
-        @createCell="createCodeCell"
-      />
-      <component
-        v-else
-        :is="getComponent(codeCell.cellType)"
-        :cellData="codeCell"
-        @runCode="runCode"
-        @saveCell="saveCell"
-        @componentValueChange="componentValueChange"
-        @deleteCell="deleteCell"
-        @createCell="createCodeCell"
-      />
-    </v-container>
-  </v-main>
+      <v-list>
+        <v-list-item v-for="(item, i) in menu_items" :key="i">
+          <v-btn block @click="createCodeCell('', item.title)">{{
+            item.title
+          }}</v-btn>
+        </v-list-item>
+      </v-list>
+    </v-menu>
+  </v-container>
+  <v-container v-for="codeCell in notebook.cells">
+    <component
+      v-if="codeCell.cellType === 'code'"
+      :is="getComponent(codeCell.cellType)"
+      :cellData="codeCell"
+      :completions="completions[codeCell.id]"
+      @runCode="runCode"
+      @saveCell="saveCell"
+      @componentValueChange="componentValueChange"
+      @deleteCell="deleteCell"
+      @createCell="createCodeCell"
+    />
+    <component
+      v-else
+      :is="getComponent(codeCell.cellType)"
+      :cellData="codeCell"
+      @runCode="runCode"
+      @saveCell="saveCell"
+      @componentValueChange="componentValueChange"
+      @deleteCell="deleteCell"
+      @createCell="createCodeCell"
+    />
+  </v-container>
 </template>
 
 <script lang="ts">

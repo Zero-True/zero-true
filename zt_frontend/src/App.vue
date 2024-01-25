@@ -1,21 +1,72 @@
 <template>
-  <v-app style="background-color: #040607">
-    <v-app-bar app color="bluegrey" id="appBar">
-      <v-row class="d-flex flex-row">
-        <v-col>
-          <v-btn size="x-large" variant="text" @click="navigateToApp" id ="Navbutton">
-            <v-icon start size="x-large" icon="custom:ZTIcon"></v-icon>
-            Zero-True
-          </v-btn>
-        </v-col>
-        <v-col v-if="$devMode" cols="auto">
-          <v-btn-group>
-            <v-btn to="/">Dev</v-btn>
-            <v-btn to="/app">App</v-btn>
-          </v-btn-group>
-        </v-col>
+  <v-app>
+    <v-app-bar 
+      app 
+      color="bluegrey-darken-4"
+      extension-height="112" 
+      id="appBar"
+    >
+      <v-btn size="x-large" variant="text" @click="navigateToApp" id ="Navbutton">
+        <v-icon start size="x-large" icon="$logo"></v-icon>
+      </v-btn>
+      <div class="click-edit">
+        <div class="click-edit__show-text" v-if="!editingProjectName">
+          <h5 class="click-edit__name text-h5">{{ projectName ?? 'Project Name' }}</h5> 
+          <v-btn
+            color="bluegrey-darken-1"
+            icon="$edit"
+            @click="toggleProjectName"
+          />
+        </div> 
+        <div class="click-edit__edit-field-wrapper" v-if="editingProjectName">
+          <v-text-field 
+            v-model="projectName"   
+            placeholder="Project Name"
+            density="compact" 
+            variant="plain"
+            hide-details
+            ref="projectNameField" 
+            class="click-edit__edit-field" 
+          />
+          <v-btn
+            color="bluegrey-darken-1"
+            icon="$save"
+          />
+          <v-btn
+            color="bluegrey-darken-1"
+            icon="$close"
+            @click="toggleProjectName"
+          />
+        </div> 
+      </div> 
+      
+      <template v-slot:extension >
+        <div class="toggle-group bg-background">
+          <v-btn-toggle
+            :multiple="false"
+            mandatory
+          >
+            <v-btn
+              :color="!isAppRoute ? 'primary': 'bluegrey-darken-1'"
+              :variant="!isAppRoute ? 'flat': 'text'" 
+              :class="{ 'text-bluegrey-darken-4' : !isAppRoute }"
+              prepend-icon="$notebook"
+              to="/"
+            >
+            Notebook</v-btn>
+            <v-btn 
+              :color="isAppRoute ? 'primary': 'bluegrey-darken-1'"
+              :variant="isAppRoute ? 'flat': 'text'" 
+              :class="{ 'text-bluegrey-darken-4' : isAppRoute }"
+              prepend-icon="$monitor"
+              to="/app"
+            >App</v-btn>
+          </v-btn-toggle>
+        </div>
+      </template>
+      <template v-slot:append>
         <v-col class="d-flex justify-end">
-          <div v-if="isCodeRunning" class="d-flex align-center">
+          <!-- <div v-if="isCodeRunning" class="d-flex align-center">
             <v-progress-circular
               indeterminate
               color="white"
@@ -39,12 +90,25 @@
             >
               mdi-stop
             </v-icon>
-          </div>
-          <PackageComponent v-if="$devMode" :dependencies="dependencies"/>
+          </div> -->
+          <div>
+            <v-btn icon="$undo"></v-btn>
+            <v-btn icon="$redo"></v-btn>
+            <v-btn icon="$message"></v-btn>
+            <PackageComponent v-if="$devMode" :dependencies="dependencies"/>
+            <v-btn icon="$play"></v-btn>
+            <v-btn
+              prepend-icon="$share"
+              variant="flat"
+              ripple
+              color="primary"
+              class="text-bluegrey-darken-4"
+            >Share</v-btn>
+          </div> 
         </v-col>
-      </v-row>
+      </template>
     </v-app-bar>
-    <v-main>
+    <v-main :scrollable="false">
       <router-view 
         :notebook="notebook"
         :completions="completions"
@@ -55,11 +119,103 @@
         @createCell="createCodeCell"
        />
     </v-main>
+    <v-footer 
+      app
+      height="52"
+      class="footer bg-bluegrey-darken-4 text-bluegrey"
+    >
+      <div class="footer__left-container">
+        <v-icon
+          class="footer__code-version"
+          icon="$cubic" 
+        />
+        <span>Python 3.9</span>
+        <v-icon class="footer__dot-divider" icon="$dot"/>
+        <span>Zero-True v1.1</span>
+        <v-icon class="footer__dot-divider" icon="$dot"/>
+        <span>{{ cellLength }} cells</span>
+      </div> 
+      <div class="footer__right-container">
+        <div v-if="isCodeRunning">
+          <v-progress-circular
+            indeterminate
+            color="bluegrey"
+            size="24"
+            class="footer__code-running-loader"
+            id = "codeRunProgress"
+          ></v-progress-circular>
+          <v-chip>{{ timer }}ms</v-chip>
+          <v-btn 
+            class="footer__queue-length-btn"
+            density="comfortable"
+            append-icon="mdi:mdi-chevron-down"
+            rounded
+            :disabled="queueLength === 0"
+            variant="flat"
+          >
+            Queue Length: {{ queueLength }}
+            <v-menu 
+              activator="parent"
+              >
+              <v-list class="footer__queue-list">
+                <v-list-item
+                  v-for="(item, i) in runningQueue"
+                  :key="i"
+                  class="footer__queue-list-item"
+                >
+                  <span class="text-bluegrey">Python #2</span>
+                  <template v-slot:append>
+                    <v-icon icon="$done" color="success"/>
+                  </template>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </v-btn>
+        </div> 
+        
+        <!-- <v-chip>Queue Length: 3</v-chip> -->
+        <span>
+          <v-icon 
+            icon="$clock" 
+          />
+          Saved 5mins ago
+        </span>
+        <v-icon class="footer__dot-divider" icon="$dot"/>
+        <div
+          v-if="isCodeRunning"
+          class="footer__status"
+        >
+          <v-icon icon="$status"/>
+          <span>Running</span>
+        </div>
+        <div
+          v-if="!isCodeRunning"
+          class="footer__status footer__status--error"
+        >
+          <v-icon icon="$status"/>
+          <span>Stopped</span>
+        </div>
+        <v-btn 
+          v-if="isCodeRunning"
+          density="comfortable"
+          icon="$stop"
+          color="bluegrey"
+          variant="plain"
+          :ripple="false" 
+          @click="stopCodeExecution()"
+          rounded
+        >
+        </v-btn>
+      </div> 
+      
+    </v-footer>
   </v-app>
 </template>
 
 <script lang="ts">
 import axios from "axios";
+import { nextTick } from 'vue';
+import { useRoute } from "vue-router";
 import { Request, CodeRequest } from "./types/request";
 import { ComponentRequest } from "./types/component_request";
 import { DeleteRequest } from "./types/delete_request";
@@ -74,6 +230,7 @@ import EditorComponent from "@/components/EditorComponent.vue";
 import SQLComponent from "@/components/SQLComponent.vue";
 import PackageComponent from "@/components/PackageComponent.vue";
 import CodeCellManager from "./components/CodeCellManager.vue";
+import type { VTextField } from "vuetify/lib/components/index.mjs";
 
 export default {
   components: {
@@ -87,6 +244,8 @@ export default {
 
   data() {
     return {
+      projectName: null, 
+      editingProjectName: false, 
       notebook: {} as Notebook,
       dependencies: {} as Dependencies,
       completions: {} as {[key: string]: any[]},
@@ -131,7 +290,31 @@ export default {
     this.notebook_socket!.send("")
   },
 
+  computed: {
+    isAppRoute() {
+      const route = useRoute()
+      return route.path === '/app'
+    }, 
+    cellLength() {
+      return this.notebook.cells ? Object.keys(this.notebook.cells).length : 0
+    },
+    runningQueue() {
+      return this.$devMode ? this.requestQueue : this.componentChangeQueue; 
+    },
+    queueLength() {
+      return this.runningQueue.length; 
+    }
+  },
+
   methods: {
+    toggleProjectName() {
+      this.editingProjectName = !this.editingProjectName
+      nextTick(() => {
+        if (this.editingProjectName) {
+          (this.$refs.projectNameField as VTextField).focus();
+        }
+      }) 
+    },
     startTimer() {
       this.timer = 0;
       this.timerInterval = setInterval(() => {
@@ -179,8 +362,10 @@ export default {
 
       if (this.isCodeRunning) {
         const existingRequestIndex = this.requestQueue.findIndex(req => req.originId === originId);
+        console.log('---here---', this.requestQueue)
         if (existingRequestIndex !== -1) {
           this.requestQueue[existingRequestIndex] = request;
+        
         } else {
           this.requestQueue.push(request);
         }
@@ -515,8 +700,73 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss" scoped>
 .cm-editor {
   height: auto !important;
+}
+
+.click-edit {
+  max-width: 280px;
+  width: 100%;
+  &__name {
+    font-weight: normal;
+  }
+  &__show-text,
+  &__edit-field-wrapper {
+    display: flex;
+    align-items: center;
+  }
+
+  &__edit-field {
+    margin-top: -11px; 
+    & :deep(.v-field__input) {
+      font-size: 1.5rem;
+      letter-spacing: normal;
+    }
+  } 
+}
+.footer {
+  display: flex;
+  justify-content: space-between;
+  &__left-container,
+  &__right-container {
+    display: flex;
+    align-items: center;
+  }
+
+  &__dot-divider {
+    margin: 0 24px;
+  }
+  &__code-version {
+    margin-right: 12px;
+  }
+  &__queue-length-btn {
+    margin: 0 8px 0 24px;
+  }
+  &__code-running-loader {
+    margin-right: 10px;
+  }
+  &__queue-list {
+    font-size: 0.625rem;
+  }
+  &__queue-list-item {
+    &--pending {
+      color: rgba(var(--v-theme-bluegrey-darken-2));
+    }
+  }
+  &__status {
+    color: rgba(var(--v-theme-success));
+    &--error {
+      color: rgba(var(--v-theme-error));
+    }
+  }
+}
+
+.toggle-group {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 24px 0 32px;
 }
 </style>

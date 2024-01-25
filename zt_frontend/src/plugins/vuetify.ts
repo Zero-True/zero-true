@@ -1,46 +1,66 @@
-import { mdi } from "vuetify/iconsets/mdi";
-import { h } from "vue";
 import "vuetify/styles";
-import type { IconSet, IconProps } from "vuetify";
-import ZTIcon from "@/components/ZTIcon.vue";
 import { createVuetify } from "vuetify";
+import { aliases, ztIconSet } from '../iconsets/custom'
+import { aliases as mdiAliases, mdi } from 'vuetify/iconsets/mdi'
 
-const customSvgNameToComponent: any = { ZTIcon };
-
-const customIcons: IconSet = {
-  component: (props: IconProps) =>
-    h(props.tag, [
-      h(customSvgNameToComponent[props.icon as string], {
-        class: "v-icon__svg",
-      }),
-    ]),
-};
 
 export default createVuetify({
+  defaults: {
+    global: {
+      elevation: 0 
+    },
+    VAppBar: {
+      VBtn: {
+        color: 'white',
+        ripple: false
+      }
+    },
+    VBtn: {
+      style:[{ 'text-transform': 'capitalize' }]
+    },
+    VBtnToggle: {
+      density: 'comfortable',
+      VBtn: {
+        style: [{ borderRadius: 'inherit' }],
+        class: [ 'text-bluegrey-darken-1']
+      }
+    },
+    VFooter: {
+      VListItem: {
+        minHeight: 15
+      }
+    }
+  },
   theme: {
-    defaultTheme: "light",
+    defaultTheme: "dark",
     themes: {
-      light: {
+      dark: {
         dark: true,
         colors: {
-          primary: "#AE9FE8",
+          background: '#0d1316',
+          primary: "#ae9ee8",
           secondary: "#424242",
-          bluegrey: "#0E1B23",
-          bluegrey2: "#1B2F3C",
+          surface: '#1B2F3C', 
+          bluegrey: "#5F7F93",
+          'bluegrey-darken-1': '#3A586B',
+          'bluegrey-darken-2': '#294455',
+          'bluegrey-darken-3': '#1B2F3C', 
+          'bluegrey-darken-4': '#0E1B23',
           accent: "#FFDCA7",
           error: "#FF6F6F",
           info: "#4CBCFC",
           success: "#16B48E",
           warning: "#F49E6E",
+          white: 'white'
         },
       },
     },
   },
   icons: {
-    defaultSet: "mdi",
+    defaultSet: 'ztIconSet',
+    aliases,
     sets: {
-      mdi,
-      custom: customIcons,
+      ztIconSet,
     },
   },
 });
