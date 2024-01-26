@@ -9,15 +9,15 @@
 			variant="text"
 			density="compact"
 			:ripple="false"
-			@click="(e: PointerEvent) => $emit('click', e)"
+			@click="onClick"
 			class="divider__btn bg-background"
 		>Add cell</v-btn>
 	</div>
 </template>
 <script setup lang="ts">
-const emit = defineEmits<{
-  (e: 'click', event: PointerEvent): void
-}>()
+defineProps({
+  onClick: null
+})
 </script>
 <style lang="scss" scoped>
 .divider {
