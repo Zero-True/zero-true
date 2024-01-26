@@ -2,13 +2,8 @@
   <v-container>
     <v-menu v-if="$devMode && !isAppRoute" transition="scale-transition">
       <template v-slot:activator="{ props }">
-        <v-btn color="#212121" v-bind="props" block>
-          <v-row>
-            <v-icon color="primary" icon="mdi:mdi-plus"></v-icon>
-          </v-row>
-        </v-btn>
+        <AddCell v-bind="props" />
       </template>
-
       <v-list>
         <v-list-item v-for="(item, i) in menu_items" :key="i">
           <v-btn block @click="createCodeCell('', item.title)">{{
@@ -50,6 +45,7 @@ import MarkdownComponent from "@/components/MarkdownComponent.vue";
 import EditorComponent from "@/components/EditorComponent.vue";
 import SQLComponent from "@/components/SQLComponent.vue";
 import PackageComponent from "@/components/PackageComponent.vue";
+import AddCell from '@/components/AddCell.vue'
 import { PropType } from "vue";
 import { useRoute } from "vue-router";
 
@@ -69,6 +65,7 @@ export default {
   emits: ['runCode', 'deleteCell', 'saveCell', 'createCell', 'componentValueChange'],
 
   components: {
+    AddCell,
     CodeComponent,
     MarkdownComponent,
     EditorComponent,
@@ -96,6 +93,9 @@ export default {
     this.checkRoute();
   },
   methods: {
+    test(e) {
+      console.log('---hererelll---', e)
+    },
     checkRoute() {
       const route = useRoute();
       if (route.path === '/app') {

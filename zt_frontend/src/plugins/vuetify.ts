@@ -16,7 +16,8 @@ export default createVuetify({
       }
     },
     VBtn: {
-      style:[{ 'text-transform': 'capitalize' }]
+      style:[{ 'text-transform': 'capitalize' }],
+      color: 'bluegrey-darken-2'
     },
     VBtnToggle: {
       density: 'comfortable',
@@ -24,6 +25,9 @@ export default createVuetify({
         style: [{ borderRadius: 'inherit' }],
         class: [ 'text-bluegrey-darken-1']
       }
+    },
+    VDivider: {
+      class: 'border-opacity-100'
     },
     VFooter: {
       VListItem: {
