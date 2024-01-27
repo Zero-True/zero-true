@@ -1,96 +1,76 @@
 <template>
-  <v-card flat color="bluegrey-darken-4">
-    <v-row v-if="$devMode && !isAppRoute" no-gutters class="py-1 toolbar-bg">
-      <v-col :cols="11">
-        <span class="py-0 px-2">.sql</span>
-
-        <!-- Placeholder for future content or can be empty -->
-      </v-col>
-      <v-col :cols="1" class="d-flex justify-end align-center py-0">
-        <v-icon small
-         class="mx-1"
-         color="primary"
-         @click="runCode"
-         icon="$play"
-        >
-        </v-icon>
-        <v-icon small class="mx-1" color="error" icon="$delete" @click="deleteCell">
-        </v-icon>
-      </v-col>
-    </v-row>
-    <v-text-field
-      v-if="$devMode && !isAppRoute"
-      v-model="cellData.variable_name"
-      label="Enter SQL variable name"
-      density="compact"
-    />
-    <codemirror
-      v-if="$devMode && !isAppRoute"
-      v-model="cellData.code"
-      :style="{ height: '400px' }"
-      :autofocus="true"
-      :indent-with-tab="true"
-      :tab-size="2"
-      :viewportMargin="Infinity"
-      :extensions="extensions"
-      @keyup="saveCell"
-    />
-    <v-expansion-panels v-else>
-        <v-expansion-panel  
-          bg-color="#212121"
-        >
-        <v-expansion-panel-title 
-          color="#1c2e3c"
-        >
-          View Source Code
-        </v-expansion-panel-title>
-        <v-expansion-panel-text>
-          <v-text-field
-            v-model="cellData.variable_name"
-            label="Enter SQL variable name"
-            density="compact"
-            :readonly="true"
-          />
-          <codemirror
-            v-model="cellData.code"
-            :style="{ height: '400px' }"
-            :autofocus="true"
-            :indent-with-tab="true"
-            :tab-size="2"
-            :viewportMargin="Infinity"
-            :extensions="extensions"
-          />
-        </v-expansion-panel-text>
-      </v-expansion-panel>
-    </v-expansion-panels>
-    <div v-if="$devMode && !isAppRoute">
-      <p class="text-caption text-disabled text-right">CTRL+Enter to run</p>
-    </div>
-    <v-container
-      v-if="$devMode && !isAppRoute"
-      v-for="component in cellData.components"
-      :key="component.id"
-    >
-      <component
-        :is="component.component"
-        v-bind="component"
-        v-model="component.value"
-        @[component.triggerEvent]="runCode"
+  <cell
+    cell-type="sql"
+    :is-dev-mode="$devMode && !isAppRoute"
+    @play="runCode" 
+    @delete="deleteCell"
+  >
+    <template v-slot:code>
+      <v-text-field
+        v-if="$devMode && !isAppRoute"
+        v-model="cellData.variable_name"
+        label="Enter SQL variable name"
+        density="compact"
       />
-    </v-container>
-    <div class="text-p">{{ cellData.output }}</div>
-  </v-card>
-  <v-menu v-if="$devMode && !isAppRoute" transition="scale-transition">
-    <template v-slot:activator="{ props }">
-      <add-cell v-bind="props" />
+      <codemirror
+        v-if="$devMode && !isAppRoute"
+        v-model="cellData.code"
+        :style="{ height: '400px' }"
+        :autofocus="true"
+        :indent-with-tab="true"
+        :tab-size="2"
+        :viewportMargin="Infinity"
+        :extensions="extensions"
+        @keyup="saveCell"
+      />
+      <v-expansion-panels v-else>
+          <v-expansion-panel  
+            bg-color="#212121"
+          >
+          <v-expansion-panel-title 
+            color="#1c2e3c"
+          >
+            View Source Code
+          </v-expansion-panel-title>
+          <v-expansion-panel-text>
+            <v-text-field
+              v-model="cellData.variable_name"
+              label="Enter SQL variable name"
+              density="compact"
+              :readonly="true"
+            />
+            <codemirror
+              v-model="cellData.code"
+              :style="{ height: '400px' }"
+              :autofocus="true"
+              :indent-with-tab="true"
+              :tab-size="2"
+              :viewportMargin="Infinity"
+              :extensions="extensions"
+            />
+          </v-expansion-panel-text>
+        </v-expansion-panel>
+      </v-expansion-panels>
+      <div v-if="$devMode && !isAppRoute">
+        <p class="text-caption text-disabled text-right">CTRL+Enter to run</p>
+      </div>
     </template>
-
-    <v-list>
-      <v-list-item v-for="(item, i) in items" :key="i">
-        <v-btn block @click="createCell(item.title)">{{ item.title }}</v-btn>
-      </v-list-item>
-    </v-list>
-  </v-menu>
+    <template v-slot:outcome>
+      <v-container
+        v-if="$devMode && !isAppRoute"
+        v-for="component in cellData.components"
+        :key="component.id"
+      >
+        <component
+          :is="component.component"
+          v-bind="component"
+          v-model="component.value"
+          @[component.triggerEvent]="runCode"
+        />
+      </v-container>
+      <div class="text-p">{{ cellData.output }}</div>
+    </template>
+  </cell>
 </template>
 
 <script lang="ts">
@@ -109,11 +89,11 @@ import {
 } from "@codemirror/autocomplete";
 import { CodeCell } from "@/types/notebook";
 import { useRoute } from "vue-router";
-import AddCell from '@/components/AddCell.vue'
+import Cell from '@/components/Cell.vue'
 
 export default {
   components: {
-    "add-cell": AddCell,
+    "cell": Cell,
     codemirror: Codemirror,
     "v-data-table": VDataTable,
   },

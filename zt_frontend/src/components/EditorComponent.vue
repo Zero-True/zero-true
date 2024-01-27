@@ -1,32 +1,18 @@
 <template>
-  <v-card flat color="bluegrey-darken-4">
-    <v-row v-if="$devMode && !isAppRoute" no-gutters class="py-1 toolbar-bg">
-      <v-col :cols="11">
-        <span class="py-0 px-2">.doc</span>
-        <!-- Placeholder for future content or can be empty -->
-      </v-col>
-      <v-col :cols="1" class="d-flex justify-end align-center py-0">
-        <v-icon small icon="$save" class="mx-1" color="primary" @click="saveCell">
-        </v-icon>
-        <v-icon small icon="$delete" class="mx-1" color="error" @click="deleteCell">
-        </v-icon>
-      </v-col>
-    </v-row>
-    <tiny-editor v-if="$devMode && !isAppRoute" v-model="cellData.code" :init="init" @keyUp="saveCell" />
-    <tiny-editor v-else-if="$devMode && isAppRoute" v-model="cellData.code" :init="app_init" @keyUp="saveCell" />
-    <tiny-editor v-else v-model="cellData.code" :init="init" :disabled="true" />
-  </v-card>
-  <v-menu v-if="$devMode && !isAppRoute" transition="scale-transition">
-    <template v-slot:activator="{ props }">
-      <add-cell v-bind="props" />
+  <cell
+    cell-type="code"
+    :is-dev-mode="$devMode && !isAppRoute"
+    @save="saveCell"
+    @delete="deleteCell"
+  >
+    <template v-slot:code>
+      <tiny-editor v-if="$devMode && !isAppRoute" v-model="cellData.code" :init="init" @keyUp="saveCell" />
+      <tiny-editor v-else-if="$devMode && isAppRoute" v-model="cellData.code" :init="app_init" @keyUp="saveCell" />
     </template>
-
-    <v-list>
-      <v-list-item v-for="(item, i) in items" :key="i">
-        <v-btn block @click="createCell(item.title)">{{ item.title }}</v-btn>
-      </v-list-item>
-    </v-list>
-  </v-menu>
+    <template v-slot:outcome>
+      <tiny-editor v-model="cellData.code" :init="init" :disabled="true" />
+    </template>
+  </cell>
 </template>
 
 <script lang="ts">
@@ -40,11 +26,11 @@ import "tinymce/plugins/autoresize";
 import Editor from "@tinymce/tinymce-vue";
 import { CodeCell } from "@/types/notebook";
 import { useRoute } from "vue-router";
-import AddCell from '@/components/AddCell.vue'
+import Cell from '@/components/Cell.vue'
 
 export default {
   components: {
-    "add-cell": AddCell,
+    "cell": Cell,
     "tiny-editor": Editor,
   },
   props: {

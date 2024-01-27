@@ -1,6 +1,9 @@
 <template>
   <cell
-    :is-dev-mode="$devMode && !isAppRoute" 
+    cell-type="code"
+    :is-dev-mode="$devMode && !isAppRoute"
+    @play="runCode(false, '', '')" 
+    @delete="deleteCell"
   >
     <template v-slot:code>
       <codemirror
@@ -125,26 +128,6 @@
       </div>
     </template>
   </cell>
-  <br> 
-  <br> 
-  <br>
-  <v-card flat color="bluegrey-darken-4" :id="'codeCard'+cellData.id">
-    <v-row v-if="$devMode && !isAppRoute" no-gutters class="py-1 toolbar-bg">
-      <v-col :cols="1" class="d-flex justify-end align-center py-0">
-        <v-icon
-          small
-          :id = "'runCode'+cellData.id"
-          class="mx-1"
-          icon="$play"
-          color="bluegrey"
-          @click="runCode(false, '', '')"
-        >
-        </v-icon>
-        <v-icon small :id = "'deleteCell'+cellData.id" icon="$delete" class="mx-1" color="error" @click="deleteCell" >
-        </v-icon>
-      </v-col>
-    </v-row>
-  </v-card>
 </template>
 
 <script lang="ts">
