@@ -1,6 +1,6 @@
 <template>
   <cell
-    cell-type="code"
+    cell-type="editor"
     :is-dev-mode="$devMode && !isAppRoute"
     @save="saveCell"
     @delete="deleteCell"
