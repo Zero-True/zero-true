@@ -93,9 +93,6 @@ export default {
     this.checkRoute();
   },
   methods: {
-    test(e) {
-      console.log('---hererelll---', e)
-    },
     checkRoute() {
       const route = useRoute();
       if (route.path === '/app') {

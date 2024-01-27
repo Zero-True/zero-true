@@ -1,4 +1,8 @@
 <template>
+  <cell></cell>
+  <br> 
+  <br> 
+  <br> 
   <v-card flat color="bluegrey-darken-4">
     <v-row v-if="$devMode" no-gutters class="py-1 toolbar-bg">
       <v-col :cols="11">
@@ -48,10 +52,12 @@ import { oneDark } from '@codemirror/theme-one-dark'
 import { autocompletion } from '@codemirror/autocomplete'
 import { CodeCell } from "@/types/notebook";
 import AddCell from '@/components/AddCell.vue'
+import Cell from '@/components/Cell.vue'
 
 export default {
   components: {
     "add-cell": AddCell,
+    "cell": Cell,
     "codemirror": Codemirror,
   },
   computed: {
