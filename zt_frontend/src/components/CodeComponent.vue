@@ -140,11 +140,7 @@
   </v-card>
   <v-menu v-if="$devMode && !isAppRoute" transition="scale-transition">
     <template v-slot:activator="{ props }">
-      <v-btn v-bind="props" color="#212121" block :id = "'addCell'+cellData.id">
-        <v-row>
-          <v-icon color="primary"  icon="mdi:mdi-plus"></v-icon>
-        </v-row>
-      </v-btn>
+      <add-cell v-bind="props" />
     </template>
 
     <v-list>
@@ -181,12 +177,14 @@ import { VDataTable } from "vuetify/labs/VDataTable";
 import { CodeCell, Layout } from "@/types/notebook";
 import LayoutComponent from "@/components/LayoutComponent.vue";
 import TextComponent from "@/components/TextComponent.vue"
+import AddCell from '@/components/AddCell.vue'
 import { useRoute } from 'vue-router'
 
 
 
 export default {
   components: {
+    "add-cell": AddCell,
     "codemirror": Codemirror,
     "v-slider": VSlider,
     "v-text-field": VTextField,

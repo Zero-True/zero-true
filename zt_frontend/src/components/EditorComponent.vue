@@ -18,11 +18,7 @@
   </v-card>
   <v-menu v-if="$devMode && !isAppRoute" transition="scale-transition">
     <template v-slot:activator="{ props }">
-      <v-btn v-bind="props" color="#212121" block>
-        <v-row>
-          <v-icon color="primary" icon="mdi:mdi-plus"></v-icon>
-        </v-row>
-      </v-btn>
+      <add-cell v-bind="props" />
     </template>
 
     <v-list>
@@ -44,8 +40,11 @@ import "tinymce/plugins/autoresize";
 import Editor from "@tinymce/tinymce-vue";
 import { CodeCell } from "@/types/notebook";
 import { useRoute } from "vue-router";
+import AddCell from '@/components/AddCell.vue'
+
 export default {
   components: {
+    "add-cell": AddCell,
     "tiny-editor": Editor,
   },
   props: {

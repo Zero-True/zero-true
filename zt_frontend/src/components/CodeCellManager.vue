@@ -2,7 +2,7 @@
   <v-container>
     <v-menu v-if="$devMode && !isAppRoute" transition="scale-transition">
       <template v-slot:activator="{ props }">
-        <AddCell v-bind="props" />
+        <add-cell v-bind="props" />
       </template>
       <v-list>
         <v-list-item v-for="(item, i) in menu_items" :key="i">
@@ -65,7 +65,7 @@ export default {
   emits: ['runCode', 'deleteCell', 'saveCell', 'createCell', 'componentValueChange'],
 
   components: {
-    AddCell,
+    "add-cell": AddCell,
     CodeComponent,
     MarkdownComponent,
     EditorComponent,

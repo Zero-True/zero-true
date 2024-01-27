@@ -82,11 +82,7 @@
   </v-card>
   <v-menu v-if="$devMode && !isAppRoute" transition="scale-transition">
     <template v-slot:activator="{ props }">
-      <v-btn v-bind="props" color="#212121" block>
-        <v-row>
-          <v-icon color="primary" :id = "'addCell'+cellData.id" icon="mdi:mdi-plus"></v-icon>
-        </v-row>
-      </v-btn>
+      <add-cell v-bind="props" />
     </template>
 
     <v-list>
@@ -113,9 +109,11 @@ import {
 } from "@codemirror/autocomplete";
 import { CodeCell } from "@/types/notebook";
 import { useRoute } from "vue-router";
+import AddCell from '@/components/AddCell.vue'
 
 export default {
   components: {
+    "add-cell": AddCell,
     codemirror: Codemirror,
     "v-data-table": VDataTable,
   },

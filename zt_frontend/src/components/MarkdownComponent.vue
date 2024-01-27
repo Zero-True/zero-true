@@ -28,11 +28,7 @@
   </v-card>
   <v-menu v-if="$devMode" transition="scale-transition">
     <template v-slot:activator="{ props }">
-      <v-btn v-bind="props" color="#212121" block>
-        <v-row>
-          <v-icon color="primary" icon="mdi:mdi-plus"></v-icon>
-        </v-row>
-      </v-btn>
+      <add-cell v-bind="props" />
     </template>
 
     <v-list>
@@ -51,9 +47,11 @@ import { markdown } from '@codemirror/lang-markdown'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { autocompletion } from '@codemirror/autocomplete'
 import { CodeCell } from "@/types/notebook";
+import AddCell from '@/components/AddCell.vue'
 
 export default {
   components: {
+    "add-cell": AddCell,
     "codemirror": Codemirror,
   },
   computed: {
