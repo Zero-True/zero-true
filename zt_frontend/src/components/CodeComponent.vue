@@ -1,10 +1,135 @@
 <template>
+  <cell
+    :is-dev-mode="$devMode && !isAppRoute" 
+  >
+    <template v-slot:code>
+      <codemirror
+        v-if="$devMode && !isAppRoute"
+        v-model="cellData.code"
+        :style="{ height: '400px' }"
+        :autofocus="true"
+        :indent-with-tab="true"
+        :tab-size="2"
+        :viewportMargin="Infinity"
+        :extensions="extensions"
+        @ready="handleReady"
+        @keyup="saveCell"
+        :code="cellData.code"
+        :id = "'codeMirrorDev'+cellData.id"
+      />
+      <v-expansion-panels v-else>
+        <v-expansion-panel
+          bg-color="#212121"
+        >
+          <v-expansion-panel-title 
+            color="#1c2e3c"
+          >
+            View Source Code
+          </v-expansion-panel-title>
+          <v-expansion-panel-text>
+            <codemirror
+              v-model="cellData.code"
+              :style="{ height: '400px' }"
+              :autofocus="true"
+              :indent-with-tab="true"
+              :tab-size="2"
+              :viewportMargin="Infinity"
+              :extensions="extensions"
+              :id = "'codeMirrorApp'+cellData.id"
+            />
+          </v-expansion-panel-text>
+        </v-expansion-panel>
+      </v-expansion-panels>
+      <div v-if="$devMode && !isAppRoute">
+        <p class="text-caption text-disabled text-right">
+          CTRL+Enter to run</p>
+      </div>
+    </template>
+    <template v-slot:outcome>
+      <v-container :id = "'outputContainer_'+cellData.id">
+        <layout-component
+          v-for="(row, rowIndex) in cellData.layout?.rows"
+          :key="rowIndex"
+          :row-data="row"
+          :components="cellData.components"
+          @runCode="runCode"
+        />
+        <v-row>
+          <v-col v-for="(col, colIndex) in columns" :cols="col.width">
+            <layout-component
+              :key="colIndex"
+              :column-data="col"
+              :components="cellData.components"
+              @runCode="runCode"
+            />
+          </v-col>
+        </v-row>
+        <!-- Render unplaced components at the bottom -->
+        <v-row :id = "'unplacedComponents'+cellData.id">
+          <v-container
+            class="pa-1"
+            v-for="component in unplacedComponents"
+            :key="component.id"
+          >
+            <!-- Render Plotly component if it's a 'plotly-plot' -->
+            <plotly-plot
+              v-if="component.component === 'plotly-plot'"
+              :id="component.id"
+              :figure="component.figure"
+              :layout="component.layout"
+            />
+            <!-- Render other components -->
+            <component
+              v-else-if="component.component === 'v-card'"
+              :is="component.component"
+              v-bind="componentBind(component)"
+              position="relative"
+              @runCode="runCode"
+            >
+              <div v-for="comp in cardComponents(component)">
+                <plotly-plot
+                  v-if="comp.component === 'plotly-plot'"
+                  :id="component.id"
+                  :figure="comp.figure"
+                  :layout="comp.layout"
+                />
+                <component
+                  v-else
+                  :is="comp.component"
+                  v-bind="componentBind(comp)"
+                  v-model="comp.value"
+                  @click="clickedButton(comp)"
+                  @[comp.triggerEvent]="runCode(true, comp.id, comp.value)"
+                />
+              </div>
+            </component>
+
+            <component
+              v-else
+              :is="component.component"
+              v-bind="componentBind(component)"
+              v-model="component.value"
+              @click="clickedButton(component)"
+              @[component.triggerEvent]="
+                runCode(true, component.id, component.value)
+              "
+            />
+          </v-container>
+        </v-row>
+        <v-row>
+          <v-col>
+            <pre class="text-p" :id = "'cellOutput'+cellData.id">{{ cellData.output }}</pre>
+          </v-col>
+        </v-row>
+      </v-container>
+    </template>
+  </cell>
+  
+  <br> 
+  <br> 
+  <br>
   <v-card flat color="bluegrey-darken-4" :id="'codeCard'+cellData.id">
     <v-row v-if="$devMode && !isAppRoute" no-gutters class="py-1 toolbar-bg">
-      <v-col :cols="11">
-        <span class="py-0 px-2">.py</span>
-        <!-- Placeholder for future content or can be empty -->
-      </v-col>
       <v-col :cols="1" class="d-flex justify-end align-center py-0">
         <v-icon
           small
@@ -13,142 +138,13 @@
           icon="$play"
           color="bluegrey"
           @click="runCode(false, '', '')"
-          
         >
         </v-icon>
         <v-icon small :id = "'deleteCell'+cellData.id" icon="$delete" class="mx-1" color="error" @click="deleteCell" >
         </v-icon>
       </v-col>
     </v-row>
-    <codemirror
-      v-if="$devMode && !isAppRoute"
-      v-model="cellData.code"
-      :style="{ height: '400px' }"
-      :autofocus="true"
-      :indent-with-tab="true"
-      :tab-size="2"
-      :viewportMargin="Infinity"
-      :extensions="extensions"
-      @ready="handleReady"
-      @keyup="saveCell"
-      :code="cellData.code"
-      :id = "'codeMirrorDev'+cellData.id"
-    />
-    <v-expansion-panels v-else>
-      <v-expansion-panel
-        bg-color="#212121"
-      >
-        <v-expansion-panel-title 
-          color="#1c2e3c"
-        >
-          View Source Code
-        </v-expansion-panel-title>
-        <v-expansion-panel-text>
-          <codemirror
-            v-model="cellData.code"
-            :style="{ height: '400px' }"
-            :autofocus="true"
-            :indent-with-tab="true"
-            :tab-size="2"
-            :viewportMargin="Infinity"
-            :extensions="extensions"
-            :id = "'codeMirrorApp'+cellData.id"
-          />
-        </v-expansion-panel-text>
-      </v-expansion-panel>
-    </v-expansion-panels>
-    <div v-if="$devMode && !isAppRoute">
-      <p class="text-caption text-disabled text-right">
-        CTRL+Enter to run</p>
-    </div>
-    <v-container :id = "'outputContainer_'+cellData.id">
-      <layout-component
-        v-for="(row, rowIndex) in cellData.layout?.rows"
-        :key="rowIndex"
-        :row-data="row"
-        :components="cellData.components"
-        @runCode="runCode"
-      />
-      <v-row>
-        <v-col v-for="(col, colIndex) in columns" :cols="col.width">
-          <layout-component
-            :key="colIndex"
-            :column-data="col"
-            :components="cellData.components"
-            @runCode="runCode"
-          />
-        </v-col>
-      </v-row>
-      <!-- Render unplaced components at the bottom -->
-      <v-row :id = "'unplacedComponents'+cellData.id">
-        <v-container
-          class="pa-1"
-          v-for="component in unplacedComponents"
-          :key="component.id"
-        >
-          <!-- Render Plotly component if it's a 'plotly-plot' -->
-          <plotly-plot
-            v-if="component.component === 'plotly-plot'"
-            :id="component.id"
-            :figure="component.figure"
-            :layout="component.layout"
-          />
-          <!-- Render other components -->
-          <component
-            v-else-if="component.component === 'v-card'"
-            :is="component.component"
-            v-bind="componentBind(component)"
-            position="relative"
-            @runCode="runCode"
-          >
-            <div v-for="comp in cardComponents(component)">
-              <plotly-plot
-                v-if="comp.component === 'plotly-plot'"
-                :id="component.id"
-                :figure="comp.figure"
-                :layout="comp.layout"
-              />
-              <component
-                v-else
-                :is="comp.component"
-                v-bind="componentBind(comp)"
-                v-model="comp.value"
-                @click="clickedButton(comp)"
-                @[comp.triggerEvent]="runCode(true, comp.id, comp.value)"
-              />
-            </div>
-          </component>
-
-          <component
-            v-else
-            :is="component.component"
-            v-bind="componentBind(component)"
-            v-model="component.value"
-            @click="clickedButton(component)"
-            @[component.triggerEvent]="
-              runCode(true, component.id, component.value)
-            "
-          />
-        </v-container>
-      </v-row>
-      <v-row>
-        <v-col>
-          <pre class="text-p" :id = "'cellOutput'+cellData.id">{{ cellData.output }}</pre>
-        </v-col>
-      </v-row>
-    </v-container>
   </v-card>
-  <v-menu v-if="$devMode && !isAppRoute" transition="scale-transition">
-    <template v-slot:activator="{ props }">
-      <add-cell v-bind="props" />
-    </template>
-
-    <v-list>
-      <v-list-item v-for="(item, i) in items" :key="i">
-        <v-btn :id = "'addCell_'+item.title+'_'+cellData.id" block @click="createCell(item.title)">{{ item.title }} </v-btn>
-      </v-list-item>
-    </v-list>
-  </v-menu>
 </template>
 
 <script lang="ts">
@@ -177,14 +173,13 @@ import { VDataTable } from "vuetify/labs/VDataTable";
 import { CodeCell, Layout } from "@/types/notebook";
 import LayoutComponent from "@/components/LayoutComponent.vue";
 import TextComponent from "@/components/TextComponent.vue"
-import AddCell from '@/components/AddCell.vue'
 import { useRoute } from 'vue-router'
-
+import Cell from '@/components/Cell.vue'
 
 
 export default {
   components: {
-    "add-cell": AddCell,
+    "cell": Cell,
     "codemirror": Codemirror,
     "v-slider": VSlider,
     "v-text-field": VTextField,
