@@ -75,6 +75,8 @@ export default {
       ],
     };
   },
+  inheritAttrs: false,
+  emits: ['saveCell', 'deleteCell', 'createCell'],
   props: {
     cellData: {
       type: Object as PropType<CodeCell>,

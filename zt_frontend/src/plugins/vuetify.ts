@@ -51,7 +51,7 @@ export default createVuetify({
           info: "#4CBCFC",
           success: "#16B48E",
           warning: "#F49E6E",
-          white: 'white'
+          white: '#E7E8E9'
         },
       },
     },

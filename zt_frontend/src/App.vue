@@ -85,7 +85,7 @@
       </template>
     </v-app-bar>
     <v-main :scrollable="false">
-      <router-view 
+      <CodeCellManager 
         :notebook="notebook"
         :completions="completions"
         @runCode="runCode"

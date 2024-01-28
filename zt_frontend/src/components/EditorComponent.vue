@@ -54,6 +54,8 @@ export default {
       required: true,
     },
   },
+  inheritAttrs: false,
+  emits: ['saveCell', 'deleteCell', 'createCell'],
   data() {
     if (this.$devMode) {
       return {
@@ -82,7 +84,6 @@ export default {
           content_style:
             "body { background-color: #1B2F3C; color: #FFFFFF; } main { border-radius: 0; }",
         },
-        isAppRoute: false,
         items: [
           { title: 'Code' },
           { title: 'SQL' },
@@ -103,7 +104,6 @@ export default {
           content_style:
             "body { background-color: #1B2F3C; color: #FFFFFF; } main { border-radius: 0; }",
         },
-        isAppRoute: false,
         items: [
           { title: 'Code' },
           { title: 'SQL' },
@@ -113,16 +113,15 @@ export default {
       };
     }
   },
+  computed: {
+    isAppRoute() {
+      const route = useRoute()
+      return route.path === '/app'
+    },
+  },
   mounted() {
-    this.checkRoute();
   },
   methods: {
-    checkRoute() {
-      const route = useRoute();
-      if (route.path === '/app') {
-        this.isAppRoute = true;
-      }
-    },
     saveCell() {
       if (!this.$devMode) return
       this.$emit("saveCell", this.cellData.id, this.cellData.code, '', '');
