@@ -4,6 +4,7 @@
     :is-dev-mode="$devMode && !isAppRoute"
     @play="runCode" 
     @delete="deleteCell"
+    @addCell="e => createCell(e)"
   >
     <template v-slot:code>
       <v-text-field

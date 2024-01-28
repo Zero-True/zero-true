@@ -1,9 +1,10 @@
 <template>
   <cell
-    cell-type="editor"
+    cell-type="text"
     :is-dev-mode="$devMode && !isAppRoute"
     @save="saveCell"
     @delete="deleteCell"
+    @addCell="e => createCell(e)"
   >
     <template v-slot:code>
       <tiny-editor v-if="$devMode && !isAppRoute" v-model="cellData.code" :init="init" @keyUp="saveCell" />

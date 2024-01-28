@@ -55,11 +55,16 @@
 	</v-card>
 	<v-menu v-if="isDevMode" transition="scale-transition">
     <template v-slot:activator="{ props }">
-      <add-cell v-bind="props" />
+      <add-cell 
+				v-bind="props"
+			/>
     </template>
     <v-list>
       <v-list-item v-for="(item, i) in addCellItems" :key="i">
-        <v-btn block>{{ item.title }} </v-btn>
+        <v-btn 
+					block
+					@click="$emit('addCell', item.cellType)"
+				>{{ item.title }} </v-btn>
       </v-list-item>
     </v-list>
   </v-menu>
@@ -67,19 +72,23 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import type { PropType } from 'vue'
+import type { Celltype } from '@/types/create_request'
 import AddCell from '@/components/AddCell.vue'
-
-type CellType = 'markdown' | 'code' | 'sql' | 'editor'
 
 const props = defineProps({
   isDevMode: Boolean,
-	cellType: String as PropType<CellType> 
+	cellType: String as PropType<Celltype> 
 })
 defineEmits<{
 	(e: 'delete'): void
 	(e: 'play'): void
 	(e: 'save'): void
+	(e: 'addCell', cellType: Celltype): void
 }>()
+
+function test(e) {
+	console.log('---testll---', e)
+} 
 
 const dividerColor = computed(() => {
 	switch(props.cellType) {
@@ -89,7 +98,7 @@ const dividerColor = computed(() => {
 			return '#AE9FE8'	
 		case 'sql':
 			return '#FFDCA7';
-		case 'editor':
+		case 'text':
 			return '#16B48E';
 	}
 })
@@ -97,11 +106,14 @@ const dividerColor = computed(() => {
 const showPlayBtn = computed(() => props.cellType === 'code') 
 const showSaveBtn = computed(() => props.cellType === 'markdown' || props.cellType === 'editor') 
 
-const addCellItems = ref([
-	{ title: 'Code' },
-	{ title: 'SQL' },
-	{ title: 'Markdown' },
-	{ title: 'Text' },
+const addCellItems = ref<{
+	title: string;
+	cellType: Celltype
+}[]>([
+	{ title: 'Code', cellType: 'code' },
+	{ title: 'SQL', cellType: 'sql' },
+	{ title: 'Markdown', cellType: 'markdown' },
+	{ title: 'Text', cellType: 'text' },
 ])
 </script>
 

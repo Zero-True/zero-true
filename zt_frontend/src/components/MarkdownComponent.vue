@@ -4,6 +4,7 @@
     :is-dev-mode="$devMode"
     @delete="deleteCell"
     @save="saveCell"
+    @addCell="e => createCell(e)"
   >
     <template v-slot:code>
       <codemirror

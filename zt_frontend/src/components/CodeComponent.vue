@@ -4,6 +4,7 @@
     :is-dev-mode="$devMode && !isAppRoute"
     @play="runCode(false, '', '')" 
     @delete="deleteCell"
+    @addCell="e => createCell(e)"
   >
     <template v-slot:code>
       <codemirror
