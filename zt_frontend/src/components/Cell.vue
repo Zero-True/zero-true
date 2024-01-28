@@ -37,11 +37,37 @@
 							icon="$play"
 							@click="$emit('play')"
 						></v-btn>
-						<v-btn
-							icon="$delete"
-							@click="$emit('delete')"
-						></v-btn>
-						<v-btn icon="$more"></v-btn>
+						<v-menu>
+							<template v-slot:activator="{ props }">
+								<v-btn icon="$more" v-bind="props"></v-btn>
+							</template>
+							<v-list>
+								<v-list-item>
+									<template v-slot:prepend>
+          					<v-icon icon="$sortAsc"></v-icon>
+        					</template>
+									<v-list-item-title>Move Up</v-list-item-title>
+								</v-list-item>
+								<v-list-item>
+									<template v-slot:prepend>
+          					<v-icon icon="$sortDesc"></v-icon>
+        					</template>
+									<v-list-item-title>Move Down</v-list-item-title>
+								</v-list-item>
+								<v-list-item>
+									<template v-slot:prepend>
+          					<v-icon icon="$duplicate"></v-icon>
+        					</template>
+									<v-list-item-title>Duplicate</v-list-item-title>
+								</v-list-item>
+								<v-list-item base-color="error" @click="$emit('delete')">
+									<template v-slot:prepend>
+          					<v-icon icon="$delete"></v-icon>
+        					</template>
+									<v-list-item-title>Delete Cell</v-list-item-title>
+								</v-list-item>
+							</v-list>
+						</v-menu>
 					</div>
 				</v-defaults-provider>
 			</header>
@@ -86,10 +112,6 @@ defineEmits<{
 	(e: 'addCell', cellType: Celltype): void
 }>()
 
-function test(e) {
-	console.log('---testll---', e)
-} 
-
 const dividerColor = computed(() => {
 	switch(props.cellType) {
 		case 'markdown':
@@ -103,8 +125,8 @@ const dividerColor = computed(() => {
 	}
 })
 
-const showPlayBtn = computed(() => props.cellType === 'code') 
-const showSaveBtn = computed(() => props.cellType === 'markdown' || props.cellType === 'editor') 
+const showPlayBtn = computed(() => props.cellType === 'code' || props.cellType === 'sql') 
+const showSaveBtn = computed(() => props.cellType === 'markdown' || props.cellType === 'text') 
 
 const addCellItems = ref<{
 	title: string;
