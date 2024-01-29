@@ -32,11 +32,40 @@
 							icon="$save"
 							@click="$emit('save')"
 						></v-btn>
+						
 						<v-btn
 							v-if="showPlayBtn"	
 							icon="$play"
 							@click="$emit('play')"
 						></v-btn>
+						<v-menu
+							:close-on-content-click="false"
+						>
+							<template v-slot:activator="{ props }">
+								<v-btn
+									icon="$visibility"
+									v-bind="props"
+								></v-btn>
+							</template>
+							
+							<v-list>
+								<v-list-item>
+									<template v-slot:prepend>
+										<v-switch
+										></v-switch>
+									</template>
+									<v-list-item-title>Hide Cell</v-list-item-title>
+								</v-list-item>
+								<v-list-item>
+									<template v-slot:prepend>
+										<v-switch
+										></v-switch>
+									</template>
+									<v-list-item-title>Hide Code</v-list-item-title>
+								</v-list-item>
+							</v-list>	
+							
+						</v-menu>
 						<v-menu>
 							<template v-slot:activator="{ props }">
 								<v-btn icon="$more" v-bind="props"></v-btn>

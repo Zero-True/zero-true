@@ -33,7 +33,16 @@ export default createVuetify({
       VListItem: {
         minHeight: 15
       }
-    }
+    },
+    VMenu: {
+      contentClass: 'zt-menu' 
+    },
+    VSwitch:{
+      baseColor: 'bluegrey-darken-3',
+      color: 'primary',
+			density:'compact',
+			hideDetails: true,
+		},
   },
   theme: {
     defaultTheme: "dark",
