@@ -110,7 +110,7 @@
 	</v-card>
 	<add-cell 
 		v-if="isDevMode" 
-		@createCodeCell="e => $emit('addCell', e as Celltype)" 
+		@createCodeCell="e => $emit('addCell', e)" 
 	/>
 </template>
 <script setup lang="ts">

@@ -14,7 +14,7 @@
           <h5 class="click-edit__name text-h5">{{ notebookName ?? 'Zero True' }}</h5> 
           <v-btn
             color="bluegrey-darken-1"
-            icon="$edit"
+            :icon="`ztIcon:${ztAliases.edit}`"
             @click="toggleProjectName"
           />
         </div> 
@@ -31,7 +31,7 @@
           />
           <v-btn
             color="bluegrey-darken-1"
-            icon="$save"
+            :icon="`ztIcon:${ztAliases.save}`"
             @click="saveProjectName"
           />
           <v-btn

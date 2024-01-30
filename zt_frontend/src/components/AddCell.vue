@@ -41,7 +41,7 @@ defineProps({
 })
 
 defineEmits<{
-	(e: 'createCodeCell', cellType: string): void
+	(e: 'createCodeCell', cellType: Celltype): void
 }>()
 
 const addCellItems = ref<{
