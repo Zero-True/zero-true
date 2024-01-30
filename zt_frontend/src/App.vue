@@ -7,7 +7,7 @@
       id="appBar"
     >
       <v-btn size="x-large" variant="text" @click="navigateToApp" id ="Navbutton">
-        <v-icon start size="x-large" icon="$logo"></v-icon>
+        <v-icon start size="x-large" :icon="`ztIcon:${ztAliases.logo}`"></v-icon>
       </v-btn>
       <div class="click-edit">
         <div class="click-edit__show-text" v-if="!editingProjectName">
@@ -50,7 +50,7 @@
             :color="!isAppRoute ? 'primary': 'bluegrey-darken-1'"
             :variant="!isAppRoute ? 'flat': 'text'" 
             :class="{ 'text-bluegrey-darken-4' : !isAppRoute }"
-            prepend-icon="$notebook"
+            :prepend-icon="`ztIcon:${ztAliases.notebook}`"
             to="/"
           >
           Notebook</v-btn>
@@ -58,7 +58,7 @@
             :color="isAppRoute ? 'primary': 'bluegrey-darken-1'"
             :variant="isAppRoute ? 'flat': 'text'" 
             :class="{ 'text-bluegrey-darken-4' : isAppRoute }"
-            prepend-icon="$monitor"
+            :prepend-icon="`ztIcon:${ztAliases.monitor}`"
             to="/app"
           >App</v-btn>
         </v-btn-toggle>
@@ -67,13 +67,13 @@
       <template v-slot:append>
         <v-col class="d-flex justify-end">
           <div>
-            <!-- <v-btn icon="$undo"></v-btn>
-            <v-btn icon="$redo"></v-btn>
-            <v-btn icon="$message"></v-btn> -->
+            <!-- <v-btn :icon="`ztIcon:${ztAliases.undo}`"></v-btn>
+            <v-btn :icon="`ztIcon:${ztAliases.redo}`"></v-btn>
+            <v-btn :icon="`ztIcon:${ztAliases.message}`"></v-btn> -->
             <PackageComponent v-if="$devMode" :dependencies="dependencies"/>
-            <!-- <v-btn icon="$play"></v-btn>
+            <!-- <v-btn :icon="`ztIcon:${ztAliases.play}`"></v-btn>
             <v-btn
-              prepend-icon="$share"
+              :prepend-icon="`ztIcon:${ztAliases.play}`"
               variant="flat"
               ripple
               color="primary"
@@ -102,7 +102,7 @@
       <div class="footer__left-container">
         <v-icon
           class="footer__code-version"
-          icon="$cubic" 
+          :icon="`ztIcon:${ztAliases.cubic}`" 
         />
         <span>Python {{pythonVersion}}</span>
         <v-icon class="footer__dot-divider" icon="$dot"/>
@@ -149,29 +149,29 @@
         </div> 
         <!-- <span>
           <v-icon 
-            icon="$clock" 
+            :icon="`ztIcon:${ztAliases.clock}`" 
           />
           Saved 5mins ago
         </span> -->
-        <!-- <v-icon class="footer__dot-divider" icon="$dot"/> -->
+        <!-- <v-icon class="footer__dot-divider" :icon="`ztIcon:${ztAliases.dot}`"/> -->
         <div
           v-if="isCodeRunning"
           class="footer__status"
         >
-          <v-icon icon="$status"/>
+          <v-icon :icon="`ztIcon:${ztAliases.status}`" />
           <span>Running</span>
         </div>
         <div
           v-if="!isCodeRunning"
           class="footer__status footer__status--error"
         >
-          <v-icon icon="$status"/>
+          <v-icon :icon="`ztIcon:${ztAliases.status}`" />
           <span>Stopped</span>
         </div>
         <v-btn 
           v-if="isCodeRunning"
           density="comfortable"
-          icon="$stop"
+     			:icon="`ztIcon:${ztAliases.stop}`"     
           color="bluegrey"
           variant="plain"
           :ripple="false" 
@@ -205,6 +205,7 @@ import SQLComponent from "@/components/SQLComponent.vue";
 import PackageComponent from "@/components/PackageComponent.vue";
 import CodeCellManager from "./components/CodeCellManager.vue";
 import type { VTextField } from "vuetify/lib/components/index.mjs";
+import { ztAliases } from '@/iconsets/ztIcon'
 
 export default {
   components: {
@@ -236,10 +237,11 @@ export default {
       requestQueue: [] as any[],
       componentChangeQueue: [] as  any[],
       concatenatedCodeCache: {
-      lastCellId: '' as string,
-      code: '' as string,
-      length: 0 as number
-    }
+        lastCellId: '' as string,
+        code: '' as string,
+        length: 0 as number,
+      },
+      ztAliases
     };
   },
 

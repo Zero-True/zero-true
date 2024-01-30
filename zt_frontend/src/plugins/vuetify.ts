@@ -1,7 +1,7 @@
 import "vuetify/styles";
 import { createVuetify } from "vuetify";
-import { aliases, ztIconSet } from '../iconsets/custom'
-import { aliases as mdiAliases, mdi } from 'vuetify/iconsets/mdi'
+import { ztIcon } from '../iconsets/ztIcon'
+import { aliases, mdi } from 'vuetify/iconsets/mdi'
 
 
 export default createVuetify({
@@ -70,10 +70,11 @@ export default createVuetify({
     },
   },
   icons: {
-    defaultSet: 'ztIconSet',
+    defaultSet: 'mdi',
     aliases,
     sets: {
-      ztIconSet,
+      mdi,
+      ztIcon,
     },
   },
 });

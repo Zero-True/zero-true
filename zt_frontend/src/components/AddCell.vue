@@ -5,7 +5,7 @@
 			color="bluegrey-darken-2"	
 		></v-divider>
 		<v-btn
-			prepend-icon="$circleAdd"
+			:prepend-icon="`ztIcon:${ztAliases.message}`"
 			variant="text"
 			density="compact"
 			:ripple="false"
@@ -15,6 +15,7 @@
 	</div>
 </template>
 <script setup lang="ts">
+import { ztAliases } from '@/iconsets/ztIcon'
 defineProps({
   onClick: null
 })

@@ -29,13 +29,13 @@
 						<!-- <v-btn icon="$message"></v-btn> -->
 						<v-btn
 							v-if="showSaveBtn"	
-							icon="$save"
+							:icon="`ztIcon:${ztAliases.save}`"
 							@click="$emit('save')"
 						></v-btn>
 						
 						<v-btn
 							v-if="showPlayBtn"	
-							icon="$play"
+							:icon="`ztIcon:${ztAliases.play}`"
 							@click="$emit('play')"
 						></v-btn>
 						<v-menu
@@ -43,7 +43,7 @@
 						>
 							<template v-slot:activator="{ props }">
 								<v-btn
-									icon="$visibility"
+									:icon="`ztIcon:${ztAliases.visibility}`"
 									v-bind="props"
 								></v-btn>
 							</template>
@@ -68,30 +68,30 @@
 						</v-menu>
 						<v-menu>
 							<template v-slot:activator="{ props }">
-								<v-btn icon="$more" v-bind="props"></v-btn>
+								<v-btn :icon="`ztIcon:${ztAliases.more}`" v-bind="props"></v-btn>
 							</template>
 							<v-list>
 								<v-list-item>
 									<template v-slot:prepend>
-          					<v-icon icon="$sortAsc"></v-icon>
+          					<v-icon icon="$collapse"></v-icon>
         					</template>
 									<v-list-item-title>Move Up</v-list-item-title>
 								</v-list-item>
 								<v-list-item>
 									<template v-slot:prepend>
-          					<v-icon icon="$sortDesc"></v-icon>
+          					<v-icon icon="$expand"></v-icon>
         					</template>
 									<v-list-item-title>Move Down</v-list-item-title>
 								</v-list-item>
 								<v-list-item>
 									<template v-slot:prepend>
-          					<v-icon icon="$duplicate"></v-icon>
+          					<v-icon :icon="`ztIcon:${ztAliases.duplicate}`"></v-icon>
         					</template>
 									<v-list-item-title>Duplicate</v-list-item-title>
 								</v-list-item>
 								<v-list-item base-color="error" @click="$emit('delete')">
 									<template v-slot:prepend>
-          					<v-icon icon="$delete"></v-icon>
+          					<v-icon :icon="`ztIcon:${ztAliases.delete}`"></v-icon>
         					</template>
 									<v-list-item-title>Delete Cell</v-list-item-title>
 								</v-list-item>
@@ -129,6 +129,7 @@ import { computed, ref } from 'vue'
 import type { PropType } from 'vue'
 import type { Celltype } from '@/types/create_request'
 import AddCell from '@/components/AddCell.vue'
+import { ztAliases } from '@/iconsets/ztIcon'
 
 const props = defineProps({
   isDevMode: Boolean,
@@ -177,6 +178,7 @@ const addCellItems = ref<{
 .content {
 	flex: 1;
 	margin-left: 16px;
+	width: calc(100% - 20px);
 }
 
 .indicator {
