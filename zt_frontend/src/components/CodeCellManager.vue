@@ -65,6 +65,8 @@ export default {
       required: true,
     },
   },
+  inheritAttrs: false,
+  emits: ['runCode', 'deleteCell', 'saveCell', 'createCell', 'componentValueChange'],
 
   components: {
     CodeComponent,

@@ -121,6 +121,10 @@ export default {
   },
 
   computed: {
+    isAppRoute() {
+      const route = useRoute()
+      return route.path === '/app'
+    },
     extensions() {
       const handleCtrlEnter = () => {
         this.runCode();
@@ -153,11 +157,11 @@ export default {
       ];
     },
   },
-
+  inheritAttrs: false,
+  emits: ['runCode', 'deleteCell', 'createCell', 'saveCell'],
   data() {
     return {
       isFocused: false, // add this line to keep track of the focus state
-      isAppRoute: false,
       items: [
         { title: "Code" },
         { title: "SQL" },
@@ -182,15 +186,8 @@ export default {
     return { view, handleReady };
   },
   mounted() {
-    this.checkRoute();
   },
   methods: {
-    checkRoute() {
-      const route = useRoute();
-      if (route.path === "/app") {
-        this.isAppRoute = true;
-      }
-    },
     runCode() {
       this.$emit("runCode", this.cellData.id);
     },

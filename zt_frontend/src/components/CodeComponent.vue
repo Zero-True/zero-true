@@ -214,9 +214,10 @@ export default {
       required: true
     }
   },
+  inheritAttrs: false,
+  emits: ['componentValueChange','runCode','deleteCell', 'createCell', 'saveCell'],
   data() {
     return {
-      isAppRoute: false,
       isFocused: false, // add this line to keep track of the focus state
       items: [
         { title: 'Code' },
@@ -236,6 +237,10 @@ export default {
 
 
   computed: {
+    isAppRoute() {
+      const route = useRoute()
+      return route.path === '/app'
+    },
     extensions(){
       const handleCtrlEnter = () => {
         this.runCode(false,'','')
@@ -316,15 +321,8 @@ export default {
     },
   },
   mounted() {
-    this.checkRoute();
   },
   methods: {
-    checkRoute() {
-      const route = useRoute();
-      if (route.path === '/app') {
-        this.isAppRoute = true;
-      }
-    },
     runCode(fromComponent: boolean, componentId: string, componentValue: any) {
       if (!this.$devMode && fromComponent) {
         this.$emit(
