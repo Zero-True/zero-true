@@ -108,21 +108,10 @@
 			</div>
 		</div>
 	</v-card>
-	<v-menu v-if="isDevMode" transition="scale-transition">
-    <template v-slot:activator="{ props }">
-      <add-cell 
-				v-bind="props"
-			/>
-    </template>
-    <v-list>
-      <v-list-item v-for="(item, i) in addCellItems" :key="i">
-        <v-btn 
-					block
-					@click="$emit('addCell', item.cellType)"
-				>{{ item.title }} </v-btn>
-      </v-list-item>
-    </v-list>
-  </v-menu>
+	<add-cell 
+		v-if="isDevMode" 
+		@createCodeCell="e => $emit('addCell', e as Celltype)" 
+	/>
 </template>
 <script setup lang="ts">
 import { computed, ref } from 'vue'
@@ -157,16 +146,6 @@ const dividerColor = computed(() => {
 
 const showPlayBtn = computed(() => props.cellType === 'code' || props.cellType === 'sql') 
 const showSaveBtn = computed(() => props.cellType === 'markdown' || props.cellType === 'text') 
-
-const addCellItems = ref<{
-	title: string;
-	cellType: Celltype
-}[]>([
-	{ title: 'Code', cellType: 'code' },
-	{ title: 'SQL', cellType: 'sql' },
-	{ title: 'Markdown', cellType: 'markdown' },
-	{ title: 'Text', cellType: 'text' },
-])
 </script>
 
 <style lang="scss" scoped>

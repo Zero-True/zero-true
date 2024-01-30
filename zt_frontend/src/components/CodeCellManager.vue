@@ -1,17 +1,9 @@
 <template>
   <v-container>
-    <v-menu v-if="$devMode && !isAppRoute" transition="scale-transition">
-      <template v-slot:activator="{ props }">
-        <add-cell v-bind="props" />
-      </template>
-      <v-list>
-        <v-list-item v-for="(item, i) in menu_items" :key="i">
-          <v-btn block @click="createCodeCell('', item.title)">{{
-            item.title
-          }}</v-btn>
-        </v-list-item>
-      </v-list>
-    </v-menu>
+    <add-cell 
+      v-if="$devMode && !isAppRoute" 
+      @createCodeCell="e => createCodeCell('', e)" 
+    />
   </v-container>
   <v-container v-for="codeCell in notebook.cells">
     <component
