@@ -731,7 +731,7 @@ export default {
     max-width: 200px;
   }
   @include lg {
-    max-width: 280px;
+    max-width: 320px;
   }
 }
 .footer {

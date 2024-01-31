@@ -52,7 +52,7 @@
     </template>
     <template v-slot:outcome>
       <div :id = "'outputContainer_'+cellData.id">
-        <v-container>
+        <v-container v-if="cellData.layout?.rows?.length">
           <layout-component
             v-for="(row, rowIndex) in cellData.layout?.rows"
             :key="rowIndex"
@@ -124,9 +124,7 @@
           </v-row>
         </v-container>
         
-        <div>
-          <pre :id = "'cellOutput'+cellData.id">{{ cellData.output }}</pre>
-        </div>
+        <pre :id = "'cellOutput'+cellData.id">{{ cellData.output }}</pre>
       </div>
     </template>
   </cell>
