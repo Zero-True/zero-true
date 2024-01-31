@@ -96,7 +96,6 @@
     </v-main>
     <v-footer 
       app
-      height="52"
       class="footer bg-bluegrey-darken-4 text-bluegrey"
     >
       <div class="footer__left-container">
@@ -115,14 +114,14 @@
           <v-progress-circular
             indeterminate
             color="bluegrey"
-            size="24"
+            size="17"
             class="footer__code-running-loader"
             id = "codeRunProgress"
           ></v-progress-circular>
-          <v-chip>{{ timer }}ms</v-chip>
+          <v-chip density="comfortable">{{ timer }}ms</v-chip>
           <v-btn 
             class="footer__queue-length-btn"
-            density="comfortable"
+            density="compact"
             append-icon="mdi:mdi-chevron-down"
             rounded
             :disabled="queueLength === 0"
@@ -697,15 +696,20 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '@/styles/mixins.scss';
 .cm-editor {
   height: auto !important;
 }
 
 .click-edit {
-  max-width: 280px;
+  max-width: 100px;
   width: 100%;
   &__name {
     font-weight: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    white-space: nowrap;
   }
   &__show-text,
   &__edit-field-wrapper {
@@ -719,19 +723,48 @@ export default {
       font-size: 1.5rem;
       letter-spacing: normal;
     }
-  } 
+  }
+  @include sm {
+    max-width: 100px;
+  }
+  @include md {
+    max-width: 200px;
+  }
+  @include lg {
+    max-width: 280px;
+  }
 }
 .footer {
   display: flex;
   justify-content: space-between;
+  flex-direction: column;
+
   &__left-container,
   &__right-container {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    width: 100%;
+    @include lg {
+      align-items: center;
+      width: auto;
+    }
+  }
+  
+  &__left-container {
+    margin: 0 0 10px -10px;
+    @include lg {
+      margin: 0;
+    }
   }
 
   &__dot-divider {
-    margin: 0 24px;
+    margin: 0 12px;
+    @include lg {
+      margin: 0 16px;
+    }
+    @include xl {
+      margin: 0 24px;
+    }
   }
   &__code-version {
     margin-right: 12px;
@@ -755,6 +788,10 @@ export default {
     &--error {
       color: rgba(var(--v-theme-error));
     }
+  }
+  @include lg {
+    flex-direction: row;
+    height: 42px;
   }
 }
 

@@ -362,8 +362,8 @@ export default {
 };
 </script>
 
-<style>
-.toolbar-bg {
-  background-color: #4f4d4d; /* Light grey background */
+<style lang="scss" scoped>
+:deep(.plot-container) {
+  overflow: auto;
 }
 </style>
