@@ -1,6 +1,7 @@
 <template>
   <cell
     cell-type="text"
+    :cell-id="cellData.id" 
     :is-dev-mode="$devMode && !isAppRoute"
     @save="saveCell"
     @delete="deleteCell"

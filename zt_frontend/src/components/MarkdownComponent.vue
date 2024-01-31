@@ -1,6 +1,7 @@
 <template>
   <cell
     cell-type="markdown"
+    :cell-id="cellData.id" 
     :is-dev-mode="$devMode"
     @delete="deleteCell"
     @save="saveCell"

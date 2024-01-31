@@ -1,6 +1,6 @@
 <template>
   <v-card
-    :id="attrs.id"
+    :id="'codeCard'+cellId"
     class="cell"
     color="bluegrey-darken-4"
   >
@@ -35,7 +35,8 @@
 						></v-btn>
 						
 						<v-btn
-							v-if="showPlayBtn"	
+							v-if="showPlayBtn"
+							:id = "'runCode'+cellId"
 							:icon="`ztIcon:${ztAliases.play}`"
 							@click="$emit('play')"
 						></v-btn>
@@ -90,7 +91,11 @@
         					</template>
 									<v-list-item-title>Duplicate</v-list-item-title>
 								</v-list-item>
-								<v-list-item base-color="error" @click="$emit('delete')">
+								<v-list-item 
+									base-color="error"
+									:id = "'deleteCell'+cellId"
+									@click="$emit('delete')"
+								>
 									<template v-slot:prepend>
           					<v-icon :icon="`ztIcon:${ztAliases.delete}`"></v-icon>
         					</template>
@@ -111,6 +116,7 @@
 	</v-card>
 	<add-cell 
 		v-if="isDevMode" 
+    :cell-id="cellId" 
 		@createCodeCell="e => $emit('addCell', e)" 
 	/>
 </template>
@@ -123,7 +129,8 @@ import { ztAliases } from '@/iconsets/ztIcon'
 
 const props = defineProps({
   isDevMode: Boolean,
-	cellType: String as PropType<Celltype> 
+	cellType: String as PropType<Celltype>,
+	cellId: String
 })
 defineEmits<{
 	(e: 'delete'): void

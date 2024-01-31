@@ -7,11 +7,11 @@
 					color="bluegrey-darken-2"	
 				></v-divider>
 				<v-btn
-					:prepend-icon="`ztIcon:${ztAliases.message}`"
+					v-bind="cellId ? { ...props, id: 'addCell'+cellId } : props"
+					:prepend-icon="`ztIcon:${ztAliases.circleAdd}`"
 					variant="text"
 					density="compact"
 					:ripple="false"
-					v-bind="props"
 					class="divider__btn bg-background"
 				>Add cell</v-btn>
 			</div>
@@ -20,6 +20,7 @@
 			<v-list-item
 				v-for="(item, i) in addCellItems"
 				:key="i"
+				v-bind="cellId ? { id: 'addCell_'+item.title+'_'+cellId } : {}"
 				@click="$emit('createCodeCell', item.cellType)"
 			>
 				<template v-slot:prepend>
@@ -37,7 +38,8 @@ import { ztAliases } from '@/iconsets/ztIcon'
 import { Celltype } from '@/types/create_request';
 
 defineProps({
-  onClick: null
+  onClick: null,
+	cellId: String
 })
 
 defineEmits<{
