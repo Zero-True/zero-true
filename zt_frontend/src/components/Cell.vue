@@ -1,72 +1,44 @@
 <template>
-  <v-card
-    :id="'codeCard'+cellId"
-    class="cell"
-    color="bluegrey-darken-4"
-  >
-		<v-divider 
-			class="indicator"	
-			vertical
-			:color="dividerColor"
-			:thickness="4"
-		></v-divider>
-		<div
-			class="content"	
-		>
+	<v-card :id="'codeCard' + cellId" class="cell" color="bluegrey-darken-4">
+		<v-divider class="indicator" vertical :color="dividerColor" :thickness="4"></v-divider>
+		<div class="content">
 			<header class="header">
-				<h4 class="text-bluegrey-darken-1">{{cellType}} #1</h4>
-				<v-defaults-provider
-					:defaults="{
-						'VIcon':{
-							'color':'bluegrey',
-						},
-						'VBtn': {
-							variant: 'text',
-							size: 'small'
-						}
-					}"
-				>	
+				<h4 class="text-bluegrey-darken-1">{{ cellType }} #1</h4>
+				<v-defaults-provider :defaults="{
+					'VIcon': {
+						'color': 'bluegrey',
+					},
+					'VBtn': {
+						variant: 'text',
+						size: 'small'
+					}
+				}">
 					<div class="actions">
 						<!-- <v-btn icon="$message"></v-btn> -->
-						<v-btn
-							v-if="showSaveBtn"	
-							:icon="`ztIcon:${ztAliases.save}`"
-							@click="$emit('save')"
-						></v-btn>
-						
-						<v-btn
-							v-if="showPlayBtn"
-							:id = "'runCode'+cellId"
-							:icon="`ztIcon:${ztAliases.play}`"
-							@click="$emit('play')"
-						></v-btn>
-						<v-menu
-							:close-on-content-click="false"
-						>
+						<v-btn v-if="showSaveBtn" :icon="`ztIcon:${ztAliases.save}`" @click="$emit('save')"></v-btn>
+
+						<v-btn v-if="showPlayBtn" :id="'runCode' + cellId" :icon="`ztIcon:${ztAliases.play}`"
+							@click="$emit('play')"></v-btn>
+						<v-menu :close-on-content-click="false">
 							<template v-slot:activator="{ props }">
-								<v-btn
-									:icon="`ztIcon:${ztAliases.visibility}`"
-									v-bind="props"
-								></v-btn>
+								<v-btn :icon="`ztIcon:${ztAliases.visibility}`" v-bind="props"></v-btn>
 							</template>
-							
+
 							<v-list>
 								<v-list-item>
 									<template v-slot:prepend>
-										<v-switch
-										></v-switch>
+										<v-switch></v-switch>
 									</template>
 									<v-list-item-title>Hide Cell</v-list-item-title>
 								</v-list-item>
 								<v-list-item>
 									<template v-slot:prepend>
-										<v-switch
-										></v-switch>
+										<v-switch></v-switch>
 									</template>
 									<v-list-item-title>Hide Code</v-list-item-title>
 								</v-list-item>
-							</v-list>	
-							
+							</v-list>
+
 						</v-menu>
 						<v-menu>
 							<template v-slot:activator="{ props }">
@@ -75,30 +47,26 @@
 							<v-list>
 								<v-list-item>
 									<template v-slot:prepend>
-          					<v-icon icon="$collapse"></v-icon>
-        					</template>
+										<v-icon icon="$collapse"></v-icon>
+									</template>
 									<v-list-item-title>Move Up</v-list-item-title>
 								</v-list-item>
 								<v-list-item>
 									<template v-slot:prepend>
-          					<v-icon icon="$expand"></v-icon>
-        					</template>
+										<v-icon icon="$expand"></v-icon>
+									</template>
 									<v-list-item-title>Move Down</v-list-item-title>
 								</v-list-item>
 								<v-list-item>
 									<template v-slot:prepend>
-          					<v-icon :icon="`ztIcon:${ztAliases.duplicate}`"></v-icon>
-        					</template>
+										<v-icon :icon="`ztIcon:${ztAliases.duplicate}`"></v-icon>
+									</template>
 									<v-list-item-title>Duplicate</v-list-item-title>
 								</v-list-item>
-								<v-list-item 
-									base-color="error"
-									:id = "'deleteCell'+cellId"
-									@click="$emit('delete')"
-								>
+								<v-list-item base-color="error" :id="'deleteCell' + cellId" @click="$emit('delete')">
 									<template v-slot:prepend>
-          					<v-icon :icon="`ztIcon:${ztAliases.delete}`"></v-icon>
-        					</template>
+										<v-icon :icon="`ztIcon:${ztAliases.delete}`"></v-icon>
+									</template>
 									<v-list-item-title>Delete Cell</v-list-item-title>
 								</v-list-item>
 							</v-list>
@@ -114,21 +82,17 @@
 			</div>
 		</div>
 	</v-card>
-	<add-cell 
-		v-if="isDevMode" 
-    :cell-id="cellId" 
-		@createCodeCell="e => $emit('addCell', e)" 
-	/>
+	<add-cell v-if="isDevMode" :cell-id="cellId" @createCodeCell="e => $emit('addCell', e)" />
 </template>
 <script setup lang="ts">
-import { computed, ref, useAttrs } from 'vue'
+import { computed } from 'vue'
 import type { PropType } from 'vue'
 import type { Celltype } from '@/types/create_request'
 import AddCell from '@/components/AddCell.vue'
 import { ztAliases } from '@/iconsets/ztIcon'
 
 const props = defineProps({
-  isDevMode: Boolean,
+	isDevMode: Boolean,
 	cellType: String as PropType<Celltype>,
 	cellId: String
 })
@@ -139,14 +103,12 @@ defineEmits<{
 	(e: 'addCell', cellType: Celltype): void
 }>()
 
-const attrs = useAttrs()
-
 const dividerColor = computed(() => {
-	switch(props.cellType) {
+	switch (props.cellType) {
 		case 'markdown':
 			return '#4CBCFC';
 		case 'code':
-			return '#AE9FE8'	
+			return '#AE9FE8'
 		case 'sql':
 			return '#FFDCA7';
 		case 'text':
@@ -154,7 +116,7 @@ const dividerColor = computed(() => {
 	}
 })
 
-const showPlayBtn = computed(() => props.cellType === 'code' || props.cellType === 'sql') 
+const showPlayBtn = computed(() => props.cellType === 'code' || props.cellType === 'sql')
 const showSaveBtn = computed(() => props.cellType === 'markdown' || props.cellType === 'text') 
 </script>
 
@@ -164,6 +126,7 @@ const showSaveBtn = computed(() => props.cellType === 'markdown' || props.cellTy
 	display: flex;
 	margin-bottom: 16px;
 }
+
 .content {
 	flex: 1;
 	margin-left: 16px;
