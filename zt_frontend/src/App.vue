@@ -105,9 +105,9 @@
           :icon="`ztIcon:${ztAliases.cubic}`" 
         />
         <span>Python {{pythonVersion}}</span>
-        <v-icon class="footer__dot-divider" icon="$dot"/>
+        <v-icon class="footer__dot-divider" :icon="`ztIcon:${ztAliases.dot}`"/>
         <span>Zero-True {{ztVersion}}</span>
-        <v-icon class="footer__dot-divider" icon="$dot"/>
+        <v-icon class="footer__dot-divider" :icon="`ztIcon:${ztAliases.dot}`"/>
         <span>{{ cellLength }} cells</span>
       </div> 
       <div class="footer__right-container">
@@ -393,7 +393,7 @@ export default {
         }
 
         else {
-          const cell_response = JSON.parse(response)
+          const cell_response = typeof response === 'string' ? JSON.parse(response) : response
           if (cell_response.notebook){
             this.notebook = cell_response.notebook;
             for (let cell_id in this.notebook.cells){
@@ -404,10 +404,13 @@ export default {
             this.dependencies = cell_response.dependencies;
           }
           else {
-            this.notebook.cells[cell_response.id].components = cell_response.components;
-            this.notebook.cells[cell_response.id].layout = cell_response.layout as
-              | Layout
-              | undefined;
+            if (this.notebook.cells && this.notebook.cells[cell_response.id])  {
+              this.notebook.cells[cell_response.id].components = cell_response.components;
+              this.notebook.cells[cell_response.id].layout = cell_response.layout as
+                | Layout
+                | undefined;
+            }
+            
           }
         }
       };
