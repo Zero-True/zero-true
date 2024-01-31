@@ -1,5 +1,7 @@
 <template>
   <cell
+    style="background-color: red;" 
+    :id="'codeCard'+cellData.id"
     cell-type="code"
     :is-dev-mode="$devMode && !isAppRoute"
     @play="runCode(false, '', '')" 

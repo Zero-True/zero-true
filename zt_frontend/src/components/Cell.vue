@@ -1,8 +1,9 @@
 <template>
-	<v-card
-		class="cell"
-		color="bluegrey-darken-4"
-	>
+  <v-card
+    :id="attrs.id"
+    class="cell"
+    color="bluegrey-darken-4"
+  >
 		<v-divider 
 			class="indicator"	
 			vertical
@@ -114,7 +115,7 @@
 	/>
 </template>
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, useAttrs } from 'vue'
 import type { PropType } from 'vue'
 import type { Celltype } from '@/types/create_request'
 import AddCell from '@/components/AddCell.vue'
@@ -130,6 +131,8 @@ defineEmits<{
 	(e: 'save'): void
 	(e: 'addCell', cellType: Celltype): void
 }>()
+
+const attrs = useAttrs()
 
 const dividerColor = computed(() => {
 	switch(props.cellType) {
