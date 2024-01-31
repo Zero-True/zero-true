@@ -94,7 +94,8 @@ import { ztAliases } from '@/iconsets/ztIcon'
 const props = defineProps({
   isDevMode: Boolean,
   cellType: String as PropType<Celltype>,
-  cellId: String
+  cellId: String,
+  error: Boolean
 })
 defineEmits<{
   (e: 'delete'): void
@@ -104,6 +105,7 @@ defineEmits<{
 }>()
 
 const dividerColor = computed(() => {
+  if (props.error) return 'error' 
   switch (props.cellType) {
     case 'markdown':
       return '#4CBCFC';
