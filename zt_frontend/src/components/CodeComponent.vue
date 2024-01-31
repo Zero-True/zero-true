@@ -1,6 +1,5 @@
 <template>
   <cell
-    style="background-color: red;" 
     :cell-id="cellData.id" 
     cell-type="code"
     :is-dev-mode="$devMode && !isAppRoute"
