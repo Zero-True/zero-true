@@ -41,7 +41,7 @@
           />
         </div> 
       </div>
-      <div class="toggle-group">
+      <div class="toggle-group" v-if="!isMobile">
         <v-btn-toggle
           :multiple="false"
           mandatory
@@ -272,6 +272,9 @@ export default {
       const route = useRoute()
       return route.path === '/app'
     }, 
+    isMobile() {
+      return this.$vuetify.display.mobile
+    },
     cellLength() {
       return this.notebook.cells ? Object.keys(this.notebook.cells).length : 0
     },
@@ -350,7 +353,6 @@ export default {
 
       if (this.isCodeRunning) {
         const existingRequestIndex = this.requestQueue.findIndex(req => req.originId === originId);
-        console.log('---here---', this.requestQueue)
         if (existingRequestIndex !== -1) {
           this.requestQueue[existingRequestIndex] = request;
         
@@ -702,13 +704,12 @@ export default {
 }
 
 .click-edit {
-  max-width: 100px;
+  max-width: 320px;
   width: 100%;
   &__name {
     font-weight: normal;
     overflow: hidden;
     text-overflow: ellipsis;
-    width: 100%;
     white-space: nowrap;
   }
   &__show-text,
@@ -723,9 +724,6 @@ export default {
       font-size: 1.5rem;
       letter-spacing: normal;
     }
-  }
-  @include sm {
-    max-width: 100px;
   }
   @include md {
     max-width: 200px;
@@ -744,7 +742,7 @@ export default {
     display: flex;
     align-items: flex-start;
     width: 100%;
-    @include lg {
+    @include md {
       align-items: center;
       width: auto;
     }
@@ -752,7 +750,7 @@ export default {
   
   &__left-container {
     margin: 0 0 10px -10px;
-    @include lg {
+    @include md {
       margin: 0;
     }
   }
@@ -789,7 +787,7 @@ export default {
       color: rgba(var(--v-theme-error));
     }
   }
-  @include lg {
+  @include md {
     flex-direction: row;
     height: 42px;
   }

@@ -2,20 +2,20 @@
   <cell
     cell-type="sql"
     :cell-id="cellData.id" 
-    :is-dev-mode="$devMode && !isAppRoute"
+    :is-dev-mode="$devMode && !isAppRoute && !isMobile"
     @play="runCode" 
     @delete="deleteCell"
     @addCell="e => createCell(e)"
   >
     <template v-slot:code>
       <v-text-field
-        v-if="$devMode && !isAppRoute"
+        v-if="$devMode && !isAppRoute && !isMobile"
         v-model="cellData.variable_name"
         label="Enter SQL variable name"
         density="compact"
       />
       <codemirror
-        v-if="$devMode && !isAppRoute"
+        v-if="$devMode && !isAppRoute && !isMobile"
         v-model="cellData.code"
         :style="{ height: '400px' }"
         :autofocus="true"
@@ -53,13 +53,13 @@
           </v-expansion-panel-text>
         </v-expansion-panel>
       </v-expansion-panels>
-      <div v-if="$devMode && !isAppRoute">
+      <div v-if="$devMode && !isAppRoute && !isMobile">
         <p class="text-caption text-disabled text-right">CTRL+Enter to run</p>
       </div>
     </template>
     <template v-slot:outcome>
       <v-container
-        v-if="$devMode && !isAppRoute"
+        v-if="$devMode && !isAppRoute && !isMobile"
         v-for="component in cellData.components"
         :key="component.id"
       >
@@ -104,6 +104,9 @@ export default {
     isAppRoute() {
       const route = useRoute()
       return route.path === '/app'
+    },
+    isMobile() {
+      return this.$vuetify.display.mobile
     },
     extensions() {
       const handleCtrlEnter = () => {

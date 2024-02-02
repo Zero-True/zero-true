@@ -2,14 +2,14 @@
   <cell
     :cell-id="cellData.id" 
     cell-type="code"
-    :is-dev-mode="$devMode && !isAppRoute"
+    :is-dev-mode="$devMode && !isAppRoute && !isMobile"
     @play="runCode(false, '', '')" 
     @delete="deleteCell"
     @addCell="e => createCell(e)"
   >
     <template v-slot:code>
       <codemirror
-        v-if="$devMode && !isAppRoute"
+        v-if="$devMode && !isAppRoute && !isMobile"
         v-model="cellData.code"
         :style="{ height: '400px' }"
         :autofocus="true"
@@ -45,7 +45,7 @@
           </v-expansion-panel-text>
         </v-expansion-panel>
       </v-expansion-panels>
-      <div v-if="$devMode && !isAppRoute">
+      <div v-if="$devMode && !isAppRoute && !isMobile">
         <p class="text-caption text-disabled text-right">
           CTRL+Enter to run</p>
       </div>
@@ -216,6 +216,9 @@ export default {
     isAppRoute() {
       const route = useRoute()
       return route.path === '/app'
+    },
+    isMobile() {
+      return this.$vuetify.display.mobile
     },
     extensions(){
       const handleCtrlEnter = () => {

@@ -2,13 +2,13 @@
   <cell
     cell-type="text"
     :cell-id="cellData.id" 
-    :is-dev-mode="$devMode && !isAppRoute"
+    :is-dev-mode="$devMode && !isAppRoute && !isMobile"
     @save="saveCell"
     @delete="deleteCell"
     @addCell="e => createCell(e)"
   >
     <template v-slot:code>
-      <tiny-editor v-if="$devMode && !isAppRoute" v-model="cellData.code" :init="init" @keyUp="saveCell" />
+      <tiny-editor v-if="$devMode && !isAppRoute && !isMobile" v-model="cellData.code" :init="init" @keyUp="saveCell" />
       <tiny-editor v-else-if="$devMode && isAppRoute" v-model="cellData.code" :init="app_init" @keyUp="saveCell" />
     </template>
     <template v-slot:outcome>
@@ -104,6 +104,9 @@ export default {
     isAppRoute() {
       const route = useRoute()
       return route.path === '/app'
+    },
+    isMobile() {
+      return this.$vuetify.display.mobile
     },
   },
   mounted() {

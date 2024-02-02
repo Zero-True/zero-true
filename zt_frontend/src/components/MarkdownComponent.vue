@@ -2,14 +2,14 @@
   <cell
     cell-type="markdown"
     :cell-id="cellData.id" 
-    :is-dev-mode="$devMode"
+    :is-dev-mode="$devMode && !isMobile"
     @delete="deleteCell"
     @save="saveCell"
     @addCell="e => createCell(e)"
   >
     <template v-slot:code>
       <codemirror
-        v-if="$devMode"
+        v-if="$devMode && !isMobile"
         v-model="cellData.code"
         :style="{ height: '400px' }"
         :autofocus="true"
@@ -49,6 +49,9 @@ export default {
     compiledMarkdown() {
       const pasrsed_markdown = marked.parse(this.cellData.code,)
       return pasrsed_markdown;
+    },
+    isMobile() {
+      return this.$vuetify.display.mobile
     },
   },
   data() {

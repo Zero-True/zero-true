@@ -5,6 +5,9 @@ import { aliases, mdi } from 'vuetify/iconsets/mdi'
 
 
 export default createVuetify({
+  display: {
+    mobileBreakpoint: 'md',
+  },
   defaults: {
     global: {
       elevation: 0 
