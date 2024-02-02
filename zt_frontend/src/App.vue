@@ -99,18 +99,20 @@
       class="footer bg-bluegrey-darken-4 text-bluegrey"
     >
       <div class="footer__left-container">
-        <v-icon
-          class="footer__code-version"
-          :icon="`ztIcon:${ztAliases.cubic}`" 
-        />
-        <span>Python {{pythonVersion}}</span>
-        <v-icon class="footer__dot-divider" :icon="`ztIcon:${ztAliases.dot}`"/>
+        <span>
+          <v-icon
+            class="footer__code-version-icon"
+            :icon="`ztIcon:${ztAliases.cubic}`" 
+          />
+          <span>Python {{pythonVersion}}</span>
+        </span> 
+        <v-icon class="dot-divider" :icon="`ztIcon:${ztAliases.dot}`"/>
         <span>Zero-True {{ztVersion}}</span>
-        <v-icon class="footer__dot-divider" :icon="`ztIcon:${ztAliases.dot}`"/>
+        <v-icon class="dot-divider" :icon="`ztIcon:${ztAliases.dot}`"/>
         <span>{{ cellLength }} cells</span>
       </div> 
       <div class="footer__right-container">
-        <div v-if="isCodeRunning">
+        <div class="footer__queue-length-wrapper" v-if="isCodeRunning">
           <v-progress-circular
             indeterminate
             color="bluegrey"
@@ -146,40 +148,42 @@
             </v-menu>
           </v-btn>
         </div> 
-        <!-- <span>
-          <v-icon 
-            :icon="`ztIcon:${ztAliases.clock}`" 
-          />
-          Saved 5mins ago
-        </span> -->
-        <!-- <v-icon class="footer__dot-divider" :icon="`ztIcon:${ztAliases.dot}`"/> -->
-        <div
-          v-if="isCodeRunning"
-          class="footer__status"
-        >
-          <v-icon :icon="`ztIcon:${ztAliases.status}`" />
-          <span>Running</span>
-        </div>
-        <div
-          v-if="!isCodeRunning"
-          class="footer__status footer__status--error"
-        >
-          <v-icon :icon="`ztIcon:${ztAliases.status}`" />
-          <span>Stopped</span>
-        </div>
-        <v-btn 
-          v-if="isCodeRunning"
-          density="comfortable"
-     			:icon="`ztIcon:${ztAliases.stop}`"     
-          color="bluegrey"
-          variant="plain"
-          :ripple="false" 
-          @click="stopCodeExecution()"
-          rounded
-        >
-        </v-btn>
+        
+        <div class="footer__status-wrapper">
+          <!-- <span>
+            <v-icon 
+              :icon="`ztIcon:${ztAliases.clock}`" 
+            />
+            Saved 5mins ago
+          </span> -->
+          <!-- <v-icon class="dot-divider" :icon="`ztIcon:${ztAliases.dot}`"/> -->
+          <div
+            v-if="isCodeRunning"  
+            class="footer__status"
+          >
+            <v-icon :icon="`ztIcon:${ztAliases.status}`" />
+            <span>Running</span>
+          </div>
+          <div
+            v-if="!isCodeRunning"
+            class="footer__status footer__status--error"
+          >
+            <v-icon :icon="`ztIcon:${ztAliases.status}`" />
+            <span>Stopped</span>
+          </div>
+          <v-btn 
+            v-if="isCodeRunning"
+            density="comfortable"
+            :icon="`ztIcon:${ztAliases.stop}`"     
+            color="bluegrey"
+            variant="plain"
+            :ripple="false" 
+            @click="stopCodeExecution()"
+            rounded
+          >
+          </v-btn>
+        </div> 
       </div> 
-      
     </v-footer>
   </v-app>
 </template>
@@ -704,7 +708,7 @@ export default {
 }
 
 .click-edit {
-  max-width: 320px;
+  max-width: 200px;
   width: 100%;
   &__name {
     font-weight: normal;
@@ -725,8 +729,8 @@ export default {
       letter-spacing: normal;
     }
   }
-  @include md {
-    max-width: 200px;
+  @include sm {
+    max-width: 250px;
   }
   @include lg {
     max-width: 320px;
@@ -740,7 +744,6 @@ export default {
   &__left-container,
   &__right-container {
     display: flex;
-    align-items: flex-start;
     width: 100%;
     @include md {
       align-items: center;
@@ -748,15 +751,40 @@ export default {
     }
   }
   
+  &__right-container {
+    align-items: center;
+    flex-direction: column;
+    justify-content: flex-start; 
+    @include sm {
+      flex-direction: row;
+    }
+  }
+  
   &__left-container {
-    margin: 0 0 10px -10px;
-    @include md {
+    flex-direction: column;
+    margin: 0 0 20px 0px;
+    @include sm {
       margin: 0;
+      flex-direction: row;
     }
   }
 
-  &__dot-divider {
-    margin: 0 12px;
+  &__queue-length-wrapper {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    @include sm {
+      width: auto;
+    }
+  }
+
+  .dot-divider {
+    display: none;
+    margin: 0 5px;
+    @include sm {
+      display: flex;
+      margin: 0 16px;
+    }
     @include lg {
       margin: 0 16px;
     }
@@ -764,14 +792,38 @@ export default {
       margin: 0 24px;
     }
   }
-  &__code-version {
-    margin-right: 12px;
+  &__status-wrapper {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    align-items: center;
+    .dot-divider {
+      display: none;
+      @include md {
+        display: flex;
+      }
+    }
+  }
+
+  
+  &__code-version-icon {
+    margin-right: 0px;
+    margin-left: -5px;
+    @include sm {
+      margin-right: 12px;
+    }
   }
   &__queue-length-btn {
-    margin: 0 8px 0 24px;
+    margin: 0 2px 0 2px;
+    @include md {
+      margin: 0 8px 0 24px;
+    }
   }
   &__code-running-loader {
     margin-right: 10px;
+    @include lg {
+      margin-right: 10px;
+    }
   }
   &__queue-list {
     font-size: 0.625rem;
