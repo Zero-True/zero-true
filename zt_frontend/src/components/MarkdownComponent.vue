@@ -2,7 +2,7 @@
   <cell
     cell-type="markdown"
     :cell-id="cellData.id" 
-    :is-dev-mode="$devMode && !isMobile"
+    :is-dev-mode="$devMode && !isAppRoute && !isMobile"
     @delete="deleteCell"
     @save="saveCell"
     @addCell="e => createCell(e)"
@@ -35,6 +35,7 @@ import { oneDark } from '@codemirror/theme-one-dark'
 import { autocompletion } from '@codemirror/autocomplete'
 import { CodeCell } from "@/types/notebook";
 import AddCell from '@/components/AddCell.vue'
+import { useRoute } from 'vue-router'
 import Cell from '@/components/Cell.vue'
 
 export default {
@@ -49,6 +50,10 @@ export default {
     compiledMarkdown() {
       const pasrsed_markdown = marked.parse(this.cellData.code,)
       return pasrsed_markdown;
+    },
+    isAppRoute() {
+      const route = useRoute()
+      return route.path === '/app'
     },
     isMobile() {
       return this.$vuetify.display.mobile

@@ -74,7 +74,7 @@
           </div>
         </v-defaults-provider>
       </header>
-      <div class="code">
+      <div class="code" v-if="isDevMode || (!isDevMode && keepCodeInAppModel)">
         <slot name="code"></slot>
       </div>
       <div class="outcome">
@@ -120,6 +120,7 @@ const dividerColor = computed(() => {
 
 const showPlayBtn = computed(() => props.cellType === 'code' || props.cellType === 'sql')
 const showSaveBtn = computed(() => props.cellType === 'markdown' || props.cellType === 'text') 
+const keepCodeInAppModel = computed(() => props.cellType === 'code' || props.cellType === 'sql') 
 </script>
 
 <style lang="scss" scoped>
