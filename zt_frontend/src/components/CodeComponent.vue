@@ -52,78 +52,76 @@
     </template>
     <template v-slot:outcome>
       <div :id = "'outputContainer_'+cellData.id">
-        <v-container v-if="cellData.layout?.rows?.length">
-          <layout-component
-            v-for="(row, rowIndex) in cellData.layout?.rows"
-            :key="rowIndex"
-            :row-data="row"
-            :components="cellData.components"
-            @runCode="runCode"
-          />
-          <v-row>
-            <v-col v-for="(col, colIndex) in columns" :cols="col.width">
-              <layout-component
-                :key="colIndex"
-                :column-data="col"
-                :components="cellData.components"
-                @runCode="runCode"
-              />
-            </v-col>
-          </v-row>
-          <!-- Render unplaced components at the bottom -->
-          <v-row :id = "'unplacedComponents'+cellData.id">
-            <v-container
-              class="pa-1"
-              v-for="component in unplacedComponents"
-              :key="component.id"
+        <layout-component
+          v-if="cellData.layout?.rows?.length"  
+          v-for="(row, rowIndex) in cellData.layout?.rows"
+          :key="rowIndex"
+          :row-data="row"
+          :components="cellData.components"
+          @runCode="runCode"
+        />
+        <v-row v-if="columns?.length">
+          <v-col v-for="(col, colIndex) in columns" :cols="col.width">
+            <layout-component
+              :key="colIndex"
+              :column-data="col"
+              :components="cellData.components"
+              @runCode="runCode"
+            />
+          </v-col>
+        </v-row>
+        <!-- Render unplaced components at the bottom -->
+        <v-row v-if="unplacedComponents.length" :id = "'unplacedComponents'+cellData.id">
+          <v-container
+            class="pa-5"
+            v-for="component in unplacedComponents"
+            :key="component.id"
+          >
+            <!-- Render Plotly component if it's a 'plotly-plot' -->
+            <plotly-plot
+              v-if="component.component === 'plotly-plot'"
+              :id="component.id"
+              :figure="component.figure"
+              :layout="component.layout"
+            />
+            <!-- Render other components -->
+            <component
+              v-else-if="component.component === 'v-card'"
+              :is="component.component"
+              v-bind="componentBind(component)"
+              position="relative"
+              @runCode="runCode"
             >
-              <!-- Render Plotly component if it's a 'plotly-plot' -->
-              <plotly-plot
-                v-if="component.component === 'plotly-plot'"
-                :id="component.id"
-                :figure="component.figure"
-                :layout="component.layout"
-              />
-              <!-- Render other components -->
-              <component
-                v-else-if="component.component === 'v-card'"
-                :is="component.component"
-                v-bind="componentBind(component)"
-                position="relative"
-                @runCode="runCode"
-              >
-                <div v-for="comp in cardComponents(component)">
-                  <plotly-plot
-                    v-if="comp.component === 'plotly-plot'"
-                    :id="component.id"
-                    :figure="comp.figure"
-                    :layout="comp.layout"
-                  />
-                  <component
-                    v-else
-                    :is="comp.component"
-                    v-bind="componentBind(comp)"
-                    v-model="comp.value"
-                    @click="clickedButton(comp)"
-                    @[comp.triggerEvent]="runCode(true, comp.id, comp.value)"
-                  />
-                </div>
-              </component>
+              <div v-for="comp in cardComponents(component)">
+                <plotly-plot
+                  v-if="comp.component === 'plotly-plot'"
+                  :id="component.id"
+                  :figure="comp.figure"
+                  :layout="comp.layout"
+                />
+                <component
+                  v-else
+                  :is="comp.component"
+                  v-bind="componentBind(comp)"
+                  v-model="comp.value"
+                  @click="clickedButton(comp)"
+                  @[comp.triggerEvent]="runCode(true, comp.id, comp.value)"
+                />
+              </div>
+            </component>
 
-              <component
-                v-else
-                :is="component.component"
-                v-bind="componentBind(component)"
-                v-model="component.value"
-                @click="clickedButton(component)"
-                @[component.triggerEvent]="
-                  runCode(true, component.id, component.value)
-                "
-              />
-            </v-container>
-          </v-row>
-        </v-container>
-        
+            <component
+              v-else
+              :is="component.component"
+              v-bind="componentBind(component)"
+              v-model="component.value"
+              @click="clickedButton(component)"
+              @[component.triggerEvent]="
+                runCode(true, component.id, component.value)
+              "
+            />
+          </v-container>
+        </v-row>
         <pre :id = "'cellOutput'+cellData.id">{{ cellData.output }}</pre>
       </div>
     </template>
