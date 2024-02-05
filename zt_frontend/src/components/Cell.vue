@@ -42,7 +42,7 @@
             </v-menu>
             <v-menu>
               <template v-slot:activator="{ props }">
-                <v-btn :icon="`ztIcon:${ztAliases.more}`" v-bind="props"></v-btn>
+                <v-btn :icon="`ztIcon:${ztAliases.more}`" :id="'cellToolbar' + cellId" v-bind="props"></v-btn>
               </template>
               <v-list>
                 <v-list-item>
