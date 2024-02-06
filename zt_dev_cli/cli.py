@@ -84,7 +84,7 @@ def notebook(port: Annotated[Optional[int], typer.Argument(help="Port number to 
     log_path = os.path.normpath(pkg_resources.resource_filename('zt_dev_cli', 'log_config.yaml'))
     os.environ['RUN_MODE'] = 'dev'
     frontend_cmd = ["yarn", "run", "dev", str(port)]
-    backend_cmd = ["uvicorn", "zt_backend.main:app", f"--log-config={log_path}"]
+    backend_cmd = ["uvicorn", "zt_backend.main:app", "--reload", f"--log-config={log_path}"]
     if (os.name == 'nt'):
         backend_cmd = ["start"]+backend_cmd
 

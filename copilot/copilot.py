@@ -146,7 +146,6 @@ async def get_completions(params: GetCompletionsParams):
             params.doc.version = version
             response = requests.post(f"{NODE_SERVER_URL}/sendRequest", json={"method": "getCompletions", "params": params.dict()})
             response.raise_for_status()
-            print(response.json())
             return response.json()
         except requests.RequestException as e:
             raise HTTPException(status_code=500, detail=str(e))
