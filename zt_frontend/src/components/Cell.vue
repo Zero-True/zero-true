@@ -13,7 +13,7 @@
             size: 'small'
           }
         }">
-          <div class="actions">
+          <div v-if="$devMode && !isAppRoute" class="actions">
             <!-- <v-btn icon="$message"></v-btn> -->
             <v-btn v-if="showSaveBtn" :icon="`ztIcon:${ztAliases.save}`" @click="$emit('save')"></v-btn>
 
@@ -77,7 +77,7 @@
       <div class="code" v-if="isDevMode || (!isDevMode && keepCodeInAppModel)">
         <slot name="code"></slot>
       </div>
-      <div class="outcome">
+      <div class="outcome" v-if="!(isDevMode && !isAppRoute && cellType==='text')" >
         <slot name="outcome"></slot>
       </div>
     </div>
@@ -90,6 +90,7 @@ import type { PropType } from 'vue'
 import type { Celltype } from '@/types/create_request'
 import AddCell from '@/components/AddCell.vue'
 import { ztAliases } from '@/iconsets/ztIcon'
+import { useRoute } from 'vue-router'
 
 const props = defineProps({
   isDevMode: Boolean,
@@ -121,6 +122,7 @@ const dividerColor = computed(() => {
 const showPlayBtn = computed(() => props.cellType === 'code' || props.cellType === 'sql')
 const showSaveBtn = computed(() => props.cellType === 'markdown' || props.cellType === 'text') 
 const keepCodeInAppModel = computed(() => props.cellType === 'code' || props.cellType === 'sql') 
+const isAppRoute = computed(() => useRoute().name === '/app')
 </script>
 
 <style lang="scss" scoped>

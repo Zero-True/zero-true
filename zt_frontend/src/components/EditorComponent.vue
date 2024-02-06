@@ -9,10 +9,9 @@
   >
     <template v-slot:code>
       <tiny-editor v-if="$devMode && !isAppRoute && !isMobile" v-model="cellData.code" :init="init" @keyUp="saveCell" />
-      <tiny-editor v-else-if="$devMode && isAppRoute" v-model="cellData.code" :init="app_init" @keyUp="saveCell" />
     </template>
-    <template v-slot:outcome>
-      <tiny-editor v-model="cellData.code" :init="init" :disabled="true" />
+    <template v-slot:outcome v-if="($devMode && isAppRoute) || !$devMode ">
+      <tiny-editor v-model="cellData.code" :init="app_init" :disabled="true" />
     </template>
   </cell>
 </template>
@@ -44,7 +43,6 @@ export default {
   inheritAttrs: false,
   emits: ['saveCell', 'deleteCell', 'createCell'],
   data() {
-    if (this.$devMode) {
       return {
         init: {
           plugins: "autoresize",
@@ -62,15 +60,15 @@ export default {
         },
         app_init: {
           plugins: "autoresize",
-          toolbar: false,
-          branding: false,
-          menubar: false,
-          statusbar: false,
-          skin: false,
-          content_css: false,
-          content_style:
-            "body { background-color: #1B2F3C; color: #FFFFFF; } main { border-radius: 0; }",
-        },
+        toolbar: false,
+        branding: false,
+        menubar: false,
+        statusbar: false,
+        skin: false,
+        content_css: false,
+        content_style:
+          "body { background-color: #1B2F3C; color: #FFFFFF; } main { border-radius: 0; }",
+      },
         items: [
           { title: 'Code' },
           { title: 'SQL' },
@@ -78,27 +76,6 @@ export default {
           { title: 'Text' },
         ],
       };
-    } else {
-      return {
-        init: {
-          plugins: "autoresize",
-          toolbar: false,
-          branding: false,
-          menubar: false,
-          statusbar: false,
-          skin: false,
-          content_css: false,
-          content_style:
-            "body { background-color: #1B2F3C; color: #FFFFFF; } main { border-radius: 0; }",
-        },
-        items: [
-          { title: 'Code' },
-          { title: 'SQL' },
-          { title: 'Markdown' },
-          { title: 'Text' },
-        ],
-      };
-    }
   },
   computed: {
     isAppRoute() {
