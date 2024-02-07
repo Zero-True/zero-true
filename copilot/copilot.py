@@ -43,14 +43,14 @@ async def start_node_server():
             stderr=asyncio.subprocess.DEVNULL)
         print("Node server started")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"An error occurred while starting server: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @copilot_app.post("/start_node_server")
 async def start_node_server_route():
     try:
         await start_node_server()
-        return {"message": 'Node server started successfully with PM2'}
+        return {"message": 'Node server started successfully'}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
