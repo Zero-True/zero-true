@@ -68,7 +68,7 @@ def execute_request(request: request.Request, state: UserState):
         component_globals={'global_state': execution_state.component_values}
         dependency_graph = build_dependency_graph(parse_cells(request))
         if request.originId:
-            downstream_cells = [request.originId]
+            downstream_cells = [request.originId]+dependency_graph.cells[request.originId].child_cells
             try:
                 old_downstream_cells = [request.originId]
                 # Find cells that are no longer dependent

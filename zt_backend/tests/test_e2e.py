@@ -12,9 +12,12 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import time 
+import uuid
 
 
-notebook_str = '''notebookId = "08bdd530-3544-473b-af28-bb04f8646dbgfddgdfgfaa"
+notebook_id = str(uuid.uuid4())
+
+notebook_str = '''notebookId = "''' + notebook_id + '''"
 
 [cells.57fbbd59-8f30-415c-87bf-8caae0374070]
 cellType = "code"
@@ -220,7 +223,7 @@ def test_deletion_of_new_code_cell(driver):
     new_cell_info =  extract_code_cell_info(code_cells[1],driver)
     new_cell_info["elements"]["cell_toolbar"].click()
     WebDriverWait(driver, 25).until(
-        EC.presence_of_element_located((By.ID, f"deleteCell{new_cell_info['cell_id']}")))
+        EC.element_to_be_clickable((By.ID, f"deleteCell{new_cell_info['cell_id']}")))
     delete_btn = driver.find_element(By.ID,f"deleteCell{new_cell_info['cell_id']}")
     delete_btn.click()
     time.sleep(2)

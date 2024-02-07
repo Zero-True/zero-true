@@ -36,9 +36,9 @@ def get_defined_names(module) -> List[str]:
     func_def_names = [arg.name for func in module.nodes_of_class(astroid.FunctionDef) for arg in func.args.args]
     return list(set(defined_names) - set(func_def_names))
 
-def get_loaded_modules(module) -> List[str]:
+def get_loaded_modules(module,all_imports) -> List[str]:
     try:
-        return list(set([node.expr.name for node in module.nodes_of_class(astroid.Attribute) if hasattr(node.expr, 'name')]))
+        return list(set([node.expr.name for node in module.nodes_of_class(astroid.Attribute) if hasattr(node.expr, 'name') and node.expr.name in all_imports]))
     except Exception as e:
         logger.error("Error getting loaded modules: %s", traceback.format_exc())
         return []
@@ -87,6 +87,7 @@ def generate_sql_code(cell, uuid_value, db_file='zt_db.db'):
 
 def parse_cells(request: Request) -> CodeDict:
     cell_dict = {}
+    all_imports = []
     for cell in [c for c in request.cells if c.cellType in ['code', 'sql']]:
         table_names=[]
         if cell.cellType=='sql' and cell.code:
@@ -99,14 +100,15 @@ def parse_cells(request: Request) -> CodeDict:
         
         try:
             module = astroid.parse(cell.code)
+            all_imports += get_imports(module)
             function_names, function_arguments = get_functions(module)
             defined_names = get_defined_names(module) + function_names
-            loaded_names = [name for name in get_loaded_names(module, defined_names) + get_loaded_modules(module) + list(table_names) if name not in get_imports(module)]
+            loaded_names = [name for name in get_loaded_names(module, defined_names) + get_loaded_modules(module,all_imports) + list(table_names) if name not in get_imports(module)]
             cell_dict[cell.id] = Cell(**{
                 'code': cell.code,
                 'defined_names': defined_names,
                 'imported_modules':get_imports(module),
-                'loaded_modules':get_loaded_modules(module),
+                'loaded_modules':get_loaded_modules(module,all_imports),
                 'loaded_names': list(set(loaded_names))})
         except Exception as e:
             logger.error("Error while parsing cells, returning empty names lists: %s", traceback.format_exc())
