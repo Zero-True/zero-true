@@ -7,17 +7,18 @@
       id="appBar"
     >
       <v-btn size="x-large" variant="text" @click="navigateToApp" id ="Navbutton">
-        <v-icon start size="x-large" icon="$logo"></v-icon>
+        <v-icon start size="x-large" :icon="`ztIcon:${ztAliases.logo}`"></v-icon>
       </v-btn>
       <div class="click-edit">
         <div class="click-edit__show-text" v-if="!editingProjectName">
           <h5 class="click-edit__name text-h5">{{ notebookName ?? 'Zero True' }}</h5> 
           <v-btn
             color="bluegrey-darken-1"
-            icon="$edit"
+            :icon="`ztIcon:${ztAliases.edit}`"
             @click="toggleProjectName"
           />
         </div> 
+        
         <div class="click-edit__edit-field-wrapper" v-if="editingProjectName">
           <v-text-field 
             v-model="notebookName"   
@@ -30,7 +31,7 @@
           />
           <v-btn
             color="bluegrey-darken-1"
-            icon="$save"
+            :icon="`ztIcon:${ztAliases.save}`"
             @click="saveProjectName"
           />
           <v-btn
@@ -39,42 +40,41 @@
             @click="toggleProjectName"
           />
         </div> 
-      </div> 
-      
-      <template v-slot:extension >
-        <div class="toggle-group bg-background">
-          <v-btn-toggle
-            :multiple="false"
-            mandatory
+      </div>
+      <div class="toggle-group" v-if="!isMobile">
+        <v-btn-toggle
+          :multiple="false"
+          mandatory
+        >
+          <v-btn
+            :color="!isAppRoute ? 'primary': 'bluegrey-darken-1'"
+            :variant="!isAppRoute ? 'flat': 'text'" 
+            :class="{ 'text-bluegrey-darken-4' : !isAppRoute }"
+            :prepend-icon="`ztIcon:${ztAliases.notebook}`"
+            to="/"
           >
-            <v-btn
-              :color="!isAppRoute ? 'primary': 'bluegrey-darken-1'"
-              :variant="!isAppRoute ? 'flat': 'text'" 
-              :class="{ 'text-bluegrey-darken-4' : !isAppRoute }"
-              prepend-icon="$notebook"
-              to="/"
-            >
-            Notebook</v-btn>
-            <v-btn 
-              :color="isAppRoute ? 'primary': 'bluegrey-darken-1'"
-              :variant="isAppRoute ? 'flat': 'text'" 
-              :class="{ 'text-bluegrey-darken-4' : isAppRoute }"
-              prepend-icon="$monitor"
-              to="/app"
-            >App</v-btn>
-          </v-btn-toggle>
-        </div>
-      </template>
+          Notebook</v-btn>
+          <v-btn 
+            :color="isAppRoute ? 'primary': 'bluegrey-darken-1'"
+            :variant="isAppRoute ? 'flat': 'text'" 
+            :class="{ 'text-bluegrey-darken-4' : isAppRoute }"
+            :prepend-icon="`ztIcon:${ztAliases.monitor}`"
+            to="/app"
+          >App</v-btn>
+        </v-btn-toggle>
+      </div>
+      
       <template v-slot:append>
         <v-col class="d-flex justify-end">
           <div>
-            <!-- <v-btn icon="$undo"></v-btn>
-            <v-btn icon="$redo"></v-btn>
-            <v-btn icon="$message"></v-btn> -->
+            <!-- <v-btn :icon="`ztIcon:${ztAliases.undo}`"></v-btn>
+            <v-btn :icon="`ztIcon:${ztAliases.redo}`"></v-btn>
+            <v-btn :icon="`ztIcon:${ztAliases.message}`"></v-btn> -->
+            <CopilotComponent v-if="$devMode"/>
             <PackageComponent v-if="$devMode" :dependencies="dependencies"/>
-            <!-- <v-btn icon="$play"></v-btn>
+            <!-- <v-btn :icon="`ztIcon:${ztAliases.play}`"></v-btn>
             <v-btn
-              prepend-icon="$share"
+              :prepend-icon="`ztIcon:${ztAliases.play}`"
               variant="flat"
               ripple
               color="primary"
@@ -93,37 +93,39 @@
         @componentValueChange="componentValueChange"
         @deleteCell="deleteCell"
         @createCell="createCodeCell"
+        @copilotCompletion="copilotCompletion"
        />
     </v-main>
     <v-footer 
       app
-      height="52"
       class="footer bg-bluegrey-darken-4 text-bluegrey"
     >
       <div class="footer__left-container">
-        <v-icon
-          class="footer__code-version"
-          icon="$cubic" 
-        />
-        <span>Python {{pythonVersion}}</span>
-        <v-icon class="footer__dot-divider" icon="$dot"/>
+        <span>
+          <v-icon
+            class="footer__code-version-icon"
+            :icon="`ztIcon:${ztAliases.cubic}`" 
+          />
+          <span>Python {{pythonVersion}}</span>
+        </span> 
+        <v-icon class="dot-divider" :icon="`ztIcon:${ztAliases.dot}`"/>
         <span>Zero-True {{ztVersion}}</span>
-        <v-icon class="footer__dot-divider" icon="$dot"/>
+        <v-icon class="dot-divider" :icon="`ztIcon:${ztAliases.dot}`"/>
         <span>{{ cellLength }} cells</span>
       </div> 
       <div class="footer__right-container">
-        <div v-if="isCodeRunning">
+        <div class="footer__queue-length-wrapper" v-if="isCodeRunning">
           <v-progress-circular
             indeterminate
             color="bluegrey"
-            size="24"
+            size="17"
             class="footer__code-running-loader"
             id = "codeRunProgress"
           ></v-progress-circular>
-          <v-chip>{{ timer }}ms</v-chip>
+          <v-chip density="comfortable">{{ timer }}ms</v-chip>
           <v-btn 
             class="footer__queue-length-btn"
-            density="comfortable"
+            density="compact"
             append-icon="mdi:mdi-chevron-down"
             rounded
             :disabled="queueLength === 0"
@@ -148,40 +150,42 @@
             </v-menu>
           </v-btn>
         </div> 
-        <!-- <span>
-          <v-icon 
-            icon="$clock" 
-          />
-          Saved 5mins ago
-        </span> -->
-        <!-- <v-icon class="footer__dot-divider" icon="$dot"/> -->
-        <div
-          v-if="isCodeRunning"
-          class="footer__status"
-        >
-          <v-icon icon="$status"/>
-          <span>Running</span>
-        </div>
-        <div
-          v-if="!isCodeRunning"
-          class="footer__status footer__status--error"
-        >
-          <v-icon icon="$status"/>
-          <span>Stopped</span>
-        </div>
-        <v-btn 
-          v-if="isCodeRunning"
-          density="comfortable"
-          icon="$stop"
-          color="bluegrey"
-          variant="plain"
-          :ripple="false" 
-          @click="stopCodeExecution()"
-          rounded
-        >
-        </v-btn>
+        
+        <div class="footer__status-wrapper">
+          <!-- <span>
+            <v-icon 
+              :icon="`ztIcon:${ztAliases.clock}`" 
+            />
+            Saved 5mins ago
+          </span> -->
+          <!-- <v-icon class="dot-divider" :icon="`ztIcon:${ztAliases.dot}`"/> -->
+          <div
+            v-if="isCodeRunning"  
+            class="footer__status"
+          >
+            <v-icon :icon="`ztIcon:${ztAliases.status}`" />
+            <span>Running</span>
+          </div>
+          <div
+            v-if="!isCodeRunning"
+            class="footer__status footer__status--error"
+          >
+            <v-icon :icon="`ztIcon:${ztAliases.status}`" />
+            <span>Stopped</span>
+          </div>
+          <v-btn 
+            v-if="isCodeRunning"
+            density="comfortable"
+            :icon="`ztIcon:${ztAliases.stop}`"     
+            color="bluegrey"
+            variant="plain"
+            :ripple="false" 
+            @click="stopCodeExecution()"
+            rounded
+          >
+          </v-btn>
+        </div> 
       </div> 
-      
     </v-footer>
   </v-app>
 </template>
@@ -205,7 +209,9 @@ import EditorComponent from "@/components/EditorComponent.vue";
 import SQLComponent from "@/components/SQLComponent.vue";
 import PackageComponent from "@/components/PackageComponent.vue";
 import CodeCellManager from "./components/CodeCellManager.vue";
+import CopilotComponent from "./components/CopilotComponent.vue";
 import type { VTextField } from "vuetify/lib/components/index.mjs";
+import { ztAliases } from '@/iconsets/ztIcon'
 
 export default {
   components: {
@@ -214,7 +220,8 @@ export default {
     EditorComponent,
     SQLComponent,
     PackageComponent,
-    CodeCellManager
+    CodeCellManager,
+    CopilotComponent
   },
 
   data() {
@@ -231,16 +238,18 @@ export default {
       save_socket: null as WebSocket | null,
       run_socket: null as WebSocket | null,
       stop_socket: null as WebSocket | null,
-      timer: 0, // The timer value
-      timerInterval: null as ReturnType<typeof setInterval> | null, // To hold the timer interval
+      timer: 0,
+      timerInterval: null as ReturnType<typeof setInterval> | null,
       isCodeRunning: false,
       requestQueue: [] as any[],
       componentChangeQueue: [] as  any[],
       concatenatedCodeCache: {
       lastCellId: '' as string,
       code: '' as string,
-      length: 0 as number
-    }
+      followingCode: '' as string,
+      length: 0 as number,
+      },
+      ztAliases
     };
   },
 
@@ -272,6 +281,9 @@ export default {
       const route = useRoute()
       return route.path === '/app'
     }, 
+    isMobile() {
+      return this.$vuetify.display.mobile
+    },
     cellLength() {
       return this.notebook.cells ? Object.keys(this.notebook.cells).length : 0
     },
@@ -350,7 +362,6 @@ export default {
 
       if (this.isCodeRunning) {
         const existingRequestIndex = this.requestQueue.findIndex(req => req.originId === originId);
-        console.log('---here---', this.requestQueue)
         if (existingRequestIndex !== -1) {
           this.requestQueue[existingRequestIndex] = request;
         
@@ -377,7 +388,7 @@ export default {
           this.notebookName = response.notebook_name
           document.title = this.notebookName
         }
-        if (response.cell_id){
+        else if (response.cell_id){
           if (response.clear_output){
             this.notebook.cells[response.cell_id].output=""
           }
@@ -392,7 +403,7 @@ export default {
         }
 
         else {
-          const cell_response = JSON.parse(response)
+          const cell_response = typeof response === 'string' ? JSON.parse(response) : response
           if (cell_response.notebook){
             this.notebook = cell_response.notebook;
             for (let cell_id in this.notebook.cells){
@@ -403,10 +414,13 @@ export default {
             this.dependencies = cell_response.dependencies;
           }
           else {
-            this.notebook.cells[cell_response.id].components = cell_response.components;
-            this.notebook.cells[cell_response.id].layout = cell_response.layout as
-              | Layout
-              | undefined;
+            if (this.notebook.cells && this.notebook.cells[cell_response.id])  {
+              this.notebook.cells[cell_response.id].components = cell_response.components;
+              this.notebook.cells[cell_response.id].layout = cell_response.layout as
+                | Layout
+                | undefined;
+            }
+            
           }
         }
       };
@@ -628,16 +642,25 @@ export default {
     },
 
     async saveCell(cellId: string, text: string, line: string, column: string) {
-      // Check if the current cell is a code cell
       if (this.notebook.cells[cellId].cellType === 'code') {
         if (this.concatenatedCodeCache.lastCellId !== cellId) {
-            let concatenatedCode = '';
+            let concatenatedCode = ''
+            let followingCode = ''
             let length = 0
+            let prevCode = true
             for (let key in this.notebook.cells) {
-              if (key === cellId) break;
+              if (key === cellId){
+                prevCode = false;
+                continue;
+              }
               if (this.notebook.cells[key].cellType === 'code') {
-                concatenatedCode += this.notebook.cells[key].code+'\n';
-                length += this.notebook.cells[key].code.split(/\r\n|\r|\n/).length
+                if(prevCode){
+                  concatenatedCode += this.notebook.cells[key].code+'\n';
+                  length += this.notebook.cells[key].code.split(/\r\n|\r|\n/).length
+                }
+                else{
+                  followingCode += this.notebook.cells[key].code+'\n';
+                }
               }
             }
 
@@ -645,6 +668,7 @@ export default {
             this.concatenatedCodeCache = {
               lastCellId: cellId,
               code: concatenatedCode,
+              followingCode: followingCode,
               length: length
             };
           }
@@ -656,9 +680,54 @@ export default {
         cellType: this.notebook.cells[cellId].cellType,
         line:  this.concatenatedCodeCache.length+line,
         column: column,
-        code_w_context: this.concatenatedCodeCache.code+text
+        code_w_context: this.concatenatedCodeCache.code+text+this.concatenatedCodeCache.followingCode
       };
       this.save_socket!.send(JSON.stringify(saveRequest))
+    },
+
+    async copilotCompletion(cellId: string, line: string, column: string, callback: any){
+      if (this.concatenatedCodeCache.lastCellId !== cellId) {
+          let concatenatedCode = ''
+          let followingCode = ''
+          let length = 0
+          let prevCode = true
+          for (let key in this.notebook.cells) {
+            if (key === cellId){
+              prevCode = false;
+              continue;
+            }
+            if (this.notebook.cells[key].cellType === 'code') {
+              if(prevCode){
+                concatenatedCode += this.notebook.cells[key].code+'\n';
+                length += this.notebook.cells[key].code.split(/\r\n|\r|\n/).length
+              }
+              else{
+                followingCode += this.notebook.cells[key].code+'\n';
+              }
+            }
+          }
+
+          // Update the cache
+          this.concatenatedCodeCache = {
+            lastCellId: cellId,
+            code: concatenatedCode,
+            followingCode: followingCode,
+            length: length
+          };
+        }
+        const response = await axios.post(import.meta.env.VITE_BACKEND_URL + "copilot/get_completions",
+            {
+              doc: {
+                version: 1,
+                uri: "file:///notebook.ztnb",
+                position: {
+                  line: this.concatenatedCodeCache.length+line,
+                  character: column
+                }
+              }
+            }
+          );
+        callback(response)
     },
 
     async stopCodeExecution(){
@@ -693,15 +762,19 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '@/styles/mixins.scss';
 .cm-editor {
   height: auto !important;
 }
 
 .click-edit {
-  max-width: 280px;
+  max-width: 200px;
   width: 100%;
   &__name {
     font-weight: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   &__show-text,
   &__edit-field-wrapper {
@@ -715,28 +788,102 @@ export default {
       font-size: 1.5rem;
       letter-spacing: normal;
     }
-  } 
+  }
+  @include sm {
+    max-width: 250px;
+  }
+  @include lg {
+    max-width: 320px;
+  }
 }
 .footer {
   display: flex;
   justify-content: space-between;
+  flex-direction: column;
+
   &__left-container,
   &__right-container {
     display: flex;
+    width: 100%;
+    @include md {
+      align-items: center;
+      width: auto;
+    }
+  }
+  
+  &__right-container {
     align-items: center;
+    flex-direction: column;
+    justify-content: flex-start; 
+    @include sm {
+      flex-direction: row;
+    }
+  }
+  
+  &__left-container {
+    flex-direction: column;
+    margin: 0 0 20px 0px;
+    @include sm {
+      margin: 0;
+      flex-direction: row;
+    }
   }
 
-  &__dot-divider {
-    margin: 0 24px;
+  &__queue-length-wrapper {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    @include sm {
+      width: auto;
+    }
   }
-  &__code-version {
-    margin-right: 12px;
+
+  .dot-divider {
+    display: none;
+    margin: 0 5px;
+    @include sm {
+      display: flex;
+      margin: 0 16px;
+    }
+    @include lg {
+      margin: 0 16px;
+    }
+    @include xl {
+      margin: 0 24px;
+    }
+  }
+  &__status-wrapper {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    align-items: center;
+    .dot-divider {
+      display: none;
+      @include md {
+        display: flex;
+      }
+    }
+  }
+
+  
+  &__code-version-icon {
+    margin-right: 0px;
+    margin-left: -5px;
+    @include sm {
+      margin-right: 12px;
+    }
   }
   &__queue-length-btn {
-    margin: 0 8px 0 24px;
+    margin: 0 2px 0 2px;
+    @include md {
+      margin: 0 8px 0 24px;
+    }
   }
   &__code-running-loader {
     margin-right: 10px;
+    @include lg {
+      margin-right: 10px;
+    }
   }
   &__queue-list {
     font-size: 0.625rem;
@@ -752,13 +899,17 @@ export default {
       color: rgba(var(--v-theme-error));
     }
   }
+  @include md {
+    flex-direction: row;
+    height: 42px;
+  }
 }
 
 .toggle-group {
   display: flex;
   justify-content: center;
-  width: 100%;
-  height: 100%;
-  padding: 24px 0 32px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 </style>

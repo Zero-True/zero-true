@@ -85,8 +85,8 @@ def test_importing_module():
                     components={})
     cell_dict = build_dependency_graph(parse_cells(cells))
     
-    assert cell_dict.cells['0'].defined_names == ['math'] and cell_dict.cells['0'].loaded_names == [], "Test 7 Failed"
-    assert cell_dict.cells['1'].defined_names == ['a'] and cell_dict.cells['1'].loaded_names == ['math'], "Test 7 Failed"
+    assert cell_dict.cells['0'].imported_modules == ['math'] and cell_dict.cells['0'].loaded_names == [], "Test 7 Failed"
+    assert cell_dict.cells['1'].defined_names == ['a'] and cell_dict.cells['1'].loaded_modules == ['math'], "Test 7 Failed"
 
 # Test 8: Defining multiple variables in one cell
 def test_multiple_variables_in_one_cell():
@@ -116,5 +116,5 @@ def test_importing_module_with_alias():
                     components={})
     cell_dict = build_dependency_graph(parse_cells(cells))
     
-    assert cell_dict.cells['0'].defined_names == ['m'] and cell_dict.cells['0'].loaded_names == [], "Test 10 Failed"
-    assert cell_dict.cells['1'].defined_names == ['a'] and cell_dict.cells['1'].loaded_names == ['m'], "Test 10 Failed"
+    assert cell_dict.cells['0'].imported_modules == ['m'] and cell_dict.cells['0'].loaded_names == [], "Test 10 Failed"
+    assert cell_dict.cells['1'].defined_names == ['a'] and cell_dict.cells['1'].loaded_modules == ['m'], "Test 10 Failed"

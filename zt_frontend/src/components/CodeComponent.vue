@@ -1,170 +1,145 @@
 <template>
-  <v-card flat color="bluegrey-darken-4" :id="'codeCard'+cellData.id">
-    <v-row v-if="$devMode && !isAppRoute" no-gutters class="py-1 toolbar-bg">
-      <v-col :cols="11">
-        <span class="py-0 px-2">.py</span>
-        <!-- Placeholder for future content or can be empty -->
-      </v-col>
-      <v-col :cols="1" class="d-flex justify-end align-center py-0">
-        <v-icon
-          small
-          :id = "'runCode'+cellData.id"
-          class="mx-1"
-          icon="$play"
-          color="bluegrey"
-          @click="runCode(false, '', '')"
-          
-        >
-        </v-icon>
-        <v-icon small :id = "'deleteCell'+cellData.id" icon="$delete" class="mx-1" color="error" @click="deleteCell" >
-        </v-icon>
-      </v-col>
-    </v-row>
-    <codemirror
-      v-if="$devMode && !isAppRoute"
-      v-model="cellData.code"
-      :style="{ height: '400px' }"
-      :autofocus="true"
-      :indent-with-tab="true"
-      :tab-size="2"
-      :viewportMargin="Infinity"
-      :extensions="extensions"
-      @ready="handleReady"
-      @keyup="saveCell"
-      :code="cellData.code"
-      :id = "'codeMirrorDev'+cellData.id"
-    />
-    <v-expansion-panels v-else>
-      <v-expansion-panel
-        bg-color="#212121"
-      >
-        <v-expansion-panel-title 
-          color="#1c2e3c"
-        >
-          View Source Code
-        </v-expansion-panel-title>
-        <v-expansion-panel-text>
-          <codemirror
-            v-model="cellData.code"
-            :style="{ height: '400px' }"
-            :autofocus="true"
-            :indent-with-tab="true"
-            :tab-size="2"
-            :viewportMargin="Infinity"
-            :extensions="extensions"
-            :id = "'codeMirrorApp'+cellData.id"
-          />
-        </v-expansion-panel-text>
-      </v-expansion-panel>
-    </v-expansion-panels>
-    <div v-if="$devMode && !isAppRoute">
-      <p class="text-caption text-disabled text-right">
-        CTRL+Enter to run</p>
-    </div>
-    <v-container :id = "'outputContainer_'+cellData.id">
-      <layout-component
-        v-for="(row, rowIndex) in cellData.layout?.rows"
-        :key="rowIndex"
-        :row-data="row"
-        :components="cellData.components"
-        @runCode="runCode"
+  <cell
+    :cell-id="cellData.id" 
+    cell-type="code"
+    :is-dev-mode="$devMode && !isAppRoute && !isMobile"
+    @play="runCode(false, '', '')" 
+    @delete="deleteCell"
+    @addCell="e => createCell(e)"
+  >
+    <template v-slot:code>
+      <codemirror
+        v-if="$devMode && !isAppRoute && !isMobile"
+        v-model="cellData.code"
+        :style="{ height: '400px' }"
+        :autofocus="true"
+        :indent-with-tab="true"
+        :tab-size="2"
+        :viewportMargin="Infinity"
+        :extensions="extensions"
+        @ready="handleReady"
+        @keyup="saveCell"
+        :code="cellData.code"
+        :id = "'codeMirrorDev'+cellData.id"
       />
-      <v-row>
-        <v-col v-for="(col, colIndex) in columns" :cols="col.width">
-          <layout-component
-            :key="colIndex"
-            :column-data="col"
-            :components="cellData.components"
-            @runCode="runCode"
-          />
-        </v-col>
-      </v-row>
-      <!-- Render unplaced components at the bottom -->
-      <v-row :id = "'unplacedComponents'+cellData.id">
-        <v-container
-          class="pa-1"
-          v-for="component in unplacedComponents"
-          :key="component.id"
+      <v-expansion-panels v-else>
+        <v-expansion-panel
+          bg-color="#212121"
         >
-          <!-- Render Plotly component if it's a 'plotly-plot' -->
-          <plotly-plot
-            v-if="component.component === 'plotly-plot'"
-            :id="component.id"
-            :figure="component.figure"
-            :layout="component.layout"
-          />
-          <!-- Render other components -->
-          <component
-            v-else-if="component.component === 'v-card'"
-            :is="component.component"
-            v-bind="componentBind(component)"
-            position="relative"
-            @runCode="runCode"
+          <v-expansion-panel-title 
+            color="#1c2e3c"
           >
-            <div v-for="comp in cardComponents(component)">
-              <plotly-plot
-                v-if="comp.component === 'plotly-plot'"
-                :id="component.id"
-                :figure="comp.figure"
-                :layout="comp.layout"
-              />
-              <component
-                v-else
-                :is="comp.component"
-                v-bind="componentBind(comp)"
-                v-model="comp.value"
-                @click="clickedButton(comp)"
-                @[comp.triggerEvent]="runCode(true, comp.id, comp.value)"
-              />
-            </div>
-          </component>
-
-          <component
-            v-else
-            :is="component.component"
-            v-bind="componentBind(component)"
-            v-model="component.value"
-            @click="clickedButton(component)"
-            @[component.triggerEvent]="
-              runCode(true, component.id, component.value)
-            "
-          />
-        </v-container>
-      </v-row>
-      <v-row>
-        <v-col>
-          <pre class="text-p" :id = "'cellOutput'+cellData.id">{{ cellData.output }}</pre>
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-card>
-  <v-menu v-if="$devMode && !isAppRoute" transition="scale-transition">
-    <template v-slot:activator="{ props }">
-      <v-btn v-bind="props" color="#212121" block :id = "'addCell'+cellData.id">
-        <v-row>
-          <v-icon color="primary"  icon="mdi:mdi-plus"></v-icon>
-        </v-row>
-      </v-btn>
+            View Source Code
+          </v-expansion-panel-title>
+          <v-expansion-panel-text>
+            <codemirror
+              v-model="cellData.code"
+              :style="{ height: '400px' }"
+              :autofocus="true"
+              :indent-with-tab="true"
+              :tab-size="2"
+              :viewportMargin="Infinity"
+              :extensions="extensions"
+              :id = "'codeMirrorApp'+cellData.id"
+            />
+          </v-expansion-panel-text>
+        </v-expansion-panel>
+      </v-expansion-panels>
+      <div v-if="$devMode && !isAppRoute && !isMobile">
+        <p class="text-caption text-disabled text-right">
+          CTRL+Enter to run</p>
+      </div>
     </template>
+    <template v-slot:outcome>
+      <div :id = "'outputContainer_'+cellData.id">
+        <layout-component
+          v-if="cellData.layout?.rows?.length"  
+          v-for="(row, rowIndex) in cellData.layout?.rows"
+          :key="rowIndex"
+          :row-data="row"
+          :components="cellData.components"
+          @runCode="runCode"
+        />
+        <v-row v-if="columns?.length">
+          <v-col v-for="(col, colIndex) in columns" :cols="col.width">
+            <layout-component
+              :key="colIndex"
+              :column-data="col"
+              :components="cellData.components"
+              @runCode="runCode"
+            />
+          </v-col>
+        </v-row>
+        <!-- Render unplaced components at the bottom -->
+        <v-row v-if="unplacedComponents.length" :id = "'unplacedComponents'+cellData.id">
+          <v-container
+            class="pa-5"
+            v-for="component in unplacedComponents"
+            :key="component.id"
+          >
+            <!-- Render Plotly component if it's a 'plotly-plot' -->
+            <plotly-plot
+              v-if="component.component === 'plotly-plot'"
+              :id="component.id"
+              :figure="component.figure"
+              :layout="component.layout"
+            />
+            <!-- Render other components -->
+            <component
+              v-else-if="component.component === 'v-card'"
+              :is="component.component"
+              v-bind="componentBind(component)"
+              position="relative"
+              @runCode="runCode"
+            >
+              <div v-for="comp in cardComponents(component)">
+                <plotly-plot
+                  v-if="comp.component === 'plotly-plot'"
+                  :id="component.id"
+                  :figure="comp.figure"
+                  :layout="comp.layout"
+                />
+                <component
+                  v-else
+                  :is="comp.component"
+                  v-bind="componentBind(comp)"
+                  v-model="comp.value"
+                  @click="clickedButton(comp)"
+                  @[comp.triggerEvent]="runCode(true, comp.id, comp.value)"
+                />
+              </div>
+            </component>
 
-    <v-list>
-      <v-list-item v-for="(item, i) in items" :key="i">
-        <v-btn :id = "'addCell_'+item.title+'_'+cellData.id" block @click="createCell(item.title)">{{ item.title }} </v-btn>
-      </v-list-item>
-    </v-list>
-  </v-menu>
+            <component
+              v-else
+              :is="component.component"
+              v-bind="componentBind(component)"
+              v-model="component.value"
+              @click="clickedButton(component)"
+              @[component.triggerEvent]="
+                runCode(true, component.id, component.value)
+              "
+            />
+          </v-container>
+        </v-row>
+        <pre :id = "'cellOutput'+cellData.id">{{ cellData.output }}</pre>
+      </div>
+    </template>
+  </cell>
 </template>
 
 <script lang="ts">
 import type { PropType, ShallowRef } from "vue";
 import { shallowRef } from "vue";
+import axios from "axios";
 import PlotlyPlot from "@/components/PlotlyComponent.vue";
 import { Codemirror } from 'vue-codemirror'
 import { python } from '@codemirror/lang-python'
+import { indentUnit } from '@codemirror/language'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { EditorView, keymap } from '@codemirror/view'
 import { Prec, EditorState } from "@codemirror/state";
-import { autocompletion, CompletionResult, CompletionContext } from '@codemirror/autocomplete'
+import { autocompletion, acceptCompletion, CompletionResult, CompletionContext } from '@codemirror/autocomplete'
 import {
   VSlider,
   VTextField,
@@ -181,12 +156,16 @@ import { VDataTable } from "vuetify/labs/VDataTable";
 import { CodeCell, Layout } from "@/types/notebook";
 import LayoutComponent from "@/components/LayoutComponent.vue";
 import TextComponent from "@/components/TextComponent.vue"
+import { globalState } from "@/global_vars"
 import { useRoute } from 'vue-router'
+import Cell from '@/components/Cell.vue'
+import { inlineSuggestion } from 'codemirror-extension-inline-suggestion'
 
 
 
 export default {
   components: {
+    "cell": Cell,
     "codemirror": Codemirror,
     "v-slider": VSlider,
     "v-text-field": VTextField,
@@ -215,10 +194,12 @@ export default {
     }
   },
   inheritAttrs: false,
-  emits: ['componentValueChange','runCode','deleteCell', 'createCell', 'saveCell'],
+  emits: ['componentValueChange','runCode','deleteCell', 'createCell', 'saveCell', 'copilotCompletion'],
   data() {
     return {
       isFocused: false, // add this line to keep track of the focus state
+      copilotSuggestion: '',
+      copilotAccepted: false,
       items: [
         { title: 'Code' },
         { title: 'SQL' },
@@ -235,35 +216,91 @@ export default {
     return { view, handleReady };
   },
 
-
   computed: {
     isAppRoute() {
       const route = useRoute()
       return route.path === '/app'
+    },
+    isMobile() {
+      return this.$vuetify.display.mobile
     },
     extensions(){
       const handleCtrlEnter = () => {
         this.runCode(false,'','')
       }
       const keyMap = keymap.of([
-      { 
+        { 
           key: "Ctrl-Enter", 
           run: () => {
             if (this.$devMode){
             handleCtrlEnter()};
             return true;
           }
+        },
+        { 
+          key: "Tab", 
+          run: () => {
+            if (this.copilotSuggestion){
+              this.copilotAccepted=true
+            }
+            return false;
+          }
         }
       ]);
+
+      const fetchSuggestion = async (state: any) => {
+        if(globalState.copilot_active){
+          if (this.copilotSuggestion){
+            if (this.copilotAccepted){
+              await axios.post(import.meta.env.VITE_BACKEND_URL + "copilot/accept_completion",
+                {
+                  uuid: this.copilotSuggestion
+                }
+              );
+              this.copilotAccepted=false
+            }
+            else{
+              await axios.post(import.meta.env.VITE_BACKEND_URL + "copilot/reject_completion",
+                {
+                  uuid: this.copilotSuggestion
+                }
+              );
+            }
+            this.copilotSuggestion = ''
+          }
+          const position = state.selection.main.head;
+          const line = state.doc.lineAt(position).number;
+          const column = position - state.doc.line(line).from;
+          const promise = new Promise((resolve, reject) => {
+            this.$emit("copilotCompletion", this.cellData.id, line, column, (response: any) => {
+              resolve(response);
+            });
+          });
+          try{
+            const response: any = await promise
+            if (response.status === 200) {
+              if (response.data.completions.length > 0){
+                this.copilotSuggestion = response.data.completions[0].uuid
+                return response.data.completions[0].displayText
+              }
+            }
+          }
+          catch (error){
+            console.log("Error fetching suggestion:", error)
+          }
+        }
+        return ''
+      };
+
       const customCompletionSource = async (context: CompletionContext) => {
         const word = context.matchBefore(/\w*/);
         const from = word ? word.from : context.pos;
 
         return {
           from: from,
-          options: (this.completions as unknown as { label: string; type: string }[]).map(completion => ({
-            label: completion.label,
-            type: completion.type,
+          options: (this.completions as unknown as { label: string; type: string }[]).map(c => ({
+            label: c.label,
+            type: c.type,
             apply: (view: { dispatch: (arg0: { changes: { from: any; to: any; insert: any } }) => void }, completion: { label: any }, from: any, to: any) => {
               const insertText = completion.label;
               view.dispatch({
@@ -274,7 +311,7 @@ export default {
         };
       };
       if (this.$devMode){
-        return [Prec.highest(keyMap), python(), oneDark, autocompletion({ override: [customCompletionSource] })]
+        return [Prec.highest(keyMap), python(), indentUnit.of("    "), oneDark, inlineSuggestion({fetchFn: fetchSuggestion, delay: 400}), autocompletion({ override: [customCompletionSource] })]
       }
       return [EditorState.readOnly.of(true), Prec.highest(keyMap), python(), oneDark, autocompletion({ override: [customCompletionSource] })]
     },
@@ -380,12 +417,16 @@ export default {
       const column = position - this.view?.state.doc.line(line).from;
       this.$emit("saveCell", this.cellData.id, this.cellData.code, line, column);
     },
+    handleCopilotResponse(data: any) {
+      console.log(data);
+      return 'poop'
+    }
   },
 };
 </script>
 
-<style>
-.toolbar-bg {
-  background-color: #4f4d4d; /* Light grey background */
+<style lang="scss" scoped>
+:deep(.plot-container) {
+  overflow: auto;
 }
 </style>

@@ -1,4 +1,5 @@
 from typing import OrderedDict
+from matplotlib.pylab import f
 from zt_backend.runner.user_state import UserState
 from zt_backend.models import request, notebook, response
 from dictdiffer import diff
@@ -11,6 +12,7 @@ import traceback
 import site
 import json
 import rtoml
+from threading import Timer
 
 logger = logging.getLogger("__name__")
 notebook_db_dir =  site.USER_SITE+'/.zero_true/'
@@ -24,6 +26,24 @@ codeCell = notebook.CodeCell(
                 cellType='code'
             )
 zt_notebook = notebook.Notebook(userId='', cells=OrderedDict([(codeCell.id, codeCell)]))
+
+def debounce(wait):
+    """ Decorator that will postpone a functions
+        execution until after wait seconds
+        have elapsed since the last time it was invoked. """
+    def decorator(fn):
+        def debounced(*args, **kwargs):
+            def call_it():
+                fn(*args, **kwargs)
+            try:
+                debounced.t.cancel()
+            except(AttributeError):
+                pass
+            debounced.t = Timer(wait, call_it)
+            debounced.t.start()
+        return debounced
+    return decorator
+
 
 def get_notebook(id=''):
     global zt_notebook
@@ -62,7 +82,10 @@ def get_notebook(id=''):
         zt_notebook = notebook.Notebook(**notebook_data)
         new_notebook = zt_notebook.model_dump_json()
         conn = duckdb.connect(notebook_db_path)
-        conn.execute("INSERT OR REPLACE INTO notebooks (id, notebook) VALUES (?, ?)", [zt_notebook.notebookId,new_notebook])
+        create_table_query = f"CREATE TABLE IF NOT EXISTS '{zt_notebook.notebookId}' (id STRING PRIMARY KEY, notebook STRING)"
+        conn.execute(create_table_query)
+        insert_query = f"INSERT OR REPLACE INTO '{zt_notebook.notebookId}' (id, notebook) VALUES (?, ?)"
+        conn.execute(insert_query, [zt_notebook.notebookId, new_notebook])
         conn.close()
         logger.debug("Notebook with id %s loaded from toml and new db entry created", toml_data['notebookId'])
 
@@ -76,8 +99,9 @@ def get_notebook_request():
 def get_notebook_db(id=''):
     conn = duckdb.connect(notebook_db_path)
     if id!="":
-        notebook_data = conn.execute('SELECT notebook FROM notebooks WHERE id = ?',[id]).fetchall()
-    conn.close()
+        get_notebook_query = f"SELECT notebook FROM '{id}' WHERE id = '{id}'"
+        notebook_data = conn.execute(get_notebook_query).fetchall()
+        conn.close()
     return notebook.Notebook(**json.loads(notebook_data[0][0]))
 
 def globalStateUpdate(newCell: notebook.CodeCell=None, position_key:str=None, deletedCell: str=None, saveCell: request.SaveRequest=None, run_request: request.Request=None, run_response: response.Response=None, new_notebook_name: str=""):
@@ -112,15 +136,18 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, position_key:str=None, de
                 zt_notebook.cells[responseCell.id].layout = responseCell.layout
         if new_notebook_name:
             zt_notebook.notebookName = new_notebook_name
-        new_notebook = zt_notebook.model_dump_json()
-        conn = duckdb.connect(notebook_db_path)
-        conn.execute("INSERT OR REPLACE INTO notebooks (id, notebook) VALUES (?, ?)", [zt_notebook.notebookId, new_notebook])
-        conn.close()
-        save_toml()
+        save_notebook()
     except Exception as e:
         logger.error("Error while updating state for notebook %s: %s", zt_notebook.notebookId, traceback.format_exc())
 
-def save_toml():
+@debounce(5)
+def save_notebook(new=False):
+    if not new:
+        new_notebook = zt_notebook.model_dump_json()
+        conn = duckdb.connect(notebook_db_path)
+        insert_query = f"INSERT OR REPLACE INTO '{zt_notebook.notebookId}' (id, notebook) VALUES (?, ?)"
+        conn.execute(insert_query, [zt_notebook.notebookId, new_notebook])
+        conn.close()
     tmp_uuid_file = f'notebook_{uuid.uuid4()}.ztnb'
     logger.debug("Saving toml for notebook %s", zt_notebook.notebookId)
     try:
@@ -158,10 +185,16 @@ def get_code_completions(cell_id:str, code: str, line: int, column: int) -> list
     try:
         script = jedi.Script(code)
         completions = script.complete(line, column)
-        return {"cell_id": cell_id, "completions": [{"label": completion.name, "type": completion.type} for completion in completions]}
+        completions = [{"label": completion.name, "type": completion.type, "inlineFlag": False} for completion in completions]
+        return {"cell_id": cell_id, "completions": completions}
     except Exception:
         logger.debug("Error getting completions for cell_id %s: %s", cell_id, traceback.format_exc())
         return {"cell_id": cell_id, "completions": []}
+
+async def save_worker(save_queue):
+    while True:
+        message = await save_queue.get()
+        globalStateUpdate(**message)
 
 async def websocket_message_sender(execution_state: UserState):
     while True:

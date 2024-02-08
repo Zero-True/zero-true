@@ -36,9 +36,9 @@ def get_defined_names(module) -> List[str]:
     func_def_names = [arg.name for func in module.nodes_of_class(astroid.FunctionDef) for arg in func.args.args]
     return list(set(defined_names) - set(func_def_names))
 
-def get_loaded_modules(module) -> List[str]:
+def get_loaded_modules(module,all_imports) -> List[str]:
     try:
-        return [node.expr.name for node in module.nodes_of_class(astroid.Attribute) if hasattr(node.expr, 'name')]
+        return list(set([node.expr.name for node in module.nodes_of_class(astroid.Attribute) if hasattr(node.expr, 'name') and node.expr.name in all_imports]))
     except Exception as e:
         logger.error("Error getting loaded modules: %s", traceback.format_exc())
         return []
@@ -87,6 +87,7 @@ def generate_sql_code(cell, uuid_value, db_file='zt_db.db'):
 
 def parse_cells(request: Request) -> CodeDict:
     cell_dict = {}
+    all_imports = []
     for cell in [c for c in request.cells if c.cellType in ['code', 'sql']]:
         table_names=[]
         if cell.cellType=='sql' and cell.code:
@@ -99,13 +100,15 @@ def parse_cells(request: Request) -> CodeDict:
         
         try:
             module = astroid.parse(cell.code)
+            all_imports += get_imports(module)
             function_names, function_arguments = get_functions(module)
-            defined_names = get_defined_names(module) + get_imports(module) + function_names
-            loaded_names = get_loaded_names(module, defined_names) + get_loaded_modules(module) + list(table_names)
+            defined_names = get_defined_names(module) + function_names
+            loaded_names = [name for name in get_loaded_names(module, defined_names) + get_loaded_modules(module,all_imports) + list(table_names) if name not in get_imports(module)]
             cell_dict[cell.id] = Cell(**{
                 'code': cell.code,
                 'defined_names': defined_names,
-                'loaded_modules':get_imports(module),
+                'imported_modules':get_imports(module),
+                'loaded_modules':get_loaded_modules(module,all_imports),
                 'loaded_names': list(set(loaded_names))})
         except Exception as e:
             logger.error("Error while parsing cells, returning empty names lists: %s", traceback.format_exc())
@@ -141,14 +144,25 @@ def find_child_cells(cell: Cell, code_dictionary: CodeDict, idx: int) -> List[st
             child_cells.append(next_key)
     return child_cells
 
-def add_parent_cells(code_dictionary: CodeDict) -> Dict[str, Any]:
+def add_parent_cells(code_dictionary: CodeDict) -> CodeDict:
     for key in list(code_dictionary.cells.keys()):
         cell = code_dictionary.cells[key]
-        child_cells = cell.child_cells
-        for child_cell in child_cells:
-            code_dictionary.cells[child_cell].parent_cells.append(key)
-        cell.child_cells = child_cells
+        cell.parent_cells = find_parent_cells(cell,key, code_dictionary)
     return code_dictionary
+
+def find_parent_cells(cell: Cell,key, code_dictionary: CodeDict) -> List[str]:
+    parent_cells = []
+    names = cell.loaded_names+cell.loaded_modules
+    for prev_key in list(code_dictionary.cells.keys()):
+        if prev_key == key:
+            break
+        prev_cell = code_dictionary.cells[prev_key]
+        prev_defined_names = prev_cell.defined_names+prev_cell.loaded_names+prev_cell.loaded_modules+prev_cell.imported_modules
+        if set(names).intersection(set(prev_defined_names)):
+            parent_cells.append(prev_key)
+    return parent_cells
+
+
 
 def add_child_cells(code_dictionary: CodeDict, prev_components: Dict[str, Any]) -> Dict[str, Any]:
     for idx, key in enumerate(list(code_dictionary.cells.keys())):
@@ -176,6 +190,5 @@ def find_downstream_cells(code_dictionary: CodeDict, start_cell_id, visited=None
         if start_cell_id in cell_data.parent_cells:
             downstream_cells.append(cell_id)
             downstream_cells.extend(find_downstream_cells(code_dictionary, cell_id, visited))
-    
     return list(OrderedDict.fromkeys(downstream_cells))
 

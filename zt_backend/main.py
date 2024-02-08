@@ -1,13 +1,11 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from typing import OrderedDict
-from zt_backend.models.notebook import Notebook, CodeCell
 from zt_backend.config import settings
-from zt_backend.utils import get_notebook, save_toml
+from zt_backend.utils import get_notebook, save_notebook
+from copilot.copilot import copilot_app
 import zt_backend.router as router
 import os
-import uuid
 import subprocess
 import logging
 import traceback
@@ -26,6 +24,7 @@ if project_name:
     route_prefix = '/'+user_name+'/'+project_name
 
 app.include_router(router.router, prefix=route_prefix)
+app.mount(route_prefix+"/copilot", copilot_app)
 
 app.add_middleware(
     CORSMiddleware,
@@ -41,7 +40,7 @@ def open_project():
     try:
         if not os.path.exists('notebook.ztnb'):
             logger.info("No toml file found, creating with empty notebook")
-            save_toml()
+            save_notebook(new=True)
         if not os.path.exists('requirements.txt'):
             logger.info("No requirements file found, creating with base dependency")
             with open('requirements.txt', 'w') as file:

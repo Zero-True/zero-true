@@ -1,7 +1,7 @@
 <template>
 <v-dialog v-model="updatingDependencies" persistent width="1024">
     <template v-slot:activator="{ props }">
-        <v-btn v-bind="props" icon="$settings"></v-btn>
+        <v-btn v-bind="props" :icon="`ztIcon:${ztAliases.settings}`"></v-btn>
     </template>
     <v-card>
         <v-card-title>
@@ -48,13 +48,15 @@ import { autocompletion, CompletionResult, CompletionContext } from '@codemirror
 import { Dependencies } from "@/types/notebook_response";
 import { DependencyRequest } from "@/types/dependency_request";
 import axios from "axios";
+import { ztAliases } from '@/iconsets/ztIcon'
 
 export default {
     components: {
         "codemirror": Codemirror,  
     },
     data: () => ({
-        updatingDependencies: false
+        updatingDependencies: false,
+      	ztAliases
     }),
     props: {
         dependencies: {

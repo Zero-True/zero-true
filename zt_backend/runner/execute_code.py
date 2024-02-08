@@ -3,7 +3,7 @@ from typing import Dict, Any, OrderedDict
 from io import StringIO
 import pickle
 from zt_backend.models import request, response
-from zt_backend.runner.code_cell_parser import parse_cells, build_dependency_graph, find_downstream_cells, CodeDict
+from zt_backend.runner.code_cell_parser import parse_cells, build_dependency_graph, CodeDict
 from zt_backend.runner.user_state import UserState, UserContext
 from zt_backend.models.components.layout import Layout
 from zt_backend.utils import globalStateUpdate
@@ -68,11 +68,9 @@ def execute_request(request: request.Request, state: UserState):
         component_globals={'global_state': execution_state.component_values}
         dependency_graph = build_dependency_graph(parse_cells(request))
         if request.originId:
-            downstream_cells = [request.originId]
-            downstream_cells.extend(find_downstream_cells(dependency_graph, request.originId))
+            downstream_cells = [request.originId]+dependency_graph.cells[request.originId].child_cells
             try:
                 old_downstream_cells = [request.originId]
-                old_downstream_cells.extend(find_downstream_cells(execution_state.cell_outputs_dict['previous_dependecy_graph'],request.originId))
                 # Find cells that are no longer dependent
                 no_longer_dependent_cells = set(old_downstream_cells) - set(downstream_cells)
         

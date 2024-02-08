@@ -12,9 +12,12 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import time 
+import uuid
 
 
-notebook_str = '''notebookId = "08bdd530-3544-473b-af28-bb04f8646dbgfddg"
+notebook_id = str(uuid.uuid4())
+
+notebook_str = '''notebookId = "''' + notebook_id + '''"
 
 [cells.57fbbd59-8f30-415c-87bf-8caae0374070]
 cellType = "code"
@@ -78,11 +81,12 @@ def extract_code_cell_info(code_cell, driver):
     # Accessing elements inside the code cell
     elements = {
         "run_icon": driver.find_element(By.ID, f"runCode{cell_id}"),
-        "delete_icon": driver.find_element(By.ID, f"deleteCell{cell_id}"),
+        "cell_toolbar": driver.find_element(By.ID, f"cellToolbar{cell_id}"),
         "codemirror": driver.find_element(By.ID, f"codeMirrorDev{cell_id}"),
         "output_container": driver.find_element(By.ID,f"outputContainer_{cell_id}"),
         "cell_output": driver.find_element(By.ID, f"cellOutput{cell_id}"),
         "add_cell": driver.find_element(By.ID, f"addCell{cell_id}"),
+        "cell_id": cell_id
     }
 
     # Retrieve and verify code from CodeMirror
@@ -217,7 +221,11 @@ def test_slider_interaction(driver):
 def test_deletion_of_new_code_cell(driver):
     code_cells = find_code_cells(driver)
     new_cell_info =  extract_code_cell_info(code_cells[1],driver)
-    new_cell_info["elements"]["delete_icon"].click()
+    new_cell_info["elements"]["cell_toolbar"].click()
+    WebDriverWait(driver, 25).until(
+        EC.element_to_be_clickable((By.ID, f"deleteCell{new_cell_info['cell_id']}")))
+    delete_btn = driver.find_element(By.ID,f"deleteCell{new_cell_info['cell_id']}")
+    delete_btn.click()
     time.sleep(2)
     code_cells = find_code_cells(driver)
     assert len(code_cells) == 1 and code_cells[0].get_attribute('id') == 'codeCard57fbbd59-8f30-415c-87bf-8caae0374070', "Expected code cell not found."

@@ -6,9 +6,9 @@ from zt_backend.config import settings
 from zt_backend.utils import *
 from zt_backend.runner.user_state import UserState
 from fastapi.responses import HTMLResponse
+from copilot.copilot import text_document_did_change
 import logging
-import site 
-import duckdb
+import site
 import uuid
 import os
 import threading
@@ -80,21 +80,13 @@ notebook_db_dir =  site.USER_SITE+'/.zero_true/'
 notebook_db_path = notebook_db_dir+'notebook.db'
 os.makedirs(notebook_db_dir, exist_ok=True)
 
-conn = duckdb.connect(notebook_db_path)
-# Create the table for the notebook
-conn.execute('''
-    CREATE TABLE IF NOT EXISTS notebooks (
-        id STRING  PRIMARY KEY,
-        notebook STRING
-    )
-''')
-conn.close()
 user_states={}
 user_timers={}
 user_threads={}
 user_message_tasks={}
 notebook_state=UserState('')
 run_mode = settings.run_mode
+save_queue = asyncio.Queue()
 
 logger = logging.getLogger("__name__")
 
@@ -190,7 +182,7 @@ def create_cell(cellRequest: request.CreateRequest):
             variable_name='',
             cellType=cellRequest.cellType
         )
-        globalStateUpdate(newCell=createdCell.model_copy(deep=True), position_key=cellRequest.position_key)
+        save_queue.put_nowait({"newCell": createdCell.model_copy(deep=True), "position_key":cellRequest.position_key})
         logger.debug("Code cell addition request completed")
         return createdCell
 
@@ -217,11 +209,12 @@ def delete_cell(deleteRequest: request.DeleteRequest):
         except Exception as e:
             logger.debug("Error when deleting cell %s from cell dicts: %s", cell_id, traceback.format_exc())
         logger.debug("Cell %s deleted successfully", cell_id)
-        globalStateUpdate(deletedCell=cell_id)
+        save_queue.put_nowait({"deletedCell":cell_id})
 
 @router.websocket("/ws/save_text")
 async def save_text(websocket: WebSocket):
     if(run_mode=='dev'):
+        save_task = asyncio.create_task(save_worker(save_queue))
         await manager.connect(websocket)
         try:
             while True:
@@ -230,15 +223,26 @@ async def save_text(websocket: WebSocket):
                 code = data.get("text")
                 cell_id = data.get("id")
                 save_request = request.SaveRequest(id=cell_id, text=code, cellType=cell_type)
-                globalStateUpdate(saveCell=save_request)
+                save_queue.put_nowait({"saveCell":save_request})
                 if cell_type=="code":
                     line = data.get("line")
                     column = data.get("column")
+                    await text_document_did_change({
+                        "textDocument": {
+                            "uri": "file:///notebook.ztnb",
+                            "version": 1
+                        },
+                        "contentChanges": [{
+                            "text": data.get("code_w_context")
+                        }]
+                    })
                     code_w_context= data.get("code_w_context")
                     completions = get_code_completions(cell_id, code_w_context, line, column)
                     await websocket.send_json(completions)
         except WebSocketDisconnect:
             manager.disconnect(websocket)
+        finally:
+            save_task.cancel()
 
 @router.post("/api/clear_state")
 def clear_state(clearRequest: request.ClearRequest):
@@ -345,7 +349,7 @@ async def stop_execution(websocket: WebSocket):
 @router.post("/api/notebook_name_update")
 def notebook_name_update(notebook_name: request.NotebookNameRequest):
     if(run_mode=='dev'):
-        globalStateUpdate(new_notebook_name=notebook_name.notebookName)
+        save_queue.put_nowait({"new_notebook_name":notebook_name.notebookName})
 
 @router.on_event('shutdown')
 def shutdown():

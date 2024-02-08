@@ -1,36 +1,19 @@
 <template>
-  <v-card flat color="bluegrey-darken-4">
-    <v-row v-if="$devMode && !isAppRoute" no-gutters class="py-1 toolbar-bg">
-      <v-col :cols="11">
-        <span class="py-0 px-2">.doc</span>
-        <!-- Placeholder for future content or can be empty -->
-      </v-col>
-      <v-col :cols="1" class="d-flex justify-end align-center py-0">
-        <v-icon small icon="$save" class="mx-1" color="primary" @click="saveCell">
-        </v-icon>
-        <v-icon small icon="$delete" class="mx-1" color="error" @click="deleteCell">
-        </v-icon>
-      </v-col>
-    </v-row>
-    <tiny-editor v-if="$devMode && !isAppRoute" v-model="cellData.code" :init="init" @keyUp="saveCell" />
-    <tiny-editor v-else-if="$devMode && isAppRoute" v-model="cellData.code" :init="app_init" @keyUp="saveCell" />
-    <tiny-editor v-else v-model="cellData.code" :init="init" :disabled="true" />
-  </v-card>
-  <v-menu v-if="$devMode && !isAppRoute" transition="scale-transition">
-    <template v-slot:activator="{ props }">
-      <v-btn v-bind="props" color="#212121" block>
-        <v-row>
-          <v-icon color="primary" icon="mdi:mdi-plus"></v-icon>
-        </v-row>
-      </v-btn>
+  <cell
+    cell-type="text"
+    :cell-id="cellData.id" 
+    :is-dev-mode="$devMode && !isAppRoute && !isMobile"
+    @save="saveCell"
+    @delete="deleteCell"
+    @addCell="e => createCell(e)"
+  >
+    <template v-slot:code>
+      <tiny-editor v-if="$devMode && !isAppRoute && !isMobile" v-model="cellData.code" :init="init" @keyUp="saveCell" />
     </template>
-
-    <v-list>
-      <v-list-item v-for="(item, i) in items" :key="i">
-        <v-btn block @click="createCell(item.title)">{{ item.title }}</v-btn>
-      </v-list-item>
-    </v-list>
-  </v-menu>
+    <template v-slot:outcome v-if="($devMode && isAppRoute) || !$devMode ">
+      <tiny-editor v-model="cellData.code" :init="app_init" :disabled="true" />
+    </template>
+  </cell>
 </template>
 
 <script lang="ts">
@@ -44,8 +27,11 @@ import "tinymce/plugins/autoresize";
 import Editor from "@tinymce/tinymce-vue";
 import { CodeCell } from "@/types/notebook";
 import { useRoute } from "vue-router";
+import Cell from '@/components/Cell.vue'
+
 export default {
   components: {
+    "cell": Cell,
     "tiny-editor": Editor,
   },
   props: {
@@ -57,7 +43,6 @@ export default {
   inheritAttrs: false,
   emits: ['saveCell', 'deleteCell', 'createCell'],
   data() {
-    if (this.$devMode) {
       return {
         init: {
           plugins: "autoresize",
@@ -75,48 +60,30 @@ export default {
         },
         app_init: {
           plugins: "autoresize",
-          toolbar: false,
-          branding: false,
-          menubar: false,
-          statusbar: false,
-          skin: false,
-          content_css: false,
-          content_style:
-            "body { background-color: #1B2F3C; color: #FFFFFF; } main { border-radius: 0; }",
-        },
+        toolbar: false,
+        branding: false,
+        menubar: false,
+        statusbar: false,
+        skin: false,
+        content_css: false,
+        content_style:
+          "body { background-color: #1B2F3C; color: #FFFFFF; } main { border-radius: 0; }",
+      },
         items: [
           { title: 'Code' },
           { title: 'SQL' },
           { title: 'Markdown' },
           { title: 'Text' },
-        ],
-      };
-    } else {
-      return {
-        init: {
-          plugins: "autoresize",
-          toolbar: false,
-          branding: false,
-          menubar: false,
-          statusbar: false,
-          skin: false,
-          content_css: false,
-          content_style:
-            "body { background-color: #1B2F3C; color: #FFFFFF; } main { border-radius: 0; }",
-        },
-        items: [
-          { title: 'Code' },
-          { title: 'SQL' },
-          { title: 'Markdown' },
-          { title: 'Text' },
-        ],
-      };
-    }
+      ],
+    };
   },
   computed: {
     isAppRoute() {
       const route = useRoute()
       return route.path === '/app'
+    },
+    isMobile() {
+      return this.$vuetify.display.mobile
     },
   },
   mounted() {

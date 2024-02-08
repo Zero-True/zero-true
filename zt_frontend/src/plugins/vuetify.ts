@@ -1,10 +1,13 @@
 import "vuetify/styles";
 import { createVuetify } from "vuetify";
-import { aliases, ztIconSet } from '../iconsets/custom'
-import { aliases as mdiAliases, mdi } from 'vuetify/iconsets/mdi'
+import { ztIcon } from '../iconsets/ztIcon'
+import { aliases, mdi } from 'vuetify/iconsets/mdi'
 
 
 export default createVuetify({
+  display: {
+    mobileBreakpoint: 'md',
+  },
   defaults: {
     global: {
       elevation: 0 
@@ -16,7 +19,8 @@ export default createVuetify({
       }
     },
     VBtn: {
-      style:[{ 'text-transform': 'capitalize' }]
+      style:[{ 'text-transform': 'capitalize' }],
+      color: 'bluegrey-darken-2'
     },
     VBtnToggle: {
       density: 'comfortable',
@@ -25,11 +29,23 @@ export default createVuetify({
         class: [ 'text-bluegrey-darken-1']
       }
     },
+    VDivider: {
+      class: 'border-opacity-100'
+    },
     VFooter: {
       VListItem: {
         minHeight: 15
       }
-    }
+    },
+    VMenu: {
+      contentClass: 'zt-menu' 
+    },
+    VSwitch:{
+      baseColor: 'bluegrey-darken-3',
+      color: 'primary',
+			density:'compact',
+			hideDetails: true,
+		},
   },
   theme: {
     defaultTheme: "dark",
@@ -57,10 +73,11 @@ export default createVuetify({
     },
   },
   icons: {
-    defaultSet: 'ztIconSet',
+    defaultSet: 'mdi',
     aliases,
     sets: {
-      ztIconSet,
+      mdi,
+      ztIcon,
     },
   },
 });

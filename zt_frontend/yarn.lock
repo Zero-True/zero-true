@@ -833,6 +833,11 @@ cli-color@^2.0.2:
     memoizee "^0.4.15"
     timers-ext "^0.1.7"
 
+codemirror-extension-inline-suggestion@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/codemirror-extension-inline-suggestion/-/codemirror-extension-inline-suggestion-0.0.1.tgz#8de3c12e46aa746fe97d6ed31abd77d9f67e410a"
+  integrity sha512-lwxsk365lspmv8ZDS3zQbzmKkVWMZFEHelqQo68HPEZustq1rYtR/D2s4XBNgTNYna6Mba7fU8UUXXqmFBNlpA==
+
 codemirror@^6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/codemirror/-/codemirror-6.0.1.tgz#62b91142d45904547ee3e0e0e4c1a79158035a29"

@@ -1,46 +1,29 @@
 <template>
-  <v-card flat color="bluegrey-darken-4">
-    <v-row v-if="$devMode" no-gutters class="py-1 toolbar-bg">
-      <v-col :cols="11">
-        <span class="py-0 px-2">.md</span>
-
-        <!-- Placeholder for future content or can be empty -->
-      </v-col>
-      <v-col :cols="1" class="d-flex justify-end align-center py-0">
-        <v-icon small icon="$save" class="mx-1" color="primary" @click="saveCell">
-        </v-icon>
-        <v-icon small icon="$delete" class="mx-1" color="error" @click="deleteCell">
-        </v-icon>
-      </v-col>
-    </v-row>
-    <codemirror
-      v-if="$devMode"
-      v-model="cellData.code"
-      :style="{ height: '400px' }"
-      :autofocus="true"
-      :indent-with-tab="true"
-      :tab-size="2"
-      :viewportMargin="Infinity"
-      :extensions="extensions"
-      @keyup="saveCell"
-    />
-    <div class="markdown-content" v-html="compiledMarkdown"></div>
-  </v-card>
-  <v-menu v-if="$devMode" transition="scale-transition">
-    <template v-slot:activator="{ props }">
-      <v-btn v-bind="props" color="#212121" block>
-        <v-row>
-          <v-icon color="primary" icon="mdi:mdi-plus"></v-icon>
-        </v-row>
-      </v-btn>
+  <cell
+    cell-type="markdown"
+    :cell-id="cellData.id" 
+    :is-dev-mode="$devMode && !isAppRoute && !isMobile"
+    @delete="deleteCell"
+    @save="saveCell"
+    @addCell="e => createCell(e)"
+  >
+    <template v-slot:code>
+      <codemirror
+        v-if="$devMode && !isMobile"
+        v-model="cellData.code"
+        :style="{ height: '400px' }"
+        :autofocus="true"
+        :indent-with-tab="true"
+        :tab-size="2"
+        :viewportMargin="Infinity"
+        :extensions="extensions"
+        @keyup="saveCell"
+      />
     </template>
-
-    <v-list>
-      <v-list-item v-for="(item, i) in items" :key="i">
-        <v-btn block @click="createCell(item.title)">{{ item.title }}</v-btn>
-      </v-list-item>
-    </v-list>
-  </v-menu>
+    <template v-slot:outcome>
+      <div class="markdown-content" v-html="compiledMarkdown"></div>
+    </template>
+  </cell>
 </template>
 
 <script lang="ts">
@@ -51,9 +34,14 @@ import { markdown } from '@codemirror/lang-markdown'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { autocompletion } from '@codemirror/autocomplete'
 import { CodeCell } from "@/types/notebook";
+import AddCell from '@/components/AddCell.vue'
+import { useRoute } from 'vue-router'
+import Cell from '@/components/Cell.vue'
 
 export default {
   components: {
+    "add-cell": AddCell,
+    "cell": Cell,
     "codemirror": Codemirror,
   },
   computed: {
@@ -62,6 +50,13 @@ export default {
     compiledMarkdown() {
       const pasrsed_markdown = marked.parse(this.cellData.code,)
       return pasrsed_markdown;
+    },
+    isAppRoute() {
+      const route = useRoute()
+      return route.path === '/app'
+    },
+    isMobile() {
+      return this.$vuetify.display.mobile
     },
   },
   data() {

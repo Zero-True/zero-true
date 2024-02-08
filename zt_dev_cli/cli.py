@@ -66,6 +66,8 @@ def app(port: Annotated[Optional[int], typer.Argument(help="Port number to bind 
     os.environ['RUN_MODE'] = 'app'
     frontend_cmd = ["yarn", "run", "app", str(port)]
     backend_cmd = ["uvicorn", "zt_backend.main:app", "--reload", f"--log-config={log_path}"]
+    if (os.name == 'nt'):
+        backend_cmd = ["start"]+backend_cmd
 
     backend_process = subprocess.Popen(backend_cmd, shell=(os.name == 'nt'))
     os.chdir("zt_frontend")
@@ -83,7 +85,8 @@ def notebook(port: Annotated[Optional[int], typer.Argument(help="Port number to 
     os.environ['RUN_MODE'] = 'dev'
     frontend_cmd = ["yarn", "run", "dev", str(port)]
     backend_cmd = ["uvicorn", "zt_backend.main:app", "--reload", f"--log-config={log_path}"]
-
+    if (os.name == 'nt'):
+        backend_cmd = ["start"]+backend_cmd
 
     backend_process = subprocess.Popen(backend_cmd, shell=(os.name == 'nt'))
     os.chdir("zt_frontend")
