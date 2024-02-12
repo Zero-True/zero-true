@@ -191,7 +191,10 @@ def test_execution_of_new_code_cell(driver):
     new_cell_info =  extract_code_cell_info(code_cells[1],driver)
     slider = cell_info["elements"]["output_container"].find_element(By.CLASS_NAME,'v-slider-thumb')
     slider_value = slider.get_attribute("aria-valuenow")
-    clear_codemirror_and_send_text(driver, new_cell_info["elements"]["codemirror_input"], "print(slider.value)")
+    new_code = """
+time.sleep(2)
+print(slider.value)"""
+    clear_codemirror_and_send_text(driver, new_cell_info["elements"]["codemirror_input"], new_code)
     new_run_icon = new_cell_info["elements"]["run_icon"]
     new_run_icon.click()
     wait_for_coderun(driver)
