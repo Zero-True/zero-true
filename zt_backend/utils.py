@@ -104,8 +104,19 @@ def get_notebook_db(id=''):
         conn.close()
     return notebook.Notebook(**json.loads(notebook_data[0][0]))
 
-def globalStateUpdate(newCell: notebook.CodeCell=None, position_key:str=None, deletedCell: str=None, saveCell: request.SaveRequest=None, run_request: request.Request=None, run_response: response.Response=None, new_notebook_name: str=""):
+def globalStateUpdate(newCell: notebook.CodeCell=None, 
+                      position_key:str=None, 
+                      deletedCell: str=None, 
+                      saveCell: request.SaveRequest=None, 
+                      hideCell: request.HideCellRequest=None,
+                      hideCode: request.HideCodeRequest=None,
+                      renameCell: request.NameCellRequest=None,
+                      run_request: request.Request=None, 
+                      run_response: response.Response=None, 
+                      new_notebook_name: str="",
+                      ):
     global zt_notebook
+    logger.info(new_notebook_name)
     logger.debug("Updating state for notebook %s", zt_notebook.notebookId)
     try:        
         old_state = zt_notebook.model_dump()
@@ -125,6 +136,12 @@ def globalStateUpdate(newCell: notebook.CodeCell=None, position_key:str=None, de
             del zt_notebook.cells[deletedCell]
         if saveCell is not None:
             zt_notebook.cells[saveCell.id].code=saveCell.text
+        if hideCell is not None:
+            zt_notebook.cells[hideCell.cellId].hideCell=hideCell.hideCell
+        if hideCode is not None:
+            zt_notebook.cells[hideCode.cellId].hideCode=hideCode.hideCode
+        if renameCell is not None:
+            zt_notebook.cells[renameCell.cellId].cellName=renameCell.cellName
         if run_request is not None:
             for requestCell in run_request.cells:
                 #zt_notebook.cells[requestCell.id].code = requestCell.code
@@ -156,11 +173,11 @@ def save_notebook(new=False):
             project_file.write(f'notebookId = "{zt_notebook.notebookId}"\nnotebookName = "{zt_notebook.notebookName}"\n\n')
 
             for cell_id, cell in zt_notebook.cells.items():
-                # Write cell_id as a sub-section under cells
+                project_file.write(f'cellName = "{cell.cellName}"\n')
                 project_file.write(f'[cells.{cell_id}]\n')
-                
-                # Write cellType and code for this cell
                 project_file.write(f'cellType = "{cell.cellType}"\n')
+                project_file.write(f'hideCell = "{cell.hideCell}"\n')
+                project_file.write(f'hideCode = "{cell.hideCode}"\n')
                 
                 if cell.cellType=='sql':
                     if cell.variable_name:

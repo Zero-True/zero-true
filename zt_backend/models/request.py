@@ -36,6 +36,18 @@ class DeleteRequest(BaseModel):
 class NotebookNameRequest(BaseModel):
     notebookName: str
 
+class HideCellRequest(BaseModel):
+    cellId: str
+    hideCell: bool
+
+class HideCodeRequest(BaseModel):
+    cellId: str
+    hideCode: bool
+
+class NameCellRequest(BaseModel):
+    cellId: str
+    cellName: str
+
 class CreateRequest(BaseModel):
     cellType: str = Field(enum=['code', 'markdown', 'text', 'sql'])
     position_key: str

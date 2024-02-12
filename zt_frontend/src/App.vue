@@ -13,6 +13,7 @@
         <div class="click-edit__show-text" v-if="!editingProjectName">
           <h5 class="click-edit__name text-h5">{{ notebookName ?? 'Zero True' }}</h5> 
           <v-btn
+            v-if="($devMode && !isAppRoute)"
             color="bluegrey-darken-1"
             :icon="`ztIcon:${ztAliases.edit}`"
             @click="toggleProjectName"
@@ -21,7 +22,7 @@
         
         <div class="click-edit__edit-field-wrapper" v-if="editingProjectName">
           <v-text-field 
-            v-model="notebookName"   
+            v-model="notebookEditName"   
             placeholder="Zero True"
             density="compact" 
             variant="plain"
@@ -70,8 +71,8 @@
             <!-- <v-btn :icon="`ztIcon:${ztAliases.undo}`"></v-btn>
             <v-btn :icon="`ztIcon:${ztAliases.redo}`"></v-btn>
             <v-btn :icon="`ztIcon:${ztAliases.message}`"></v-btn> -->
-            <CopilotComponent v-if="$devMode"/>
-            <PackageComponent v-if="$devMode" :dependencies="dependencies"/>
+            <CopilotComponent v-if="$devMode && !isAppRoute"/>
+            <PackageComponent v-if="$devMode && !isAppRoute" :dependencies="dependencies"/>
             <!-- <v-btn :icon="`ztIcon:${ztAliases.play}`"></v-btn>
             <v-btn
               :prepend-icon="`ztIcon:${ztAliases.play}`"
@@ -229,6 +230,7 @@ export default {
       editingProjectName: false, 
       notebook: {} as Notebook,
       notebookName: '',
+      notebookEditName: '',
       dependencies: {} as Dependencies,
       completions: {} as {[key: string]: any[]},
       ws_url: '',
@@ -298,17 +300,19 @@ export default {
   methods: {
     toggleProjectName() {
       this.editingProjectName = !this.editingProjectName
-      nextTick(() => {
-        if (this.editingProjectName) {
+      if (this.editingProjectName) {
+        this.notebookEditName = this.notebookName
+        nextTick(() => {
           (this.$refs.projectNameField as VTextField).focus();
-        }
-      }) 
+        })
+      }
     },
     async saveProjectName() {
       const notebookNameRequest: NotebookNameRequest = {
-        notebookName: this.notebookName,
+        notebookName: this.notebookEditName,
       };
       await axios.post(import.meta.env.VITE_BACKEND_URL + "api/notebook_name_update", notebookNameRequest);
+      this.notebookName = this.notebookEditName
       document.title = this.notebookName
       this.editingProjectName = !this.editingProjectName
     },

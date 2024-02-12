@@ -69,7 +69,6 @@ export default {
 
   data() {
     return {
-      isAppRoute: false as boolean,
       menu_items: [
         { title: "Code" },
         { title: "SQL" },
@@ -89,17 +88,8 @@ export default {
       return route.path === '/app'
     },
   },
-
-  mounted() {
-    this.checkRoute();
-  },
+  
   methods: {
-    checkRoute() {
-      const route = useRoute();
-      if (route.path === '/app') {
-        this.isAppRoute = true;
-      }
-    },
     getComponent(cellType: string) {
       switch (cellType) {
         case "code":

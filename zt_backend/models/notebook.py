@@ -45,6 +45,9 @@ class CodeCell(BaseModel):
     id: str
     code: str
     output: str
+    cellName: str = Field("")
+    hideCell: bool = Field(False)
+    hideCode: bool = Field(False)
     variable_name: str = Field("")
     layout: Layout = Field(Layout())
     components: List[SerializeAsAny[ZTComponent]]

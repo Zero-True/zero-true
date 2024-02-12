@@ -211,6 +211,27 @@ def delete_cell(deleteRequest: request.DeleteRequest):
         logger.debug("Cell %s deleted successfully", cell_id)
         save_queue.put_nowait({"deletedCell":cell_id})
 
+@router.post("/api/hide_cell")
+def hide_cell(hideCellRequest: request.HideCellRequest):
+     if(run_mode=='dev'):
+        logger.debug("Hide cell request started")
+        save_queue.put_nowait({"hideCell": hideCellRequest})
+        logger.debug("Hide cell request completed")
+
+@router.post("/api/hide_code")
+def hide_cell(hideCodeRequest: request.HideCodeRequest):
+     if(run_mode=='dev'):
+        logger.debug("Hide code request started")
+        save_queue.put_nowait({"hideCode": hideCodeRequest})
+        logger.debug("Hide code request completed")
+
+@router.post("/api/rename_cell")
+def hide_cell(renameCellRequest: request.NameCellRequest):
+     if(run_mode=='dev'):
+        logger.debug("Rename cell request started")
+        save_queue.put_nowait({"renameCell": renameCellRequest})
+        logger.debug("Rename cell request completed")
+
 @router.websocket("/ws/save_text")
 async def save_text(websocket: WebSocket):
     if(run_mode=='dev'):

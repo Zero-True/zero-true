@@ -2,6 +2,9 @@
   <cell
     :cell-id="cellData.id" 
     cell-type="code"
+    :hide-cell="(cellData.hideCell as boolean)"
+    :hide-code="(cellData.hideCode as boolean)"
+    :cell-name="(cellData.cellName as string)"
     :is-dev-mode="$devMode && !isAppRoute && !isMobile"
     @play="runCode(false, '', '')" 
     @delete="deleteCell"
@@ -417,10 +420,6 @@ export default {
       const column = position - this.view?.state.doc.line(line).from;
       this.$emit("saveCell", this.cellData.id, this.cellData.code, line, column);
     },
-    handleCopilotResponse(data: any) {
-      console.log(data);
-      return 'poop'
-    }
   },
 };
 </script>
