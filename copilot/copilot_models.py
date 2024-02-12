@@ -40,7 +40,7 @@ class TextDocumentContentChangeEvent(BaseModel):
 
 class DidChangeTextDocumentParams(BaseModel):
     textDocument: VersionedTextDocumentIdentifier
-    contentChanges: list[TextDocumentContentChangeEvent] = Field(default_factory=list)
+    contentChanges: List[TextDocumentContentChangeEvent] = Field(default_factory=list)
 
 
 class CopilotPayloadSignInInitiate(BaseModel):

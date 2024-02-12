@@ -1,9 +1,44 @@
 <template>
-  <v-card :id="'codeCard' + cellId" class="cell" color="bluegrey-darken-4">
+  <v-card v-if="isDevMode || (!isDevMode && !hideCellValue)" :id="'codeCard' + cellId" class="cell" color="bluegrey-darken-4">
     <v-divider class="indicator" vertical :color="dividerColor" :thickness="4"></v-divider>
     <div class="content">
       <header class="header">
-        <h4 class="text-bluegrey-darken-1">{{ cellType }} #1</h4>
+        <div class="click-edit">
+          <div class="click-edit__show-text" v-if="!editingCellName">
+            <h4 class="text-bluegrey-darken-1">{{ cellNameValue }} </h4>
+            <v-btn
+              v-if="isDevMode"
+              color="bluegrey-darken-4"
+              :icon="`ztIcon:${ztAliases.edit}`"
+              size="x-small"
+              @click="toggleCellName"
+            />
+          </div> 
+          
+          <div class="click-edit__edit-field-wrapper" v-if="editingCellName">
+            <v-text-field 
+              v-model="cellNameEditValue"   
+              :placeholder=cellType
+              density="compact" 
+              variant="plain"
+              hide-details
+              ref="cellNameField" 
+              class="click-edit__edit-field" 
+            />
+            <v-btn
+              color="bluegrey-darken-4"
+              :icon="`ztIcon:${ztAliases.save}`"
+              size="x-small"
+              @click="saveCellName"
+            />
+            <v-btn
+              color="bluegrey-darken-4"
+              icon="$close"
+              size="x-small"
+              @click="toggleCellName"
+            />
+          </div> 
+        </div>
         <v-defaults-provider :defaults="{
           'VIcon': {
             'color': 'bluegrey',
@@ -27,13 +62,13 @@
               <v-list>
                 <v-list-item>
                   <template v-slot:prepend>
-                    <v-switch></v-switch>
+                    <v-switch v-model="hideCellValue" @update:modelValue="updateHideCell"></v-switch>
                   </template>
                   <v-list-item-title>Hide Cell</v-list-item-title>
                 </v-list-item>
-                <v-list-item>
+                <v-list-item v-if="keepCodeInAppModel">
                   <template v-slot:prepend>
-                    <v-switch></v-switch>
+                    <v-switch v-model="hideCodeValue" @update:modelValue="updateHideCode"></v-switch>
                   </template>
                   <v-list-item-title>Hide Code</v-list-item-title>
                 </v-list-item>
@@ -74,7 +109,7 @@
           </div>
         </v-defaults-provider>
       </header>
-      <div class="code" v-if="isDevMode || (!isDevMode && keepCodeInAppModel)">
+      <div class="code" v-if="isDevMode || (!isDevMode && keepCodeInAppModel && !hideCodeValue)">
         <slot name="code"></slot>
       </div>
       <div class="outcome" v-if="!(isDevMode && !isAppRoute && cellType==='text')" >
@@ -85,23 +120,40 @@
   <add-cell v-if="isDevMode" :cell-id="cellId" @createCodeCell="e => $emit('addCell', e)" />
 </template>
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { PropType } from 'vue'
+import axios from 'axios'
+import { computed, PropType, nextTick, ref } from 'vue'
 import type { Celltype } from '@/types/create_request'
-import AddCell from '@/components/AddCell.vue'
 import { ztAliases } from '@/iconsets/ztIcon'
 import { useRoute } from 'vue-router'
+import type { VTextField } from "vuetify/lib/components/index.mjs";
+import AddCell from '@/components/AddCell.vue'
+import { HideCellRequest } from '@/types/hide_cell_request'
+import { HideCodeRequest } from '@/types/hide_code_request'
+import { NameCellRequest } from '@/types/name_cell_request'
 
 const props = defineProps({
   isDevMode: Boolean,
   cellType: String as PropType<Celltype>,
   cellId: String,
-  error: Boolean
+  error: Boolean,
+  hideCell: {
+    type: Boolean,
+    default: false
+  },
+  hideCode: {
+    type: Boolean,
+    default: false
+  },
+  cellName: {
+    type: String,
+    default: null
+  }
 })
 defineEmits<{
   (e: 'delete'): void
   (e: 'play'): void
   (e: 'save'): void
+  (e: 'renameCell'): void
   (e: 'addCell', cellType: Celltype): void
 }>()
 
@@ -119,10 +171,53 @@ const dividerColor = computed(() => {
   }
 })
 
+const hideCellValue = ref(props.hideCell || false);
+const hideCodeValue = ref(props.hideCode || false);
+const cellNameValue = ref(props.cellName || props.cellType);
+const cellNameEditValue = ref('');
+const cellNameField = ref(null);
+const editingCellName = ref(false);
 const showPlayBtn = computed(() => props.cellType === 'code' || props.cellType === 'sql')
 const showSaveBtn = computed(() => props.cellType === 'markdown' || props.cellType === 'text') 
 const keepCodeInAppModel = computed(() => props.cellType === 'code' || props.cellType === 'sql') 
 const isAppRoute = computed(() => useRoute().name === '/app')
+
+const updateHideCell = async (value: unknown) => {
+  const hideCodeRequest: HideCellRequest = {
+    cellId: props.cellId as string,
+    hideCell: value as boolean
+  }
+  await axios.post(import.meta.env.VITE_BACKEND_URL + "api/hide_cell", hideCodeRequest);
+};
+const updateHideCode = async (value: unknown) => {
+  const hideCodeRequest: HideCodeRequest = {
+    cellId: props.cellId as string,
+    hideCode: value as boolean
+  }
+  await axios.post(import.meta.env.VITE_BACKEND_URL + "api/hide_code", hideCodeRequest);
+};
+
+const toggleCellName = () => {
+  editingCellName.value = !editingCellName.value
+  if (editingCellName.value) {
+    cellNameEditValue.value = cellNameValue.value as string
+    nextTick(() => {
+      if (cellNameField.value){
+        (cellNameField.value as VTextField).focus();
+      }
+    }) 
+  }
+}
+
+const saveCellName = async () => {
+  const nameCellRequest: NameCellRequest = {
+    cellId: props.cellId as string,
+    cellName: cellNameEditValue.value as string
+  }
+  await axios.post(import.meta.env.VITE_BACKEND_URL + "api/rename_cell", nameCellRequest);
+  cellNameValue.value = cellNameEditValue.value
+  editingCellName.value = false
+}
 </script>
 
 <style lang="scss" scoped>
@@ -157,5 +252,29 @@ const isAppRoute = computed(() => useRoute().name === '/app')
 
 .code {
   margin-bottom: 16px;
+}
+
+.click-edit {
+  max-width: 200px;
+  width: 100%;
+  &__name {
+    font-weight: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  &__show-text,
+  &__edit-field-wrapper {
+    display: flex;
+    align-items: center;
+  }
+
+  &__edit-field {
+    margin-top: -11px; 
+    & :deep(.v-field__input) {
+      font-size: 1rem;
+      letter-spacing: normal;
+    }
+  }
 }
 </style>

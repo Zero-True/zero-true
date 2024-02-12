@@ -10,6 +10,9 @@ export type Notebookid = string;
 export type Id = string;
 export type Code = string;
 export type Output = string;
+export type Cellname = string;
+export type Hidecell = boolean;
+export type Hidecode = boolean;
 export type VariableName = string;
 /**
  * List of component IDs that belong to this column
@@ -54,6 +57,9 @@ export interface CodeCell {
   id: Id;
   code: Code;
   output: Output;
+  cellName?: Cellname;
+  hideCell?: Hidecell;
+  hideCode?: Hidecode;
   variable_name?: VariableName;
   layout?: Layout;
   components: Components2;

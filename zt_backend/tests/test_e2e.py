@@ -23,6 +23,8 @@ notebook_str = '''notebookId = "''' + notebook_id + '''"
 cellType = "code"
 code = """
 import zero_true as zt
+import time
+time.sleep(2)
 slider = zt.Slider(id='slide')
 zt.TextInput(id='text')"""
 '''
@@ -150,6 +152,8 @@ def test_intial_code_cell_content(driver):
     print(cell_info)
     expected_code = """
 import zero_true as zt
+import time
+time.sleep(2)
 slider = zt.Slider(id='slide')
 zt.TextInput(id='text')"""
     assert cell_info['code'].strip() == expected_code.strip(), "Code in the cell does not match the expected code."
@@ -187,7 +191,10 @@ def test_execution_of_new_code_cell(driver):
     new_cell_info =  extract_code_cell_info(code_cells[1],driver)
     slider = cell_info["elements"]["output_container"].find_element(By.CLASS_NAME,'v-slider-thumb')
     slider_value = slider.get_attribute("aria-valuenow")
-    clear_codemirror_and_send_text(driver, new_cell_info["elements"]["codemirror_input"], "print(slider.value)")
+    new_code = """
+time.sleep(2)
+print(slider.value)"""
+    clear_codemirror_and_send_text(driver, new_cell_info["elements"]["codemirror_input"], new_code)
     new_run_icon = new_cell_info["elements"]["run_icon"]
     new_run_icon.click()
     wait_for_coderun(driver)
