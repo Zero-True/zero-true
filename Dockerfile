@@ -9,6 +9,7 @@ COPY . /usr/src/app
 
 # Install any needed packages specified in setup.py
 RUN pip install . 
+RUN pip install 'nodejs-bin[cmd]'
 
 # Remove the source files to keep the container clean
 RUN rm -rf /usr/src/app
