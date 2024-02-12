@@ -4,11 +4,13 @@ const { spawn } = require("node:child_process");
 const { send } = require("node:process");
 const express = require('express');
 const bodyParser = require('body-parser');
+const path = require('path');
 
 const app = express();
 app.use(bodyParser.json());
 
-const server = spawn("node", ["copilot/node_modules/copilot-node-server/copilot/dist/agent.js"]);
+const agentPath = path.join(__dirname, 'node_modules/copilot-node-server/copilot/dist/agent.js');
+const server = spawn("node", [agentPath]);
 // use `fork` in `node:child_process` is also OK
 // const server = fork("agent.js", { silent: true });
 // `{ silent: true }` is to make sure that data sent to stdio will be returned normally

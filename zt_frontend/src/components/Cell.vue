@@ -80,7 +80,7 @@
                 <v-btn :icon="`ztIcon:${ztAliases.more}`" :id="'cellToolbar' + cellId" v-bind="props"></v-btn>
               </template>
               <v-list>
-                <v-list-item>
+                <!-- <v-list-item>
                   <template v-slot:prepend>
                     <v-icon icon="$collapse"></v-icon>
                   </template>
@@ -97,7 +97,7 @@
                     <v-icon :icon="`ztIcon:${ztAliases.duplicate}`"></v-icon>
                   </template>
                   <v-list-item-title>Duplicate</v-list-item-title>
-                </v-list-item>
+                </v-list-item> -->
                 <v-list-item base-color="error" :id="'deleteCell' + cellId" @click="$emit('delete')">
                   <template v-slot:prepend>
                     <v-icon :icon="`ztIcon:${ztAliases.delete}`"></v-icon>
