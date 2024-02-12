@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from zt_backend.config import settings
-from zt_backend.utils import get_notebook, save_notebook
+from zt_backend.utils import get_notebook, write_notebook
 from copilot.copilot import copilot_app
 import zt_backend.router as router
 import os
@@ -40,7 +40,7 @@ def open_project():
     try:
         if not os.path.exists('notebook.ztnb'):
             logger.info("No toml file found, creating with empty notebook")
-            save_notebook(new=True)
+            write_notebook()
         if not os.path.exists('requirements.txt'):
             logger.info("No requirements file found, creating with base dependency")
             with open('requirements.txt', 'w') as file:

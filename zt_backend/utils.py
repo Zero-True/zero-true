@@ -157,13 +157,15 @@ def globalStateUpdate(newCell: notebook.CodeCell=None,
         logger.error("Error while updating state for notebook %s: %s", zt_notebook.notebookId, traceback.format_exc())
 
 @debounce(5)
-def save_notebook(new=False):
-    if not new:
-        new_notebook = zt_notebook.model_dump_json()
-        conn = duckdb.connect(notebook_db_path)
-        insert_query = f"INSERT OR REPLACE INTO '{zt_notebook.notebookId}' (id, notebook) VALUES (?, ?)"
-        conn.execute(insert_query, [zt_notebook.notebookId, new_notebook])
-        conn.close()
+def save_notebook():
+    new_notebook = zt_notebook.model_dump_json()
+    conn = duckdb.connect(notebook_db_path)
+    insert_query = f"INSERT OR REPLACE INTO '{zt_notebook.notebookId}' (id, notebook) VALUES (?, ?)"
+    conn.execute(insert_query, [zt_notebook.notebookId, new_notebook])
+    conn.close()
+    write_notebook()
+
+def write_notebook():
     tmp_uuid_file = f'notebook_{uuid.uuid4()}.ztnb'
     logger.debug("Saving toml for notebook %s", zt_notebook.notebookId)
     try:
