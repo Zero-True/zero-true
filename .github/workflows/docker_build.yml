@@ -1,7 +1,8 @@
 name: Build and Push Images
 
 on:
-  workflow_dispatch:
+  release:
+    types: [created]
 permissions:
       id-token: write
       contents: read

@@ -116,7 +116,6 @@ def globalStateUpdate(newCell: notebook.CodeCell=None,
                       new_notebook_name: str="",
                       ):
     global zt_notebook
-    logger.info(new_notebook_name)
     logger.debug("Updating state for notebook %s", zt_notebook.notebookId)
     try:        
         old_state = zt_notebook.model_dump()
