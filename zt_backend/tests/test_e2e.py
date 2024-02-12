@@ -23,6 +23,8 @@ notebook_str = '''notebookId = "''' + notebook_id + '''"
 cellType = "code"
 code = """
 import zero_true as zt
+import time
+time.sleep(2)
 slider = zt.Slider(id='slide')
 zt.TextInput(id='text')"""
 '''
@@ -150,6 +152,8 @@ def test_intial_code_cell_content(driver):
     print(cell_info)
     expected_code = """
 import zero_true as zt
+import time
+time.sleep(2)
 slider = zt.Slider(id='slide')
 zt.TextInput(id='text')"""
     assert cell_info['code'].strip() == expected_code.strip(), "Code in the cell does not match the expected code."
