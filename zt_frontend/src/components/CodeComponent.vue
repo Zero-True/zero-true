@@ -378,7 +378,6 @@ export default {
       this.$emit("deleteCell", this.cellData.id);
     },
     componentBind(component: any) {
-      console.log(component)
       if (component.component && component.component === "v-autocomplete") {
         const { value, ...rest } = component;
         return this.convertUnderscoresToHyphens(rest);
