@@ -84,8 +84,7 @@
             <plotly-plot
               v-if="component.component === 'plotly-plot'"
               :id="component.id"
-              :figure="component.figure"
-              :layout="component.layout"
+              :figureJson="component.figure_json as string"
             />
             <!-- Render other components -->
             <component
@@ -99,8 +98,7 @@
                 <plotly-plot
                   v-if="comp.component === 'plotly-plot'"
                   :id="component.id"
-                  :figure="comp.figure"
-                  :layout="comp.layout"
+                  :figureJson="component.figure_json as string"
                 />
                 <component
                   v-else
@@ -380,6 +378,7 @@ export default {
       this.$emit("deleteCell", this.cellData.id);
     },
     componentBind(component: any) {
+      console.log(component)
       if (component.component && component.component === "v-autocomplete") {
         const { value, ...rest } = component;
         return this.convertUnderscoresToHyphens(rest);
