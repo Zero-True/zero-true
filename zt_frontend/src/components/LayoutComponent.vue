@@ -11,8 +11,7 @@
           <plotly-plot
             v-if="comp.component === 'plotly-plot'"
             :id="comp.id"
-            :figure="comp.figure"
-            :layout="comp.layout"
+            :figureJson = "comp.figure_json as string"
           />
           <component
             v-else-if="comp.component === 'v-card'"
@@ -25,8 +24,7 @@
               <plotly-plot
                 v-if="c.component === 'plotly-plot'"
                 :id="c.id"
-                :figure="c.figure"
-                :layout="c.layout"
+                :figureJson="c.figure_json as string"
               />
               <component
                 v-else
@@ -69,8 +67,7 @@
           <plotly-plot
             v-if="comp.component === 'plotly-plot'"
             :id="comp.id"
-            :figure="comp.figure"
-            :layout="comp.layout"
+            :figureJson="comp.figure_json as string"
           />
 
           <component
@@ -83,8 +80,7 @@
               <plotly-plot
                 v-if="c.component === 'plotly-plot'"
                 :id="c.id"
-                :figure="c.figure"
-                :layout="c.layout"
+                :figureJson="c.figure_json as string"
               />
               <component
                 v-else
