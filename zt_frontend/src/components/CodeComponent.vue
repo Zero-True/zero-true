@@ -424,7 +424,7 @@ export default {
       this.expanded = e ? [0] : []
     },
     updateReactivity(e: Boolean){
-      this.cellData.nonReactive = e
+      this.cellData.nonReactive = e as boolean
     }
   },
 };

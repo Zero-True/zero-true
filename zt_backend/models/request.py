@@ -58,10 +58,6 @@ class ExpandCodeRequest(BaseModel):
     cellId: str
     expandCode: bool
 
-class CronCellRequest(BaseModel):
-    cellId: str
-    frequency: int
-
 class CreateRequest(BaseModel):
     cellType: str = Field(enum=['code', 'markdown', 'text', 'sql'])
     position_key: str

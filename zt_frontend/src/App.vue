@@ -7,7 +7,7 @@
       id="appBar"
     >
       <v-btn size="x-large" variant="text" @click="navigateToApp" id ="Navbutton">
-        <v-icon start size="x-large" :icon="`ztIcon:${ztAliases.logo}`"></v-icon>
+        <v-icon size="x-large" :icon="`ztIcon:${ztAliases.logo}`"></v-icon>
       </v-btn>
       <div class="click-edit">
         <div class="click-edit__show-text" v-if="!editingProjectName">
@@ -347,7 +347,7 @@ export default {
           id: key,
           code: this.notebook.cells[key].code,
           variable_name: this.notebook.cells[key].variable_name || "",
-          nonReactive: this.notebook.cells[key].nonReactive,
+          nonReactive: this.notebook.cells[key].nonReactive as boolean,
           cellType: this.notebook.cells[key].cellType,
         };
         for (const c of this.notebook.cells[key].components) {

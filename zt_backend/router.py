@@ -146,6 +146,7 @@ async def component_run(websocket: WebSocket):
                     id=cell.id, 
                     code=cell.code,
                     variable_name=cell.variable_name,
+                    nonReactive=cell.nonReactive,
                     cellType=cell.cellType
                 )
                 cells.append(cell_request)
@@ -244,13 +245,6 @@ def expand_code(expandCodeRequest: request.ExpandCodeRequest):
      if(run_mode=='dev'):
         logger.debug("Rename cell request started")
         save_queue.put_nowait({"expandCode": expandCodeRequest})
-        logger.debug("Rename cell request completed")
-
-@router.post("/api/cron_cell")
-def cron_cell(renameCellRequest: request.CronCellRequest):
-     if(run_mode=='dev'):
-        logger.debug("Rename cell request started")
-        save_queue.put_nowait({"renameCell": renameCellRequest})
         logger.debug("Rename cell request completed")
 
 @router.websocket("/ws/save_text")

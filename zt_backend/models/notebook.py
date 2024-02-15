@@ -50,8 +50,6 @@ class CodeCell(BaseModel):
     hideCode: bool = Field(False)
     expandCode: bool = Field(False)
     nonReactive: bool = Field(False)
-    cronCell: bool = Field(False)
-    cronFrequency: int = Field(0)
     variable_name: str = Field("")
     layout: Layout = Field(Layout())
     components: List[SerializeAsAny[ZTComponent]]

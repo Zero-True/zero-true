@@ -15,8 +15,6 @@ export type Hidecell = boolean;
 export type Hidecode = boolean;
 export type Expandcode = boolean;
 export type Nonreactive = boolean;
-export type Croncell = boolean;
-export type Cronfrequency = number;
 export type VariableName = string;
 /**
  * List of component IDs that belong to this column
@@ -66,8 +64,6 @@ export interface CodeCell {
   hideCode?: Hidecode;
   expandCode?: Expandcode;
   nonReactive?: Nonreactive;
-  cronCell?: Croncell;
-  cronFrequency?: Cronfrequency;
   variable_name?: VariableName;
   layout?: Layout;
   components: Components2;

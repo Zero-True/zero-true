@@ -5,11 +5,13 @@
     :hide-cell="(cellData.hideCell as boolean)"
     :hide-code="(cellData.hideCode as boolean)"
     :expand-code="(cellData.expandCode as boolean)"
+    :non-reactive="(cellData.nonReactive as boolean)"
     :cell-name="(cellData.cellName as string)"
     :is-dev-mode="$devMode && !isAppRoute && !isMobile"
     @play="runCode" 
     @delete="deleteCell"
     @expandCodeUpdate="e => expandCodeUpdate(e)"
+    @updateReactivity="e => updateReactivity(e)"
     @addCell="e => createCell(e)"
   >
     <template v-slot:code>
@@ -188,6 +190,9 @@ export default {
     },
     expandCodeUpdate(e: Boolean){
       this.expanded = e ? [0] : []
+    },
+    updateReactivity(e: Boolean){
+      this.cellData.nonReactive = e as boolean
     }
   },
 };
