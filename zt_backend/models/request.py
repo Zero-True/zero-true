@@ -5,6 +5,7 @@ class CodeRequest(BaseModel):
     id: str
     code: str
     variable_name: str
+    nonReactive: bool
     cellType: str = Field(enum=['code', 'markdown', 'text', 'sql'])
 
 class Request(BaseModel):
@@ -14,6 +15,7 @@ class Request(BaseModel):
 
 class Cell(BaseModel):
     code: str
+    nonReactive: bool
     defined_names: List[str]
     loaded_names: List[str]
     loaded_modules: List[str] = []
@@ -47,6 +49,18 @@ class HideCodeRequest(BaseModel):
 class NameCellRequest(BaseModel):
     cellId: str
     cellName: str
+
+class CellReactivityRequest(BaseModel):
+    cellId: str
+    nonReactive: bool
+
+class ExpandCodeRequest(BaseModel):
+    cellId: str
+    expandCode: bool
+
+class CronCellRequest(BaseModel):
+    cellId: str
+    frequency: int
 
 class CreateRequest(BaseModel):
     cellType: str = Field(enum=['code', 'markdown', 'text', 'sql'])

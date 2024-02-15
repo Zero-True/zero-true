@@ -2,9 +2,14 @@
   <cell
     cell-type="sql"
     :cell-id="cellData.id" 
+    :hide-cell="(cellData.hideCell as boolean)"
+    :hide-code="(cellData.hideCode as boolean)"
+    :expand-code="(cellData.expandCode as boolean)"
+    :cell-name="(cellData.cellName as string)"
     :is-dev-mode="$devMode && !isAppRoute && !isMobile"
     @play="runCode" 
     @delete="deleteCell"
+    @expandCodeUpdate="e => expandCodeUpdate(e)"
     @addCell="e => createCell(e)"
   >
     <template v-slot:code>
@@ -25,13 +30,9 @@
         :extensions="extensions"
         @keyup="saveCell"
       />
-      <v-expansion-panels v-else>
-          <v-expansion-panel  
-            bg-color="#212121"
-          >
-          <v-expansion-panel-title 
-            color="#1c2e3c"
-          >
+      <v-expansion-panels v-else v-model="expanded">
+          <v-expansion-panel  v-model="expanded" bg-color="#212121">
+          <v-expansion-panel-title color="#1c2e3c">
             View Source Code
           </v-expansion-panel-title>
           <v-expansion-panel-text>
@@ -145,6 +146,7 @@ export default {
   data() {
     return {
       isFocused: false, // add this line to keep track of the focus state
+      expanded: this.cellData.expandCode ? [0] : [],
       items: [
         { title: "Code" },
         { title: "SQL" },
@@ -172,7 +174,7 @@ export default {
   },
   methods: {
     runCode() {
-      this.$emit("runCode", this.cellData.id);
+      this.$emit("runCode", this.cellData.id, this.cellData.nonReactive);
     },
     deleteCell() {
       this.$emit("deleteCell", this.cellData.id);
@@ -184,6 +186,9 @@ export default {
       if (!this.$devMode) return;
       this.$emit("saveCell", this.cellData.id, this.cellData.code, "", "");
     },
+    expandCodeUpdate(e: Boolean){
+      this.expanded = e ? [0] : []
+    }
   },
 };
 </script>

@@ -3,6 +3,8 @@
     cell-type="markdown"
     :cell-id="cellData.id" 
     :is-dev-mode="$devMode && !isAppRoute && !isMobile"
+    :hide-cell="(cellData.hideCell as boolean)"
+    :cell-name="(cellData.cellName as string)"
     @delete="deleteCell"
     @save="saveCell"
     @addCell="e => createCell(e)"

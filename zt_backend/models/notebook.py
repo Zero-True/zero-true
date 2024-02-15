@@ -48,6 +48,10 @@ class CodeCell(BaseModel):
     cellName: str = Field("")
     hideCell: bool = Field(False)
     hideCode: bool = Field(False)
+    expandCode: bool = Field(False)
+    nonReactive: bool = Field(False)
+    cronCell: bool = Field(False)
+    cronFrequency: int = Field(0)
     variable_name: str = Field("")
     layout: Layout = Field(Layout())
     components: List[SerializeAsAny[ZTComponent]]
@@ -60,7 +64,7 @@ class CodeCell(BaseModel):
         return values
     
 class Notebook(BaseModel):
-    notebookName: str = Field("")
+    notebookName: str = Field("Zero True")
     notebookId: str = Field(default=str(uuid4()))  # Added notebook UUID
     cells: OrderedDict[str, CodeCell]
     userId: str

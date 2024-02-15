@@ -3,6 +3,8 @@
     cell-type="text"
     :cell-id="cellData.id" 
     :is-dev-mode="$devMode && !isAppRoute && !isMobile"
+    :hide-cell="(cellData.hideCell as boolean)"
+    :cell-name="(cellData.cellName as string)"
     @save="saveCell"
     @delete="deleteCell"
     @addCell="e => createCell(e)"

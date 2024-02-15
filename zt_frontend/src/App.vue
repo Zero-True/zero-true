@@ -11,7 +11,7 @@
       </v-btn>
       <div class="click-edit">
         <div class="click-edit__show-text" v-if="!editingProjectName">
-          <h5 class="click-edit__name text-h5">{{ notebookName ?? 'Zero True' }}</h5> 
+          <h5 class="click-edit__name text-h5">{{ notebookName }}</h5> 
           <v-btn
             v-if="($devMode && !isAppRoute)"
             color="bluegrey-darken-1"
@@ -42,7 +42,7 @@
           />
         </div> 
       </div>
-      <div class="toggle-group" v-if="!isMobile">
+      <div class="toggle-group" v-if="$devMode && !isMobile">
         <v-btn-toggle
           :multiple="false"
           mandatory
@@ -100,6 +100,7 @@
     <v-footer 
       app
       class="footer bg-bluegrey-darken-4 text-bluegrey"
+      v-if="!isMobile"
     >
       <div class="footer__left-container">
         <span>
@@ -337,7 +338,7 @@ export default {
         this.ztVersion = envData.zt_version
     },
 
-    async runCode(originId: string){
+    async runCode(originId: string, nonReactive: boolean){
       if (!originId) return;
       const cellRequests: CodeRequest[] = [];
       const requestComponents: { [key: string]: any } = {};
@@ -346,11 +347,11 @@ export default {
           id: key,
           code: this.notebook.cells[key].code,
           variable_name: this.notebook.cells[key].variable_name || "",
+          nonReactive: this.notebook.cells[key].nonReactive,
           cellType: this.notebook.cells[key].cellType,
         };
         for (const c of this.notebook.cells[key].components) {
           if (c.component === 'v-data-table') {
-            console.log('v-data-table')
             requestComponents[c.id] = '';
           } else {
             requestComponents[c.id] = c.value;
@@ -610,7 +611,6 @@ export default {
     },
 
     async createCodeCell(position_key: string, cellType: string) {
-      console.log('creating cell')
       const cellRequest: CreateRequest = { cellType: cellType.toLowerCase() as Celltype, position_key: position_key };
       const response = await axios.post(
         import.meta.env.VITE_BACKEND_URL + "api/create_cell",
@@ -766,6 +766,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
 @import '@/styles/mixins.scss';
 .cm-editor {
   height: auto !important;

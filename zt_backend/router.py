@@ -226,7 +226,28 @@ def hide_cell(hideCodeRequest: request.HideCodeRequest):
         logger.debug("Hide code request completed")
 
 @router.post("/api/rename_cell")
-def hide_cell(renameCellRequest: request.NameCellRequest):
+def rename_cell(renameCellRequest: request.NameCellRequest):
+     if(run_mode=='dev'):
+        logger.debug("Rename cell request started")
+        save_queue.put_nowait({"renameCell": renameCellRequest})
+        logger.debug("Rename cell request completed")
+
+@router.post("/api/cell_reactivity")
+def cell_reactivity(cellReactivityRequest: request.CellReactivityRequest):
+     if(run_mode=='dev'):
+        logger.debug("Rename cell request started")
+        save_queue.put_nowait({"cellReactivity": cellReactivityRequest})
+        logger.debug("Rename cell request completed")
+
+@router.post("/api/expand_code")
+def expand_code(expandCodeRequest: request.ExpandCodeRequest):
+     if(run_mode=='dev'):
+        logger.debug("Rename cell request started")
+        save_queue.put_nowait({"expandCode": expandCodeRequest})
+        logger.debug("Rename cell request completed")
+
+@router.post("/api/cron_cell")
+def cron_cell(renameCellRequest: request.CronCellRequest):
      if(run_mode=='dev'):
         logger.debug("Rename cell request started")
         save_queue.put_nowait({"renameCell": renameCellRequest})

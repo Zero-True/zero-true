@@ -106,6 +106,7 @@ def parse_cells(request: Request) -> CodeDict:
             loaded_names = [name for name in get_loaded_names(module, defined_names) + get_loaded_modules(module,all_imports) + list(table_names) if name not in get_imports(module)]
             cell_dict[cell.id] = Cell(**{
                 'code': cell.code,
+                'nonReactive': cell.nonReactive,
                 'defined_names': defined_names,
                 'imported_modules':get_imports(module),
                 'loaded_modules':get_loaded_modules(module,all_imports),

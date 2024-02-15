@@ -1,4 +1,4 @@
-from .request import DependencyRequest, Request, ComponentRequest, DeleteRequest, CreateRequest, SaveRequest, ClearRequest, NotebookNameRequest, HideCellRequest, HideCodeRequest, NameCellRequest
+from .request import DependencyRequest, Request, ComponentRequest, DeleteRequest, CreateRequest, SaveRequest, ClearRequest, NotebookNameRequest, HideCellRequest, HideCodeRequest, NameCellRequest, CronCellRequest, ExpandCodeRequest, CellReactivityRequest
 from .response import Response
 from .notebook import Notebook
 from .notebook import NotebookResponse
@@ -33,6 +33,9 @@ def generate_schema():
     generate_json(HideCellRequest, 'hide_cell_request')
     generate_json(HideCodeRequest, 'hide_code_request')
     generate_json(NameCellRequest, 'name_cell_request')
+    generate_json(CronCellRequest, 'cron_cell_request')
+    generate_json(ExpandCodeRequest, 'expand_code_request')
+    generate_json(CellReactivityRequest, 'cell_reactivity_request')
     generate_json(Response, 'response')
     generate_json(Slider, 'slider')
     generate_json(Notebook, 'notebook')

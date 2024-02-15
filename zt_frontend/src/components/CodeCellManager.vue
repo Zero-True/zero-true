@@ -105,8 +105,8 @@ export default {
       }
     },
 
-    runCode(cellId: string, componentId: string, code: string) {
-      this.$emit("runCode", cellId, componentId);
+    runCode(cellId: string, nonReactive: boolean, componentId: string) {
+      this.$emit("runCode", cellId, nonReactive, componentId);
     },
     deleteCell(cellId: string) {
       this.$emit("deleteCell", cellId);
@@ -117,8 +117,8 @@ export default {
     createCodeCell(position_key: string, cellType: string) {
       this.$emit("createCell", position_key, cellType);
     },
-    componentValueChange(cell: CodeCell, componentId: string, componentValue: any) {
-      this.$emit("componentValueChange", cell, componentId, componentValue);
+    componentValueChange(cell: CodeCell, componentId: string, componentValue: any, nonReactive: boolean) {
+      this.$emit("componentValueChange", cell, componentId, componentValue, nonReactive);
     },
     copilotCompletion(cellId: string, line: string, column: string, callback: any) {
       this.$emit("copilotCompletion", cellId, line, column, callback);
