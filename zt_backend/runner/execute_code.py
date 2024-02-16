@@ -80,6 +80,8 @@ def execute_request(request: request.Request, state: UserState):
             downstream_cells = [cell.id for cell in request.cells if cell.cellType in ['code', 'sql']]
         for code_cell_id in downstream_cells:
             code_cell = dependency_graph.cells[code_cell_id]
+            if code_cell_id!=request.originId and code_cell.nonReactive:
+                continue
             execution_state.message_queue.put_nowait({"cell_id": code_cell_id, "clear_output": True})
             execution_state.io_output = StringIO()
             execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, execution_state)

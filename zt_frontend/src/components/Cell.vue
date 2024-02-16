@@ -56,7 +56,7 @@
               @click="$emit('play')"></v-btn>
             <v-menu :close-on-content-click="false">
               <template v-slot:activator="{ props }">
-                <v-btn :icon="`ztIcon:${ztAliases.visibility}`" v-bind="props"></v-btn>
+                <v-btn :icon="`ztIcon:${ztAliases.settings}`" v-bind="props"></v-btn>
               </template>
 
               <v-list>
@@ -71,6 +71,18 @@
                     <v-switch v-model="hideCodeValue" @update:modelValue="updateHideCode"></v-switch>
                   </template>
                   <v-list-item-title>Hide Code</v-list-item-title>
+                </v-list-item>
+                <v-list-item v-if="keepCodeInAppModel">
+                  <template v-slot:prepend>
+                    <v-switch v-model="expandCodeValue" @update:modelValue="updateExpandCode"></v-switch>
+                  </template>
+                  <v-list-item-title>Expand Code</v-list-item-title>
+                </v-list-item>
+                <v-list-item v-if="keepCodeInAppModel">
+                  <template v-slot:prepend>
+                    <v-switch v-model="nonReactiveValue" @update:modelValue="updateReactivity"></v-switch>
+                  </template>
+                  <v-list-item-title>Non-Reactive</v-list-item-title>
                 </v-list-item>
               </v-list>
 
@@ -116,6 +128,11 @@
         <slot name="outcome"></slot>
       </div>
     </div>
+    <v-tooltip v-if="nonReactiveValue" text="Cell is Stale">
+      <template v-slot:activator="{ props }">
+        <v-divider v-bind="props" class="indicator" vertical color="warning" :thickness="8"/>
+      </template>
+    </v-tooltip>
   </v-card>
   <add-cell v-if="isDevMode" :cell-id="cellId" @createCodeCell="e => $emit('addCell', e)" />
 </template>
@@ -129,6 +146,8 @@ import type { VTextField } from "vuetify/lib/components/index.mjs";
 import AddCell from '@/components/AddCell.vue'
 import { HideCellRequest } from '@/types/hide_cell_request'
 import { HideCodeRequest } from '@/types/hide_code_request'
+import { ExpandCodeRequest } from '@/types/expand_code_request'
+import { CellReactivityRequest } from '@/types/cell_reactivity_request'
 import { NameCellRequest } from '@/types/name_cell_request'
 
 const props = defineProps({
@@ -144,16 +163,25 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  expandCode: {
+    type: Boolean,
+    default: false
+  },
+  nonReactive: {
+    type: Boolean,
+    default: false
+  },
   cellName: {
     type: String,
     default: null
   }
 })
-defineEmits<{
+const emits = defineEmits<{
   (e: 'delete'): void
   (e: 'play'): void
   (e: 'save'): void
-  (e: 'renameCell'): void
+  (e: 'expandCodeUpdate', expand: Boolean): void
+  (e: 'updateReactivity', expand: Boolean): void
   (e: 'addCell', cellType: Celltype): void
 }>()
 
@@ -173,6 +201,8 @@ const dividerColor = computed(() => {
 
 const hideCellValue = ref(props.hideCell || false);
 const hideCodeValue = ref(props.hideCode || false);
+const expandCodeValue = ref(props.expandCode || false);
+const nonReactiveValue = ref(props.nonReactive || false);
 const cellNameValue = ref(props.cellName || props.cellType);
 const cellNameEditValue = ref('');
 const cellNameField = ref(null);
@@ -195,6 +225,22 @@ const updateHideCode = async (value: unknown) => {
     hideCode: value as boolean
   }
   await axios.post(import.meta.env.VITE_BACKEND_URL + "api/hide_code", hideCodeRequest);
+};
+const updateExpandCode = async (value: unknown) => {
+  const expandCodeRequest: ExpandCodeRequest = {
+    cellId: props.cellId as string,
+    expandCode: value as boolean
+  }
+  await axios.post(import.meta.env.VITE_BACKEND_URL + "api/expand_code", expandCodeRequest);
+  emits('expandCodeUpdate', value as boolean)
+};
+const updateReactivity = async (value: unknown) => {
+  const cellReactivityRequest: CellReactivityRequest = {
+    cellId: props.cellId as string,
+    nonReactive: value as boolean
+  }
+  await axios.post(import.meta.env.VITE_BACKEND_URL + "api/cell_reactivity", cellReactivityRequest);
+  emits('updateReactivity', value as boolean)
 };
 
 const toggleCellName = () => {
@@ -230,6 +276,7 @@ const saveCellName = async () => {
 .content {
   flex: 1;
   margin-left: 16px;
+  margin-right: 16px;
   width: calc(100% - 20px);
 }
 

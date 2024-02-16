@@ -13,6 +13,8 @@ export type Output = string;
 export type Cellname = string;
 export type Hidecell = boolean;
 export type Hidecode = boolean;
+export type Expandcode = boolean;
+export type Nonreactive = boolean;
 export type VariableName = string;
 /**
  * List of component IDs that belong to this column
@@ -66,6 +68,8 @@ export interface CodeCell {
   cellName?: Cellname;
   hideCell?: Hidecell;
   hideCode?: Hidecode;
+  expandCode?: Expandcode;
+  nonReactive?: Nonreactive;
   variable_name?: VariableName;
   layout?: Layout;
   components: Components2;

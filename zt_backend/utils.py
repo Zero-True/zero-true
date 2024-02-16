@@ -73,6 +73,7 @@ def get_notebook(id=''):
         # Convert TOML data to a Notebook object
         notebook_data = {
             'notebookId' : toml_data['notebookId'],
+            'notebookName' : toml_data.get('notebookName', 'Zero True'),
             'userId' : '',
             'cells': {
                 cell_id: notebook.CodeCell(id=cell_id, **cell_data, output="")
@@ -110,7 +111,9 @@ def globalStateUpdate(newCell: notebook.CodeCell=None,
                       saveCell: request.SaveRequest=None, 
                       hideCell: request.HideCellRequest=None,
                       hideCode: request.HideCodeRequest=None,
+                      expandCode: request.ExpandCodeRequest=None,
                       renameCell: request.NameCellRequest=None,
+                      cellReactivity: request.CellReactivityRequest=None,
                       run_request: request.Request=None, 
                       run_response: response.Response=None, 
                       new_notebook_name: str="",
@@ -139,8 +142,12 @@ def globalStateUpdate(newCell: notebook.CodeCell=None,
             zt_notebook.cells[hideCell.cellId].hideCell=hideCell.hideCell
         if hideCode is not None:
             zt_notebook.cells[hideCode.cellId].hideCode=hideCode.hideCode
+        if expandCode is not None:
+            zt_notebook.cells[expandCode.cellId].expandCode=expandCode.expandCode
         if renameCell is not None:
             zt_notebook.cells[renameCell.cellId].cellName=renameCell.cellName
+        if cellReactivity is not None:
+            zt_notebook.cells[cellReactivity.cellId].nonReactive=cellReactivity.nonReactive
         if run_request is not None:
             for requestCell in run_request.cells:
                 #zt_notebook.cells[requestCell.id].code = requestCell.code
@@ -174,11 +181,13 @@ def write_notebook():
             project_file.write(f'notebookId = "{zt_notebook.notebookId}"\nnotebookName = "{zt_notebook.notebookName}"\n\n')
 
             for cell_id, cell in zt_notebook.cells.items():
-                project_file.write(f'cellName = "{cell.cellName}"\n')
                 project_file.write(f'[cells.{cell_id}]\n')
+                project_file.write(f'cellName = "{cell.cellName}"\n')
                 project_file.write(f'cellType = "{cell.cellType}"\n')
                 project_file.write(f'hideCell = "{cell.hideCell}"\n')
                 project_file.write(f'hideCode = "{cell.hideCode}"\n')
+                project_file.write(f'expandCode = "{cell.expandCode}"\n')
+                project_file.write(f'nonReactive = "{cell.nonReactive}"\n')
                 
                 if cell.cellType=='sql':
                     if cell.variable_name:

@@ -9,6 +9,7 @@ export type Originid = string;
 export type Id = string;
 export type Code = string;
 export type VariableName = string;
+export type Nonreactive = boolean;
 export type Celltype = "code" | "markdown" | "text" | "sql";
 export type Cells = CodeRequest[];
 
@@ -22,6 +23,7 @@ export interface CodeRequest {
   id: Id;
   code: Code;
   variable_name: VariableName;
+  nonReactive: Nonreactive;
   cellType: Celltype;
   [k: string]: unknown;
 }

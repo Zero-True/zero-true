@@ -4,10 +4,14 @@
     cell-type="code"
     :hide-cell="(cellData.hideCell as boolean)"
     :hide-code="(cellData.hideCode as boolean)"
+    :expand-code="(cellData.expandCode as boolean)"
+    :non-reactive="(cellData.nonReactive as boolean)"
     :cell-name="(cellData.cellName as string)"
     :is-dev-mode="$devMode && !isAppRoute && !isMobile"
     @play="runCode(false, '', '')" 
     @delete="deleteCell"
+    @expandCodeUpdate="e => expandCodeUpdate(e)"
+    @updateReactivity="e => updateReactivity(e)"
     @addCell="e => createCell(e)"
   >
     <template v-slot:code>
@@ -25,13 +29,9 @@
         :code="cellData.code"
         :id = "'codeMirrorDev'+cellData.id"
       />
-      <v-expansion-panels v-else>
-        <v-expansion-panel
-          bg-color="#212121"
-        >
-          <v-expansion-panel-title 
-            color="#1c2e3c"
-          >
+      <v-expansion-panels v-else v-model="expanded">
+        <v-expansion-panel v-model="expanded" bg-color="#212121">
+          <v-expansion-panel-title color="#1c2e3c">
             View Source Code
           </v-expansion-panel-title>
           <v-expansion-panel-text>
@@ -201,6 +201,7 @@ export default {
       isFocused: false, // add this line to keep track of the focus state
       copilotSuggestion: '',
       copilotAccepted: false,
+      expanded: this.cellData.expandCode ? [0] : [],
       items: [
         { title: 'Code' },
         { title: 'SQL' },
@@ -367,11 +368,12 @@ export default {
           "componentValueChange",
           this.cellData.id,
           componentId,
-          componentValue
+          componentValue,
+          this.cellData.nonReactive
         );
       } 
       else {
-        this.$emit("runCode", this.cellData.id, componentId);
+        this.$emit("runCode", this.cellData.id, this.cellData.nonReactive, componentId);
       }
     },
     deleteCell() {
@@ -418,6 +420,12 @@ export default {
       const column = position - this.view?.state.doc.line(line).from;
       this.$emit("saveCell", this.cellData.id, this.cellData.code, line, column);
     },
+    expandCodeUpdate(e: Boolean){
+      this.expanded = e ? [0] : []
+    },
+    updateReactivity(e: Boolean){
+      this.cellData.nonReactive = e as boolean
+    }
   },
 };
 </script>

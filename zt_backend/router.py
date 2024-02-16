@@ -146,6 +146,7 @@ async def component_run(websocket: WebSocket):
                     id=cell.id, 
                     code=cell.code,
                     variable_name=cell.variable_name,
+                    nonReactive=cell.nonReactive,
                     cellType=cell.cellType
                 )
                 cells.append(cell_request)
@@ -226,10 +227,24 @@ def hide_cell(hideCodeRequest: request.HideCodeRequest):
         logger.debug("Hide code request completed")
 
 @router.post("/api/rename_cell")
-def hide_cell(renameCellRequest: request.NameCellRequest):
+def rename_cell(renameCellRequest: request.NameCellRequest):
      if(run_mode=='dev'):
         logger.debug("Rename cell request started")
         save_queue.put_nowait({"renameCell": renameCellRequest})
+        logger.debug("Rename cell request completed")
+
+@router.post("/api/cell_reactivity")
+def cell_reactivity(cellReactivityRequest: request.CellReactivityRequest):
+     if(run_mode=='dev'):
+        logger.debug("Rename cell request started")
+        save_queue.put_nowait({"cellReactivity": cellReactivityRequest})
+        logger.debug("Rename cell request completed")
+
+@router.post("/api/expand_code")
+def expand_code(expandCodeRequest: request.ExpandCodeRequest):
+     if(run_mode=='dev'):
+        logger.debug("Rename cell request started")
+        save_queue.put_nowait({"expandCode": expandCodeRequest})
         logger.debug("Rename cell request completed")
 
 @router.websocket("/ws/save_text")
