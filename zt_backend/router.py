@@ -328,6 +328,7 @@ async def load_notebook(websocket: WebSocket):
                         id=cell.id, 
                         code=cell.code,
                         variable_name=cell.variable_name,
+                        nonReactive=cell.nonReactive,
                         cellType=cell.cellType
                     )
                     for comp in cell.components:
