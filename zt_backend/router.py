@@ -4,6 +4,7 @@ from zt_backend.models import request, notebook
 from zt_backend.runner.execute_code import execute_request
 from zt_backend.config import settings
 from zt_backend.utils import *
+from zt_backend.manager import ConnectionManager, KThread
 from zt_backend.runner.user_state import UserState
 from fastapi.responses import HTMLResponse
 from copilot.copilot import text_document_did_change
@@ -16,60 +17,6 @@ import traceback
 import sys
 import asyncio
 import pkg_resources
-import trace
-
-class ConnectionManager:
-    def __init__(self):
-        self.active_connections: list[WebSocket] = []
-
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections.append(websocket)
-
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
-
-    async def send_text(self, message: str, websocket: WebSocket):
-        await websocket.send_text(message)
-
-    async def broadcast(self, message: str):
-        for connection in self.active_connections:
-            await connection.send_text(message)
-
-class KThread(threading.Thread):
-  """A subclass of threading.Thread, with a kill()
-method."""
-  def __init__(self, *args, **keywords):
-    threading.Thread.__init__(self, *args, **keywords)
-    self.killed = False
-
-  def start(self):
-    """Start the thread."""
-    self.__run_backup = self.run
-    self.run = self.__run      # Force the Thread to install our trace.
-    threading.Thread.start(self)
-
-  def __run(self):
-    """Hacked run function, which installs the
-trace."""
-    sys.settrace(self.globaltrace)
-    self.__run_backup()
-    self.run = self.__run_backup
-
-  def globaltrace(self, frame, why, arg):
-    if why == 'call':
-      return self.localtrace
-    else:
-      return None
-
-  def localtrace(self, frame, why, arg):
-    if self.killed:
-      if why == 'line':
-        raise SystemExit()
-    return self.localtrace
-
-  def kill(self):
-    self.killed = True
 
 router = APIRouter()
 manager = ConnectionManager()

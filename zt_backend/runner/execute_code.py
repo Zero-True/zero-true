@@ -7,6 +7,7 @@ from zt_backend.runner.user_state import UserState, UserContext
 from zt_backend.models.components.layout import Layout
 from zt_backend.utils import globalStateUpdate
 from zt_backend.config import settings
+from zt_backend.models.components.state import state
 from datetime import datetime
 import logging
 import traceback
@@ -21,6 +22,8 @@ def try_pickle(obj):
     Attempts to pickle and then unpickle an object. If successful, returns the unpickled object, 
     otherwise returns the original object.
     """
+    if isinstance(obj, state):
+        return obj
     try:
         return pickle.loads(pickle.dumps(obj))
     except Exception as e:
@@ -135,4 +138,5 @@ def execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, e
             tb_list = [tb_list[0]]+tb_list[3:]
             print("".join(tb_list))
     execution_state.context_globals['exec_mode'] = False
+    #exclude builtins and State objectcts
     execution_state.cell_outputs_dict[code_cell_id] = {k: try_pickle(v) for k, v in temp_globals.items() if k != '__builtins__'}
