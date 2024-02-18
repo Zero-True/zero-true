@@ -5,9 +5,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, PropType } from 'vue';
+import { defineComponent, onMounted, onUnmounted, PropType, watch } from 'vue';
 import Plotly from "plotly.js-dist-min";
-
 
 export default defineComponent({
   props: {
@@ -28,17 +27,26 @@ export default defineComponent({
       }
     };
 
+    // Function to render or update the plot
+    const renderPlot = (figureJson: string) => {
+      const figure = JSON.parse(figureJson);
+      Plotly.react(props.id, figure.data, figure.layout);
+    };
+
     // Initial plot rendering and responsive resize
     onMounted(() => {
-      const figure = JSON.parse(props.figureJson);
-      Plotly.newPlot(props.id, figure.data, figure.layout).then(() => {
-        window.addEventListener('resize', resizePlot);
-      });
+      renderPlot(props.figureJson);
+      window.addEventListener('resize', resizePlot);
     });
 
     // Cleanup on component unmount
     onUnmounted(() => {
       window.removeEventListener('resize', resizePlot);
+    });
+
+    // Watch for changes in figureJson prop and update the plot
+    watch(() => props.figureJson, (newFigureJson) => {
+      renderPlot(newFigureJson);
     });
   },
 });
