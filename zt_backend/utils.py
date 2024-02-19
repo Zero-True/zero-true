@@ -2,7 +2,6 @@ from typing import OrderedDict
 from matplotlib.pylab import f
 from zt_backend.runner.user_state import UserState
 from zt_backend.models import request, notebook, response
-from dictdiffer import diff
 import logging
 import duckdb
 import uuid
