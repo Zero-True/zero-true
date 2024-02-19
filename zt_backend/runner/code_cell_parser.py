@@ -115,6 +115,7 @@ def parse_cells(request: Request) -> CodeDict:
             logger.error("Error while parsing cells, returning empty names lists: %s", traceback.format_exc())
             cell_dict[cell.id] = Cell(**{
                 'code': cell.code,
+                'nonReactive': cell.nonReactive,
                 'defined_names': [],
                 'loaded_names': []})
     
