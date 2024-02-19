@@ -26,8 +26,7 @@ jobs:
       - name: Build Docs
         run: |
           python -m pip install --upgrade pip
-          pip install . 
-          pip install -r docs/requirements.txt
+          pip install .[dev]
           sphinx-build -b html docs docs/html
           cp docs/custom_theme.css docs/html/_static/custom_theme.css
           echo 'document.body.setAttribute("data-theme", "dark");' >> docs/html/_static/doctools.js
