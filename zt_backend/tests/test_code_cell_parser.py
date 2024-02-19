@@ -118,3 +118,16 @@ def test_importing_module_with_alias():
     
     assert cell_dict.cells['0'].imported_modules == ['m'] and cell_dict.cells['0'].loaded_names == [], "Test 10 Failed"
     assert cell_dict.cells['1'].defined_names == ['a'] and cell_dict.cells['1'].loaded_modules == ['m'], "Test 10 Failed"
+
+# Test 11: SQL cell with dependency
+def test_sql_cell():
+    cells =  Request(originId="0", cells=[CodeRequest(id="0", code="a=1", variable_name="",  nonReactive=False, cellType='code'),
+                                          CodeRequest(id="1", code="SELECT {a}", variable_name="df",  nonReactive=False, cellType='sql'),
+                                            CodeRequest(id="2", code="print(df)", variable_name="",  nonReactive=False, cellType='code')],
+                    components={})
+    cell_dict = build_dependency_graph(parse_cells(cells))
+    print(cell_dict)
+    assert set(cell_dict.cells['1'].defined_names) == set(['conn','df']), "Test 11 Failed"
+    assert cell_dict.cells['2'].defined_names == [], "Test 12 Failed" 
+    assert set(cell_dict.cells['2'].loaded_names) == set(['print','df']), "Test 13 Failed"
+    

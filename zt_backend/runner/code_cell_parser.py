@@ -132,19 +132,24 @@ def build_dependency_graph(cell_dict: Dict[int, Dict[str, Any]]) -> Dict[int, Di
 
     # Add child and parent relationships
     graph = add_child_cells(cell_dict, prev_components)
-
+    # Add previous child cells
     return graph
 
-def find_child_cells(cell: Cell, code_dictionary: CodeDict, idx: int) -> List[str]:
+def find_child_cells(cell: Cell, code_dictionary: CodeDict, idx: int, visited_cells=None) -> List[str]:
     child_cells = []
     names = cell.defined_names
+    child_defined_names = []
     for next_key in list(code_dictionary.cells.keys())[idx + 1:]:
         next_cell = code_dictionary.cells[next_key]
         next_loaded_names = next_cell.loaded_names
         next_loaded_modules = next_cell.loaded_modules
-        if set(names).intersection(set(next_loaded_names)-set(next_loaded_modules)):
+        next_defined_names = next_cell.defined_names
+        if set(names+child_defined_names).intersection(set(next_loaded_names)-set(next_loaded_modules)):
             child_cells.append(next_key)
+            child_defined_names += next_defined_names
+
     return child_cells
+    
 
 def add_parent_cells(code_dictionary: CodeDict) -> CodeDict:
     for key in list(code_dictionary.cells.keys()):
@@ -176,21 +181,4 @@ def add_child_cells(code_dictionary: CodeDict, prev_components: Dict[str, Any]) 
 def print_astroid_tree(code):
     module = astroid.parse(code)
     print(module.repr_tree())
-
-def find_downstream_cells(code_dictionary: CodeDict, start_cell_id, visited=None):
-    if visited is None:
-        visited = set()
-        
-    if start_cell_id in visited:
-        return []
-    
-    visited.add(start_cell_id)
-    
-    downstream_cells = []
-    
-    for cell_id, cell_data in code_dictionary.cells.items():
-        if start_cell_id in cell_data.parent_cells:
-            downstream_cells.append(cell_id)
-            downstream_cells.extend(find_downstream_cells(code_dictionary, cell_id, visited))
-    return list(OrderedDict.fromkeys(downstream_cells))
 
