@@ -54,3 +54,17 @@ def test_execute_request_multiple_cells_with_dependencies():
     assert 'b' in notebook_state.cell_outputs_dict['4']
     assert notebook_state.cell_outputs_dict['3']['a'] == 1
     assert notebook_state.cell_outputs_dict['4']['b'] == 2
+
+
+#Test sql cells
+def test_execute_request_sql_cells():
+    notebook_state = setup_function()
+    req = Request(originId="5", cells=[CodeRequest(id="5", code="a=1", variable_name="", nonReactive=False, cellType='code'),
+                                       CodeRequest(id="6", code="SELECT {a}", variable_name="test_table", nonReactive=False, cellType='sql'),
+                                       CodeRequest(id="7",code="test_table",variable_name='',nonReactive=False,cellType='code')], components={})
+    execute_thread = threading.Thread(target=execute_request, args=(req, notebook_state))
+    execute_thread.start()
+    execute_thread.join()
+    print(notebook_state.cell_outputs_dict)
+    assert 'test_table' in notebook_state.cell_outputs_dict['6']
+    assert 'test_table' in notebook_state.cell_outputs_dict['7']
