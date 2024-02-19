@@ -39,7 +39,7 @@ app.add_middleware(
 def open_project():
     try:
         if not os.path.exists('notebook.ztnb'):
-            logger.info("No toml file found, creating with empty notebook")
+            logger.info("No notebook file found, creating with empty notebook")
             write_notebook()
         if not os.path.exists('requirements.txt'):
             logger.info("No requirements file found, creating with base dependency")
