@@ -32,7 +32,7 @@ user_timers={}
 user_threads={}
 user_message_tasks={}
 notebook_state=UserState('')
-notebook_state.var_state = State()
+# notebook_state.var_state = State()
 run_mode = settings.run_mode
 save_queue = asyncio.Queue()
 
@@ -266,7 +266,7 @@ async def load_notebook(websocket: WebSocket):
                 userId = str(uuid.uuid4())
                 notebook_start.userId = userId
                 user_states[userId]=UserState(userId)
-                user_states[userId].var_state = State()
+                # user_states[userId].var_state = State()
                 user_message_tasks[userId]=asyncio.create_task(websocket_message_sender(user_states[userId]))
                 timer_set(userId, 1800)
                 cells = []
