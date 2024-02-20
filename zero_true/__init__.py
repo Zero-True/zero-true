@@ -15,4 +15,4 @@ from zt_backend.models.components.matplotlib import Matplotlib
 from zt_backend.models.components.plotly import  PlotlyComponent
 from zt_backend.models.components.autocomplete import  Autocomplete
 from zt_backend.models.components.card import Card
-from zt_backend.models.components.state import State
+from zt_backend.models.components.state import state

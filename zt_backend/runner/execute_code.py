@@ -3,11 +3,10 @@ from io import StringIO
 import pickle
 from zt_backend.models import request, response
 from zt_backend.runner.code_cell_parser import parse_cells, build_dependency_graph, CodeDict
-from zt_backend.runner.user_state import UserState, UserContext
+from zt_backend.runner.user_state import UserState, UserContext, State
 from zt_backend.models.components.layout import Layout
 from zt_backend.utils import globalStateUpdate
 from zt_backend.config import settings
-from zt_backend.models.components.state import state
 from datetime import datetime
 import logging
 import traceback
@@ -17,20 +16,21 @@ import asyncio
 now = datetime.now()
 logger = logging.getLogger("__name__")
 
-def try_pickle(obj):
+def try_pickle(obj, var_state):
     """
     Attempts to pickle and then unpickle an object. If successful, returns the unpickled object, 
     otherwise returns the original object.
     """
-    if isinstance(obj, state):
-        return obj
+    if isinstance(obj, State):
+        logger.info("State object found")
+        return var_state
     try:
         return pickle.loads(pickle.dumps(obj))
     except Exception as e:
         logger.debug("Error during pickle: %s", e)
         return obj
 
-def get_parent_vars(cell_id: str, code_components: CodeDict, cell_outputs_dict: Dict[str, Any]) -> Dict[str, Any]:
+def get_parent_vars(cell_id: str, code_components: CodeDict, cell_outputs_dict: Dict[str, Any], var_state) -> Dict[str, Any]:
     """
     Gathers and returns parent variables for a given cell.
 
@@ -57,7 +57,7 @@ def get_parent_vars(cell_id: str, code_components: CodeDict, cell_outputs_dict: 
                            code_components.cells[parent_cell].defined_names
         parent_vars += parent_vars_list
 
-    exec_parents = {key: try_pickle(val) for d in cell_dicts for key, val in d.items() if key in code_components.cells[cell_id].loaded_names}
+    exec_parents = {key: try_pickle(val, var_state) for d in cell_dicts for key, val in d.items() if key in code_components.cells[cell_id].loaded_names}
 
     return exec_parents
 
@@ -128,7 +128,7 @@ def execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, e
             if code_cell.parent_cells == []:
                 temp_globals = component_globals
             else:
-                temp_globals = get_parent_vars(cell_id=code_cell_id,code_components=dependency_graph,cell_outputs_dict=execution_state.cell_outputs_dict)
+                temp_globals = get_parent_vars(cell_id=code_cell_id,code_components=dependency_graph,cell_outputs_dict=execution_state.cell_outputs_dict, var_state=execution_state.var_state)
             execution_state.context_globals['exec_mode'] = True
             exec(code_cell.code, temp_globals)
 
@@ -139,4 +139,4 @@ def execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, e
             print("".join(tb_list))
     execution_state.context_globals['exec_mode'] = False
     #exclude builtins and State objectcts
-    execution_state.cell_outputs_dict[code_cell_id] = {k: try_pickle(v) for k, v in temp_globals.items() if k != '__builtins__'}
+    execution_state.cell_outputs_dict[code_cell_id] = {k: try_pickle(v, execution_state.var_state) for k, v in temp_globals.items() if k != '__builtins__'}

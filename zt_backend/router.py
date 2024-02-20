@@ -5,7 +5,7 @@ from zt_backend.runner.execute_code import execute_request
 from zt_backend.config import settings
 from zt_backend.utils import *
 from zt_backend.manager import ConnectionManager, KThread
-from zt_backend.runner.user_state import UserState
+from zt_backend.runner.user_state import UserState, State
 from fastapi.responses import HTMLResponse
 from copilot.copilot import text_document_did_change
 import logging
@@ -32,6 +32,7 @@ user_timers={}
 user_threads={}
 user_message_tasks={}
 notebook_state=UserState('')
+notebook_state.var_state = State()
 run_mode = settings.run_mode
 save_queue = asyncio.Queue()
 
@@ -265,6 +266,7 @@ async def load_notebook(websocket: WebSocket):
                 userId = str(uuid.uuid4())
                 notebook_start.userId = userId
                 user_states[userId]=UserState(userId)
+                user_states[userId].var_state = State()
                 user_message_tasks[userId]=asyncio.create_task(websocket_message_sender(user_states[userId]))
                 timer_set(userId, 1800)
                 cells = []
