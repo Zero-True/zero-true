@@ -3,11 +3,10 @@ from io import StringIO
 import pickle
 from zt_backend.models import request, response
 from zt_backend.runner.code_cell_parser import parse_cells, build_dependency_graph, CodeDict
-from zt_backend.runner.user_state import UserState, UserContext
+from zt_backend.runner.user_state import UserState, UserContext, State
 from zt_backend.models.components.layout import Layout
 from zt_backend.utils import globalStateUpdate
 from zt_backend.config import settings
-from zt_backend.models.components.state import state
 from datetime import datetime
 import logging
 import traceback
@@ -22,7 +21,7 @@ def try_pickle(obj):
     Attempts to pickle and then unpickle an object. If successful, returns the unpickled object, 
     otherwise returns the original object.
     """
-    if isinstance(obj, state):
+    if isinstance(obj, State):
         return obj
     try:
         return pickle.loads(pickle.dumps(obj))
@@ -94,7 +93,7 @@ def execute_request(request: request.Request, state: UserState):
                 logger.debug("Error while getting cell layout, setting empty layout: %s", traceback.format_exc())
                 layout = Layout(**{})
             for component in execution_state.current_cell_components:
-                if component.component == 'v-btn':
+                if component.component == 'v-btn' or component.component == 'v-timer':
                     component.value = False
 
             cell_response = response.CellResponse(id=code_cell_id, layout=layout, components=execution_state.current_cell_components, output=execution_state.io_output.getvalue())
