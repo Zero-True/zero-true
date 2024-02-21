@@ -5,7 +5,7 @@ from zt_backend.runner.execute_code import execute_request
 from zt_backend.config import settings
 from zt_backend.utils import *
 from zt_backend.manager import ConnectionManager, KThread
-from zt_backend.runner.user_state import UserState, State
+from zt_backend.runner.user_state import UserState
 from fastapi.responses import HTMLResponse
 from copilot.copilot import text_document_did_change
 import logging

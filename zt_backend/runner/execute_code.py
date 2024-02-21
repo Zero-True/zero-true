@@ -94,7 +94,7 @@ def execute_request(request: request.Request, state: UserState):
                 logger.debug("Error while getting cell layout, setting empty layout: %s", traceback.format_exc())
                 layout = Layout(**{})
             for component in execution_state.current_cell_components:
-                if component.component == 'v-btn':
+                if component.component == 'v-btn' or component.component == 'v-timer':
                     component.value = False
 
             cell_response = response.CellResponse(id=code_cell_id, layout=layout, components=execution_state.current_cell_components, output=execution_state.io_output.getvalue())
@@ -130,7 +130,6 @@ def execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, e
             else:
                 temp_globals = get_parent_vars(cell_id=code_cell_id,code_components=dependency_graph,cell_outputs_dict=execution_state.cell_outputs_dict)
             execution_state.context_globals['exec_mode'] = True
-            logger.info(temp_globals)
             exec(code_cell.code, temp_globals)
 
         except Exception:

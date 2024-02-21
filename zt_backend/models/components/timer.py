@@ -1,19 +1,13 @@
 from pydantic import Field, validator
 from zt_backend.models.components.zt_component import ZTComponent
-from typing import Optional
 from zt_backend.runner.user_state import UserContext
 
-
-class TextInput(ZTComponent):
-    """A class for TextInput components inheriting from ZTComponent."""
-    component: str = Field("v-text-field", description="Vue component name.")
-    value: str = Field ('', description="The input text value")
-    placeholder: Optional[str] = Field(None, description="Placeholder text.")
-    label: Optional[str] = Field(None, description="Label for the text input.")
-    readonly: Optional[bool] = Field(None, description="If true, the input is read-only.")
-    disabled: Optional[bool] = Field(None, description="If true, the input is disabled.")
-    triggerEvent: str = Field('keydown.enter',description="Trigger event to send code to the backend")
-    
+class Timer(ZTComponent):
+    component: str = Field("v-timer", description="Vue component name.")
+    interval: int = Field(100000, description="Interval in milliseconds")
+    value: bool = Field(False, description="Flag for execution under interval")
+    triggerEvent: str = Field('click',description="Trigger event for when to run the slider")
+        
     @validator('value', always=True) #TODO: debug and replace with field validator
     def get_value_from_global_state(cls, value, values):
         id = values['id'] # Get the id if it exists in the field values

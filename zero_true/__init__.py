@@ -15,4 +15,6 @@ from zt_backend.models.components.matplotlib import Matplotlib
 from zt_backend.models.components.plotly import  PlotlyComponent
 from zt_backend.models.components.autocomplete import  Autocomplete
 from zt_backend.models.components.card import Card
-from zt_backend.runner.user_state import State
+from zt_backend.models.components.timer import Timer
+from zt_backend.runner.user_state import state
+from zt_backend.runner.user_state import global_state

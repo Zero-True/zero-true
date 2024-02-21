@@ -74,55 +74,53 @@
           </v-col>
         </v-row>
         <!-- Render unplaced components at the bottom -->
-        <v-row v-if="unplacedComponents.length" :id = "'unplacedComponents'+cellData.id">
-          <v-container
-            class="pa-5"
-            v-for="component in unplacedComponents"
-            :key="component.id"
-          >
-            <!-- Render Plotly component if it's a 'plotly-plot' -->
-            <plotly-plot
-              v-if="component.component === 'plotly-plot'"
-              :id="component.id"
-              :figureJson="component.figure_json as string"
-            />
-            <!-- Render other components -->
-            <component
-              v-else-if="component.component === 'v-card'"
-              :is="component.component"
-              v-bind="componentBind(component)"
-              position="relative"
-              @runCode="runCode"
-            >
-              <div v-for="comp in cardComponents(component)">
-                <plotly-plot
-                  v-if="comp.component === 'plotly-plot'"
-                  :id="component.id"
-                  :figureJson="component.figure_json as string"
-                />
-                <component
-                  v-else
-                  :is="comp.component"
-                  v-bind="componentBind(comp)"
-                  v-model="comp.value"
-                  @click="clickedButton(comp)"
-                  @[comp.triggerEvent]="runCode(true, comp.id, comp.value)"
-                />
-              </div>
-            </component>
+        <div v-if="unplacedComponents.length" :id = "'unplacedComponents'+cellData.id">
+          <div v-for="component in unplacedComponents" :key="component.id">
+            <v-row :class="component.component==='v-timer' ? '' : 'pa-5'">
+              <!-- Render Plotly component if it's a 'plotly-plot' -->
+              <plotly-plot
+                v-if="component.component === 'plotly-plot'"
+                :id="component.id"
+                :figureJson="component.figure_json as string"
+              />
+              <!-- Render other components -->
+              <component
+                v-else-if="component.component === 'v-card'"
+                :is="component.component"
+                v-bind="componentBind(component)"
+                position="relative"
+                @runCode="runCode"
+              >
+                <div v-for="comp in cardComponents(component)">
+                  <plotly-plot
+                    v-if="comp.component === 'plotly-plot'"
+                    :id="component.id"
+                    :figureJson="component.figure_json as string"
+                  />
+                  <component
+                    v-else
+                    :is="comp.component"
+                    v-bind="componentBind(comp)"
+                    v-model="comp.value"
+                    @click="clickedButton(comp)"
+                    @[comp.triggerEvent]="runCode(true, comp.id, comp.value)"
+                  />
+                </div>
+              </component>
 
-            <component
-              v-else
-              :is="component.component"
-              v-bind="componentBind(component)"
-              v-model="component.value"
-              @click="clickedButton(component)"
-              @[component.triggerEvent]="
-                runCode(true, component.id, component.value)
-              "
-            />
-          </v-container>
-        </v-row>
+              <component
+                v-else
+                :is="component.component"
+                v-bind="componentBind(component)"
+                v-model="component.value"
+                @click="clickedButton(component)"
+                @[component.triggerEvent]="
+                  runCode(true, component.id, component.value)
+                "
+              />
+            </v-row>
+          </div>
+        </div>
         <pre :id = "'cellOutput'+cellData.id">{{ cellData.output }}</pre>
       </div>
     </template>
@@ -157,6 +155,7 @@ import { VDataTable } from "vuetify/labs/VDataTable";
 import { CodeCell, Layout } from "@/types/notebook";
 import LayoutComponent from "@/components/LayoutComponent.vue";
 import TextComponent from "@/components/TextComponent.vue"
+import TimerComponent from "@/components/TimerComponent.vue"
 import { globalState } from "@/global_vars"
 import { useRoute } from 'vue-router'
 import Cell from '@/components/Cell.vue'
@@ -181,6 +180,7 @@ export default {
     "v-autocomplete": VAutocomplete,
     "v-card": VCard,
     "v-text": TextComponent,
+    "v-timer": TimerComponent,
     "plotly-plot": PlotlyPlot,
     "layout-component": LayoutComponent,
   },
@@ -359,8 +359,6 @@ export default {
       );
     },
   },
-  mounted() {
-  },
   methods: {
     runCode(fromComponent: boolean, componentId: string, componentValue: any) {
       if (!this.$devMode && fromComponent) {
@@ -395,7 +393,7 @@ export default {
       }, {});
     },
     clickedButton(component: any) {
-      if (component.component === "v-btn") {
+      if (component.component === "v-btn" || component.component === "v-timer") {
         component.value = true;
       }
     },

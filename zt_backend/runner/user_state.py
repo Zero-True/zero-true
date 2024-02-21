@@ -59,3 +59,8 @@ class State(dict):
             super().__delattr__(key)
         else:
             raise AttributeError("Cannot delete attributes. Please use dictionary operations.")
+        
+def state():
+    return State.get_or_create_state()
+
+global_state = State()

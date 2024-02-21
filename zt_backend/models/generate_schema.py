@@ -15,6 +15,7 @@ from .components.text import Text
 from .components.layout import Layout
 from .components.autocomplete import Autocomplete
 from .components.card import Card
+from .components.timer import Timer
 import json
 
 def generate_json(model, name):
@@ -52,3 +53,4 @@ def generate_schema():
     generate_json(Autocomplete,'autocomplete')
     generate_json(Card,'card')
     generate_json(Text,'text')
+    generate_json(Timer,'timer')
