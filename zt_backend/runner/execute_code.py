@@ -1,7 +1,6 @@
 from typing import Dict, Any, OrderedDict
 from io import StringIO
 import pickle
-from numpy import var
 from zt_backend.models import request, response
 from zt_backend.runner.code_cell_parser import parse_cells, build_dependency_graph, CodeDict
 from zt_backend.runner.user_state import UserState, UserContext, State
