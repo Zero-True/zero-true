@@ -6,12 +6,22 @@
       extension-height="112" 
       id="appBar"
     >
-      <v-btn size="x-large" variant="text" @click="navigateToApp" id ="Navbutton">
-        <v-icon size="x-large" :icon="`ztIcon:${ztAliases.logo}`"></v-icon>
+      <v-btn
+        size="x-large"
+        :ripple="false"
+        :icon="`ztIcon:${ztAliases.logo}`"
+        variant="plain"
+        @click="navigateToApp"
+        id ="Navbutton"
+        class="logo-btn" 
+        >
       </v-btn>
       <div class="click-edit">
         <div class="click-edit__show-text" v-if="!editingProjectName">
-          <h5 class="click-edit__name text-h5">{{ notebookName }}</h5> 
+          <h5
+            class="click-edit__name text-ellipsis text-h5"
+            @click="toggleProjectName"
+          >{{ notebookName }}</h5> 
           <v-btn
             v-if="($devMode && !isAppRoute)"
             color="bluegrey-darken-1"
@@ -29,12 +39,14 @@
             hide-details
             ref="projectNameField" 
             class="click-edit__edit-field" 
+            @keydown.enter="saveProjectName"
+            @update:focused="focused => { if(!focused) saveProjectName() }"
           />
-          <v-btn
+          <!-- <v-btn
             color="bluegrey-darken-1"
             :icon="`ztIcon:${ztAliases.save}`"
             @click="saveProjectName"
-          />
+          /> -->
           <v-btn
             color="bluegrey-darken-1"
             icon="$close"
@@ -309,13 +321,15 @@ export default {
       }
     },
     async saveProjectName() {
-      const notebookNameRequest: NotebookNameRequest = {
-        notebookName: this.notebookEditName,
-      };
-      await axios.post(import.meta.env.VITE_BACKEND_URL + "api/notebook_name_update", notebookNameRequest);
-      this.notebookName = this.notebookEditName
-      document.title = this.notebookName
-      this.editingProjectName = !this.editingProjectName
+      if (this.editingProjectName) {
+        const notebookNameRequest: NotebookNameRequest = {
+          notebookName: this.notebookEditName,
+        };
+        await axios.post(import.meta.env.VITE_BACKEND_URL + "api/notebook_name_update", notebookNameRequest);
+        this.notebookName = this.notebookEditName
+        document.title = this.notebookName
+        this.editingProjectName = false
+      }
     },
     startTimer() {
       this.timer = 0;
@@ -768,6 +782,13 @@ export default {
 <style lang="scss" scoped>
 
 @import '@/styles/mixins.scss';
+.logo-btn {
+  & :deep(.v-icon) {
+    width: 1.5em;
+    height: 1.5em;
+  }
+}
+
 .cm-editor {
   height: auto !important;
 }
@@ -777,9 +798,6 @@ export default {
   width: 100%;
   &__name {
     font-weight: normal;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
   &__show-text,
   &__edit-field-wrapper {

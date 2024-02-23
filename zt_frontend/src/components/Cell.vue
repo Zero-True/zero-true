@@ -1,16 +1,17 @@
 <template>
-  <v-card v-if="isDevMode || (!isDevMode && !hideCellValue)" :id="'codeCard' + cellId" class="cell" color="bluegrey-darken-4">
+  <v-card v-if="isDevMode || (!isDevMode && !hideCellValue)" :id="'codeCard' + cellId" :class="['cell', {'cell--dev': isDevMode }]" color="bluegrey-darken-4">
     <v-divider class="indicator" vertical :color="dividerColor" :thickness="4"></v-divider>
     <div class="content">
       <header class="header">
-        <div class="click-edit">
+        <div class="click-edit" v-if="isDevMode">
           <div class="click-edit__show-text" v-if="!editingCellName">
-            <h4 class="text-bluegrey-darken-1">{{ cellNameValue }} </h4>
+            <h4 class="text-bluegrey-darken-1 text-ellipsis" @click="toggleCellName">{{ cellNameValue }} </h4>
             <v-btn
               v-if="isDevMode"
               color="bluegrey-darken-4"
               :icon="`ztIcon:${ztAliases.edit}`"
               size="x-small"
+              class="text-bluegrey-darken-1"
               @click="toggleCellName"
             />
           </div> 
@@ -24,13 +25,15 @@
               hide-details
               ref="cellNameField" 
               class="click-edit__edit-field" 
+              @keydown.enter="saveCellName"
+              @update:focused="focused => { if(!focused) saveCellName() }"
             />
-            <v-btn
+            <!-- <v-btn
               color="bluegrey-darken-4"
               :icon="`ztIcon:${ztAliases.save}`"
               size="x-small"
               @click="saveCellName"
-            />
+            /> -->
             <v-btn
               color="bluegrey-darken-4"
               icon="$close"
@@ -270,7 +273,10 @@ const saveCellName = async () => {
 .cell {
   padding: 24px;
   display: flex;
-  margin-bottom: 16px;
+  margin-bottom: 5px;
+  &--dev {
+    margin-bottom: 16px;
+  }
 }
 
 .content {
@@ -302,7 +308,7 @@ const saveCellName = async () => {
 }
 
 .click-edit {
-  max-width: 200px;
+  max-width: 250px;
   width: 100%;
   &__name {
     font-weight: normal;
@@ -312,6 +318,7 @@ const saveCellName = async () => {
   }
   &__show-text,
   &__edit-field-wrapper {
+    height: 100%;
     display: flex;
     align-items: center;
   }

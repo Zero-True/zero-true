@@ -35,7 +35,7 @@
       <v-expansion-panels v-else v-model="expanded">
           <v-expansion-panel  v-model="expanded" bg-color="#212121">
           <v-expansion-panel-title color="#1c2e3c">
-            View Source Code
+            {{ cellData.cellName }}
           </v-expansion-panel-title>
           <v-expansion-panel-text>
             <v-text-field
