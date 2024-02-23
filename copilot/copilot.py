@@ -11,6 +11,7 @@ from typing import Union
 import os
 from threading import Timer
 import asyncio
+import traceback
 
 copilot_app = FastAPI()
 
@@ -44,7 +45,7 @@ async def start_node_server():
             stderr=asyncio.subprocess.DEVNULL)
         print("Node server started")
     except Exception as e:
-        print(f"An error occurred while starting server: {e}")
+        print(f"An error occurred while starting server: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @copilot_app.post("/start_node_server")
