@@ -14,6 +14,6 @@ Contents
    installation
    getting_started
    layout
-   cell_types/index
+   cell_types
+   cli
    ui_components/index
-   cli/index
