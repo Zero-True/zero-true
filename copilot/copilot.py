@@ -5,12 +5,12 @@ from copilot.copilot_models import BlankRequest, DidOpenTextDocumentParams,\
                             ,DidChangeTextDocumentParams, CopilotPayloadSignInInitiate\
                             ,CopilotPayloadSignInConfirm, CopilotGetCompletionsResult\
                             ,CopilotPayloadSignOut, TextDocumentItem, AcceptRequest, RejectRequest
+from zt_backend.utils import async_debounce
 import requests
 from typing import Union
 import os
 from threading import Timer
 import asyncio
-import traceback
 
 copilot_app = FastAPI()
 
@@ -44,7 +44,7 @@ async def start_node_server():
             stderr=asyncio.subprocess.DEVNULL)
         print("Node server started")
     except Exception as e:
-        print(f"An error occurred while starting server: {traceback.format_exc()}")
+        print(f"An error occurred while starting server: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @copilot_app.post("/start_node_server")
@@ -115,6 +115,7 @@ async def text_document_did_open(params: DidOpenTextDocumentParams):
         except requests.RequestException as e:
             raise HTTPException(status_code=500, detail=str(e))
 
+@async_debounce(0.2)
 async def text_document_did_change(params):
     global copilot_enabled
     global copilot_doc_open
