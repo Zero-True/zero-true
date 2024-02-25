@@ -34,3 +34,12 @@ class SelectBox(ZTComponent):
         except Exception as e:
             e
         return value  # If id doesn't exist in global_state, return the original value
+    
+    @classmethod
+    def from_dict(cls, items_map: dict, id: str, value: Union[str, int, None] = None, label: Optional[str] = None, multiple: Optional[bool] = None,
+                   dense: Optional[bool] = None, outlined: Optional[bool] = None, clearable: Optional[bool] = None, disabled: Optional[bool] = None, 
+                   readonly: Optional[bool] = None, color: Optional[str] = None, triggerEvent: str = 'update:modelValue'):
+        """Creates a SelectBox instance from a dictionary."""
+        items = items_map.keys()
+        return cls(items=items, id=id, value=value, label=label, multiple=multiple, dense=dense, outlined=outlined, clearable=clearable, 
+                   disabled=disabled, readonly=readonly, color=color, triggerEvent=triggerEvent)
