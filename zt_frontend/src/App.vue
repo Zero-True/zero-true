@@ -818,7 +818,11 @@ export default {
     max-width: 250px;
   }
   @include lg {
-    max-width: 320px;
+    max-width: 450px;
+  }
+  
+  @include xl {
+    max-width: 600px;
   }
 }
 .footer {

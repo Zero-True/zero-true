@@ -323,8 +323,7 @@ const saveCellName = async () => {
 }
 
 .click-edit {
-  max-width: 250px;
-  width: 100%;
+  width: calc(100% - 120px);
   &__name {
     cursor: pointer; 
     font-weight: normal;
