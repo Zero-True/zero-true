@@ -3,7 +3,7 @@
     <v-app-bar 
       app 
       color="bluegrey-darken-4"
-      extension-height="112" 
+      height="51"
       id="appBar"
     >
       <v-btn
@@ -22,12 +22,12 @@
             class="click-edit__name text-ellipsis text-h5"
             @click="toggleProjectName"
           >{{ notebookName }}</h5> 
-          <v-btn
+          <!-- <v-btn
             v-if="($devMode && !isAppRoute)"
             color="bluegrey-darken-1"
             :icon="`ztIcon:${ztAliases.edit}`"
             @click="toggleProjectName"
-          />
+          /> -->
         </div> 
         
         <div class="click-edit__edit-field-wrapper" v-if="editingProjectName">
@@ -47,16 +47,17 @@
             :icon="`ztIcon:${ztAliases.save}`"
             @click="saveProjectName"
           /> -->
-          <v-btn
+          <!-- <v-btn
             color="bluegrey-darken-1"
             icon="$close"
             @click="toggleProjectName"
-          />
+          /> -->
         </div> 
       </div>
       <div class="toggle-group" v-if="$devMode && !isMobile">
         <v-btn-toggle
           :multiple="false"
+          density="compact"
           mandatory
         >
           <v-btn
@@ -798,6 +799,7 @@ export default {
   width: 100%;
   &__name {
     font-weight: normal;
+    cursor: pointer;
   }
   &__show-text,
   &__edit-field-wrapper {
@@ -823,7 +825,7 @@ export default {
   display: flex;
   justify-content: space-between;
   flex-direction: column;
-
+  padding: 4px 16px; 
   &__left-container,
   &__right-container {
     display: flex;
@@ -924,7 +926,7 @@ export default {
   }
   @include md {
     flex-direction: row;
-    height: 42px;
+    height: 34px;
   }
 }
 

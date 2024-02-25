@@ -2,18 +2,18 @@
   <v-card v-if="isDevMode || (!isDevMode && !hideCellValue)" :id="'codeCard' + cellId" :class="['cell', {'cell--dev': isDevMode }]" color="bluegrey-darken-4">
     <v-divider class="indicator" vertical :color="dividerColor" :thickness="4"></v-divider>
     <div class="content">
-      <header class="header">
-        <div class="click-edit" v-if="isDevMode">
+      <header class="header" v-if="isDevMode">
+        <div class="click-edit">
           <div class="click-edit__show-text" v-if="!editingCellName">
-            <h4 class="text-bluegrey-darken-1 text-ellipsis" @click="toggleCellName">{{ cellNameValue }} </h4>
-            <v-btn
+            <h4 class="text-bluegrey-darken-1 text-ellipsis click-edit__name" @click="toggleCellName">{{ cellNameValue }} </h4>
+            <!-- <v-btn
               v-if="isDevMode"
               color="bluegrey-darken-4"
               :icon="`ztIcon:${ztAliases.edit}`"
               size="x-small"
               class="text-bluegrey-darken-1"
               @click="toggleCellName"
-            />
+            /> -->
           </div> 
           
           <div class="click-edit__edit-field-wrapper" v-if="editingCellName">
@@ -34,12 +34,12 @@
               size="x-small"
               @click="saveCellName"
             /> -->
-            <v-btn
+            <!-- <v-btn
               color="bluegrey-darken-4"
               icon="$close"
               size="x-small"
               @click="toggleCellName"
-            />
+            /> -->
           </div> 
         </div>
         <v-defaults-provider :defaults="{
@@ -51,7 +51,7 @@
             size: 'small'
           }
         }">
-          <div v-if="$devMode && !isAppRoute" class="actions">
+          <div class="actions">
             <!-- <v-btn icon="$message"></v-btn> -->
             <v-btn v-if="showSaveBtn" :icon="`ztIcon:${ztAliases.save}`" @click="$emit('save')"></v-btn>
 
@@ -124,10 +124,22 @@
           </div>
         </v-defaults-provider>
       </header>
-      <div class="code" v-if="isDevMode || (!isDevMode && keepCodeInAppModel && !hideCodeValue)">
+      <div 
+        :class="[
+          'code',
+          {'code--dev': isDevMode}
+        ]"
+        v-if="isDevMode || (!isDevMode && keepCodeInAppModel && !hideCodeValue)"
+      >
         <slot name="code"></slot>
       </div>
-      <div class="outcome" v-if="!(isDevMode && !isAppRoute && cellType==='text')" >
+      <div 
+        :class="[
+          'outcome',
+          {'outcome--dev': isDevMode}
+        ]"
+        v-if="!(isDevMode && !isAppRoute && cellType==='text')" 
+      >
         <slot name="outcome"></slot>
       </div>
     </div>
@@ -273,7 +285,7 @@ const saveCellName = async () => {
 .cell {
   padding: 24px;
   display: flex;
-  margin-bottom: 5px;
+  margin-bottom: 2px;
   &--dev {
     margin-bottom: 16px;
   }
@@ -282,8 +294,8 @@ const saveCellName = async () => {
 .content {
   flex: 1;
   margin-left: 16px;
-  margin-right: 16px;
-  width: calc(100% - 20px);
+  margin-right: 0px;
+  width: calc(100% - 36px);
 }
 
 .indicator {
@@ -298,9 +310,12 @@ const saveCellName = async () => {
 
 .code,
 .outcome {
-  border: 1px solid rgba(var(--v-theme-bluegrey));
-  border-radius: 4px;
-  padding: 12px;
+  padding: 0px;
+  &--dev {
+    border: 1px solid rgba(var(--v-theme-bluegrey));
+    border-radius: 4px;
+    padding: 12px;
+  }
 }
 
 .code {
@@ -311,6 +326,7 @@ const saveCellName = async () => {
   max-width: 250px;
   width: 100%;
   &__name {
+    cursor: pointer; 
     font-weight: normal;
     overflow: hidden;
     text-overflow: ellipsis;

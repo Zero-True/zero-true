@@ -30,8 +30,8 @@
         :id = "'codeMirrorDev'+cellData.id"
       />
       <v-expansion-panels v-else v-model="expanded">
-        <v-expansion-panel v-model="expanded" bg-color="#212121">
-          <v-expansion-panel-title color="#1c2e3c">
+        <v-expansion-panel v-model="expanded">
+          <v-expansion-panel-title>
             {{ cellData.cellName }}
           </v-expansion-panel-title>
           <v-expansion-panel-text>
@@ -121,7 +121,7 @@
             </v-row>
           </div>
         </div>
-        <pre class="text-ellipsis" :id = "'cellOutput'+cellData.id">{{ cellData.output }}</pre>
+        <pre class="code-output" :id = "'cellOutput'+cellData.id">{{ cellData.output }}</pre>
       </div>
     </template>
   </cell>

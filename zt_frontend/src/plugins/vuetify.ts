@@ -56,7 +56,7 @@ export default createVuetify({
           background: '#0d1316',
           primary: "#ae9ee8",
           secondary: "#424242",
-          surface: '#1B2F3C', 
+          surface: '#0E1B23', 
           bluegrey: "#5F7F93",
           'bluegrey-darken-1': '#3A586B',
           'bluegrey-darken-2': '#294455',
