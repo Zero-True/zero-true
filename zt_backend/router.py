@@ -94,6 +94,7 @@ async def component_run(websocket: WebSocket):
                     code=cell.code,
                     variable_name=cell.variable_name,
                     nonReactive=cell.nonReactive,
+                    showTable=cell.showTable,
                     cellType=cell.cellType
                 )
                 cells.append(cell_request)
@@ -283,6 +284,7 @@ async def load_notebook(websocket: WebSocket):
                         code=cell.code,
                         variable_name=cell.variable_name,
                         nonReactive=cell.nonReactive,
+                        showTable=cell.showTable,
                         cellType=cell.cellType
                     )
                     for comp in cell.components:

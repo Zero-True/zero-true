@@ -363,6 +363,7 @@ export default {
           code: this.notebook.cells[key].code,
           variable_name: this.notebook.cells[key].variable_name || "",
           nonReactive: this.notebook.cells[key].nonReactive as boolean,
+          showTable: this.notebook.cells[key].showTable as boolean,
           cellType: this.notebook.cells[key].cellType,
         };
         for (const c of this.notebook.cells[key].components) {

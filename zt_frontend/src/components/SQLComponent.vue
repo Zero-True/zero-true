@@ -6,6 +6,7 @@
     :hide-code="(cellData.hideCode as boolean)"
     :expand-code="(cellData.expandCode as boolean)"
     :non-reactive="(cellData.nonReactive as boolean)"
+    :showTable="(cellData.showTable as boolean)"
     :cell-name="(cellData.cellName as string)"
     :is-dev-mode="$devMode && !isAppRoute && !isMobile"
     @play="runCode" 

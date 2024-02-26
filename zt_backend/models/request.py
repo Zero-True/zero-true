@@ -6,6 +6,7 @@ class CodeRequest(BaseModel):
     code: str
     variable_name: str
     nonReactive: bool
+    showTable: bool = Field(False)
     cellType: str = Field(enum=['code', 'markdown', 'text', 'sql'])
 
 class Request(BaseModel):
