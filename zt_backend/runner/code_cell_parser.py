@@ -76,7 +76,7 @@ def generate_sql_code(cell, uuid_value, db_file='zt_db.db'):
         
     else:
         # If variable_name is not provided, directly use the SQL execution
-        if settings.run_mode == 'app':
+        if settings.run_mode == 'app' and not cell.showTable:
             data_frame_conversion = ''
         else:
             data_frame_conversion = f"zt.DataFrame.from_dataframe(id='{uuid_value}', df={sql_execution})"

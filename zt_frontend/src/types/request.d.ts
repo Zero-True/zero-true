@@ -10,6 +10,7 @@ export type Id = string;
 export type Code = string;
 export type VariableName = string;
 export type Nonreactive = boolean;
+export type Showtable = boolean;
 export type Celltype = "code" | "markdown" | "text" | "sql";
 export type Cells = CodeRequest[];
 
@@ -24,6 +25,7 @@ export interface CodeRequest {
   code: Code;
   variable_name: VariableName;
   nonReactive: Nonreactive;
+  showTable?: Showtable;
   cellType: Celltype;
   [k: string]: unknown;
 }

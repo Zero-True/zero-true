@@ -56,7 +56,7 @@ export default {
           skin: false,
           content_css: false,
           content_style:
-            "body { background-color: #1B2F3C; color: #FFFFFF; } main { border-radius: 0; }",
+            "body { background-color: #1B2F3C; color: #FFFFFF; }",
           autoresize_bottom_margin: 10,
           min_height: 100,
         },
@@ -69,7 +69,7 @@ export default {
         skin: false,
         content_css: false,
         content_style:
-          "body { background-color: #1B2F3C; color: #FFFFFF; } main { border-radius: 0; }",
+          "body { background-color: #0E1B23; color: #FFFFFF; }",
       },
         items: [
           { title: 'Code' },
@@ -109,5 +109,8 @@ export default {
 .tox .tox-toolbar__primary,
 .tox .tox-toolbar__overflow {
   background-color: #0e1b23 !important;
+}
+.tox-tinymce {
+  border: none !important;
 }
 </style>

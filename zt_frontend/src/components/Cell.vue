@@ -1,18 +1,19 @@
 <template>
-  <v-card v-if="isDevMode || (!isDevMode && !hideCellValue)" :id="'codeCard' + cellId" class="cell" color="bluegrey-darken-4">
+  <v-card v-if="isDevMode || (!isDevMode && !hideCellValue)" :id="'codeCard' + cellId" :class="['cell', {'cell--dev': isDevMode }]" color="bluegrey-darken-4">
     <v-divider class="indicator" vertical :color="dividerColor" :thickness="4"></v-divider>
     <div class="content">
-      <header class="header">
-        <div class="click-edit">
+      <header class="header" v-if="isDevMode">
+        <div class="click-edit" v-if="keepCodeInAppModel">
           <div class="click-edit__show-text" v-if="!editingCellName">
-            <h4 class="text-bluegrey-darken-1">{{ cellNameValue }} </h4>
-            <v-btn
+            <h4 class="text-bluegrey-darken-1 text-ellipsis click-edit__name"  @click="toggleCellName">{{ cellNameValue }} </h4>
+            <!-- <v-btn
               v-if="isDevMode"
               color="bluegrey-darken-4"
               :icon="`ztIcon:${ztAliases.edit}`"
               size="x-small"
+              class="text-bluegrey-darken-1"
               @click="toggleCellName"
-            />
+            /> -->
           </div> 
           
           <div class="click-edit__edit-field-wrapper" v-if="editingCellName">
@@ -24,21 +25,24 @@
               hide-details
               ref="cellNameField" 
               class="click-edit__edit-field" 
+              @keydown.enter="saveCellName"
+              @update:focused="focused => { if(!focused) saveCellName() }"
             />
-            <v-btn
+            <!-- <v-btn
               color="bluegrey-darken-4"
               :icon="`ztIcon:${ztAliases.save}`"
               size="x-small"
               @click="saveCellName"
-            />
-            <v-btn
+            /> -->
+            <!-- <v-btn
               color="bluegrey-darken-4"
               icon="$close"
               size="x-small"
               @click="toggleCellName"
-            />
+            /> -->
           </div> 
         </div>
+        <h4 v-else class="text-bluegrey-darken-1 text-ellipsis click-edit__static-name" >{{ cellNameValue }} </h4>
         <v-defaults-provider :defaults="{
           'VIcon': {
             'color': 'bluegrey',
@@ -48,7 +52,7 @@
             size: 'small'
           }
         }">
-          <div v-if="$devMode && !isAppRoute" class="actions">
+          <div class="actions">
             <!-- <v-btn icon="$message"></v-btn> -->
             <v-btn v-if="showSaveBtn" :icon="`ztIcon:${ztAliases.save}`" @click="$emit('save')"></v-btn>
 
@@ -83,6 +87,12 @@
                     <v-switch v-model="nonReactiveValue" @update:modelValue="updateReactivity"></v-switch>
                   </template>
                   <v-list-item-title>Non-Reactive</v-list-item-title>
+                </v-list-item>
+                <v-list-item v-if="cellType==='sql'">
+                  <template v-slot:prepend>
+                    <v-switch v-model="showTableValue" @update:modelValue="updateShowTable"></v-switch>
+                  </template>
+                  <v-list-item-title>Show Table</v-list-item-title>
                 </v-list-item>
               </v-list>
 
@@ -121,10 +131,22 @@
           </div>
         </v-defaults-provider>
       </header>
-      <div class="code" v-if="isDevMode || (!isDevMode && keepCodeInAppModel && !hideCodeValue)">
+      <div 
+        :class="[
+          'code',
+          {'code--dev': isDevMode}
+        ]"
+        v-if="isDevMode || (!isDevMode && keepCodeInAppModel)"
+      >
         <slot name="code"></slot>
       </div>
-      <div class="outcome" v-if="!(isDevMode && !isAppRoute && cellType==='text')" >
+      <div 
+        :class="[
+          'outcome',
+          {'outcome--dev': isDevMode}
+        ]"
+        v-if="!(isDevMode && !isAppRoute && cellType==='text')" 
+      >
         <slot name="outcome"></slot>
       </div>
     </div>
@@ -148,6 +170,7 @@ import { HideCellRequest } from '@/types/hide_cell_request'
 import { HideCodeRequest } from '@/types/hide_code_request'
 import { ExpandCodeRequest } from '@/types/expand_code_request'
 import { CellReactivityRequest } from '@/types/cell_reactivity_request'
+import { ShowTableRequest } from '@/types/show_table_request'
 import { NameCellRequest } from '@/types/name_cell_request'
 
 const props = defineProps({
@@ -171,6 +194,10 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  showTable: {
+    type: Boolean,
+    default: false
+  },
   cellName: {
     type: String,
     default: null
@@ -182,7 +209,10 @@ const emits = defineEmits<{
   (e: 'save'): void
   (e: 'expandCodeUpdate', expand: Boolean): void
   (e: 'updateReactivity', expand: Boolean): void
+  (e: 'updateShowTable', expand: Boolean): void
+  (e: 'hideCode', hideCode: Boolean): void
   (e: 'addCell', cellType: Celltype): void
+  (e: 'renameCell', cellName: String): void
 }>()
 
 const dividerColor = computed(() => {
@@ -203,6 +233,7 @@ const hideCellValue = ref(props.hideCell || false);
 const hideCodeValue = ref(props.hideCode || false);
 const expandCodeValue = ref(props.expandCode || false);
 const nonReactiveValue = ref(props.nonReactive || false);
+const showTableValue = ref(props.showTable || false);
 const cellNameValue = ref(props.cellName || props.cellType);
 const cellNameEditValue = ref('');
 const cellNameField = ref(null);
@@ -225,6 +256,7 @@ const updateHideCode = async (value: unknown) => {
     hideCode: value as boolean
   }
   await axios.post(import.meta.env.VITE_BACKEND_URL + "api/hide_code", hideCodeRequest);
+  emits('hideCode', value as boolean)
 };
 const updateExpandCode = async (value: unknown) => {
   const expandCodeRequest: ExpandCodeRequest = {
@@ -241,6 +273,14 @@ const updateReactivity = async (value: unknown) => {
   }
   await axios.post(import.meta.env.VITE_BACKEND_URL + "api/cell_reactivity", cellReactivityRequest);
   emits('updateReactivity', value as boolean)
+};
+const updateShowTable = async (value: unknown) => {
+  const showTableRequest: ShowTableRequest = {
+    cellId: props.cellId as string,
+    showTable: value as boolean
+  }
+  await axios.post(import.meta.env.VITE_BACKEND_URL + "api/show_table", showTableRequest);
+  emits('updateShowTable', value as boolean)
 };
 
 const toggleCellName = () => {
@@ -263,6 +303,7 @@ const saveCellName = async () => {
   await axios.post(import.meta.env.VITE_BACKEND_URL + "api/rename_cell", nameCellRequest);
   cellNameValue.value = cellNameEditValue.value
   editingCellName.value = false
+  emits('renameCell', cellNameValue.value)
 }
 </script>
 
@@ -270,14 +311,17 @@ const saveCellName = async () => {
 .cell {
   padding: 24px;
   display: flex;
-  margin-bottom: 16px;
+  margin-bottom: 2px;
+  &--dev {
+    margin-bottom: 16px;
+  }
 }
 
 .content {
   flex: 1;
   margin-left: 16px;
-  margin-right: 16px;
-  width: calc(100% - 20px);
+  margin-right: 0px;
+  width: calc(100% - 36px);
 }
 
 .indicator {
@@ -292,9 +336,12 @@ const saveCellName = async () => {
 
 .code,
 .outcome {
-  border: 1px solid rgba(var(--v-theme-bluegrey));
-  border-radius: 4px;
-  padding: 12px;
+  padding: 0px;
+  &--dev {
+    border: 1px solid rgba(var(--v-theme-bluegrey));
+    border-radius: 4px;
+    padding: 12px;
+  }
 }
 
 .code {
@@ -302,9 +349,9 @@ const saveCellName = async () => {
 }
 
 .click-edit {
-  max-width: 200px;
-  width: 100%;
+  width: calc(100% - 120px);
   &__name {
+    cursor: text; 
     font-weight: normal;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -312,8 +359,23 @@ const saveCellName = async () => {
   }
   &__show-text,
   &__edit-field-wrapper {
+    height: 100%;
     display: flex;
     align-items: center;
+  }
+  &__name:hover {
+    cursor: text; 
+    padding-left: 2px;
+    padding-right: 5px;
+    border: 1px solid #294455;
+  }
+
+  &__static-name {
+    cursor: text; 
+    font-weight: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &__edit-field {

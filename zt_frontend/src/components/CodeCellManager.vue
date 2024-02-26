@@ -5,7 +5,13 @@
       @createCodeCell="e => createCodeCell('', e)" 
     />
   </v-container>
-  <v-container v-for="codeCell in notebook.cells">
+  <v-container 
+    :class="[
+      'cell-container',
+      { 'cell-container--app':  !$devMode || isAppRoute }
+    ]"
+    v-for="codeCell in notebook.cells"
+  >
     <component
       v-if="codeCell.cellType === 'code'"
       :is="getComponent(codeCell.cellType)"
@@ -127,7 +133,13 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
+.cell-container {
+  &--app {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
 .cm-editor {
   height: auto !important;
 }

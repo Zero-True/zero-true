@@ -3,21 +3,31 @@
     <v-app-bar 
       app 
       color="bluegrey-darken-4"
-      extension-height="112" 
+      height="51"
       id="appBar"
     >
-      <v-btn size="x-large" variant="text" @click="navigateToApp" id ="Navbutton">
-        <v-icon size="x-large" :icon="`ztIcon:${ztAliases.logo}`"></v-icon>
+      <v-btn
+        size="x-large"
+        :ripple="false"
+        :icon="`ztIcon:${ztAliases.logo}`"
+        variant="plain"
+        @click="navigateToApp"
+        id ="Navbutton"
+        class="logo-btn" 
+        >
       </v-btn>
       <div class="click-edit">
         <div class="click-edit__show-text" v-if="!editingProjectName">
-          <h5 class="click-edit__name text-h5">{{ notebookName }}</h5> 
-          <v-btn
+          <h5
+            class="click-edit__name text-ellipsis text-h5"
+            @click="toggleProjectName"
+          >{{ notebookName }}</h5> 
+          <!-- <v-btn
             v-if="($devMode && !isAppRoute)"
             color="bluegrey-darken-1"
             :icon="`ztIcon:${ztAliases.edit}`"
             @click="toggleProjectName"
-          />
+          /> -->
         </div> 
         
         <div class="click-edit__edit-field-wrapper" v-if="editingProjectName">
@@ -29,22 +39,25 @@
             hide-details
             ref="projectNameField" 
             class="click-edit__edit-field" 
+            @keydown.enter="saveProjectName"
+            @update:focused="focused => { if(!focused) saveProjectName() }"
           />
-          <v-btn
+          <!-- <v-btn
             color="bluegrey-darken-1"
             :icon="`ztIcon:${ztAliases.save}`"
             @click="saveProjectName"
-          />
-          <v-btn
+          /> -->
+          <!-- <v-btn
             color="bluegrey-darken-1"
             icon="$close"
             @click="toggleProjectName"
-          />
+          /> -->
         </div> 
       </div>
       <div class="toggle-group" v-if="$devMode && !isMobile">
         <v-btn-toggle
           :multiple="false"
+          density="compact"
           mandatory
         >
           <v-btn
@@ -309,13 +322,15 @@ export default {
       }
     },
     async saveProjectName() {
-      const notebookNameRequest: NotebookNameRequest = {
-        notebookName: this.notebookEditName,
-      };
-      await axios.post(import.meta.env.VITE_BACKEND_URL + "api/notebook_name_update", notebookNameRequest);
-      this.notebookName = this.notebookEditName
-      document.title = this.notebookName
-      this.editingProjectName = !this.editingProjectName
+      if (this.editingProjectName) {
+        const notebookNameRequest: NotebookNameRequest = {
+          notebookName: this.notebookEditName,
+        };
+        await axios.post(import.meta.env.VITE_BACKEND_URL + "api/notebook_name_update", notebookNameRequest);
+        this.notebookName = this.notebookEditName
+        document.title = this.notebookName
+        this.editingProjectName = false
+      }
     },
     startTimer() {
       this.timer = 0;
@@ -348,6 +363,7 @@ export default {
           code: this.notebook.cells[key].code,
           variable_name: this.notebook.cells[key].variable_name || "",
           nonReactive: this.notebook.cells[key].nonReactive as boolean,
+          showTable: this.notebook.cells[key].showTable as boolean,
           cellType: this.notebook.cells[key].cellType,
         };
         for (const c of this.notebook.cells[key].components) {
@@ -768,6 +784,13 @@ export default {
 <style lang="scss" scoped>
 
 @import '@/styles/mixins.scss';
+.logo-btn {
+  & :deep(.v-icon) {
+    width: 1.5em;
+    height: 1.5em;
+  }
+}
+
 .cm-editor {
   height: auto !important;
 }
@@ -777,14 +800,19 @@ export default {
   width: 100%;
   &__name {
     font-weight: normal;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    cursor: text;
   }
   &__show-text,
   &__edit-field-wrapper {
     display: flex;
     align-items: center;
+  }
+
+  &__name:hover {
+    padding-left: 2px;
+    padding-right: 5px;
+    cursor: text; 
+    border: 1px solid #294455;
   }
 
   &__edit-field {
@@ -798,14 +826,18 @@ export default {
     max-width: 250px;
   }
   @include lg {
-    max-width: 320px;
+    max-width: 450px;
+  }
+  
+  @include xl {
+    max-width: 600px;
   }
 }
 .footer {
   display: flex;
   justify-content: space-between;
   flex-direction: column;
-
+  padding: 4px 16px; 
   &__left-container,
   &__right-container {
     display: flex;
@@ -906,7 +938,7 @@ export default {
   }
   @include md {
     flex-direction: row;
-    height: 42px;
+    height: 34px;
   }
 }
 

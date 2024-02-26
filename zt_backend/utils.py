@@ -136,6 +136,7 @@ def globalStateUpdate(newCell: notebook.CodeCell=None,
                       expandCode: request.ExpandCodeRequest=None,
                       renameCell: request.NameCellRequest=None,
                       cellReactivity: request.CellReactivityRequest=None,
+                      showTable: request.ShowTableRequest=None,
                       run_request: request.Request=None, 
                       run_response: response.Response=None, 
                       new_notebook_name: str="",
@@ -170,6 +171,8 @@ def globalStateUpdate(newCell: notebook.CodeCell=None,
             zt_notebook.cells[renameCell.cellId].cellName=renameCell.cellName
         if cellReactivity is not None:
             zt_notebook.cells[cellReactivity.cellId].nonReactive=cellReactivity.nonReactive
+        if showTable is not None:
+            zt_notebook.cells[showTable.cellId].showTable=showTable.showTable
         if run_request is not None:
             for requestCell in run_request.cells:
                 #zt_notebook.cells[requestCell.id].code = requestCell.code
@@ -209,6 +212,7 @@ def write_notebook():
                 project_file.write(f'hideCell = "{cell.hideCell}"\n')
                 project_file.write(f'hideCode = "{cell.hideCode}"\n')
                 project_file.write(f'expandCode = "{cell.expandCode}"\n')
+                project_file.write(f'showTable = "{cell.showTable}"\n')
                 project_file.write(f'nonReactive = "{cell.nonReactive}"\n')
                 
                 if cell.cellType=='sql':

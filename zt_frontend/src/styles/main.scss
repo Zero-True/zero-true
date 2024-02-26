@@ -18,3 +18,16 @@ p {
     margin-right: 12px;
   }
 }
+
+.v-container {
+  max-width: 1250px;
+}
+
+.code-output {
+  white-space: normal;
+}
+.v-expansion-panel--active > .v-expansion-panel-title {
+  min-height: 31px;
+}
+
+@import 'utilities'

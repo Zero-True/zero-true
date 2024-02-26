@@ -94,6 +94,7 @@ async def component_run(websocket: WebSocket):
                     code=cell.code,
                     variable_name=cell.variable_name,
                     nonReactive=cell.nonReactive,
+                    showTable=cell.showTable,
                     cellType=cell.cellType
                 )
                 cells.append(cell_request)
@@ -183,16 +184,23 @@ def rename_cell(renameCellRequest: request.NameCellRequest):
 @router.post("/api/cell_reactivity")
 def cell_reactivity(cellReactivityRequest: request.CellReactivityRequest):
      if(run_mode=='dev'):
-        logger.debug("Rename cell request started")
+        logger.debug("Cell reactivity request started")
         save_queue.put_nowait({"cellReactivity": cellReactivityRequest})
-        logger.debug("Rename cell request completed")
+        logger.debug("Cell reactivity request completed")
 
 @router.post("/api/expand_code")
 def expand_code(expandCodeRequest: request.ExpandCodeRequest):
      if(run_mode=='dev'):
-        logger.debug("Rename cell request started")
+        logger.debug("Expand code request started")
         save_queue.put_nowait({"expandCode": expandCodeRequest})
-        logger.debug("Rename cell request completed")
+        logger.debug("Expand code request completed")
+
+@router.post("/api/show_table")
+def show_table(showTableRequest: request.ShowTableRequest):
+     if(run_mode=='dev'):
+        logger.debug("Show Table request started")
+        save_queue.put_nowait({"showTable": showTableRequest})
+        logger.debug("Show Table request completed")
 
 @router.websocket("/ws/save_text")
 async def save_text(websocket: WebSocket):
@@ -276,6 +284,7 @@ async def load_notebook(websocket: WebSocket):
                         code=cell.code,
                         variable_name=cell.variable_name,
                         nonReactive=cell.nonReactive,
+                        showTable=cell.showTable,
                         cellType=cell.cellType
                     )
                     for comp in cell.components:

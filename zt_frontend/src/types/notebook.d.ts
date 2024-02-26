@@ -14,6 +14,7 @@ export type Cellname = string;
 export type Hidecell = boolean;
 export type Hidecode = boolean;
 export type Expandcode = boolean;
+export type Showtable = boolean;
 export type Nonreactive = boolean;
 export type VariableName = string;
 /**
@@ -63,6 +64,7 @@ export interface CodeCell {
   hideCell?: Hidecell;
   hideCode?: Hidecode;
   expandCode?: Expandcode;
+  showTable?: Showtable;
   nonReactive?: Nonreactive;
   variable_name?: VariableName;
   layout?: Layout;
