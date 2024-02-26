@@ -11,7 +11,10 @@
     @play="runCode" 
     @delete="deleteCell"
     @expandCodeUpdate="e => expandCodeUpdate(e)"
+    @hideCode="e => hideCode(e)"
     @updateReactivity="e => updateReactivity(e)"
+    @updateShowTable="e => updateShowTable(e)"
+    @renameCell="e => renameCell(e)"
     @addCell="e => createCell(e)"
   >
     <template v-slot:code>
@@ -32,37 +35,35 @@
         :extensions="extensions"
         @keyup="saveCell"
       />
-      <v-expansion-panels v-else v-model="expanded">
-          <v-expansion-panel  v-model="expanded" bg-color="#212121">
-          <v-expansion-panel-title color="#1c2e3c">
-            {{ cellData.cellName }}
-          </v-expansion-panel-title>
-          <v-expansion-panel-text>
-            <v-text-field
-              v-model="cellData.variable_name"
-              label="Enter SQL variable name"
-              density="compact"
-              :readonly="true"
-            />
-            <codemirror
-              v-model="cellData.code"
-              :style="{ height: '400px' }"
-              :autofocus="true"
-              :indent-with-tab="true"
-              :tab-size="2"
-              :viewportMargin="Infinity"
-              :extensions="extensions"
-            />
-          </v-expansion-panel-text>
-        </v-expansion-panel>
-      </v-expansion-panels>
+      <div v-else>
+        <h4 v-if="cellData.hideCode" class="text-ellipsis app-static-name" >{{ cellData.cellName }} </h4>
+        <v-expansion-panels v-else v-model="expanded">
+          <v-expansion-panel  v-model="expanded" bg-color="bluegrey-darken-4">
+            <v-expansion-panel-title>
+              {{ cellData.cellName }}
+            </v-expansion-panel-title>
+            <v-expansion-panel-text>
+              <codemirror
+                v-model="cellData.code"
+                :style="{ height: '400px' }"
+                :autofocus="true"
+                :indent-with-tab="true"
+                :tab-size="2"
+                :viewportMargin="Infinity"
+                :extensions="extensions"
+              />
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </div>
+
       <div v-if="$devMode && !isAppRoute && !isMobile">
         <p class="text-caption text-disabled text-right">CTRL+Enter to run</p>
       </div>
     </template>
     <template v-slot:outcome>
       <v-container
-        v-if="$devMode && !isAppRoute && !isMobile"
+        v-if="($devMode && !isAppRoute) || cellData.showTable"
         v-for="component in cellData.components"
         :key="component.id"
       >
@@ -193,7 +194,25 @@ export default {
     },
     updateReactivity(e: Boolean){
       this.cellData.nonReactive = e as boolean
+    },
+    updateShowTable(e: Boolean){
+      this.cellData.showTable = e as boolean
+    },
+    hideCode(e: Boolean){
+      this.cellData.hideCode = e as boolean
+    },
+    renameCell(e: String){
+      this.cellData.cellName = e as string
     }
   },
 };
 </script>
+<style lang="scss" scoped>
+.app-static-name {
+  cursor: text; 
+  font-weight: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+</style>

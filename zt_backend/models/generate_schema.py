@@ -1,4 +1,4 @@
-from .request import DependencyRequest, Request, ComponentRequest, DeleteRequest, CreateRequest, SaveRequest, ClearRequest, NotebookNameRequest, HideCellRequest, HideCodeRequest, NameCellRequest, ExpandCodeRequest, CellReactivityRequest
+from .request import DependencyRequest, Request, ComponentRequest, DeleteRequest, CreateRequest, SaveRequest, ClearRequest, NotebookNameRequest, HideCellRequest, HideCodeRequest, NameCellRequest, ExpandCodeRequest, CellReactivityRequest, ShowTableRequest
 from .response import Response
 from .notebook import Notebook
 from .notebook import NotebookResponse
@@ -36,6 +36,7 @@ def generate_schema():
     generate_json(NameCellRequest, 'name_cell_request')
     generate_json(ExpandCodeRequest, 'expand_code_request')
     generate_json(CellReactivityRequest, 'cell_reactivity_request')
+    generate_json(ShowTableRequest, 'show_table_request')
     generate_json(Response, 'response')
     generate_json(Slider, 'slider')
     generate_json(Notebook, 'notebook')

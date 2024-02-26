@@ -183,16 +183,23 @@ def rename_cell(renameCellRequest: request.NameCellRequest):
 @router.post("/api/cell_reactivity")
 def cell_reactivity(cellReactivityRequest: request.CellReactivityRequest):
      if(run_mode=='dev'):
-        logger.debug("Rename cell request started")
+        logger.debug("Cell reactivity request started")
         save_queue.put_nowait({"cellReactivity": cellReactivityRequest})
-        logger.debug("Rename cell request completed")
+        logger.debug("Cell reactivity request completed")
 
 @router.post("/api/expand_code")
 def expand_code(expandCodeRequest: request.ExpandCodeRequest):
      if(run_mode=='dev'):
-        logger.debug("Rename cell request started")
+        logger.debug("Expand code request started")
         save_queue.put_nowait({"expandCode": expandCodeRequest})
-        logger.debug("Rename cell request completed")
+        logger.debug("Expand code request completed")
+
+@router.post("/api/show_table")
+def show_table(showTableRequest: request.ShowTableRequest):
+     if(run_mode=='dev'):
+        logger.debug("Show Table request started")
+        save_queue.put_nowait({"showTable": showTableRequest})
+        logger.debug("Show Table request completed")
 
 @router.websocket("/ws/save_text")
 async def save_text(websocket: WebSocket):

@@ -58,6 +58,10 @@ class ExpandCodeRequest(BaseModel):
     cellId: str
     expandCode: bool
 
+class ShowTableRequest(BaseModel):
+    cellId: str
+    showTable: bool
+
 class CreateRequest(BaseModel):
     cellType: str = Field(enum=['code', 'markdown', 'text', 'sql'])
     position_key: str

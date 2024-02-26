@@ -799,12 +799,19 @@ export default {
   width: 100%;
   &__name {
     font-weight: normal;
-    cursor: pointer;
+    cursor: text;
   }
   &__show-text,
   &__edit-field-wrapper {
     display: flex;
     align-items: center;
+  }
+
+  &__name:hover {
+    padding-left: 2px;
+    padding-right: 5px;
+    cursor: text; 
+    border: 1px solid #294455;
   }
 
   &__edit-field {

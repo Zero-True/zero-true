@@ -51,6 +51,7 @@ class CodeCell(BaseModel):
     hideCell: bool = Field(False)
     hideCode: bool = Field(False)
     expandCode: bool = Field(False)
+    showTable: bool = Field(False)
     nonReactive: bool = Field(False)
     variable_name: str = Field("")
     layout: Layout = Field(Layout())
