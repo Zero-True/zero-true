@@ -14,7 +14,7 @@ export type Id = string;
  */
 export type VariableName = string;
 /**
- * Vue component name.
+ * Vue component name
  */
 export type Component = string;
 /**
@@ -26,10 +26,13 @@ export type Interval = number;
  */
 export type Value = boolean;
 /**
- * Trigger event for when to run the slider
+ * Trigger event for when to execute a run
  */
 export type Triggerevent = string;
 
+/**
+ * Timer is a component that allows for execution of code at a set interval. This does not have any visual output
+ */
 export interface Timer {
   id: Id;
   variable_name?: VariableName;

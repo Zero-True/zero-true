@@ -14,27 +14,27 @@ export type Id = string;
  */
 export type VariableName = string;
 /**
- * Vue component name.
+ * Vue component name
  */
 export type Component = string;
 /**
- * The input text value
+ * The input number value
  */
 export type Value = number | null;
 /**
- * Placeholder text.
+ * Placeholder number
  */
-export type Placeholder = string | null;
+export type Placeholder = number | null;
 /**
- * Label for the text input.
+ * Label for the number input
  */
 export type Label = string | null;
 /**
- * If true, the input is read-only.
+ * If true, the input is read-only
  */
 export type Readonly = boolean | null;
 /**
- * If true, the input is disabled.
+ * If true, the input is disabled
  */
 export type Disabled = boolean | null;
 /**
@@ -47,7 +47,7 @@ export type Type = string;
 export type Triggerevent = string;
 
 /**
- * A class for TextInput components inheriting from ZTComponent.
+ * Number input allows a user to input an arbitrary number. Can be a float or an integer
  */
 export interface NumberInput {
   id: Id;

@@ -14,39 +14,39 @@ export type Id = string;
  */
 export type VariableName = string;
 /**
- * Vue component name.
+ * Vue component name
  */
 export type Component = string;
 /**
- * Options for the autocomplete box. Can be a list of strings or integers.
+ * Options for the autocomplete box. Can be a list of strings or integers
  */
 export type Items = (string | number)[];
 /**
- * Selected option for the autocomplete box. Can be a string or integer.
+ * Selected option for the autocomplete box
  */
 export type Value = string | number | null;
 /**
- * Label for the autocomplete box.
+ * Label for the autocomplete box
  */
 export type Label = string | null;
 /**
- * Determines if multiple selections are allowed.
+ * Determines if multiple selections are allowed
  */
 export type Multiple = boolean | null;
 /**
- * Determines if the autocomplete box has a clearable option.
+ * Determines if the autocomplete box has a clearable option
  */
 export type Clearable = boolean | null;
 /**
- * Determines if the autocomplete box is disabled.
+ * Determines if the autocomplete box is disabled
  */
 export type Disabled = boolean | null;
 /**
- * Determines if the autocomplete box is read-only.
+ * Determines if the autocomplete box is read-only
  */
 export type Readonly = boolean | null;
 /**
- * Color of the autocomplete component. Can be custom or standard Material color.
+ * Color of the autocomplete component. Can be custom or standard Material color
  */
 export type Color = string | null;
 /**
@@ -55,7 +55,8 @@ export type Color = string | null;
 export type Triggerevent = string;
 
 /**
- * A class for Autocomplete components inheriting from ZTComponent.
+ * Autocomplete is a select box that allows users to search the available options.
+ * Optimal for when there are many options to choose from
  */
 export interface Autocomplete {
   id: Id;
