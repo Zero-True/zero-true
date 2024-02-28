@@ -1,0 +1,42 @@
+Additional Features
+===================
+
+Zero-True has many features to support customization of published dashboards and more are released 
+with each new version. Here are some of the features that are available today:
+
+Adding and Deleting Cells
+-------------------------
+
+You can add cells anywhere in the notebook by clicking the button between cells:
+
+.. image:: assets/add_cell.png 
+
+You can delete cells by clicking the menu in an existing cell and selecting "Delete Cell":
+
+.. image:: assets/delete_cell.png
+
+Cell Toggles
+------------
+
+Zero-True has a number of cell toggles that allow you to customize the behavior of cells and their visibility in app mode:
+
+- **Non-Reactive (Python/SQL cells)**: This is the only toggle that applies in both notebook and app mode. Marking a cell as non-reactive means that if you trigger a notebook run from a cell above and this cell is a child cell of any cell that is ran by that trigger, this cell will not be executed. This is useful for not triggering expensive queries or other operations when you don't need them to be run but should be used with caution as it can lead to unexpected state as you continue to develop your notebook.
+- **Hide Cell (All cells)**: This toggle will hide the cell in app mode. Although this cell will still be triggered by any parent cells, it will not be visible to a user in app mode.
+- **Hide Code (Python/SQL cells)**: This toggle will hide the code in app mode. This is useful for creating a dashboard where sharing the code is unneccessary or confusing to your users.
+- **Expand Code (Python/SQL cells)**: If you are developing a dashboard where the code is a key part of the user experience, you can use this toggle to expand the code by default in app mode.
+- **Show Table (SQL cells)**: By default the table component generated automatically by SQL cells in notebook mode is hidden in app mode. You can use this toggle to show the table in app mode but if the dataframe is large we recommend against this as it can decrease the performance of your app.
+
+  .. image:: assets/toggles.png
+
+Mode Toggle
+-----------
+
+You can preview what your notebook will look like in app mode when developing in notebook mode by using the 
+mode toggle at the top of your notebook:
+
+  .. image:: assets/mode_toggle.png
+
+Titles
+------
+You can edit the title of your notebook by clicking the title in the top left and edit the title of each cell by
+clicking the title of the cell. Save by pressing enter or simply by clicking away.

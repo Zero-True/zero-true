@@ -1,7 +1,7 @@
 Installation
 ============
 
-Installing Zero True is simple and straightforward. Follow the instructions below to get started:
+Install Zero-True like any other Python package. Follow the instructions below to get started:
 
 Using pip
 ---------
@@ -12,9 +12,17 @@ Using pip
 
 Verify Installation
 -------------------
-After installation, you can verify that Zero True is installed by running:
+After installation, you can verify that Zero-True is installed by running:
 
-.. code-block:: python
+.. code-block:: bash
 
-   import zero_true as zt
-   print(zt.__version__)
+   pip show zero-true
+
+Installing Other Dependencies
+-----------------------------
+If your Zero-True project requires additional dependencies, anything you install inside of your Python environment
+will be available. You can also install additional dependencies and track them in the generated requirements.txt file
+by specifying each package on a new line in the dependency component. The dependency component can be found in the
+top right corner of the Zero-True UI:
+
+.. image:: assets/dependency_icon.png 

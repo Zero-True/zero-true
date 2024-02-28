@@ -1,20 +1,25 @@
 Getting Started
 ===============
 
-Quickstart
-----------
-Begin your Zero True journey with this simple button component example:
+Install Zero-True by following the `installation instructions <installation.html>`_.
+
+Run Zero-True notebook locally with the following command:
+
+.. code-block:: bash
+
+   zero-true notebook 
+
+Begin your Zero-True journey with this simple slider component example:
 
 .. code-block:: python
 
    import zero_true as zt
    my_slider = zt.Slider(id="my_slider")
+   print(my_slider.value)
 
-For a deep dive, stay tuned for our upcoming tutorisals or check out the docs in more detail!
-
-Tutorials
----------
-Coming Soon! 
+Tutorials and Examples
+----------------------
+Check out our blog(Add link here) and gallery(Add link here) for all the latest tutorials and examples.
 
 Additional Resources
 ---------------------

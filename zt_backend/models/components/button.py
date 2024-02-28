@@ -3,13 +3,13 @@ from zt_backend.models.components.zt_component import ZTComponent
 from zt_backend.runner.user_state import UserContext
 
 class Button(ZTComponent):
-    """A class for Button components inheriting from ZTComponent."""
-    component: str = Field("v-btn", description="Vue component name.")
+    """Standard button UI component"""
+    component: str = Field("v-btn", description="Vue component name")
     value: bool = Field (False, description="Whether the button has been clicked")
-    text: str = Field("Click Me", description="Label displayed on the button.")
-    color: str = Field("primary", description="Color of the button.")
-    disabled: bool = Field(False, description="If true, the button is disabled.")
-    outlined: bool = Field(False, description="If true, the button will have an outlined style.")
+    text: str = Field("Click Me", description="Label displayed on the button")
+    color: str = Field("primary", description="Color of the button")
+    disabled: bool = Field(False, description="If true, the button is disabled")
+    outlined: bool = Field(False, description="If true, the button will have an outlined style")
     triggerEvent: str = Field("click", description="Trigger event to send code to the backend")
 
     @validator('value', always=True)
