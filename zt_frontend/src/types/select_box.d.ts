@@ -14,56 +14,56 @@ export type Id = string;
  */
 export type VariableName = string;
 /**
- * Vue component name.
+ * Vue component name
  */
 export type Component = string;
 /**
- * Options for the select box. Can be a list of strings or integers.
+ * Options for the select box. Can be a list of strings or integers
  */
 export type Items = (string | number)[];
 /**
- * Selected option for the select box. Can be a string or integer.
+ * Selected options for the select box
  */
-export type Value = string | number | null;
+export type Value = (string | number | null)[] | string | number | null;
 /**
- * Label for the select box.
+ * Label for the select box
  */
 export type Label = string | null;
 /**
- * Determines if multiple selections are allowed.
+ * Determines if multiple selections are allowed
  */
 export type Multiple = boolean | null;
 /**
- * Determines if the select box is dense.
+ * Determines if the select box is dense
  */
 export type Dense = boolean | null;
 /**
- * Determines if the select box has an outlined style.
+ * Determines if the select box has an outlined style
  */
 export type Outlined = boolean | null;
 /**
- * Determines if the select box has a clearable option.
+ * Determines if the select box has a clearable option
  */
 export type Clearable = boolean | null;
 /**
- * Determines if the select box is disabled.
+ * Determines if the select box is disabled
  */
 export type Disabled = boolean | null;
 /**
- * Determines if the select box is read-only.
+ * Determines if the select box is read-only
  */
 export type Readonly = boolean | null;
 /**
- * Color of the range slider. Can be custom or standard Material color.
+ * Color of the range slider. Can be custom or standard Material color
  */
 export type Color = string | null;
 /**
- * Trigger event for when to run the slider
+ * Trigger event for when to trigger a run
  */
 export type Triggerevent = string;
 
 /**
- * A class for SelectBox components inheriting from ZTComponent.
+ * SelectBox component allows users to select from a list of options. Can be a single or multiple selection
  */
 export interface SelectBox {
   id: Id;

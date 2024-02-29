@@ -14,19 +14,19 @@ export type Id = string;
  */
 export type VariableName = string;
 /**
- * Vue component name.
+ * Vue component name
  */
 export type Component = string;
 /**
- * List of child components within the card.
+ * List of child component ids to be placed within the card
  */
 export type Cardchildren = string[];
 /**
- * Background color of the card.
+ * Background color of the card
  */
 export type Color = string | null;
 /**
- * Elevation level of the card. Must be between 0 and 24.
+ * Elevation level of the card. Must be between 0 and 24
  */
 export type Elevation = number | null;
 /**
@@ -36,7 +36,7 @@ export type Density = Density1 & Density2;
 export type Density1 = string | null;
 export type Density2 = "default" | "comfortable" | "compact";
 /**
- * Width of the card.
+ * Width of the card
  */
 export type Width = number | null;
 export type Location = Location1 & Location2;
@@ -44,7 +44,8 @@ export type Location1 = string | null;
 export type Location2 = "center";
 
 /**
- * A class for Card components inheriting from ZTComponent.
+ * A card is a container for components that should be displayed together.
+ * Any child components will be placed in their own row within the card and take up the full width
  */
 export interface Card {
   id: Id;

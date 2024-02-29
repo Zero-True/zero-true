@@ -60,10 +60,15 @@
               @click="$emit('play')"></v-btn>
             <v-menu :close-on-content-click="false">
               <template v-slot:activator="{ props }">
-                <v-btn :icon="`ztIcon:${ztAliases.settings}`" v-bind="props"></v-btn>
+                <v-btn :icon="`ztIcon:${ztAliases.more}`" :id="'cellToolbar' + cellId" v-bind="props"></v-btn>
               </template>
-
               <v-list>
+                <v-list-item v-if="keepCodeInAppModel">
+                  <template v-slot:prepend>
+                    <v-switch v-model="nonReactiveValue" @update:modelValue="updateReactivity"></v-switch>
+                  </template>
+                  <v-list-item-title>Non-Reactive</v-list-item-title>
+                </v-list-item>
                 <v-list-item>
                   <template v-slot:prepend>
                     <v-switch v-model="hideCellValue" @update:modelValue="updateHideCell"></v-switch>
@@ -82,26 +87,12 @@
                   </template>
                   <v-list-item-title>Expand Code</v-list-item-title>
                 </v-list-item>
-                <v-list-item v-if="keepCodeInAppModel">
-                  <template v-slot:prepend>
-                    <v-switch v-model="nonReactiveValue" @update:modelValue="updateReactivity"></v-switch>
-                  </template>
-                  <v-list-item-title>Non-Reactive</v-list-item-title>
-                </v-list-item>
                 <v-list-item v-if="cellType==='sql'">
                   <template v-slot:prepend>
                     <v-switch v-model="showTableValue" @update:modelValue="updateShowTable"></v-switch>
                   </template>
                   <v-list-item-title>Show Table</v-list-item-title>
                 </v-list-item>
-              </v-list>
-
-            </v-menu>
-            <v-menu>
-              <template v-slot:activator="{ props }">
-                <v-btn :icon="`ztIcon:${ztAliases.more}`" :id="'cellToolbar' + cellId" v-bind="props"></v-btn>
-              </template>
-              <v-list>
                 <!-- <v-list-item>
                   <template v-slot:prepend>
                     <v-icon icon="$collapse"></v-icon>

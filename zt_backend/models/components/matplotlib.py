@@ -5,14 +5,16 @@ import base64
 from io import BytesIO
 
 class Matplotlib(ZTComponent):
-    component: str = Field("v-img", description="Vue component name.")
-    src: str = Field(..., description="Source URL of the image.")
-    alt: str = Field("", description="Alternative text for the image.")
-    width: int = Field(100, description="Width of the image.")
-    height: int = Field(100, description="Height of the image.")
+    """Matplotlib component for displaying matplotlib figures as images"""
+    component: str = Field("v-img", description="Vue component name")
+    src: str = Field(..., description="Source URL of the image of the graph")
+    alt: str = Field("", description="Alternative text for the graph image")
+    width: int = Field(100, description="Width of the graph")
+    height: int = Field(100, description="Height of the graph")
     
     @classmethod
     def from_matplotlib(cls,id: str, figure: plt.Figure, alt=None, width=None, height=None):
+        """Create a Matplotlib component from a matplotlib figure"""
         plt.style.use('dark_background')
         buffer = BytesIO()
         figure.savefig(buffer, format="png")

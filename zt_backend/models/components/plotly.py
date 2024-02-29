@@ -9,8 +9,9 @@ def figure_to_json(figure: Figure) -> str:
     return to_json(figure, validate=False)
 
 class PlotlyComponent(ZTComponent):
-    component: str = Field("plotly-plot", description="Vue component name for Plotly.")
-    figure_json: str = Field(..., description="Serialized Plotly figure as JSON string.")
+    """Component to display a Plotly figure"""
+    component: str = Field("plotly-plot", description="Vue component name for Plotly")
+    figure_json: str = Field(..., description="Serialized Plotly figure as JSON string")
     id: str = Field(..., description="ID for the component")
 
     @classmethod

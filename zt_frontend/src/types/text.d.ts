@@ -14,15 +14,15 @@ export type Id = string;
  */
 export type VariableName = string;
 /**
- * Vue component name for static text.
+ * Vue component name
  */
 export type Component = string;
 /**
- * The actual text content.
+ * The actual text content
  */
 export type Text1 = string;
 /**
- * Text type for text-related components.
+ * Text type to display
  */
 export type Type =
   | "text-h1"
@@ -39,12 +39,12 @@ export type Type =
   | "text-caption"
   | "text-overline";
 /**
- * Color of the text.
+ * Color of the text
  */
 export type Color = string | null;
 
 /**
- * A class for static text components inheriting from ZTComponent.
+ * Text is a read only component that is meant for static text
  */
 export interface Text {
   id: Id;

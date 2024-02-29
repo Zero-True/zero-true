@@ -14,7 +14,7 @@ export type Id = string;
  */
 export type VariableName = string;
 /**
- * Vue component name.
+ * Vue component name
  */
 export type Component = string;
 /**
@@ -22,19 +22,19 @@ export type Component = string;
  */
 export type Value = boolean;
 /**
- * Label displayed on the button.
+ * Label displayed on the button
  */
 export type Text = string;
 /**
- * Color of the button.
+ * Color of the button
  */
 export type Color = string;
 /**
- * If true, the button is disabled.
+ * If true, the button is disabled
  */
 export type Disabled = boolean;
 /**
- * If true, the button will have an outlined style.
+ * If true, the button will have an outlined style
  */
 export type Outlined = boolean;
 /**
@@ -43,7 +43,7 @@ export type Outlined = boolean;
 export type Triggerevent = string;
 
 /**
- * A class for Button components inheriting from ZTComponent.
+ * Standard button UI component
  */
 export interface Button {
   id: Id;

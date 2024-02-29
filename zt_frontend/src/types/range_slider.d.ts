@@ -14,47 +14,47 @@ export type Id = string;
  */
 export type VariableName = string;
 /**
- * Vue component name.
+ * Vue component name
  */
 export type Component = string;
 /**
- * Current value range of the slider.
+ * Current value range of the slider
  */
 export type Value = (number | number)[];
 /**
- * Minimum value of the slider.
+ * Minimum value of the slider
  */
 export type Min = number;
 /**
- * Maximum value of the slider.
+ * Maximum value of the slider
  */
 export type Max = number;
 /**
- * Step increment of the slider.
+ * Step increment of the slider
  */
 export type Step = number;
 /**
- * Displays the thumb label.
+ * Displays the thumb label
  */
 export type ThumbLabel = string;
 /**
- * Size of the thumb.
+ * Size of the thumb
  */
 export type ThumbSize = number;
 /**
- * Displays the tick labels.
+ * Displays the tick labels
  */
 export type TickLabels = boolean;
 /**
- * Displays the ticks.
+ * Displays the ticks
  */
 export type Ticks = unknown[];
 /**
- * Color of the range slider. Can be custom or standard Material color.
+ * Color of the range slider. Can be custom or standard Material color
  */
 export type Color = string;
 /**
- * Size of the slider.
+ * Size of the slider
  */
 export type Size = string;
 /**
@@ -62,20 +62,16 @@ export type Size = string;
  */
 export type Label = string | null;
 /**
- * Determines if the slider has rounded edges.
+ * Determines if the slider has rounded edges
  */
 export type Rounded = boolean;
 /**
- * Trigger event for when to run the slider
+ * Trigger event for when to trigger a run
  */
 export type Triggerevent = string;
 
 /**
- * A range slider component that allows you to capture numeric input from a user.
- *
- * To use the slider simply import the package and then declare the slider. The only required
- * field is an id. Your slider will render with default max and min values and a number
- * of other defaults.
+ * A slider component that allows a user to select a range of values
  */
 export interface RangeSlider {
   id: Id;

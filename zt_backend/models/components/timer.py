@@ -3,10 +3,11 @@ from zt_backend.models.components.zt_component import ZTComponent
 from zt_backend.runner.user_state import UserContext
 
 class Timer(ZTComponent):
-    component: str = Field("v-timer", description="Vue component name.")
+    """Timer is a component that allows for execution of code at a set interval. This does not have any visual output"""
+    component: str = Field("v-timer", description="Vue component name")
     interval: int = Field(100000, description="Interval in milliseconds")
     value: bool = Field(False, description="Flag for execution under interval")
-    triggerEvent: str = Field('click',description="Trigger event for when to run the slider")
+    triggerEvent: str = Field('click',description="Trigger event for when to execute a run")
         
     @validator('value', always=True) #TODO: debug and replace with field validator
     def get_value_from_global_state(cls, value, values):

@@ -14,7 +14,7 @@ export type Id = string;
  */
 export type VariableName = string;
 /**
- * Vue component name.
+ * Vue component name
  */
 export type Component = string;
 /**
@@ -22,19 +22,19 @@ export type Component = string;
  */
 export type Value = string;
 /**
- * Placeholder text.
+ * Placeholder text
  */
 export type Placeholder = string | null;
 /**
- * Label for the text input.
+ * Label for the text input
  */
 export type Label = string | null;
 /**
- * If true, the input is read-only.
+ * If true, the input is read-only
  */
 export type Readonly = boolean | null;
 /**
- * If true, the input is disabled.
+ * If true, the input is disabled
  */
 export type Disabled = boolean | null;
 /**
@@ -43,7 +43,7 @@ export type Disabled = boolean | null;
 export type Triggerevent = string;
 
 /**
- * A class for TextInput components inheriting from ZTComponent.
+ * Text area input allows a user to input arbitrary text. This is meant for larger text inputs
  */
 export interface TextArea {
   id: Id;

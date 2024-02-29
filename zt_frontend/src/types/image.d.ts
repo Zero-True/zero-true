@@ -14,28 +14,28 @@ export type Id = string;
  */
 export type VariableName = string;
 /**
- * Vue component name.
+ * Vue component name
  */
 export type Component = string;
 /**
- * Source URL or Path of the image.
+ * Source URL or Path of the image
  */
 export type Src = string;
 /**
- * Alternative text for the image.
+ * Alternative text for the image
  */
 export type Alt = string;
 /**
- * Width of the image.
+ * Width of the image
  */
 export type Width = number;
 /**
- * Height of the image.
+ * Height of the image
  */
 export type Height = number;
 
 /**
- * A class for Image components inheriting from ZTComponent.
+ * Image component for displaying web hosted or local images. Supports .png, .jpg, and .jpeg file types
  */
 export interface Image {
   id: Id;

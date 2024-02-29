@@ -5,17 +5,18 @@ from typing import List, Optional, Union
 from zt_backend.runner.user_state import UserContext
 
 class Autocomplete(ZTComponent):
-    """A class for Autocomplete components inheriting from ZTComponent."""
+    """Autocomplete is a select box that allows users to search the available options. 
+    Optimal for when there are many options to choose from"""
     
-    component: str = Field("v-autocomplete", description="Vue component name.")
-    items: List[Union[str, int]] = Field(..., description="Options for the autocomplete box. Can be a list of strings or integers.")
-    value: Union[str, int, None] = Field("", description="Selected option for the autocomplete box. Can be a string or integer.")
-    label: Optional[str] = Field(None, description="Label for the autocomplete box.")
-    multiple: Optional[bool] = Field(None, description="Determines if multiple selections are allowed.")
-    clearable: Optional[bool] = Field(None, description="Determines if the autocomplete box has a clearable option.")
-    disabled: Optional[bool] = Field(None, description="Determines if the autocomplete box is disabled.")
-    readonly: Optional[bool] = Field(None, description="Determines if the autocomplete box is read-only.")
-    color: Optional[str] = Field(None, pre=True, description="Color of the autocomplete component. Can be custom or standard Material color.")
+    component: str = Field("v-autocomplete", description="Vue component name")
+    items: List[Union[str, int]] = Field(..., description="Options for the autocomplete box. Can be a list of strings or integers")
+    value: Union[str, int, None] = Field("", description="Selected option for the autocomplete box")
+    label: Optional[str] = Field(None, description="Label for the autocomplete box")
+    multiple: Optional[bool] = Field(None, description="Determines if multiple selections are allowed")
+    clearable: Optional[bool] = Field(None, description="Determines if the autocomplete box has a clearable option")
+    disabled: Optional[bool] = Field(None, description="Determines if the autocomplete box is disabled")
+    readonly: Optional[bool] = Field(None, description="Determines if the autocomplete box is read-only")
+    color: Optional[str] = Field(None, pre=True, description="Color of the autocomplete component. Can be custom or standard Material color")
     triggerEvent: str = Field('update:modelValue',description="Trigger event for when to run based on the selected value")
 
     @field_validator('color')
