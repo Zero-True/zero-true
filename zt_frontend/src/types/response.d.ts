@@ -28,10 +28,6 @@ export type Components1 = (string | Column)[];
  * List of rows in this layout
  */
 export type Rows = Row[];
-/**
- * List of columns in this layout
- */
-export type Columns = Column[];
 export type Output = string;
 export type Cells = CellResponse[];
 export type Refresh = boolean;
@@ -55,7 +51,6 @@ export interface ZTComponent {
 }
 export interface Layout {
   rows?: Rows;
-  columns?: Columns;
   [k: string]: unknown;
 }
 export interface Row {

@@ -31,10 +31,6 @@ export type Components = (string | Column)[];
  */
 export type Rows = Row[];
 /**
- * List of columns in this layout
- */
-export type Columns = Column[];
-/**
  * Unique id for a component
  */
 export type Id1 = string;
@@ -74,7 +70,6 @@ export interface CodeCell {
 }
 export interface Layout {
   rows?: Rows;
-  columns?: Columns;
   [k: string]: unknown;
 }
 export interface Row {

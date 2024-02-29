@@ -18,14 +18,9 @@ export type Components = (string | Column)[];
  * List of rows in this layout
  */
 export type Rows = Row[];
-/**
- * List of columns in this layout
- */
-export type Columns = Column[];
 
 export interface Layout {
   rows?: Rows;
-  columns?: Columns;
   [k: string]: unknown;
 }
 export interface Row {
