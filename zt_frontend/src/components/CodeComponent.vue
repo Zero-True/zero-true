@@ -109,6 +109,7 @@
                 v-bind="componentBind(component)"
                 v-model="component.value"
                 @click="clickedButton(component)"
+                @keydown="handleEnterPress($event, component.id,component.component, component.value)"
                 @[component.triggerEvent]="
                   runCode(true, component.id, component.value)
                 "
@@ -384,6 +385,12 @@ export default {
         newObj[modifiedKey] = value;
         return newObj;
       }, {});
+    },
+    handleEnterPress(e: any, id: string,component_type: any, value: any) {
+      // Run code when Enter is pressed in a text, number or text are field
+      if (e.key === "Enter" && (component_type === "v-text-field" || component_type === "v-textarea" || component_type === "v-number-field")) {
+        this.runCode(true, id, value);
+      }
     },
     clickedButton(component: any) {
       if (component.component === "v-btn" || component.component === "v-timer") {

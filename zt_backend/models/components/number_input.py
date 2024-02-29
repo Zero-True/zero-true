@@ -6,13 +6,14 @@ from zt_backend.runner.user_state import UserContext
 class NumberInput(ZTComponent):
     """Number input allows a user to input an arbitrary number. Can be a float or an integer"""
     component: str = Field("v-number-field", description="Vue component name")
+    hint: Optional[str] = Field('Press Enter to Submit', description="Hint text for the number input")
     value: Union[int,float,None] = Field (None,description="The input number value")
     placeholder: Optional[Union[int,float]] = Field(None, description="Placeholder number")
     label: Optional[str] = Field(None, description="Label for the number input")
     readonly: Optional[bool] = Field(None, description="If true, the input is read-only")
     disabled: Optional[bool] = Field(None, description="If true, the input is disabled")
     type: str = Field('number',description="Ensures that only numbers are accepted on the frontend")
-    triggerEvent: str = Field('input',description="Trigger event to send code to the backend")
+    triggerEvent: str = Field(None,description="Trigger event to send code to the backend")
     
     @validator('value', always=True) #TODO: debug and replace with field validator
     def get_value_from_global_state(cls, value, values):
