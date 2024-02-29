@@ -7,12 +7,13 @@ from zt_backend.runner.user_state import UserContext
 class TextInput(ZTComponent):
     """Text input allows a user to input arbitrary text. This is meant for short text inputs"""
     component: str = Field("v-text-field", description="Vue component name")
+    hint: Optional[str] = Field('Press Enter to Submit', description="Hint text for the text input")
     value: str = Field ('', description="The input text value")
     placeholder: Optional[str] = Field(None, description="Placeholder text")
     label: Optional[str] = Field(None, description="Label for the text input")
     readonly: Optional[bool] = Field(None, description="If true, the input is read-only")
     disabled: Optional[bool] = Field(None, description="If true, the input is disabled")
-    triggerEvent: str = Field('input',description="Trigger event to send code to the backend")
+    triggerEvent: str = Field(None,description="Trigger event to send code to the backend")
     
     @validator('value', always=True) #TODO: debug and replace with field validator
     def get_value_from_global_state(cls, value, values):
