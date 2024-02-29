@@ -68,16 +68,6 @@
           :components="cellData.components"
           @runCode="runCode"
         />
-        <v-row v-if="columns?.length">
-          <v-col v-for="(col, colIndex) in columns" :cols="col.width">
-            <layout-component
-              :key="colIndex"
-              :column-data="col"
-              :components="cellData.components"
-              @runCode="runCode"
-            />
-          </v-col>
-        </v-row>
         <!-- Render unplaced components at the bottom -->
         <div v-if="unplacedComponents.length" :id = "'unplacedComponents'+cellData.id">
           <div v-for="component in unplacedComponents" :key="component.id">
@@ -356,9 +346,7 @@ export default {
 
       const placedComponentIds = findPlacedIds(
         (this.cellData.layout as Layout)?.rows ?? []
-      )
-        .concat(findPlacedIds((this.cellData.layout as Layout)?.columns ?? []))
-        .concat(findCardIds(this.cellData.components));
+      ).concat(findCardIds(this.cellData.components));
       return this.cellData.components.filter(
         (comp) => !placedComponentIds.includes(comp.id)
       );
