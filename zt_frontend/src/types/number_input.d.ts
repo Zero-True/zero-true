@@ -18,6 +18,10 @@ export type VariableName = string;
  */
 export type Component = string;
 /**
+ * Hint text for the number input
+ */
+export type Hint = string | null;
+/**
  * The input number value
  */
 export type Value = number | null;
@@ -53,6 +57,7 @@ export interface NumberInput {
   id: Id;
   variable_name?: VariableName;
   component?: Component;
+  hint?: Hint;
   value?: Value;
   placeholder?: Placeholder;
   label?: Label;

@@ -32,11 +32,11 @@
         :id = "'codeMirrorDev'+cellData.id"
       />
       <div v-else>
-        <h4 v-if="cellData.hideCode" class="text-ellipsis app-static-name" >{{ cellData.cellName }} </h4>
+        <h4 v-if="cellData.hideCode" class="text-bluegrey-darken-1 text-ellipsis app-static-name" >{{ cellData.cellName }} </h4>
         <v-expansion-panels v-else v-model="expanded" >
           <v-expansion-panel v-model="expanded" bg-color="bluegrey-darken-4">
-            <v-expansion-panel-title>
-              {{ cellData.cellName }}
+            <v-expansion-panel-title class="text-bluegrey-darken-1">
+              <h4 class="text-ellipsis app-static-name" >{{ cellData.cellName }} </h4>
             </v-expansion-panel-title>
             <v-expansion-panel-text>
               <codemirror
@@ -55,7 +55,7 @@
       </div>
       <div v-if="$devMode && !isAppRoute && !isMobile">
         <p class="text-caption text-disabled text-right">
-          CTRL+Enter to run</p>
+          {{ shortcutText }} to run</p>
       </div>
     </template>
     <template v-slot:outcome>
@@ -314,10 +314,6 @@ export default {
       return [EditorState.readOnly.of(true), Prec.highest(keyMap), python(), oneDark, autocompletion({ override: [customCompletionSource] })]
     },
 
-    columns() {
-      return this.cellData.layout?.columns || [];
-    },
-
     unplacedComponents() {
       const findPlacedIds = (items: any[]): string[] => {
         let ids: string[] = [];
@@ -351,6 +347,11 @@ export default {
       return this.cellData.components.filter(
         (comp) => !placedComponentIds.includes(comp.id)
       );
+    },
+    shortcutText() {
+      return navigator.userAgent.indexOf("Mac") !== -1
+        ? '⌘+Enter'
+        : 'CTRL+Enter';
     },
   },
   methods: {
@@ -437,7 +438,6 @@ export default {
 <style lang="scss" scoped>
 .app-static-name {
   cursor: text; 
-  font-weight: normal;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

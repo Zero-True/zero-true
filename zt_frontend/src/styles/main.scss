@@ -30,4 +30,8 @@ p {
   min-height: 31px;
 }
 
+.add-cell-item:hover {
+  background-color: rgba(var(--v-theme-bluegrey)); 
+}
+
 @import 'utilities'

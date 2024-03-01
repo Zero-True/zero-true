@@ -16,12 +16,15 @@ export type Id1 = string;
 export type VariableName = string;
 export type Components = ZTComponent[];
 /**
- * List of component IDs that belong to this column
+ * List of component IDs and rows that belong to this column, rendered in order
  */
 export type Components2 = (string | Row)[];
+/**
+ * Width of the column. It can be a number 1-12 and by default is automatically calculated
+ */
 export type Width = number | boolean;
 /**
- * List of columns that belong to this row
+ * List of component IDs and columns that belong to this row, rendered in order
  */
 export type Components1 = (string | Column)[];
 /**
@@ -49,14 +52,23 @@ export interface ZTComponent {
   variable_name?: VariableName;
   [k: string]: unknown;
 }
+/**
+ * Layout is an object that contains the list of rows to be rendered
+ */
 export interface Layout {
   rows?: Rows;
   [k: string]: unknown;
 }
+/**
+ * Rows can contain both individual components and columns. They are the top level components of a layout and can be subcomponents of columns
+ */
 export interface Row {
   components?: Components1;
   [k: string]: unknown;
 }
+/**
+ * A Column must be a subcomponent of a Row. It can contain both individual components and rows
+ */
 export interface Column {
   components?: Components2;
   width?: Width;

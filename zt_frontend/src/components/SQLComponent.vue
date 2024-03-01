@@ -37,11 +37,11 @@
         @keyup="saveCell"
       />
       <div v-else>
-        <h4 v-if="cellData.hideCode" class="text-ellipsis app-static-name" >{{ cellData.cellName }} </h4>
+        <h4 v-if="cellData.hideCode" class="text-bluegrey-darken-1 text-ellipsis app-static-name" >{{ cellData.cellName }} </h4>
         <v-expansion-panels v-else v-model="expanded">
           <v-expansion-panel  v-model="expanded" bg-color="bluegrey-darken-4">
-            <v-expansion-panel-title>
-              {{ cellData.cellName }}
+            <v-expansion-panel-title class="text-bluegrey-darken-1">
+              <h4 class="text-ellipsis app-static-name" >{{ cellData.cellName }} </h4>
             </v-expansion-panel-title>
             <v-expansion-panel-text>
               <codemirror
@@ -59,7 +59,7 @@
       </div>
 
       <div v-if="$devMode && !isAppRoute && !isMobile">
-        <p class="text-caption text-disabled text-right">CTRL+Enter to run</p>
+        <p class="text-caption text-disabled text-right">{{ shortcutText }} to run</p>
       </div>
     </template>
     <template v-slot:outcome>
@@ -144,6 +144,11 @@ export default {
         autocompletion({ override: [] }),
       ];
     },
+    shortcutText() {
+      return navigator.userAgent.indexOf("Mac") !== -1
+        ? '⌘+Enter'
+        : 'CTRL+Enter';
+    },
   },
   inheritAttrs: false,
   emits: ['runCode', 'deleteCell', 'createCell', 'saveCell'],
@@ -211,7 +216,6 @@ export default {
 <style lang="scss" scoped>
 .app-static-name {
   cursor: text; 
-  font-weight: normal;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

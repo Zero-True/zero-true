@@ -5,6 +5,7 @@
       color="bluegrey-darken-4"
       height="51"
       id="appBar"
+      class="zt-app-bar"
     >
       <v-btn
         size="x-large"
@@ -784,6 +785,11 @@ export default {
 <style lang="scss" scoped>
 
 @import '@/styles/mixins.scss';
+.zt-app-bar {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
 .logo-btn {
   & :deep(.v-icon) {
     width: 1.5em;
@@ -809,8 +815,8 @@ export default {
   }
 
   &__name:hover {
-    padding-left: 2px;
-    padding-right: 5px;
+    padding-left: 3px;
+    padding-right: 3px;
     cursor: text; 
     border: 1px solid #294455;
   }

@@ -62,7 +62,7 @@
               <template v-slot:activator="{ props }">
                 <v-btn :icon="`ztIcon:${ztAliases.more}`" :id="'cellToolbar' + cellId" v-bind="props"></v-btn>
               </template>
-              <v-list>
+              <v-list bg-color="bluegrey-darken-4">
                 <v-list-item v-if="keepCodeInAppModel">
                   <template v-slot:prepend>
                     <v-switch v-model="nonReactiveValue" @update:modelValue="updateReactivity"></v-switch>
@@ -111,7 +111,7 @@
                   </template>
                   <v-list-item-title>Duplicate</v-list-item-title>
                 </v-list-item> -->
-                <v-list-item base-color="error" :id="'deleteCell' + cellId" @click="$emit('delete')">
+                <v-list-item base-color="error" :id="'deleteCell' + cellId" class="delete-cell" @click="$emit('delete')">
                   <template v-slot:prepend>
                     <v-icon :icon="`ztIcon:${ztAliases.delete}`"></v-icon>
                   </template>
@@ -300,12 +300,16 @@ const saveCellName = async () => {
 
 <style lang="scss" scoped>
 .cell {
-  padding: 24px;
+  padding: 18px;
   display: flex;
   margin-bottom: 2px;
   &--dev {
     margin-bottom: 16px;
   }
+}
+
+.delete-cell:hover {
+  background-color: #6e3d41; 
 }
 
 .content {
@@ -343,7 +347,6 @@ const saveCellName = async () => {
   width: calc(100% - 120px);
   &__name {
     cursor: text; 
-    font-weight: normal;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -356,8 +359,8 @@ const saveCellName = async () => {
   }
   &__name:hover {
     cursor: text; 
-    padding-left: 2px;
-    padding-right: 5px;
+    padding-left: 3px;
+    padding-right: 3px;
     border: 1px solid #294455;
   }
 
