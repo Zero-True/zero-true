@@ -1,7 +1,7 @@
 <template>
   <v-menu transition="scale-transition">
     <template v-slot:activator="{ props }">
-      <div v-bind="props" class="activator-area">
+      <div v-bind="cellId ? { ...props, id: 'addCell' + cellId } : props" class="activator-area">
         <div class="divider">
           <v-divider class="divider__divider-line" color="bluegrey-darken-2"></v-divider>
           <v-btn :prepend-icon="`ztIcon:${ztAliases.circleAdd}`" variant="plain" density="compact" :ripple="false"
