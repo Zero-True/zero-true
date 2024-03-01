@@ -235,6 +235,16 @@ def write_notebook():
     logger.debug("Toml saved for notebook %s", zt_notebook.notebookId)
 
 def get_code_completions(cell_id:str, code: str, line: int, column: int) -> list:
+
+    code_list = code.split("\n")
+    try:
+        last_char = code_list[line-1][column-1]
+        if last_char in ['.', '(', '[', '{']:
+            return {"cell_id": cell_id, "completions": []}
+
+    except Exception as e:
+        logger.info("Error formatting completions for cell_id %s: %s", cell_id, traceback.format_exc())
+
     try:
         script = jedi.Script(code)
         completions = script.complete(line, column)
