@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container style="margin-top: 12px;">
     <add-cell 
       v-if="$devMode && !isAppRoute" 
       @createCodeCell="e => createCodeCell('', e)" 
@@ -135,8 +135,8 @@ export default {
 
 <style lang="scss">
 .cell-container {
+  padding-top: 0;
   &--app {
-    padding-top: 0;
     padding-bottom: 0;
   }
 }

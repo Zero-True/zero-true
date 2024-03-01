@@ -18,6 +18,10 @@ export type VariableName = string;
  */
 export type Component = string;
 /**
+ * Hint text for the text input
+ */
+export type Hint = string | null;
+/**
  * The input text value
  */
 export type Value = string;
@@ -49,6 +53,7 @@ export interface TextArea {
   id: Id;
   variable_name?: VariableName;
   component?: Component;
+  hint?: Hint;
   value?: Value;
   placeholder?: Placeholder;
   label?: Label;

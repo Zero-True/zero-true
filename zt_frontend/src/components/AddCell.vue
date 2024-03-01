@@ -1,15 +1,16 @@
 <template>
   <v-menu transition="scale-transition">
     <template v-slot:activator="{ props }">
-      <div class="divider">
-        <v-divider class="divider__divider-line" color="bluegrey-darken-2"></v-divider>
-        <v-btn v-bind="cellId ? { ...props, id: 'addCell' + cellId } : props"
-          :prepend-icon="`ztIcon:${ztAliases.circleAdd}`" variant="text" density="compact" :ripple="false"
-          class="divider__btn bg-background">Add cell</v-btn>
+      <div v-bind="props" class="activator-area">
+        <div class="divider">
+          <v-divider class="divider__divider-line" color="bluegrey-darken-2"></v-divider>
+          <v-btn :prepend-icon="`ztIcon:${ztAliases.circleAdd}`" variant="plain" density="compact" :ripple="false"
+            class="divider__btn bg-background">Add cell</v-btn>
+        </div>
       </div>
     </template>
-    <v-list>
-      <v-list-item v-for="(item, i) in addCellItems" :key="i"
+    <v-list bg-color="bluegrey-darken-4">
+      <v-list-item v-for="(item, i) in addCellItems" :key="i" class="add-cell-item"
         v-bind="cellId ? { id: 'addCell_' + item.title + '_' + cellId } : {}" @click="$emit('createCodeCell', item.cellType)">
         <template v-slot:prepend>
           <v-icon :icon="item.icon"></v-icon>
@@ -61,6 +62,19 @@ const addCellItems = ref<{
     top: 0;
     left: 50%;
     transform: translateX(-50%);
+    opacity: 1;
   }
+}
+
+.divider:hover {
+  cursor: pointer;
+}
+
+.divider:hover .divider__divider-line {
+  background-color: white;
+}
+
+.divider:hover .divider__btn {
+  color: white !important;
 }
 </style>
