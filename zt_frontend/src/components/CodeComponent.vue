@@ -158,7 +158,6 @@ import Cell from '@/components/Cell.vue'
 import { inlineSuggestion } from 'codemirror-extension-inline-suggestion'
 
 
-
 export default {
   components: {
     "cell": Cell,
