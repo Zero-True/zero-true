@@ -1,21 +1,15 @@
 # Contributing
 
 When contributing to this repository, please first discuss the change you wish to make via issue, email, or any other method with the owners of this repository before making a change.
+Communicate with the maintainers of the repo and let us know what you're planning on doing! We will have to maintain the features in the long run so we have to carefully consider what
+to add and what to leave as an external dependency. We are working on creating a way for users to create external components and plugins that can be installed... stay tuned for 
+instructions on how to do that! 
 
 Please note we have a code of conduct, please follow it in all your interactions with the project.
 
-## Pull Request Process
-
-1. Ensure any install or build dependencies are removed before the end of the layer when doing a build.
-2. Update the README.md with details of changes to the interface, this includes new environment variables, exposed ports, useful file locations and container parameters.
-3. Increase the version numbers in any examples files and the README.md to the new version that this Pull Request would represent.
-4. You may merge the Pull Request in once you have the sign-off of two other developers, or if you do not have permission to do that, you may request the second reviewer to merge it for you.
-
----
-
 # Welcome to GitHub Docs Contributing Guide
 
-Thank you for investing your time in contributing to our project! Any contribution you make will be reflected on docs.github.com ✨.
+Thank you for investing your time in contributing to our project! Any contribution you make will be reflected in zero-true!
 
 Read our [Code of Conduct](#code-of-conduct) to keep our community approachable and respectable.
 
@@ -29,7 +23,7 @@ In this guide you will get an overview of the contribution workflow from opening
 
 ## New Contributor Guide
 
-To get an overview of the project, read the README file. Here are some resources to help you get started with open source contributions:
+To get an overview of the project, read the README file. Here are some resources to help you get started with open source contributions if this is something completely new to you:
 
 - [Finding ways to contribute to open source on GitHub](https://docs.github.com/en/get-started/exploring-projects-on-github/finding-ways-to-contribute-to-open-source-on-github)
 - [Set up Git](https://docs.github.com/en/get-started/quickstart/set-up-git)
@@ -37,16 +31,35 @@ To get an overview of the project, read the README file. Here are some resources
 
 ## Getting Started
 
-To navigate our codebase with confidence, learn omre about pydantic (for type safety of the python side), sphynx (for building docs), and Vuetify for our frontend.
+To navigate our codebase with confidence, learn more about pydantic (for type safety of the python side),fastapi, sphynx (for building docs), pytest/selenium for testing
+and Vuetify for our frontend.
 
-Check to see what types of contributions we accept before making changes. Some of them might not even require writing a single line of code ✨.
+When you pip install zero-true it is packaged with two cli utilities:
+```bash
+zero-true notebook
+```
+```bash
+zero-true-dev notebook
+```
+
+When you type zero-true in your terminal it will open a regular notebook. On the other hand zero-true-dev is the cli we use when we want to be able to 
+hot reload and see any changes to the interface or backend during development. This makes testing any changes that you make quick and easy. In order to use 
+the dev cli you need to have access to the source code which means you need to fork and then clone our repo. Then clone the code you've forked, navigate into
+the directory with the source code and simply run zero-true-dev from the cli. The steps to do this are included below:
+
+```bash
+git clone https://github.com/[YOUR-USERNAME]/zero-true.git 
+cd zero-true
+zero-true-dev notebook
+```
+
+This will launch a notebook in dev mode. Make changes to either the frontend or backend and watch the changes hot reload. 
 
 ## Issues
 
-### Create a New Issue
-
-If you spot a problem with the docs, search if an issue already exists. If a related issue doesn't exist, you can open a new issue using a relevant issue form.
+If you run into any issues that you suspect are bugs please check the issues in our repo to see if we have any open issues about already and if so please contribute to that discussion. 
+It is always helful to have a minimal reproducible example so that anyone debugging can spin up a notebook, run your code in it and then try to diagnose the problem. 
 
 ### Solve an Issue
 
-Scan through our existing issues to find one that interests you. You can narrow down the search using labels as filters. See Labels for more information. As a general rule, we don’t assign issues to anyone. If you find an issue to work on, you are welcome to open a PR with a fix.
+If you'd like to solve one of our open issues please get in touch first! As we noted above not every issue/feature request is something that we can actively maintain! 
