@@ -14,26 +14,20 @@
   <a href="" target="_blank"><strong>Discord</strong></a> <!-- Add Discord link or change -->
 </p>
 
-Zero True is a Python & SQL reactive computational notebook able to create beautiful and 
+## What is Zero True?
+
+Zero True is a Python and SQL reactive computational notebook able to create beautiful and 
 professional data-driven applications. Designed to foster collaboration and improve data
 accessibility, it offers a rich UI library and an intelligent code parser. Publish your 
 apps with confidence and with ease. 
 
-## 📚 Table of Contents
+### Features
 
-- [Features](#-features)
-- [Requirements](#-requirements)
-- [Quick Start](#-quick-start)
-- [Usage](#-usage)
-- [Community](#-community)
-
-## Features
-
-- 📝 Python + SQL reactive computational notebook.
-- 🌌 No hidden state. Our reactive cell updates show you what your notebook looks like in real time.
-- 📊 Dynamic UI rendering with beautiful [Vuetify](https://vuetifyjs.com/en/) components.
-- 🔄 Automatic dependency tracking between cells.
-- 🚀 Integrated app publishing with a simple command.
+- **Integrated and Simple**: Python and SQL reactive computational notebook all in one. 
+- **Transparent Updates**: No hidden state. Our reactive cell updates show you what your notebook looks like in real-time.
+- **Dynamic and Interactive**: UI rendering with beautiful [Vuetify](https://vuetifyjs.com/en/) components, with customizable layouts.
+- **Fast Prototyping**: Create rich, reactive apps with one click. 
+- **Open-Source**: Join our community-driven project. 
 
 ## ⚙ Requirements
 
