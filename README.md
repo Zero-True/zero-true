@@ -1,5 +1,7 @@
 <p align="center">
-  <img src="https://github.com/HonkaDonka/zero-true/assets/30189257/9c96ddca-2201-4864-a726-4d4c2701b53e">
+  <a href="https://zero-true.com/">
+    <img src="https://github.com/HonkaDonka/zero-true/assets/30189257/9c96ddca-2201-4864-a726-4d4c2701b53e" width="300">
+  </a>
 </p>
 
 <h2>
@@ -7,6 +9,12 @@
     <b>A New Way to Build and Collaborate on Data Apps</b>
   </p>
 </h2>
+
+<p align="center">
+  <a href="https://docs.zero-true.com/" target="_blank"><strong>Documentation</strong></a> ·
+  <a href="https://medium.com/zero-true" target="_blank"><strong>Blog</strong></a> ·
+  <a href="" target="_blank"><strong>Discord</strong></a>
+</p>
 
 ## 🌐 Overview
 
