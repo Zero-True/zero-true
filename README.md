@@ -14,9 +14,10 @@
   <a href="" target="_blank"><strong>Discord</strong></a>
 </p>
 
-## 🌐 Overview
-
-Welcome to **Zero True**, your go-to platform for creating beautiful and professional data-driven notebooks and applications in pure Python. Designed to foster collaboration and improve data accessibility, Zero True offers a rich UI library along with an intelligent code parser. Your notebook will always stay in sync.
+Zero True is a Python & SQL reactive computational notebook able to create beautiful and 
+professional data-driven applications. Designed to foster collaboration and improve data
+accessibility, it offers a rich UI library and an intelligent code parser. Publish your 
+apps with confidence and with ease. 
 
 ## 📚 Table of Contents
 
