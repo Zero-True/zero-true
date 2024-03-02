@@ -1,6 +1,12 @@
-![Zero True Logo](zt_frontend/src/assets/logo.png)
+<p align="center">
+  <img src="https://github.com/HonkaDonka/zero-true/assets/30189257/9c96ddca-2201-4864-a726-4d4c2701b53e">
+</p>
 
-# Zero True: A New Kind of Code Notebook
+<h2>
+  <p align="center">
+    <b>A New Way to Build and Collaborate on Data Apps</b>
+  </p>
+</h2>
 
 ## 🌐 Overview
 
