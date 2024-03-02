@@ -11,7 +11,7 @@
 <p align="center">
   <a href="https://docs.zero-true.com/" target="_blank"><strong>Documentation</strong></a> ·
   <a href="https://medium.com/zero-true" target="_blank"><strong>Blog</strong></a> ·
-  <a href="" target="_blank"><strong>Discord</strong></a>
+  <a href="" target="_blank"><strong>Discord</strong></a> <!-- Add Discord link or change -->
 </p>
 
 Zero True is a Python & SQL reactive computational notebook able to create beautiful and 
