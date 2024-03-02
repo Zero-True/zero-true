@@ -14,9 +14,9 @@
   <a href="" target="_blank"><strong>Discord</strong></a> <!-- Add Discord link or change -->
 </p>
 
-## What is Zero True?
+## What is Zero-True?
 
-Zero True is a Python and SQL reactive computational notebook able to create beautiful and 
+Zero-True is a Python and SQL reactive computational notebook able to create beautiful and 
 professional data-driven applications. Designed to foster collaboration and improve data
 accessibility, it offers a rich UI library and an intelligent code parser. Publish your 
 apps with confidence and with ease. 
@@ -29,22 +29,21 @@ apps with confidence and with ease.
 - **Fast Prototyping**: Create rich, reactive apps with one click. 
 - **Open-Source**: Join our community-driven project. 
 
-## ⚙ Requirements
+## Quick Start
 
-- Python 3.9 (Anaconda or virtual environment recommended)
+Make sure Python 3.9 is installed. (Anaconda or virtual environment recommended)
 
-## 🚀 Quick Start
+Open a terminal and run:
 
 ```bash
 pip install zero-true
 zero-true notebook
 ```
 
-### Usage
+Once the application is running, head to http://localhost:1326 to begin creating and executing
+code cells. 
 
-Once the application is running, navigate to http://localhost:1326 and start creating and executing code cells. Click the "Run" button to execute code and visualize the output below the editor.
-
-#### Basic Example
+### Quick Example
 
 ```python
 import zero_true as zt
