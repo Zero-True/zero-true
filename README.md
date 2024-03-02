@@ -4,12 +4,10 @@
   </a>
 </p>
 
-<h2>
-  <p align="center">
-    <b>A New Way to Build and Collaborate on Data Apps</b>
-  </p>
-</h2>
-
+<p align="center">
+  <b>A New Way to Build and Collaborate on Data Apps</b>
+</p>
+  
 <p align="center">
   <a href="https://docs.zero-true.com/" target="_blank"><strong>Documentation</strong></a> ·
   <a href="https://medium.com/zero-true" target="_blank"><strong>Blog</strong></a> ·
