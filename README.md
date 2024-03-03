@@ -47,12 +47,15 @@ code cells.
 
 ```python
 import zero_true as zt
-slider = zt.Slider(id='slider_1')
-print('The squared value is '+str(slider.value**2))
+slider = zt.Slider(id="slider_1")
+zt.Text(id="text_1", text=str(slider.value) + " squared is " + str(slider.value**2))
 ```
 
+<p align="center">
+  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjZwd3V4YTBuM3Z4dDA5cWk1MXp6N2lsZndieGIwMDloc2FjbzBzayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/KfXOJH8MwmDFa8ewEB/giphy.gif">
+</p>
 
-#### More Complicated Example using Python + SQL 
+### More Complicated Example using Python + SQL 
 
 For this example you will need scikitlearn 
 
