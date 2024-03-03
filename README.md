@@ -40,16 +40,20 @@ pip install zero-true
 zero-true notebook
 ```
 
-Once the application is running, head to http://localhost:1326 to begin creating and executing
-code cells. 
+Once the application is running, head to http://localhost:1326 to begin creating your 
+notebook!
 
 ### Quick Example
+
+Create a new notebook and open a code cell with the following code:
 
 ```python
 import zero_true as zt
 slider = zt.Slider(id="slider_1")
 zt.Text(id="text_1", text=str(slider.value) + " squared is " + str(slider.value**2))
 ```
+
+Now run the cell and open your app!
 
 <p align="center">
   <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjZwd3V4YTBuM3Z4dDA5cWk1MXp6N2lsZndieGIwMDloc2FjbzBzayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/KfXOJH8MwmDFa8ewEB/giphy.gif">
