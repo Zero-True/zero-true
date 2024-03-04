@@ -40,12 +40,12 @@ pip install zero-true
 zero-true notebook
 ```
 
-Once the application is running, head to http://localhost:1326 to begin creating your 
+Once the application is running, head to http://localhost:1326 to begin editing your 
 notebook!
 
 ### Quick Example
 
-Create a new notebook and open a code cell with the following code:
+Open a new notebook and create a code cell with the following code:
 
 ```python
 import zero_true as zt
