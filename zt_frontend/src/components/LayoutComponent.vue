@@ -129,7 +129,7 @@ import {
   VAutocomplete,
   VCard,
 } from "vuetify/lib/components/index.mjs";
-import { VDataTable } from "vuetify/labs/VDataTable";
+import { VDataTable } from "vuetify/components/VDataTable";
 import { Column, ZTComponent, Row } from "@/types/notebook";
 import PlotlyPlot from "@/components/PlotlyComponent.vue";
 import TextComponent from "@/components/TextComponent.vue"

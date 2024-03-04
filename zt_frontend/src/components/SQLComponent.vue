@@ -83,7 +83,7 @@
 <script lang="ts">
 import type { PropType, ShallowRef } from "vue";
 import { shallowRef } from "vue";
-import { VDataTable } from "vuetify/labs/VDataTable";
+import { VDataTable } from "vuetify/components/VDataTable";
 import { Codemirror } from "vue-codemirror";
 import { sql } from "@codemirror/lang-sql";
 import { oneDark } from "@codemirror/theme-one-dark";
