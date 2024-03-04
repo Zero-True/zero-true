@@ -36,7 +36,9 @@ Make sure Python 3.9 is installed. (Anaconda or virtual environment recommended)
 Open a terminal and run:
 
 ```bash
+# install the packages
 pip install zero-true
+# run your first notebook
 zero-true notebook
 ```
 
