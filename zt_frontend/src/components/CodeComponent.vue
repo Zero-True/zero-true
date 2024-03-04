@@ -147,7 +147,7 @@ import {
   VAutocomplete,
   VCard,
 } from "vuetify/lib/components/index.mjs";
-import { VDataTable } from "vuetify/labs/VDataTable";
+import { VDataTable } from "vuetify/components/VDataTable";
 import { CodeCell, Layout } from "@/types/notebook";
 import LayoutComponent from "@/components/LayoutComponent.vue";
 import TextComponent from "@/components/TextComponent.vue"
