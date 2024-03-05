@@ -23,11 +23,11 @@ apps with confidence and with ease.
 
 ### Features
 
-- **Integrated and Simple**: Python and SQL reactive computational notebook all in one. 
+- **Integrated and Simple**: Python and SQL reactive computational notebook all in one.
 - **Transparent Updates**: No hidden state. Our reactive cell updates show you what your notebook looks like in real-time.
 - **Dynamic and Interactive**: UI rendering with beautiful [Vuetify](https://vuetifyjs.com/en/) components, with customizable layouts.
-- **Fast Prototyping**: Create rich, reactive apps with one click. 
-- **Open-Source**: Join our community-driven project. 
+- **Fast Prototyping**: Create rich, reactive apps with one click.
+- **Open-Source**: Join our community-driven project and contribute to Zero-True's future.
 
 ## Quick Start
 
