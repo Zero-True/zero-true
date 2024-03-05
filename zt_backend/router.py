@@ -344,6 +344,14 @@ def notebook_name_update(notebook_name: request.NotebookNameRequest):
     if(run_mode=='dev'):
         save_queue.put_nowait({"new_notebook_name":notebook_name.notebookName})
 
+#route to share a notebook
+@router.post("/api/share_notebook")
+def share_notebook(shareRequest: request.ShareRequest):
+    if(run_mode=='dev'):
+        subprocess.run(['zero-true', 'publish', shareRequest.apiKey, shareRequest.userName, shareRequest.projectName, '.'])
+        #logger.info("Notebook shared by user %s", shareRequest.userName)
+
+
 @router.on_event('shutdown')
 def shutdown():
     global current_thread
@@ -359,6 +367,7 @@ def shutdown():
     for user_id in user_message_tasks:
         if user_message_tasks[user_id]:
             user_message_tasks[user_id].cancel()
+
 
 def remove_user_state(user_id):
     try:
