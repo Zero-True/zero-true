@@ -38,18 +38,13 @@
   import axios from 'axios';
   // If ztAliases is used within the template, ensure it's imported correctly. Otherwise, remove it if not needed.
   import { ztAliases } from '@/iconsets/ztIcon';
-  
-  interface ShareRequestModel {
-    userName: string;
-    projectName: string;
-    apiKey: string;
-  }
-  
+  import  { ShareRequest } from '@/types/share_request';
+
   export default defineComponent({
     name: 'ShareNotebookDialog',
     setup() {
       const dialog: Ref<boolean> = ref(false);
-      const shareRequest: Ref<ShareRequestModel> = ref({
+      const shareRequest: Ref<ShareRequest> = ref({
         userName: '',
         projectName: '',
         apiKey: '',
