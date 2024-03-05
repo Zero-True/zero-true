@@ -2,7 +2,7 @@
   <v-dialog v-model="dialog" persistent max-width="400px">
     <template v-slot:activator="{ props }">
       <v-btn v-bind="props" icon>
-        <v-icon icon="mdi:mdi-account"></v-icon>
+        <v-icon :icon="`ztIcon:${ztAliases.copilot}`"></v-icon>
       </v-btn>
     </template>
     <v-card>
@@ -52,6 +52,7 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import { globalState } from "@/global_vars";
+import { ztAliases } from "@/iconsets/ztIcon";
 import axios from "axios";
 
 export default defineComponent({
@@ -157,6 +158,7 @@ export default defineComponent({
       confirmSignIn,
       signOut,
       startServerAndCheckStatus,
+      ztAliases
     };
   },
 });

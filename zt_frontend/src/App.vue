@@ -87,6 +87,7 @@
             <v-btn :icon="`ztIcon:${ztAliases.message}`"></v-btn> -->
             <CopilotComponent v-if="$devMode && !isAppRoute"/>
             <PackageComponent v-if="$devMode && !isAppRoute" :dependencies="dependencies"/>
+            <ShareComponent v-if="$devMode && !isAppRoute"/>
             <!-- <v-btn :icon="`ztIcon:${ztAliases.play}`"></v-btn>
             <v-btn
               :prepend-icon="`ztIcon:${ztAliases.play}`"
@@ -226,6 +227,7 @@ import SQLComponent from "@/components/SQLComponent.vue";
 import PackageComponent from "@/components/PackageComponent.vue";
 import CodeCellManager from "./components/CodeCellManager.vue";
 import CopilotComponent from "./components/CopilotComponent.vue";
+import ShareComponent from "./components/ShareComponent.vue";
 import type { VTextField } from "vuetify/lib/components/index.mjs";
 import { ztAliases } from '@/iconsets/ztIcon'
 
@@ -237,7 +239,8 @@ export default {
     SQLComponent,
     PackageComponent,
     CodeCellManager,
-    CopilotComponent
+    CopilotComponent,
+    ShareComponent
   },
 
   data() {

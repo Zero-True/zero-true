@@ -80,3 +80,9 @@ class ClearRequest(BaseModel):
 
 class DependencyRequest(BaseModel):
     dependencies: str
+
+class ShareRequest(BaseModel):
+    userName: str
+    projectName: str
+    apiKey: str
+    
