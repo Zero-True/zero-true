@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="dialog" persistent max-width="400px">
     <template v-slot:activator="{ props }">
-      <v-btn v-bind="props">
+      <v-btn v-bind="props" icon>
         <v-icon :icon="`ztIcon:${ztAliases.copilot}`"></v-icon>
       </v-btn>
     </template>
