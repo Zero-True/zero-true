@@ -349,7 +349,6 @@ def notebook_name_update(notebook_name: request.NotebookNameRequest):
 def share_notebook(shareRequest: request.ShareRequest):
     if(run_mode=='dev'):
         subprocess.run(['zero-true', 'publish', shareRequest.apiKey, shareRequest.userName, shareRequest.projectName, '.'])
-        #logger.info("Notebook shared by user %s", shareRequest.userName)
 
 
 @router.on_event('shutdown')

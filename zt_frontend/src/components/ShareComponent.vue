@@ -25,7 +25,7 @@
           </v-form>
         </v-card-text>
         <v-card-actions>
-          <v-btn text @click="dialog = false">Cancel</v-btn>
+          <v-btn @click="dialog = false">Cancel</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -33,48 +33,53 @@
   
 
 
-<script>
-import { defineComponent, ref } from 'vue';
-import { ztAliases } from '@/iconsets/ztIcon';
-import axios from 'axios';
-
-
-export default defineComponent({
-  name: 'ShareNotebookDialog',
-  setup() {
-    const dialog = ref(false);
-    const shareRequest = ref({
-      userName: '',
-      projectName: '',
-      apiKey: ''
-    });
-    const valid = ref(false);
-    const rules = {
-      required: value => !!value || 'Required.'
-    };
-
-    const submitShareRequest = async () => {
-      if (valid.value) {
-        try {
-          // Replace with your actual API endpoint and method to send data
-          await axios.post(import.meta.env.VITE_BACKEND_URL +'api/share_notebook', shareRequest.value);
-          // Handle success response
-          console.log('Share request submitted successfully');
-          dialog.value = false;
-        } catch (error) {
-          console.error('Error submitting share request:', error);
-        }
-      }
-    };
-
-    return {
-      dialog,
-      shareRequest,
-      valid,
-      rules,
-      submitShareRequest,
-      ztAliases
-    };
+  <script lang="ts">
+  import { defineComponent, ref, Ref } from 'vue';
+  import axios from 'axios';
+  // If ztAliases is used within the template, ensure it's imported correctly. Otherwise, remove it if not needed.
+  import { ztAliases } from '@/iconsets/ztIcon';
+  
+  interface ShareRequestModel {
+    userName: string;
+    projectName: string;
+    apiKey: string;
   }
-});
-</script>
+  
+  export default defineComponent({
+    name: 'ShareNotebookDialog',
+    setup() {
+      const dialog: Ref<boolean> = ref(false);
+      const shareRequest: Ref<ShareRequestModel> = ref({
+        userName: '',
+        projectName: '',
+        apiKey: '',
+      });
+      const valid: Ref<boolean> = ref(false);
+      const rules = {
+        required: (value: string) => !!value || 'Required.',
+      };
+  
+      const submitShareRequest = async () => {
+        if (valid.value) {
+          try {
+            await axios.post(import.meta.env.VITE_BACKEND_URL + 'api/share_notebook', shareRequest.value);
+            console.log('Share request submitted successfully');
+            dialog.value = false;
+          } catch (error) {
+            console.error('Error submitting share request:', error);
+          }
+        }
+      };
+  
+      return {
+        dialog,
+        shareRequest,
+        valid,
+        rules,
+        submitShareRequest,
+        ztAliases,
+      };
+    },
+  });
+  </script>
+  
