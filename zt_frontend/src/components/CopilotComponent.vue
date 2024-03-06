@@ -70,7 +70,7 @@ export default defineComponent({
           import.meta.env.VITE_BACKEND_URL + "copilot/start_node_server",
           {}
         );
-        console.log("Node server started successfully", response);
+        console.log("Copilot started successfully");
       } catch (error) {
         console.error("Error during starting the Node server:", error);
       }
@@ -127,7 +127,6 @@ export default defineComponent({
 
     const handleSignInResponse = (data: any) => {
       signInData.value = data;
-      console.log(data)
       if (data.status === "OK" || data.status === "AlreadySignedIn") {
         isSignedIn.value = true;
         globalState.copilot_active = true;
