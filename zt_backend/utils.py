@@ -238,7 +238,11 @@ def get_code_completions(cell_id:str, code: str, line: int, column: int) -> list
 
     code_list = code.split("\n")
     try:
-        last_char = code_list[max(line-1,0)][max(column-1,0)]
+        last_line = code_list[max(line-1,0)]
+        if last_line:
+            last_char = last_line[max(column-1,1)]
+        else:
+            last_char = ''
         if last_char in ['.', '(', '[', '{']:
             return {"cell_id": cell_id, "completions": []}
 

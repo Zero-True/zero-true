@@ -27,7 +27,7 @@
             <v-btn color="primary" @click="confirmSignIn">I Signed In</v-btn>
             <!-- Button for user to confirm sign-in -->
           </div>
-          <div v-else-if="signInData && signInData.status">
+          <div v-else-if="signInData && signInData.status && signInData.user">
             <p>Status: {{ signInData.status }}</p>
             <p>User: {{ signInData.user }}</p>
           </div>
@@ -70,7 +70,7 @@ export default defineComponent({
           import.meta.env.VITE_BACKEND_URL + "copilot/start_node_server",
           {}
         );
-        console.log("Node server started successfully", response);
+        console.log("Copilot started successfully");
       } catch (error) {
         console.error("Error during starting the Node server:", error);
       }
