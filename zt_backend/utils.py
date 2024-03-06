@@ -243,7 +243,6 @@ def get_code_completions(cell_id:str, code: str, line: int, column: int) -> list
             last_char = last_line[max(column-1,1)]
         else:
             last_char = ''
-        logger.info(last_char)
         if last_char in ['.', '(', '[', '{']:
             return {"cell_id": cell_id, "completions": []}
 
