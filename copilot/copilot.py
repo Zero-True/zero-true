@@ -29,7 +29,7 @@ copilot_doc_open = False
 debounce_timer = None
 version = 0
 
-NODE_SERVER_URL = "http://localhost:3000"
+NODE_SERVER_URL = "http://0.0.0.0:3000"
 NODE_SERVER_SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))+"/client.js"
 NODE_SERVER_NAME = "node-server"
 

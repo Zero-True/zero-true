@@ -27,7 +27,7 @@
             <v-btn color="primary" @click="confirmSignIn">I Signed In</v-btn>
             <!-- Button for user to confirm sign-in -->
           </div>
-          <div v-else-if="signInData && signInData.status">
+          <div v-else-if="signInData && signInData.status && signInData.user">
             <p>Status: {{ signInData.status }}</p>
             <p>User: {{ signInData.user }}</p>
           </div>
@@ -127,6 +127,7 @@ export default defineComponent({
 
     const handleSignInResponse = (data: any) => {
       signInData.value = data;
+      console.log(data)
       if (data.status === "OK" || data.status === "AlreadySignedIn") {
         isSignedIn.value = true;
         globalState.copilot_active = true;
