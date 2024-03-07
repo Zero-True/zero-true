@@ -118,5 +118,8 @@ If you are interested in publishing your notebook at a URL in our public cloud, 
 ### Community
 - Connect with others at our [discord](https://discord.gg/YDFeP9hFte).
 - [Star/Follow](https://github.com/Zero-True) us on GitHub.
-- Join the [waitlist](https://zero-true.com/) for our cloud. 
-  
+- Join the [waitlist](https://zero-true.com/) for our cloud.
+- Share your work with us on [Twitter/X](https://twitter.com/ZeroTrueML).
+- Check out our [Linkedin](https://www.linkedin.com/company/zero-true).
+
+**We would love to see what you're able to build using Zero-True!**
