@@ -1,18 +1,20 @@
 import subprocess
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from zt_backend.models import request, notebook
+from zt_backend.models import notebook
+from zt_backend.models.api import request
 from zt_backend.runner.execute_code import execute_request
 from zt_backend.config import settings
-from zt_backend.utils import *
-from zt_backend.manager import ConnectionManager, KThread
-from zt_backend.runner.user_state import UserState
+from zt_backend.utils.completions import get_code_completions
+from zt_backend.utils.dependencies import dependency_update
+from zt_backend.utils.notebook import get_notebook_request, get_request_base, save_worker, websocket_message_sender
+from zt_backend.models.managers.connection_manager import ConnectionManager
+from zt_backend.models.managers.k_thread import KThread
+from zt_backend.models.state.user_state import UserState
+from zt_backend.models.state.app_state import AppState
 from fastapi.responses import HTMLResponse
-from copilot.copilot import text_document_did_change
 import logging
-import site
 import uuid
 import os
-import threading
 import traceback
 import sys
 import asyncio
@@ -21,25 +23,13 @@ import pkg_resources
 router = APIRouter()
 manager = ConnectionManager()
 current_path = os.path.dirname(os.path.abspath(__file__))
-
-#connect to db for saving notebook
-notebook_db_dir =  site.USER_SITE+'/.zero_true/'
-notebook_db_path = notebook_db_dir+'notebook.db'
-os.makedirs(notebook_db_dir, exist_ok=True)
-
-user_states={}
-user_timers={}
-user_threads={}
-user_message_tasks={}
-notebook_state=UserState('')
-run_mode = settings.run_mode
-save_queue = asyncio.Queue()
+app_state = AppState()
 
 logger = logging.getLogger("__name__")
 
 @router.get("/app", response_class=HTMLResponse)
 async def catch_all():
-    if(run_mode=='dev'):
+    if(app_state.run_mode=='dev'):
         return HTMLResponse(open(os.path.join(current_path, "dist_dev", "index.html")).read())
 
 @router.get("/health")
@@ -60,17 +50,15 @@ def base_path():
 
 @router.websocket("/ws/run_code")
 async def run_code(websocket: WebSocket):
-    global current_thread
-    if(run_mode=='dev'):
-        message_send = asyncio.create_task(websocket_message_sender(notebook_state))
+    if(app_state.run_mode=='dev'):
+        message_send = asyncio.create_task(websocket_message_sender(app_state.notebook_state))
         await manager.connect(websocket)
         try:
             while True:
                 data = await websocket.receive_json()
-                ws_request = request.Request(**data)
-                notebook_state.websocket = websocket
-                current_thread = KThread(target = execute_request, args=(ws_request, notebook_state))
-                current_thread.start()
+                app_state.notebook_state.websocket = websocket
+                app_state.current_thread = KThread(target = execute_request, args=(request.Request(**data), app_state.notebook_state))
+                app_state.current_thread.start()
         except WebSocketDisconnect:
             manager.disconnect(websocket)
         finally:
@@ -78,50 +66,32 @@ async def run_code(websocket: WebSocket):
 
 @router.websocket("/ws/component_run")
 async def component_run(websocket: WebSocket):
-    global current_thread
-    global user_threads
     await manager.connect(websocket)
     try:
         while True:
             data = await websocket.receive_json()
             logger.debug("Component change code execution started")
-            notebook = get_notebook_request()
             component_request = request.ComponentRequest(**data)
-            cells = []
-            for cell_key, cell in notebook.cells.items():
-                cell_request=request.CodeRequest(
-                    id=cell.id, 
-                    code=cell.code,
-                    variable_name=cell.variable_name,
-                    nonReactive=cell.nonReactive,
-                    showTable=cell.showTable,
-                    cellType=cell.cellType
-                )
-                cells.append(cell_request)
-            code_request = request.Request(
-                originId=component_request.originId,
-                cells=cells,
-                components=component_request.components
-            )
-            if(run_mode=='dev'):
-                notebook_state.websocket = websocket
-                current_thread = KThread(target = execute_request, args=(code_request, notebook_state))
+            code_request = get_request_base(component_request.originId, component_request.components)
+            if(app_state.run_mode=='dev'):
+                app_state.notebook_state.websocket = websocket
+                current_thread = KThread(target = execute_request, args=(code_request, app_state.notebook_state))
                 current_thread.start()
             else:
-                if component_request.userId not in user_states:
+                if component_request.userId not in app_state.user_states:
                     logger.debug("New user execution with id: %s, sending refresh", component_request.userId)
                     await websocket.send_json({"refresh": True})
                 logger.debug("Existing user execution with id: %s", component_request.userId)
-                timer_set(component_request.userId, 1800)
-                user_states[component_request.userId].websocket = websocket
-                user_threads[component_request.userId] = KThread(target = execute_request, args=(code_request, user_states[component_request.userId]))
-                user_threads[component_request.userId].start()
+                app_state.timer_set(component_request.userId, 1800)
+                app_state.user_states[component_request.userId].websocket = websocket
+                app_state.user_threads[component_request.userId] = KThread(target = execute_request, args=(code_request, app_state.user_states[component_request.userId]))
+                app_state.user_threads[component_request.userId].start()
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
 @router.post("/api/create_cell")
 def create_cell(cellRequest: request.CreateRequest):
-     if(run_mode=='dev'):
+     if(app_state.run_mode=='dev'):
         logger.debug("Code cell addition request started")
         createdCell = notebook.CodeCell(
             id=str(uuid.uuid4()),
@@ -131,104 +101,86 @@ def create_cell(cellRequest: request.CreateRequest):
             variable_name='',
             cellType=cellRequest.cellType
         )
-        save_queue.put_nowait({"newCell": createdCell.model_copy(deep=True), "position_key":cellRequest.position_key})
+        app_state.save_queue.put_nowait({"newCell": createdCell.model_copy(deep=True), "position_key":cellRequest.position_key})
         logger.debug("Code cell addition request completed")
         return createdCell
 
 @router.post("/api/delete_cell")
 def delete_cell(deleteRequest: request.DeleteRequest):
      cell_id = deleteRequest.cellId
-     if(run_mode=='dev'):
+     if(app_state.run_mode=='dev'):
         try:
-            notebook_state.cell_outputs_dict.pop(cell_id, None)
-        except Exception as e:
-            logger.error("Error when deleting cell %s from cell_outputs_dict: %s", cell_id, traceback.format_exc())
-        try:
-            cell_dict = notebook_state.cell_outputs_dict['previous_dependecy_graph'].cells
+            app_state.notebook_state.cell_outputs_dict.pop(cell_id, None)
+            cell_dict = app_state.notebook_state.cell_outputs_dict['previous_dependecy_graph'].cells
             if cell_id in cell_dict:
                 cell_dict.pop(cell_id, None)
 
-            # Recursively search for and remove the cell ID from child_cells and parent_cells in other cells
             for cell_key, cell in cell_dict.items():
                 if cell_id in dict(cell).get("child_cells", []):
                     cell["child_cells"].pop(cell_id, None)
                 if cell_id in dict(cell).get("parent_cells", []):
                     cell["parent_cells"].pop(cell_id, None)
 
+            logger.debug("Cell %s deleted successfully", cell_id)
+            app_state.save_queue.put_nowait({"deletedCell":cell_id})
         except Exception as e:
-            logger.debug("Error when deleting cell %s from cell dicts: %s", cell_id, traceback.format_exc())
-        logger.debug("Cell %s deleted successfully", cell_id)
-        save_queue.put_nowait({"deletedCell":cell_id})
+            logger.debug("Error when deleting cell %s: %s", cell_id, traceback.format_exc())
 
 @router.post("/api/hide_cell")
 def hide_cell(hideCellRequest: request.HideCellRequest):
-     if(run_mode=='dev'):
+     if(app_state.run_mode=='dev'):
         logger.debug("Hide cell request started")
-        save_queue.put_nowait({"hideCell": hideCellRequest})
+        app_state.save_queue.put_nowait({"hideCell": hideCellRequest})
         logger.debug("Hide cell request completed")
 
 @router.post("/api/hide_code")
 def hide_cell(hideCodeRequest: request.HideCodeRequest):
-     if(run_mode=='dev'):
+     if(app_state.run_mode=='dev'):
         logger.debug("Hide code request started")
-        save_queue.put_nowait({"hideCode": hideCodeRequest})
+        app_state.save_queue.put_nowait({"hideCode": hideCodeRequest})
         logger.debug("Hide code request completed")
 
 @router.post("/api/rename_cell")
 def rename_cell(renameCellRequest: request.NameCellRequest):
-     if(run_mode=='dev'):
+     if(app_state.run_mode=='dev'):
         logger.debug("Rename cell request started")
-        save_queue.put_nowait({"renameCell": renameCellRequest})
+        app_state.save_queue.put_nowait({"renameCell": renameCellRequest})
         logger.debug("Rename cell request completed")
 
 @router.post("/api/cell_reactivity")
 def cell_reactivity(cellReactivityRequest: request.CellReactivityRequest):
-     if(run_mode=='dev'):
+     if(app_state.run_mode=='dev'):
         logger.debug("Cell reactivity request started")
-        save_queue.put_nowait({"cellReactivity": cellReactivityRequest})
+        app_state.save_queue.put_nowait({"cellReactivity": cellReactivityRequest})
         logger.debug("Cell reactivity request completed")
 
 @router.post("/api/expand_code")
 def expand_code(expandCodeRequest: request.ExpandCodeRequest):
-     if(run_mode=='dev'):
+     if(app_state.run_mode=='dev'):
         logger.debug("Expand code request started")
-        save_queue.put_nowait({"expandCode": expandCodeRequest})
+        app_state.save_queue.put_nowait({"expandCode": expandCodeRequest})
         logger.debug("Expand code request completed")
 
 @router.post("/api/show_table")
 def show_table(showTableRequest: request.ShowTableRequest):
-     if(run_mode=='dev'):
+     if(app_state.run_mode=='dev'):
         logger.debug("Show Table request started")
-        save_queue.put_nowait({"showTable": showTableRequest})
+        app_state.save_queue.put_nowait({"showTable": showTableRequest})
         logger.debug("Show Table request completed")
 
 @router.websocket("/ws/save_text")
 async def save_text(websocket: WebSocket):
-    if(run_mode=='dev'):
-        save_task = asyncio.create_task(save_worker(save_queue))
+    if(app_state.run_mode=='dev'):
+        save_task = asyncio.create_task(save_worker(app_state.save_queue))
         await manager.connect(websocket)
         try:
             while True:
                 data = await websocket.receive_json()
                 cell_type = data.get("cellType")
-                code = data.get("text")
                 cell_id = data.get("id")
-                save_request = request.SaveRequest(id=cell_id, text=code, cellType=cell_type)
-                save_queue.put_nowait({"saveCell":save_request})
+                app_state.save_queue.put_nowait({"saveCell": request.SaveRequest(id=cell_id, text=data.get("text"), cellType=cell_type)})
                 if cell_type=="code":
-                    line = data.get("line")
-                    column = data.get("column")
-                    await text_document_did_change({
-                        "textDocument": {
-                            "uri": "file:///notebook.ztnb",
-                            "version": 1
-                        },
-                        "contentChanges": [{
-                            "text": data.get("code_w_context")
-                        }]
-                    })
-                    code_w_context= data.get("code_w_context")
-                    completions = get_code_completions(cell_id, code_w_context, line, column)
+                    completions = await get_code_completions(cell_id, data.get("code_w_context"), data.get("line"), data.get("column"))
                     await websocket.send_json(completions)
         except WebSocketDisconnect:
             manager.disconnect(websocket)
@@ -237,31 +189,22 @@ async def save_text(websocket: WebSocket):
 
 @router.post("/api/clear_state")
 def clear_state(clearRequest: request.ClearRequest):
-     if(run_mode=='app'):
+     if(app_state.run_mode=='app'):
         logger.debug("Clearing state for user %s", clearRequest.userId)
-        user_states.pop(clearRequest.userId, None)
+        app_state.user_states.pop(clearRequest.userId, None)
 
 @router.post("/api/dependency_update")
-def dependency_update(dependencyRequest: request.DependencyRequest):
-     if(run_mode=='dev'):
+def dependency_update_request(dependencyRequest: request.DependencyRequest):
+     if(app_state.run_mode=='dev'):
         logger.debug("Updating dependencies")
         try:
-            with open('requirements.txt', 'r+', encoding='utf-8') as file:
-                contents = file.read()
-                if contents == dependencyRequest.dependencies:
-                    return "No change to dependencies"
-                file.seek(0)
-                file.write(dependencyRequest.dependencies)
-                file.truncate()
-                subprocess.run(['pip', 'install', '-r', 'requirements.txt'])
-                subprocess.run(['lock', 'requirements.txt'])
-                logger.debug("Successfully updated dependencies")
+            dependency_update(dependencyRequest)
+            logger.debug("Successfully updated dependencies")
         except Exception as e:
             logger.error('Error while updating requirements: %s', traceback.format_exc())
 
 @router.websocket("/ws/notebook")
 async def load_notebook(websocket: WebSocket):
-    global user_threads
     await manager.connect(websocket)
     try:
         while True:
@@ -269,38 +212,17 @@ async def load_notebook(websocket: WebSocket):
             logger.debug("Get notebook request received")
             notebook_start = get_notebook_request()
             await websocket.send_json({"notebook_name": notebook_start.notebookName})
-            if (run_mode=='app'):
+            if (app_state.run_mode=='app'):
                 userId = str(uuid.uuid4())
                 notebook_start.userId = userId
-                user_states[userId]=UserState(userId)
-                user_message_tasks[userId]=asyncio.create_task(websocket_message_sender(user_states[userId]))
-                timer_set(userId, 1800)
-                cells = []
-                components={}
-
-                for cell_key, cell in notebook_start.cells.items():
-                    cell_request=request.CodeRequest(
-                        id=cell.id, 
-                        code=cell.code,
-                        variable_name=cell.variable_name,
-                        nonReactive=cell.nonReactive,
-                        showTable=cell.showTable,
-                        cellType=cell.cellType
-                    )
-                    for comp in cell.components:
-                        if hasattr(comp, 'value'):
-                            components[comp.id] = comp.value
-                    cells.append(cell_request)
-                code_request = request.Request(
-                    originId='',
-                    cells=cells,
-                    components=components
-                )
+                app_state.user_states[userId]=UserState(userId)
+                app_state.user_message_tasks[userId]=asyncio.create_task(websocket_message_sender(app_state.user_states[userId]))
+                app_state.timer_set(userId, 1800)
                 notebook_response = notebook.NotebookResponse(notebook=notebook_start, dependencies=notebook.Dependencies(value=''))
                 await websocket.send_json(notebook_response.model_dump_json())
-                user_states[userId].websocket = websocket
-                user_threads[userId] = KThread(target = execute_request, args=(code_request, user_states[userId]))
-                user_threads[userId].start()
+                app_state.user_states[userId].websocket = websocket
+                app_state.user_threads[userId] = KThread(target = execute_request, args=(get_request_base(''), app_state.user_states[userId]))
+                app_state.user_threads[userId].start()
             else:
                 try:
                     with open('requirements.txt', 'r', encoding='utf-8') as file:
@@ -316,84 +238,24 @@ async def load_notebook(websocket: WebSocket):
 
 @router.websocket("/ws/stop_execution")
 async def stop_execution(websocket: WebSocket):
-    global current_thread
-    global user_threads
     await manager.connect(websocket)
     try:
         while True:
             data = await websocket.receive_text()
-            if run_mode=='dev' and current_thread:
-                current_thread.kill()
-                notebook_state.current_cell_components.clear()
-                notebook_state.current_cell_layout.clear()
-                notebook_state.component_values.clear()
-                notebook_state.created_components.clear()
-                notebook_state.context_globals['exec_mode'] = False
-            if run_mode=='app' and user_threads[data]:
-                user_threads[data].kill()
-                user_states[data].current_cell_components.clear()
-                user_states[data].current_cell_layout.clear()
-                user_states[data].component_values.clear()
-                user_states[data].created_components.clear()
-                user_states[data].context_globals['exec_mode'] = False
+            app_state.stop_execution(data)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
 @router.post("/api/notebook_name_update")
 def notebook_name_update(notebook_name: request.NotebookNameRequest):
-    if(run_mode=='dev'):
-        save_queue.put_nowait({"new_notebook_name":notebook_name.notebookName})
+    if(app_state.run_mode=='dev'):
+        app_state.save_queue.put_nowait({"new_notebook_name":notebook_name.notebookName})
 
-#route to share a notebook
 @router.post("/api/share_notebook")
 def share_notebook(shareRequest: request.ShareRequest):
-    if(run_mode=='dev'):
+    if(app_state.run_mode=='dev'):
         subprocess.run(['zero-true', 'publish', shareRequest.apiKey, shareRequest.userName, shareRequest.projectName, '.'])
-
 
 @router.on_event('shutdown')
 def shutdown():
-    global current_thread
-    global user_threads
-    if current_thread:
-        current_thread.kill()
-    for user_id in user_threads:
-        if user_threads[user_id]:
-            user_threads[user_id].kill()
-    for user_id in user_timers:
-        if user_timers[user_id]:
-            user_timers[user_id].cancel()
-    for user_id in user_message_tasks:
-        if user_message_tasks[user_id]:
-            user_message_tasks[user_id].cancel()
-
-
-def remove_user_state(user_id):
-    try:
-        if user_id in user_timers:
-            # Cancel and remove the associated timer
-            timer = user_timers[user_id]
-            message_sender = user_message_tasks[user_id]
-            if timer:
-                timer.cancel()
-            del user_timers[user_id]
-            if message_sender:
-                message_sender.cancel() 
-            del user_message_tasks[user_id]
-            if user_id in user_states: del user_states[user_id]
-            logger.debug("User state removed for user %s", user_id)
-    except Exception as e:
-        logger.error("Error removing user state for user %s: %s", user_id, traceback.format_exc())
-
-def timer_set(user_id, timeout_seconds):
-    logger.debug("Starting timer for user %s", user_id)
-    if user_id in user_timers:
-        existing_timer = user_timers[user_id]
-        if existing_timer:
-            existing_timer.cancel()
-        
-        timer = threading.Timer(timeout_seconds, remove_user_state, args=(user_id,))
-        timer.daemon=True
-        timer.start()
-        
-        user_timers[user_id] = timer
+    app_state.shutdown()

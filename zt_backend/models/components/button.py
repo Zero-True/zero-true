@@ -1,6 +1,6 @@
 from pydantic import Field, validator
 from zt_backend.models.components.zt_component import ZTComponent
-from zt_backend.runner.user_state import UserContext
+from zt_backend.models.state.user_state import UserContext
 
 class Button(ZTComponent):
     """Standard button UI component"""

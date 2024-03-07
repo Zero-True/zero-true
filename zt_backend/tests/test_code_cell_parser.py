@@ -1,5 +1,5 @@
 from zt_backend.runner.code_cell_parser import parse_cells, build_dependency_graph
-from zt_backend.models.request import Request,CodeRequest
+from zt_backend.models.api.request import Request,CodeRequest
 
 # Test 1: No dependencies between cells
 def test_no_dependencies():

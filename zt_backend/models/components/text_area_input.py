@@ -1,7 +1,7 @@
 from typing import Optional
 from pydantic import Field, validator
 from zt_backend.models.components.zt_component import ZTComponent
-from zt_backend.runner.user_state import UserContext
+from zt_backend.models.state.user_state import UserContext
 
 class TextArea(ZTComponent):
     """Text area input allows a user to input arbitrary text. This is meant for larger text inputs"""

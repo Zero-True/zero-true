@@ -1,6 +1,5 @@
 from pydantic import Field
 from zt_backend.models.components.zt_component import ZTComponent
-from typing import Dict
 from plotly.graph_objs import Figure
 from plotly.io import to_json
 

@@ -14,21 +14,3 @@ def validate_color(value):
         if color_name in material_colors and 100 <= int(shade) <= 900:
             return value
     raise ValueError(f"Invalid color value: '{value}'. Must be one of {custom_colors} or in the standard Material color palette format.")
-
-def validate_min_less_than_max(max_value, values):
-    """
-    Validates that the maximum value is greater than the minimum value.
-    """
-    min_value = values.get('min')
-    if min_value is not None and max_value <= min_value:
-        raise ValueError(f"Max value '{max_value}' must be greater than min value '{min_value}'.")
-    return max_value
-
-
-
-
-
-
-
-
-

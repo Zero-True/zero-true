@@ -1,8 +1,8 @@
 from pydantic import Field, validator,field_validator
 from zt_backend.models.components.zt_component import ZTComponent
-from zt_backend.models.validations import validate_color
+from zt_backend.models.components.validations import validate_color
 from typing import List, Union, Optional
-from zt_backend.runner.user_state import UserContext
+from zt_backend.models.state.user_state import UserContext
 
 class SelectBox(ZTComponent):
     """SelectBox component allows users to select from a list of options. Can be a single or multiple selection"""
