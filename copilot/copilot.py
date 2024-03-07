@@ -5,7 +5,7 @@ from copilot.copilot_models import BlankRequest, DidOpenTextDocumentParams,\
                             ,DidChangeTextDocumentParams, CopilotPayloadSignInInitiate\
                             ,CopilotPayloadSignInConfirm, CopilotGetCompletionsResult\
                             ,CopilotPayloadSignOut, TextDocumentItem, AcceptRequest, RejectRequest
-from zt_backend.utils import async_debounce
+from zt_backend.utils.debounce import async_debounce
 import requests
 from typing import Union
 import os

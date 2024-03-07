@@ -1,6 +1,6 @@
 from zt_backend.runner.execute_code import execute_request
-from zt_backend.runner.user_state import UserState
-from zt_backend.models.request import Request, CodeRequest
+from zt_backend.models.state.user_state import UserState
+from zt_backend.models.api.request import Request, CodeRequest
 from unittest.mock import Mock, AsyncMock
 import threading
 

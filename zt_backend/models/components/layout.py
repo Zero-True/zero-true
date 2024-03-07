@@ -1,7 +1,7 @@
 from pydantic import BaseModel,Field
 from typing import ForwardRef,Union
 from typing import List
-from zt_backend.runner.user_state import UserContext
+from zt_backend.models.state.user_state import UserContext
 
 Row = ForwardRef('Row')
 Column = ForwardRef('Column')

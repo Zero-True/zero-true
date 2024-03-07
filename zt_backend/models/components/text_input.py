@@ -1,7 +1,7 @@
 from pydantic import Field, validator
 from zt_backend.models.components.zt_component import ZTComponent
 from typing import Optional
-from zt_backend.runner.user_state import UserContext
+from zt_backend.models.state.user_state import UserContext
 
 
 class TextInput(ZTComponent):

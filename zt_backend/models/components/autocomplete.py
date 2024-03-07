@@ -1,8 +1,8 @@
 from pydantic import Field, validator, field_validator
 from zt_backend.models.components.zt_component import ZTComponent
-from zt_backend.models.validations import validate_color
+from zt_backend.models.components.validations import validate_color
 from typing import List, Optional, Union
-from zt_backend.runner.user_state import UserContext
+from zt_backend.models.state.user_state import UserContext
 
 class Autocomplete(ZTComponent):
     """Autocomplete is a select box that allows users to search the available options. 

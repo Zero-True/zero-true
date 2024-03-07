@@ -1,9 +1,9 @@
-from .request import DependencyRequest, Request, ComponentRequest, DeleteRequest, CreateRequest,\
+from .api.request import DependencyRequest, Request, ComponentRequest, DeleteRequest, CreateRequest,\
                      SaveRequest, ClearRequest, NotebookNameRequest, HideCellRequest, HideCodeRequest, \
                      NameCellRequest, ExpandCodeRequest, CellReactivityRequest, ShowTableRequest, \
                      ShareRequest
 
-from .response import Response
+from .api.response import Response
 from .notebook import Notebook
 from .notebook import NotebookResponse
 from .components.slider import Slider
