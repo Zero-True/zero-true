@@ -92,7 +92,7 @@ def get_request_base(origin_id, components=None):
         return request.Request(
                     originId=origin_id,
                     cells=copy.deepcopy(notebook_state.base_cells),
-                    components=notebook_state.base_components
+                    components=copy.deepcopy(notebook_state.base_components)
                 )
     else:
         return request.Request(

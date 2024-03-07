@@ -152,6 +152,7 @@ import { CodeCell, Layout } from "@/types/notebook";
 import LayoutComponent from "@/components/LayoutComponent.vue";
 import TextComponent from "@/components/TextComponent.vue"
 import TimerComponent from "@/components/TimerComponent.vue"
+import IPyWidgets from "@/components/IPyWidgetsComponent.vue";
 import { globalState } from "@/global_vars"
 import { useRoute } from 'vue-router'
 import Cell from '@/components/Cell.vue'
@@ -178,6 +179,7 @@ export default {
     "v-timer": TimerComponent,
     "plotly-plot": PlotlyPlot,
     "layout-component": LayoutComponent,
+    "ipywidgets": IPyWidgets,
   },
   props: {
     cellData: {
