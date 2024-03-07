@@ -61,80 +61,62 @@ Now run the cell and open your app!
   <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjZwd3V4YTBuM3Z4dDA5cWk1MXp6N2lsZndieGIwMDloc2FjbzBzayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/KfXOJH8MwmDFa8ewEB/giphy.gif">
 </p>
 
-### More Complicated Example using Python + SQL 
+### What Else?
 
-For this example you will need scikitlearn 
+Zero-True comes with a variety of features designed to streamline your experience. Some examples are: 
 
-```bash
-pip install scikit-learn
-```
+<table border="0">
+  <tr>
+    <td>UI Components</td>
+    <td>Different Cell Types</td>
+    <td>Plotly Charts</td>
+    <td>Layout Editor</td>
+  </tr>
+  <tr>
+    <td>
+      <a target="_blank" href="https://docs.zero-true.com/ui_components/index.html">
+        <img src="" style="max-height:150px; width:auto; display:block;">
+      </a>
+    </td>
+    <td>
+      <a target="_blank" href="https://docs.zero-true.com/cell_types.html">
+        <img src="" style="max-height:150px; width:auto; display:block;">
+      </a>
+    </td>
+    <td>
+      <a target="_blank" href=https://docs.zero-true.com/ui_components/plotly.html">
+        <img src="" style="max-height:150px; width:auto; display:block;">
+      </a>
+    </td>
+    <td>
+      <a target="_blank" href="https://docs.zero-true.com/layout.html">
+        <img src="" style="max-height:150px; width:auto; display:block;">
+      </a>
+    </td>
+  </tr>
+</table>
 
-Once it has installed, launch your notebook. We will be using the Iris dataset from scikit learn to create an app where people 
-can filter the data using the our UI components and SQL editor. We start with a Python cell:
+### Publishing Your Notebook
 
-```python
 
-import zero_true as zt
-import sklearn
-import pandas as pd
-from sklearn import datasets
-iris = datasets.load_iris()
-# Creating a DataFrame with the feature data
-iris_df = pd.DataFrame(data=iris.data, columns=iris.feature_names)
-# Map the target indices to target names
-iris_df['target'] = iris.target
-iris_df['target_name'] = iris_df['target'].apply(lambda x: iris.target_names[x])
-# Rename columns to remove spaces and standardize
-iris_df.columns = [col.replace(' ', '_').replace('(cm)', 'cm') for col in iris_df.columns]
-iris_df.columns = [ col.replace(' ','_').replace('(cm)','cm') for col in iris_df.columns]
-iris_df.drop('target',axis=1,inplace = True)
-#all the different sliders
-sepal_width_slider  = zt.RangeSlider(id = 'sepal_width',
-                                     min = iris_df.sepal_width_cm.min(),
-                                     max = iris_df.sepal_width_cm.max(),
-                                     step = 0.1,label = 'Sepal Width')
-petal_width_slider  = zt.RangeSlider(id = 'petal_width',
-                                     min = iris_df.petal_width_cm.min(),
-                                     max = iris_df.petal_width_cm.max(),
-                                     step = 0.1,label = 'Petal Width')
-sepal_length_slider = zt.RangeSlider(id = 'sepal_length',
-                                     min = iris_df.sepal_length_cm.min(),
-                                     max = iris_df.sepal_length_cm.max(),
-                                     step = 0.1, label = 'Sepal Length')
-petal_length_slider = zt.RangeSlider(id = 'petal_lenght',
-                                     min = iris_df.petal_length_cm.min(),
-                                     max = iris_df.petal_length_cm.max(),
-                                     step = 0.1, label = 'Petal Length')
-```
-
-Then add a SQL cell below to query the dataframe. Notice how we can query a pandas dataframe directly and reference our
-UI components in the query:
-
-```sql
-SELECT * FROM iris_df
-WHERE (sepal_length_cm BETWEEN {sepal_length_slider.value[0]} AND {sepal_length_slider.value[1]})
-AND  (sepal_width_cm BETWEEN {sepal_width_slider.value[0]} AND {sepal_width_slider.value[1]})
-AND  (petal_width_cm BETWEEN {petal_width_slider.value[0]} AND {petal_width_slider.value[1]})
-AND (petal_length_cm BETWEEN {petal_length_slider.value[0]} AND {petal_length_slider.value[1]})
-```
-
-Notice how dragging the slider will update the dataframe. Set the parameters for your Iris bouquet and check out the data! You can 
-see a published app for this [example](https://published.zero-true-cloud.com/examples/iris/).
-
-![More Complicated Example](/docs/assets/example_gif.gif)
-
-We support a large range of use cases and UI components. For more information please check out our docs: [docs](https://docs.zero-true.com/)! You can also find some more narrative tutorials at our Medium publication [here](https://medium.com/zero-true). 
-
-### Publishing 
-
-Publishing your notebook is easy. Currently it's a one liner from the command line:
-
+From the command line, run: 
 
 ```bash
+# publish your notebook
 zero-true publish [api-key] [user-name] [project-name] [project-source]
 ```
-Publishing is only open to a limited audience. If you are interested in publishing your notebook at a URL in our public cloud please fill out the email waiting list on our [website](https://zero-true.com/).
 
+**Note:** Publishing is currently only open to a limited audience. 
+
+If you are interested in publishing your notebook at a URL in our public cloud, please fill out the email waiting list on our [website](https://zero-true.com/)
+
+## Resources
+
+### Documentation & Examples
+- Check out our [docs](https://docs.zero-true.com/index.html) to learn more about Zero-True.
+- Read our [blog](https://medium.com/zero-true) for examples from creators.
 ### Community
-
-Reach out on GitHub with any feature requests or bugs that you encounter and share your work with us on [Twitter/X](https://twitter.com/ZeroTrueML)! We are also active on [linkedin](https://www.linkedin.com/company/zero-true). We would love to see what you're able to build using Zero-True. 
+- Connect with others at our [discord](https://discord.gg/YDFeP9hFte).
+- [Star/Follow](https://github.com/Zero-True) us on GitHub.
+- Join the [waitlist](https://zero-true.com/) for our cloud. 
+  
