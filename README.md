@@ -104,7 +104,7 @@ zero-true publish [api-key] [user-name] [project-name] [project-source]
 
 **Note:** Publishing is currently only open to a limited audience. 
 
-If you are interested in publishing your notebook at a URL in our public cloud, please fill out the email waiting list on our [website](https://zero-true.com/)
+If you are interested in publishing your notebook at a URL in our public cloud, please fill out the email waiting list on our [website](https://zero-true.com/).
 
 ## Resources
 
