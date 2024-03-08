@@ -63,7 +63,7 @@ Now run the cell and open your app!
 
 ### What Else?
 
-Zero-True comes with a variety of features designed to streamline your experience. Some examples are: 
+Zero-True comes with a variety of features designed to streamline your experience. Some examples include: 
 
 <table border="0">
   <tr>
@@ -83,7 +83,7 @@ Zero-True comes with a variety of features designed to streamline your experienc
       </a>
     </td>
     <td>
-      <a target="_blank" href=https://docs.zero-true.com/ui_components/plotly.html">
+      <a target="_blank" href="https://docs.zero-true.com/ui_components/plotly.html">
         <img src="https://github.com/HonkaDonka/zero-true/assets/30189257/e456c9ca-bd61-4284-a3f7-cef2b84007a2" style="max-height:150px; width:auto; display:block;">
       </a>
     </td>
