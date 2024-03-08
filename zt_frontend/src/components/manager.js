@@ -3,28 +3,29 @@ import { ManagerBase } from '@jupyter-widgets/base-manager';
 import * as controls from '@jupyter-widgets/controls';
 import { Widget as LuminoWidget } from '@lumino/widgets';
 
-
 class WidgetManager extends ManagerBase {
-  private el: HTMLElement;
-
-  constructor(el: HTMLElement) {
+  constructor(el) {
     super();
     this.el = el;
   }
 
-  public loadClass(className: string, moduleName: string, moduleVersion: string): Promise<any> {
-    return new Promise((resolve, reject) => {
+  loadClass(className, moduleName, moduleVersion) {
+    return new Promise(function (resolve, reject) {
       if (moduleName === '@jupyter-widgets/controls') {
         resolve(controls);
       } else if (moduleName === '@jupyter-widgets/base') {
         resolve(base);
       } else {
-        const fallback = (err: any) => {
+        var fallback = function (err) {
           let failedId = err.requireModules && err.requireModules[0];
           if (failedId) {
-            console.log(`Falling back to jsDelivr for ${moduleName}@${moduleVersion}`);
-            (window as any).require(
-              [`https://cdn.jsdelivr.net/npm/${moduleName}@${moduleVersion}/dist/index.js`],
+            console.log(
+              `Falling back to jsDelivr for ${moduleName}@${moduleVersion}`
+            );
+            window.require(
+              [
+                `https://cdn.jsdelivr.net/npm/${moduleName}@${moduleVersion}/dist/index.js`,
+              ],
               resolve,
               reject
             );
@@ -32,29 +33,32 @@ class WidgetManager extends ManagerBase {
             throw err;
           }
         };
-        (window as any).require([`${moduleName}.js`], resolve, fallback);
+        window.require([`${moduleName}.js`], resolve, fallback);
       }
-    }).then((module: any) => {
+    }).then(function (module) {
       if (module[className]) {
         return module[className];
       } else {
-        return Promise.reject(`Class ${className} not found in module ${moduleName}@${moduleVersion}`);
+        return Promise.reject(
+          `Class ${className} not found in module ${moduleName}@${moduleVersion}`
+        );
       }
     });
   }
 
-  public display_view(view: any): Promise<any> {
-    return Promise.resolve(view).then((view) => {
-      LuminoWidget.attach(view.luminoWidget, this.el);
+  display_view(view) {
+    var that = this;
+    return Promise.resolve(view).then(function (view) {
+      LuminoWidget.attach(view.luminoWidget, that.el);
       return view;
     });
   }
 
-  protected _get_comm_info(): Promise<{}> {
+  _get_comm_info() {
     return Promise.resolve({});
   }
 
-  protected _create_comm(): Promise<any> {
+  _create_comm() {
     return Promise.reject('no comms available');
   }
 }
