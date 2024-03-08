@@ -90,6 +90,8 @@ Zero-True comes with a variety of features designed to streamline your experienc
   </tr>
 </table>
 
+Check out our docs for more info!
+
 ### Publishing Your Notebook
 
 
