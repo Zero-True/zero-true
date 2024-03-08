@@ -34,6 +34,8 @@ jobs:
         cp -r dist/ ../zt_backend/dist_dev/
         yarn run buildapp
         cp -r dist/ ../zt_backend/dist_app/
+        cd ../copilot
+        yarn install
     - name: configure aws credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:

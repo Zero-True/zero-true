@@ -5,11 +5,11 @@ from copilot.copilot_models import BlankRequest, DidOpenTextDocumentParams,\
                             ,DidChangeTextDocumentParams, CopilotPayloadSignInInitiate\
                             ,CopilotPayloadSignInConfirm, CopilotGetCompletionsResult\
                             ,CopilotPayloadSignOut, TextDocumentItem, AcceptRequest, RejectRequest
-from zt_backend.utils import async_debounce
+from zt_backend.utils.debounce import async_debounce
 import requests
 from typing import Union
 import os
-from threading import Timer
+from pathlib import Path
 import asyncio
 import traceback
 
@@ -26,10 +26,16 @@ copilot_app.add_middleware(
 
 copilot_enabled = False
 copilot_doc_open = False
-debounce_timer = None
 version = 0
 
-NODE_SERVER_URL = "http://localhost:3000"
+def is_docker():
+    cgroup = Path('/proc/self/cgroup')
+    return Path('/.dockerenv').is_file() or cgroup.is_file() and 'docker' in cgroup.read_text()
+if is_docker():
+    NODE_SERVER_URL = "http://0.0.0.0:3000"
+else:
+    NODE_SERVER_URL = "http://localhost:3000"
+
 NODE_SERVER_SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))+"/client.js"
 NODE_SERVER_NAME = "node-server"
 

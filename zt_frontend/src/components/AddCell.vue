@@ -1,5 +1,5 @@
 <template>
-  <v-menu transition="scale-transition">
+  <v-menu transition="scale-transition" minWidth="0" target="cursor">
     <template v-slot:activator="{ props }">
       <div v-bind="cellId ? { ...props, id: 'addCell' + cellId } : props" class="activator-area">
         <div class="divider">

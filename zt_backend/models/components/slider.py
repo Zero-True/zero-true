@@ -1,8 +1,8 @@
 from pydantic import Field, field_validator, validator
 from zt_backend.models.components.zt_component import ZTComponent
-from zt_backend.models.validations import validate_color
+from zt_backend.models.components.validations import validate_color
 from typing import Optional, Union
-from zt_backend.runner.user_state import UserContext
+from zt_backend.models.state.user_state import UserContext
 
 class Slider(ZTComponent):
     """A slider component that allows you to capture numeric input from a user"""

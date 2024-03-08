@@ -1,17 +1,17 @@
 from typing import Dict, Any, OrderedDict
 from io import StringIO
 import pickle
-from zt_backend.models import request, response
+from zt_backend.models.api import request, response
 from zt_backend.runner.code_cell_parser import parse_cells, build_dependency_graph, CodeDict
-from zt_backend.runner.user_state import UserState, UserContext, State
+from zt_backend.models.state.user_state import UserState, UserContext
+from zt_backend.models.state.state import State
 from zt_backend.models.components.layout import Layout
-from zt_backend.utils import globalStateUpdate
+from zt_backend.utils.notebook import globalStateUpdate
 from zt_backend.config import settings
 from datetime import datetime
 import logging
 import traceback
 import contextlib
-import asyncio
 
 now = datetime.now()
 logger = logging.getLogger("__name__")

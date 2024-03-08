@@ -1,8 +1,8 @@
 from typing import List, Optional,Union
 from pydantic import Field, field_validator, validator
 from zt_backend.models.components.zt_component import ZTComponent
-from zt_backend.models.validations import validate_color
-from zt_backend.runner.user_state import UserContext
+from zt_backend.models.components.validations import validate_color
+from zt_backend.models.state.user_state import UserContext
 
 class RangeSlider(ZTComponent):
     """A slider component that allows a user to select a range of values"""

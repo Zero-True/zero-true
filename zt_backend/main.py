@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from zt_backend.config import settings
-from zt_backend.utils import get_notebook, write_notebook
+from zt_backend.utils.notebook import get_notebook, write_notebook
 from copilot.copilot import copilot_app
 import zt_backend.router as router
 import os

@@ -1,6 +1,6 @@
 from pydantic import Field, validator
 from zt_backend.models.components.zt_component import ZTComponent
-from zt_backend.runner.user_state import UserContext
+from zt_backend.models.state.user_state import UserContext
 
 class Timer(ZTComponent):
     """Timer is a component that allows for execution of code at a set interval. This does not have any visual output"""

@@ -2,7 +2,7 @@
   <v-dialog v-model="dialog" persistent max-width="400px">
     <template v-slot:activator="{ props }">
       <v-btn v-bind="props" icon>
-        <v-icon icon="mdi:mdi-account"></v-icon>
+        <v-icon :icon="`ztIcon:${ztAliases.copilot}`"></v-icon>
       </v-btn>
     </template>
     <v-card>
@@ -27,7 +27,7 @@
             <v-btn color="primary" @click="confirmSignIn">I Signed In</v-btn>
             <!-- Button for user to confirm sign-in -->
           </div>
-          <div v-else-if="signInData && signInData.status">
+          <div v-else-if="signInData && signInData.status && signInData.user">
             <p>Status: {{ signInData.status }}</p>
             <p>User: {{ signInData.user }}</p>
           </div>
@@ -52,6 +52,7 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import { globalState } from "@/global_vars";
+import { ztAliases } from "@/iconsets/ztIcon";
 import axios from "axios";
 
 export default defineComponent({
@@ -69,7 +70,7 @@ export default defineComponent({
           import.meta.env.VITE_BACKEND_URL + "copilot/start_node_server",
           {}
         );
-        console.log("Node server started successfully", response);
+        console.log("Copilot started successfully");
       } catch (error) {
         console.error("Error during starting the Node server:", error);
       }
@@ -157,6 +158,7 @@ export default defineComponent({
       confirmSignIn,
       signOut,
       startServerAndCheckStatus,
+      ztAliases
     };
   },
 });
