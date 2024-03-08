@@ -50,26 +50,30 @@ export default {
           plugins: "autoresize",
           toolbar:
             "undo redo | bold italic underline strikethrough | fontfamily fontsize blocks | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl",
+          sidebar: false,
           branding: false,
           menubar: false,
           statusbar: false,
           skin: false,
           content_css: false,
+          font_formats: "Roboto=Roboto, sans-serif;Arial=arial,helvetica,sans-serif;Courier New=courier new,courier,monospace;",
           content_style:
-            "body { background-color: #1B2F3C; color: #FFFFFF; }",
+            "body { background-color: #1B2F3C; color: #FFFFFF; font-family: 'Roboto', sans-serif; }",
           autoresize_bottom_margin: 10,
           min_height: 100,
         },
         app_init: {
           plugins: "autoresize",
         toolbar: false,
+        sidebar: false,
         branding: false,
         menubar: false,
         statusbar: false,
         skin: false,
         content_css: false,
+        font_formats: "Roboto=Roboto, sans-serif;Arial=arial,helvetica,sans-serif;Courier New=courier new,courier,monospace;",
         content_style:
-          "body { background-color: #0E1B23; color: #FFFFFF; }",
+          "body { background-color: #0E1B23; color: #FFFFFF; font-family: 'Roboto', sans-serif; }",
       },
         items: [
           { title: 'Code' },
