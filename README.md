@@ -70,27 +70,21 @@ Zero-True comes with a variety of features designed to streamline your experienc
     <td>UI Components</td>
     <td>Different Cell Types</td>
     <td>Plotly Charts</td>
-    <td>Layout Editor</td>
   </tr>
   <tr>
     <td>
       <a target="_blank" href="https://docs.zero-true.com/ui_components/index.html">
-        <img src="" style="max-height:150px; width:auto; display:block;">
+        <img src="https://github.com/HonkaDonka/zero-true/assets/30189257/d72da346-6310-4d36-ac02-4dcb72b76547" style="max-height:150px; width:auto; display:block;">
       </a>
     </td>
     <td>
       <a target="_blank" href="https://docs.zero-true.com/cell_types.html">
-        <img src="" style="max-height:150px; width:auto; display:block;">
+        <img src="https://github.com/HonkaDonka/zero-true/assets/30189257/ae6c311b-5d1d-4efe-968a-a1e398a17d7e" style="max-height:150px; width:auto; display:block;">
       </a>
     </td>
     <td>
       <a target="_blank" href=https://docs.zero-true.com/ui_components/plotly.html">
-        <img src="" style="max-height:150px; width:auto; display:block;">
-      </a>
-    </td>
-    <td>
-      <a target="_blank" href="https://docs.zero-true.com/layout.html">
-        <img src="" style="max-height:150px; width:auto; display:block;">
+        <img src="https://github.com/HonkaDonka/zero-true/assets/30189257/e456c9ca-bd61-4284-a3f7-cef2b84007a2" style="max-height:150px; width:auto; display:block;">
       </a>
     </td>
   </tr>
