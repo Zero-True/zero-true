@@ -28,7 +28,9 @@ Mixed Layouts
 If some components are placed in a layout and others are not, the layout will accommodate both:
 
 1. Rows defined in the layout will be rendered in the order they are in the list and their subcomponents and columns will be rendered in the order they are defined in the list.
-2. All other components not in a row or column will then be rendered in the order they are defined in code and take up the full width available, each in their own row.
+2. If a row or column is a subcomponent of another row/column or the layout itself, its components will be rendered multiple times wherever it is included.
+3. Any components included in a row, column, or layout must be defined in the cell where that row, column, or layout is defined or they will not be rendered.
+4. All other components not in a row or column will be rendered in the order they are defined in code and take up the full width available, each in their own row.
 
 Example
 -------

@@ -27,5 +27,6 @@ Contents
    cli
    additional_features
    copilot
+   state
    layout
    ui_components/index
