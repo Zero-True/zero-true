@@ -31,7 +31,7 @@ apps with confidence and with ease.
 
 ## Quick Start
 
-Make sure Python 3.9 is installed. (Anaconda or virtual environment recommended)
+Make sure Python 3.8+ is installed. (Anaconda or virtual environment recommended)
 
 Open a terminal and run:
 
@@ -52,13 +52,13 @@ Open a new notebook and create a code cell with the following code:
 ```python
 import zero_true as zt
 slider = zt.Slider(id="slider_1")
-zt.Text(id="text_1", text=str(slider.value) + " squared is " + str(slider.value**2))
+print(str(slider.value) + " squared is " + str(slider.value**2))
 ```
 
 Now run the cell and open your app!
 
 <p align="center">
-  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjZwd3V4YTBuM3Z4dDA5cWk1MXp6N2lsZndieGIwMDloc2FjbzBzayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/KfXOJH8MwmDFa8ewEB/giphy.gif">
+  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMnpvbmRwZXh3YXcwMml1YjgxMm05bXc0MDVlMWZ3NWVzZGJ3bnNudyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/a6xAYpoHEVqHqoJlsp/giphy.gif">
 </p>
 
 ### What Else?
