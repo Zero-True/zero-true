@@ -325,8 +325,6 @@ export default {
           (this.$refs.projectNameField as VTextField).focus();
         })
       }
-      console.log(this.$devMode)
-
     },
     async saveProjectName() {
       if (this.editingProjectName) {
