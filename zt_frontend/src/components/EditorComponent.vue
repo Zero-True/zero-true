@@ -55,8 +55,9 @@ export default {
           statusbar: false,
           skin: false,
           content_css: false,
+          font_formats: "Roboto=Roboto, sans-serif;Arial=arial,helvetica,sans-serif;Courier New=courier new,courier,monospace;",
           content_style:
-            "body { background-color: #1B2F3C; color: #FFFFFF; }",
+            "body { background-color: #1B2F3C; color: #FFFFFF; font-family: 'Roboto', sans-serif; }",
           autoresize_bottom_margin: 10,
           min_height: 100,
         },
@@ -68,8 +69,11 @@ export default {
         statusbar: false,
         skin: false,
         content_css: false,
+        font_formats: "Roboto=Roboto, sans-serif;Arial=arial,helvetica,sans-serif;Courier New=courier new,courier,monospace;",
         content_style:
-          "body { background-color: #0E1B23; color: #FFFFFF; }",
+          "body { background-color: #0E1B23; color: #FFFFFF; font-family: 'Roboto', sans-serif; }",
+        min_height: 0,
+        autoresize_bottom_margin: 0,
       },
         items: [
           { title: 'Code' },

@@ -317,6 +317,7 @@ export default {
 
   methods: {
     toggleProjectName() {
+      if (!this.$devMode || this.isAppRoute) return
       this.editingProjectName = !this.editingProjectName
       if (this.editingProjectName) {
         this.notebookEditName = this.notebookName
@@ -324,6 +325,8 @@ export default {
           (this.$refs.projectNameField as VTextField).focus();
         })
       }
+      console.log(this.$devMode)
+
     },
     async saveProjectName() {
       if (this.editingProjectName) {
