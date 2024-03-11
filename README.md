@@ -1,125 +1,121 @@
-![Zero True Logo](zt_frontend/src/assets/logo.png)
+<p align="center">
+  <a href="https://zero-true.com/">
+    <img src="https://github.com/HonkaDonka/zero-true/assets/30189257/9c96ddca-2201-4864-a726-4d4c2701b53e" width="300">
+  </a>
+</p>
 
-# Zero True: A New Kind of Code Notebook
+<p align="center">
+  <b>A New Way to Build and Collaborate on Data Apps</b>
+</p>
+  
+<p align="center">
+  <a href="https://docs.zero-true.com/" target="_blank"><strong>Documentation</strong></a> ·
+  <a href="https://medium.com/zero-true" target="_blank"><strong>Blog</strong></a> ·
+  <a href="https://discord.gg/YDFeP9hFte" target="_blank"><strong>Discord</strong></a> <!-- Add Discord link or change -->
+</p>
 
-## 🌐 Overview
+## What is Zero-True?
 
-Welcome to **Zero True**, your go-to platform for creating beautiful and professional data-driven notebooks and applications in pure Python. Designed to foster collaboration and improve data accessibility, Zero True offers a rich UI library along with an intelligent code parser. Your notebook will always stay in sync.
+Zero-True is a Python and SQL reactive computational notebook able to create beautiful and 
+professional data-driven applications. Designed to foster collaboration and improve data
+accessibility, it offers a rich UI library and an intelligent code parser. Publish your 
+apps with confidence and with ease. 
 
-## 📚 Table of Contents
+### Features
 
-- [Features](#-features)
-- [Requirements](#-requirements)
-- [Quick Start](#-quick-start)
-- [Usage](#-usage)
-- [Community](#-community)
+- **Integrated and Simple**: Python and SQL reactive computational notebook all in one.
+- **Transparent Updates**: No hidden state. Our reactive cell updates show you what your notebook looks like in real-time.
+- **Dynamic and Interactive**: UI rendering with beautiful [Vuetify](https://vuetifyjs.com/en/) components, with customizable layouts.
+- **Fast Prototyping**: Create rich, reactive apps with one click.
+- **Open-Source**: Join our community-driven project and contribute to Zero-True's future.
 
-## Features
+## Quick Start
 
-- 📝 Python + SQL reactive computational notebook.
-- 🌌 No hidden state. Our reactive cell updates show you what your notebook looks like in real time.
-- 📊 Dynamic UI rendering with beautiful [Vuetify](https://vuetifyjs.com/en/) components.
-- 🔄 Automatic dependency tracking between cells.
-- 🚀 Integrated app publishing with a simple command.
+Make sure Python 3.8+ is installed. (Anaconda or virtual environment recommended)
 
-## ⚙ Requirements
-
-- Python 3.9 (Anaconda or virtual environment recommended)
-
-## 🚀 Quick Start
+Open a terminal and run:
 
 ```bash
+# install the packages
 pip install zero-true
+# run your first notebook
 zero-true notebook
 ```
 
-### Usage
+Once the application is running, head to http://localhost:1326 to begin editing your 
+notebook!
 
-Once the application is running, navigate to http://localhost:1326 and start creating and executing code cells. Click the "Run" button to execute code and visualize the output below the editor.
+### Quick Example
 
-#### Basic Example
+Open a new notebook and create a code cell with the following code:
 
 ```python
 import zero_true as zt
-slider = zt.Slider(id='slider_1')
-print('The squared value is '+str(slider.value**2))
+slider = zt.Slider(id="slider_1")
+print(str(slider.value) + " squared is " + str(slider.value**2))
 ```
 
+Now run the cell and open your app!
 
-#### More Complicated Example using Python + SQL 
+<p align="center">
+  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMnpvbmRwZXh3YXcwMml1YjgxMm05bXc0MDVlMWZ3NWVzZGJ3bnNudyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/a6xAYpoHEVqHqoJlsp/giphy.gif">
+</p>
 
-For this example you will need scikitlearn 
+### What Else?
+
+Zero-True comes with a variety of features designed to streamline your experience. Some examples include: 
+
+<table border="0">
+  <tr>
+    <td>UI Components</td>
+    <td>Different Cell Types</td>
+    <td>Plotly Charts</td>
+  </tr>
+  <tr>
+    <td>
+      <a target="_blank" href="https://docs.zero-true.com/ui_components/index.html">
+        <img src="https://github.com/HonkaDonka/zero-true/assets/30189257/d72da346-6310-4d36-ac02-4dcb72b76547" style="max-height:150px; width:auto; display:block;">
+      </a>
+    </td>
+    <td>
+      <a target="_blank" href="https://docs.zero-true.com/cell_types.html">
+        <img src="https://github.com/HonkaDonka/zero-true/assets/30189257/ae6c311b-5d1d-4efe-968a-a1e398a17d7e" style="max-height:150px; width:auto; display:block;">
+      </a>
+    </td>
+    <td>
+      <a target="_blank" href="https://docs.zero-true.com/ui_components/plotly.html">
+        <img src="https://github.com/HonkaDonka/zero-true/assets/30189257/e456c9ca-bd61-4284-a3f7-cef2b84007a2" style="max-height:150px; width:auto; display:block;">
+      </a>
+    </td>
+  </tr>
+</table>
+
+Check out our docs for more info!
+
+### Publishing Your Notebook
+
+
+From the command line, run: 
 
 ```bash
-pip install scikit-learn
-```
-
-Once it has installed, launch your notebook. We will be using the Iris dataset from scikit learn to create an app where people 
-can filter the data using the our UI components and SQL editor. We start with a Python cell:
-
-```python
-
-import zero_true as zt
-import sklearn
-import pandas as pd
-from sklearn import datasets
-iris = datasets.load_iris()
-# Creating a DataFrame with the feature data
-iris_df = pd.DataFrame(data=iris.data, columns=iris.feature_names)
-# Map the target indices to target names
-iris_df['target'] = iris.target
-iris_df['target_name'] = iris_df['target'].apply(lambda x: iris.target_names[x])
-# Rename columns to remove spaces and standardize
-iris_df.columns = [col.replace(' ', '_').replace('(cm)', 'cm') for col in iris_df.columns]
-iris_df.columns = [ col.replace(' ','_').replace('(cm)','cm') for col in iris_df.columns]
-iris_df.drop('target',axis=1,inplace = True)
-#all the different sliders
-sepal_width_slider  = zt.RangeSlider(id = 'sepal_width',
-                                     min = iris_df.sepal_width_cm.min(),
-                                     max = iris_df.sepal_width_cm.max(),
-                                     step = 0.1,label = 'Sepal Width')
-petal_width_slider  = zt.RangeSlider(id = 'petal_width',
-                                     min = iris_df.petal_width_cm.min(),
-                                     max = iris_df.petal_width_cm.max(),
-                                     step = 0.1,label = 'Petal Width')
-sepal_length_slider = zt.RangeSlider(id = 'sepal_length',
-                                     min = iris_df.sepal_length_cm.min(),
-                                     max = iris_df.sepal_length_cm.max(),
-                                     step = 0.1, label = 'Sepal Length')
-petal_length_slider = zt.RangeSlider(id = 'petal_lenght',
-                                     min = iris_df.petal_length_cm.min(),
-                                     max = iris_df.petal_length_cm.max(),
-                                     step = 0.1, label = 'Petal Length')
-```
-
-Then add a SQL cell below to query the dataframe. Notice how we can query a pandas dataframe directly and reference our
-UI components in the query:
-
-```sql
-SELECT * FROM iris_df
-WHERE (sepal_length_cm BETWEEN {sepal_length_slider.value[0]} AND {sepal_length_slider.value[1]})
-AND  (sepal_width_cm BETWEEN {sepal_width_slider.value[0]} AND {sepal_width_slider.value[1]})
-AND  (petal_width_cm BETWEEN {petal_width_slider.value[0]} AND {petal_width_slider.value[1]})
-AND (petal_length_cm BETWEEN {petal_length_slider.value[0]} AND {petal_length_slider.value[1]})
-```
-
-Notice how dragging the slider will update the dataframe. Set the parameters for your Iris bouquet and check out the data! You can 
-see a published app for this [example](https://published.zero-true-cloud.com/examples/iris/).
-
-![More Complicated Example](/docs/assets/example_gif.gif)
-
-We support a large range of use cases and UI components. For more information please check out our docs: [docs](https://docs.zero-true.com/)! You can also find some more narrative tutorials at our Medium publication [here](https://medium.com/zero-true). 
-
-### Publishing 
-
-Publishing your notebook is easy. Currently it's a one liner from the command line:
-
-
-```bash
+# publish your notebook
 zero-true publish [api-key] [user-name] [project-name] [project-source]
 ```
-Publishing is only open to a limited audience. If you are interested in publishing your notebook at a URL in our public cloud please fill out the email waiting list on our [website](https://zero-true.com/).
 
+**Note:** Publishing is currently only open to a limited audience. 
+
+If you are interested in publishing your notebook at a URL in our public cloud, please fill out the email waiting list on our [website](https://zero-true.com/).
+
+## Resources
+
+### Documentation & Examples
+- Check out our [docs](https://docs.zero-true.com/index.html) to learn more about Zero-True.
+- Read our [blog](https://medium.com/zero-true) for examples from creators.
 ### Community
+- Connect with others at our [discord](https://discord.gg/YDFeP9hFte).
+- [Star/Follow](https://github.com/Zero-True) us on GitHub.
+- Join the [waitlist](https://zero-true.com/) for our cloud.
+- Share your work with us on [Twitter/X](https://twitter.com/ZeroTrueML).
+- Check out our [Linkedin](https://www.linkedin.com/company/zero-true).
 
-Reach out on GitHub with any feature requests or bugs that you encounter and share your work with us on [Twitter/X](https://twitter.com/ZeroTrueML)! We are also active on [linkedin](https://www.linkedin.com/company/zero-true). We would love to see what you're able to build using Zero-True. 
+**We would love to see what you're able to build using Zero-True!**
