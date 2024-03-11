@@ -128,7 +128,7 @@ export default {
           },
         },
       ]);
-      if (this.$devMode) {
+      if (this.$devMode && !this.isAppRoute) {
         return [
           Prec.highest(keyMap),
           sql(),

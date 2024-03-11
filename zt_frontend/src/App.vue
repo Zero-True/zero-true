@@ -17,7 +17,7 @@
         class="logo-btn" 
         >
       </v-btn>
-      <div class="click-edit">
+      <div class="click-edit" v-if="$devMode && !isAppRoute">
         <div class="click-edit__show-text" v-if="!editingProjectName">
           <h5
             class="click-edit__name text-ellipsis text-h5"
@@ -55,6 +55,9 @@
           /> -->
         </div> 
       </div>
+      <h5 v-else
+        class="text-ellipsis text-h5"
+      >{{ notebookName }}</h5> 
       <div class="toggle-group" v-if="$devMode && !isMobile">
         <v-btn-toggle
           :multiple="false"
