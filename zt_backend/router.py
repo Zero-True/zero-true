@@ -109,8 +109,8 @@ def create_cell(cellRequest: request.CreateRequest):
 def delete_cell(deleteRequest: request.DeleteRequest):
      cell_id = deleteRequest.cellId
      if(app_state.run_mode=='dev'):
+        app_state.notebook_state.cell_outputs_dict.pop(cell_id, None)
         try:
-            app_state.notebook_state.cell_outputs_dict.pop(cell_id, None)
             cell_dict = app_state.notebook_state.cell_outputs_dict['previous_dependecy_graph'].cells
             if cell_id in cell_dict:
                 cell_dict.pop(cell_id, None)
@@ -122,9 +122,9 @@ def delete_cell(deleteRequest: request.DeleteRequest):
                     cell["parent_cells"].pop(cell_id, None)
 
             logger.debug("Cell %s deleted successfully", cell_id)
-            app_state.save_queue.put_nowait({"deletedCell":cell_id})
         except Exception as e:
             logger.debug("Error when deleting cell %s: %s", cell_id, traceback.format_exc())
+        app_state.save_queue.put_nowait({"deletedCell":cell_id})
 
 @router.post("/api/hide_cell")
 def hide_cell(hideCellRequest: request.HideCellRequest):
