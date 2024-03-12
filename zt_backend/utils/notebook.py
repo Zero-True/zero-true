@@ -4,6 +4,7 @@ from zt_backend.models.state.notebook_state import NotebookState
 from zt_backend.models.api import request, response
 from zt_backend.models import notebook
 from zt_backend.utils.debounce import debounce
+from zt_backend.config import settings
 import logging
 import duckdb
 import uuid
@@ -22,7 +23,7 @@ def get_notebook(id=''):
             logger.debug("Getting notebook from db with id %s", id)
             #get notebook from the database
             notebook_state.zt_notebook = get_notebook_db(id)
-            set_base_request()
+            notebook_state_init()
             return
         except Exception as e:
             logger.debug("Error when getting notebook %s from db: %s", id, traceback.format_exc())
@@ -37,7 +38,7 @@ def get_notebook(id=''):
             #get notebook from the database
             notebook_state.zt_notebook = get_notebook_db(toml_data['notebookId'])
             logger.debug("Notebook retrieved from db with id %s", toml_data['notebookId'])
-            set_base_request()
+            notebook_state_init()
             return
         except Exception as e:
             logger.debug("Error loading notebook with id %s from db: %s", toml_data['notebookId'], traceback.format_exc())
@@ -61,11 +62,11 @@ def get_notebook(id=''):
         conn.execute(insert_query, [notebook_state.zt_notebook.notebookId, new_notebook])
         conn.close()
         logger.debug("Notebook with id %s loaded from toml and new db entry created", toml_data['notebookId'])
-        set_base_request()
+        notebook_state_init()
     except Exception as e:
         logger.error("Error when loading notebook, return empty notebook: %s", traceback.format_exc())
 
-def set_base_request():
+def notebook_state_init():
     cells = []
     components={}
     for cell_key, cell in notebook_state.zt_notebook.cells.items():
@@ -83,6 +84,10 @@ def set_base_request():
         cells.append(cell_request)
     notebook_state.base_cells = cells
     notebook_state.base_components = components
+    if settings.run_mode=='app':
+        for cell_key, cell in notebook_state.zt_notebook.cells.items():
+            if cell.hideCell or cell.hideCode:
+                notebook_state.zt_notebook.cells[cell_key].code = ''
 
 def get_notebook_request():
     return notebook_state.zt_notebook
@@ -92,7 +97,7 @@ def get_request_base(origin_id, components=None):
         return request.Request(
                     originId=origin_id,
                     cells=copy.deepcopy(notebook_state.base_cells),
-                    components=notebook_state.base_components
+                    components=copy.deepcopy(notebook_state.base_components)
                 )
     else:
         return request.Request(
