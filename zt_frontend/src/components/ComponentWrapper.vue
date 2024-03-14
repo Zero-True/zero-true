@@ -1,6 +1,6 @@
 <template>
   <div v-for="component in renderComponents" :key="component.id">
-    <v-row :class="component.component === 'v-timer' ? '' : 'pa-5'">
+    <v-row class="pa-5">
       <plotly-plot
         v-if="component.component === 'plotly-plot'"
         :id="component.id"
@@ -46,7 +46,6 @@ import {
 } from "vuetify/lib/components/index.mjs";
 import { VDataTable } from "vuetify/components/VDataTable";
 import TextComponent from "@/components/TextComponent.vue";
-import TimerComponent from "@/components/TimerComponent.vue";
 import PlotlyPlot from "@/components/PlotlyComponent.vue";
 
 export default {
@@ -64,7 +63,6 @@ export default {
     "v-autocomplete": VAutocomplete,
     "v-card": VCard,
     "v-text": TextComponent,
-    "v-timer": TimerComponent,
     "plotly-plot": PlotlyPlot,
   },
   emits: ["runCode"],
@@ -133,8 +131,7 @@ export default {
 
     runCode(fromComponent: boolean, componentId: string, componentValue: any) {
       if (
-        this.allComponents[componentId].component === "v-btn" ||
-        this.allComponents[componentId].component === "v-timer"
+        this.allComponents[componentId].component === "v-btn" 
       ) {
         componentValue = true;
         this.allComponents[componentId].value = true;
