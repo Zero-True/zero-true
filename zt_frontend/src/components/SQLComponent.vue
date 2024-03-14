@@ -146,7 +146,7 @@ export default {
     },
     shortcutText() {
       return navigator.userAgent.indexOf("Mac") !== -1
-        ? '⌘+Enter'
+        ? 'CTRL+Return'
         : 'CTRL+Enter';
     },
   },

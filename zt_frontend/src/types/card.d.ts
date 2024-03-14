@@ -20,7 +20,7 @@ export type Component = string;
 /**
  * List of child component ids to be placed within the card
  */
-export type Cardchildren = string[];
+export type Childcomponents = string[];
 /**
  * Background color of the card
  */
@@ -51,7 +51,7 @@ export interface Card {
   id: Id;
   variable_name?: VariableName;
   component?: Component;
-  cardChildren?: Cardchildren;
+  childComponents?: Childcomponents;
   color?: Color;
   elevation?: Elevation;
   density?: Density;

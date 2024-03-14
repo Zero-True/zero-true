@@ -65,57 +65,15 @@
           v-for="(row, rowIndex) in cellData.layout?.rows"
           :key="rowIndex"
           :row-data="row"
-          :components="cellData.components"
+          :components="compDict"
           @runCode="runCode"
         />
         <!-- Render unplaced components at the bottom -->
         <div v-if="unplacedComponents.length" :id = "'unplacedComponents'+cellData.id">
-          <div v-for="component in unplacedComponents" :key="component.id">
-            <v-row :class="component.component==='v-timer' ? '' : 'pa-5'">
-              <!-- Render Plotly component if it's a 'plotly-plot' -->
-              <plotly-plot
-                v-if="component.component === 'plotly-plot'"
-                :id="component.id"
-                :figureJson="component.figure_json as string"
-              />
-              <!-- Render other components -->
-              <component
-                v-else-if="component.component === 'v-card'"
-                :is="component.component"
-                v-bind="componentBind(component)"
-                position="relative"
-                @runCode="runCode"
-              >
-                <div v-for="comp in cardComponents(component)">
-                  <plotly-plot
-                    v-if="comp.component === 'plotly-plot'"
-                    :id="component.id"
-                    :figureJson="component.figure_json as string"
-                  />
-                  <component
-                    v-else
-                    :is="comp.component"
-                    v-bind="componentBind(comp)"
-                    v-model="comp.value"
-                    @click="clickedButton(comp)"
-                    @[comp.triggerEvent]="runCode(true, comp.id, comp.value)"
-                  />
-                </div>
-              </component>
-
-              <component
-                v-else
-                :is="component.component"
-                v-bind="componentBind(component)"
-                v-model="component.value"
-                @click="clickedButton(component)"
-                @keydown="handleEnterPress($event, component.id,component.component, component.value)"
-                @[component.triggerEvent]="
-                  runCode(true, component.id, component.value)
-                "
-              />
-            </v-row>
-          </div>
+          <component-wrapper 
+            :renderComponents="unplacedComponents" 
+            :allComponents="compDict"
+            @runCode="runCode"/>
         </div>
         <pre class="code-output" :id = "'cellOutput'+cellData.id">{{ cellData.output }}</pre>
       </div>
@@ -148,7 +106,7 @@ import {
   VCard,
 } from "vuetify/lib/components/index.mjs";
 import { VDataTable } from "vuetify/components/VDataTable";
-import { CodeCell, Layout } from "@/types/notebook";
+import { CodeCell, Layout, ZTComponent } from "@/types/notebook";
 import LayoutComponent from "@/components/LayoutComponent.vue";
 import TextComponent from "@/components/TextComponent.vue"
 import TimerComponent from "@/components/TimerComponent.vue"
@@ -156,6 +114,7 @@ import { globalState } from "@/global_vars"
 import { useRoute } from 'vue-router'
 import Cell from '@/components/Cell.vue'
 import { inlineSuggestion } from 'codemirror-extension-inline-suggestion'
+import ComponentWrapper from "@/components/ComponentWrapper.vue";
 
 
 export default {
@@ -178,6 +137,7 @@ export default {
     "v-timer": TimerComponent,
     "plotly-plot": PlotlyPlot,
     "layout-component": LayoutComponent,
+    "component-wrapper": ComponentWrapper,
   },
   props: {
     cellData: {
@@ -203,6 +163,7 @@ export default {
         { title: 'Markdown' },
         { title: 'Text' },
       ],
+      compDict: {} as {[key: string]: ZTComponent}
     };
   },
 
@@ -330,11 +291,12 @@ export default {
         return ids;
       };
 
-      const findCardIds = (items: any[]): string[] => {
+      const processComponents = (items: any[]): string[] => {
         let ids: string[] = [];
         for (const comp of items) {
-          if (comp.component === "v-card") {
-            ids.push.apply(ids, Object.values(comp.cardChildren));
+          this.compDict[comp.id] = comp
+          if (comp.childComponents) {
+            ids.push.apply(ids, Object.values(comp.childComponents));
           }
         }
         return ids;
@@ -342,14 +304,14 @@ export default {
 
       const placedComponentIds = findPlacedIds(
         (this.cellData.layout as Layout)?.rows ?? []
-      ).concat(findCardIds(this.cellData.components));
+      ).concat(processComponents(this.cellData.components));
       return this.cellData.components.filter(
         (comp) => !placedComponentIds.includes(comp.id)
       );
     },
     shortcutText() {
       return navigator.userAgent.indexOf("Mac") !== -1
-        ? '⌘+Enter'
+        ? 'CTRL+Return'
         : 'CTRL+Enter';
     },
   },
@@ -370,43 +332,6 @@ export default {
     },
     deleteCell() {
       this.$emit("deleteCell", this.cellData.id);
-    },
-    componentBind(component: any) {
-      if (component.component && component.component === "v-autocomplete") {
-        const { value, ...rest } = component;
-        return this.convertUnderscoresToHyphens(rest);
-      }
-      return this.convertUnderscoresToHyphens(component);
-    },
-
-    convertUnderscoresToHyphens(obj: any) {
-      return Object.entries(obj).reduce((newObj: any, [key, value]) => {
-        const modifiedKey = key.replace(/_/g, '-');
-        newObj[modifiedKey] = value;
-        return newObj;
-      }, {});
-    },
-    handleEnterPress(e: any, id: string,component_type: any, value: any) {
-      // Run code when Enter is pressed in a text, number or text are field
-      if (e.key === "Enter" && (component_type === "v-text-field" || component_type === "v-textarea" || component_type === "v-number-field")) {
-        this.runCode(true, id, value);
-      }
-    },
-    clickedButton(component: any) {
-      if (component.component === "v-btn" || component.component === "v-timer") {
-        component.value = true;
-      }
-    },
-    findComponentById(id: string) {
-      const component = this.cellData.components.find((comp) => comp.id === id);
-      return component;
-    },
-    cardComponents(card: any) {
-      const cardComponents: any[] = [];
-      for (const id in card.cardChildren) {
-        cardComponents.push(this.findComponentById(card.cardChildren[id]));
-      }
-      return cardComponents;
     },
     createCell(cellType: string){
       this.$emit("createCell", this.cellData.id, cellType);
