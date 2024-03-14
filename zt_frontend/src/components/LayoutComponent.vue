@@ -6,46 +6,10 @@
       :cols="componentWidth(component)"
     >
       <div v-if="typeof component === 'string'">
-        <div v-for="comp in findComponentById(component)">
-          <!-- Logic to conditionally render Plotly component -->
-          <plotly-plot
-            v-if="comp.component === 'plotly-plot'"
-            :id="comp.id"
-            :figureJson = "comp.figure_json as string"
-          />
-          <component
-            v-else-if="comp.component === 'v-card'"
-            :is="comp.component"
-            v-bind="componentBind(comp)"
-            position="relative"
-            @runCode="runCode"
-          >
-            <div v-for="c in cardComponents(comp)">
-              <plotly-plot
-                v-if="c.component === 'plotly-plot'"
-                :id="c.id"
-                :figureJson="c.figure_json as string"
-              />
-              <component
-                v-else
-                :is="c.component"
-                v-bind="componentBind(c)"
-                v-model="c.value"
-                @click="clickedButton(c)"
-                @[c.triggerEvent]="runCode(true, c.id, c.value)"
-              />
-            </div>
-          </component>
-          <!-- Logic to render other types of components -->
-          <component
-            v-else
-            :is="comp.component"
-            v-bind="componentBind(comp)"
-            v-model="comp.value"
-            @click="clickedButton(comp)"
-            @[comp.triggerEvent]="runCode(true, comp.id, comp.value)"
-          />
-        </div>
+        <component-wrapper 
+            :renderComponents="[components[component]]" 
+            :allComponents="components"
+            @runCode="runCode"/>
       </div>
       <div v-else>
         <layout-component
@@ -62,47 +26,10 @@
       :key="componentIndex"
     >
       <div v-if="typeof component === 'string'">
-        <div v-for="comp in findComponentById(component)">
-          <!-- Logic to conditionally render Plotly component -->
-          <plotly-plot
-            v-if="comp.component === 'plotly-plot'"
-            :id="comp.id"
-            :figureJson="comp.figure_json as string"
-          />
-
-          <component
-            v-else-if="comp.component === 'v-card'"
-            :is="comp.component"
-            v-bind="componentBind(comp)"
-            position="relative"
-          >
-            <div v-for="c in cardComponents(comp)">
-              <plotly-plot
-                v-if="c.component === 'plotly-plot'"
-                :id="c.id"
-                :figureJson="c.figure_json as string"
-              />
-              <component
-                v-else
-                :is="c.component"
-                v-bind="componentBind(c)"
-                v-model="c.value"
-                @click="clickedButton(c)"
-                @[c.triggerEvent]="runCode(true, c.id, c.value)"
-              />
-            </div>
-          </component>
-
-          <!-- Logic to render other types of components -->
-          <component
-            v-else
-            :is="comp.component"
-            v-bind="componentBind(comp)"
-            v-model="comp.value"
-            @click="clickedButton(comp)"
-            @[comp.triggerEvent]="runCode(true, comp.id, comp.value)"
-          />
-        </div>
+        <component-wrapper 
+            :renderComponents="[components[component]]" 
+            :allComponents="components"
+            @runCode="runCode"/>
       </div>
       <div v-else>
         <layout-component
@@ -133,6 +60,7 @@ import { VDataTable } from "vuetify/components/VDataTable";
 import { Column, ZTComponent, Row } from "@/types/notebook";
 import PlotlyPlot from "@/components/PlotlyComponent.vue";
 import TextComponent from "@/components/TextComponent.vue"
+import ComponentWrapper from "@/components/ComponentWrapper.vue";
 
 export default {
   emits: ["runCode"],
@@ -151,6 +79,7 @@ export default {
     "v-card": VCard,
     "v-text":TextComponent,
     "plotly-plot": PlotlyPlot,
+    "component-wrapper": ComponentWrapper,
   },
   props: {
     rowData: {
@@ -160,43 +89,16 @@ export default {
       type: Object as PropType<Column>,
     },
     components: {
-      type: Object as PropType<ZTComponent[]>,
+      type: Object as PropType<Record<string, ZTComponent>>,
       required: true,
     },
   },
   methods: {
-    findComponentById(id: string) {
-      const component = this.components.find((comp) => comp.id === id);
-      return component ? [component] : [];
-    },
-
-    cardComponents(card: any) {
-      const cardComponents: any[] = [];
-      for (const id in card.cardChildren) {
-        cardComponents.push.apply(
-          cardComponents,
-          this.findComponentById(card.cardChildren[id])
-        );
-      }
-      return cardComponents;
-    },
     runCode(fromComponent: boolean, componentId: string, componentValue: any) {
       this.$emit("runCode", fromComponent, componentId, componentValue);
     },
     componentWidth(component: any) {
       return component.width ? component.width : false;
-    },
-    componentBind(component: any) {
-      if (component.component && component.component === "v-autocomplete") {
-        const { value, ...rest } = component;
-        return rest;
-      }
-      return component;
-    },
-    clickedButton(component: any) {
-      if (component.component === "v-btn") {
-        component.value = true;
-      }
     },
   },
 };
