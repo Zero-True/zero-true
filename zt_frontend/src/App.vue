@@ -113,6 +113,7 @@
         @deleteCell="deleteCell"
         @createCell="createCodeCell"
         @copilotCompletion="copilotCompletion"
+        @updateTimers="startTimerComponents"
        />
     </v-main>
     <v-footer 
@@ -221,7 +222,7 @@ import { SaveRequest } from "./types/save_request";
 import { CreateRequest, Celltype } from "./types/create_request";
 import { ClearRequest } from "./types/clear_request";
 import { NotebookNameRequest } from "./types/notebook_name_request";
-import { Notebook, CodeCell, Layout } from "./types/notebook";
+import { Notebook, CodeCell, Layout, ZTComponent } from "./types/notebook";
 import { Dependencies } from "./types/notebook_response";
 import CodeComponent from "@/components/CodeComponent.vue";
 import MarkdownComponent from "@/components/MarkdownComponent.vue";
@@ -233,6 +234,8 @@ import CopilotComponent from "./components/CopilotComponent.vue";
 import ShareComponent from "./components/ShareComponent.vue";
 import type { VTextField } from "vuetify/lib/components/index.mjs";
 import { ztAliases } from '@/iconsets/ztIcon'
+import { Timer } from "@/timer";
+import { globalState } from "@/global_vars";
 
 export default {
   components: {
@@ -360,7 +363,7 @@ export default {
         this.ztVersion = envData.zt_version
     },
 
-    async runCode(originId: string, nonReactive: boolean){
+    async runCode(originId: string){
       if (!originId) return;
       const cellRequests: CodeRequest[] = [];
       const requestComponents: { [key: string]: any } = {};
@@ -783,6 +786,43 @@ export default {
         default:
           throw new Error(`Unknown component type: ${cellType}`);
       }
+    },
+
+    startTimerComponents(originId: string, timers: ZTComponent[]) {
+      if(!globalState.timers[originId]){
+        globalState.timers[originId] = {};
+      }
+      else {
+        for (const timer in globalState.timers[originId]) {
+          globalState.timers[originId][timer].stop();
+          delete globalState.timers[originId][timer];
+        }
+      }
+      for (const timer of timers) {
+        this.startTimerComponent(originId, timer.id, timer.interval as number);
+      }
+    },
+
+    startTimerComponent(originId: string, timerId: string, interval: number){
+      const startTimer = () => {
+        const timer = new Timer(interval);
+        globalState.timers[originId][timerId] = timer;
+        timer.start(startTimer);
+        this.notebook.cells[originId].components.find((c: ZTComponent) => c.id === timerId)!.value = true;
+        if (this.$devMode) {
+          this.runCode(originId);
+        }
+        else {
+          this.componentValueChange(originId, timerId, true);
+        }
+      };
+
+      if (!globalState.timers[originId][timerId]) {
+        const timer = new Timer(interval);
+        globalState.timers[originId][timerId] = timer;
+        timer.start(startTimer);
+      }
+
     },
   },
 };

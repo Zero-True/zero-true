@@ -23,6 +23,7 @@
       @deleteCell="deleteCell"
       @createCell="createCodeCell"
       @copilotCompletion="copilotCompletion"
+      @updateTimers="updateTimers"
     />
     <component
       v-else
@@ -62,7 +63,7 @@ export default {
     },
   },
   inheritAttrs: false,
-  emits: ['runCode', 'deleteCell', 'saveCell', 'createCell', 'componentValueChange', 'copilotCompletion'],
+  emits: ['runCode', 'deleteCell', 'saveCell', 'createCell', 'componentValueChange', 'copilotCompletion', 'updateTimers'],
 
   components: {
     "add-cell": AddCell,
@@ -128,6 +129,9 @@ export default {
     },
     copilotCompletion(cellId: string, line: string, column: string, callback: any) {
       this.$emit("copilotCompletion", cellId, line, column, callback);
+    },
+    updateTimers(cellId: string, value: boolean) {
+      this.$emit("updateTimers", cellId, value);
     },
   },
 };

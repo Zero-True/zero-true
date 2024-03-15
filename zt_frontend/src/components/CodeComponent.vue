@@ -109,7 +109,6 @@ import { VDataTable } from "vuetify/components/VDataTable";
 import { CodeCell, Layout, ZTComponent } from "@/types/notebook";
 import LayoutComponent from "@/components/LayoutComponent.vue";
 import TextComponent from "@/components/TextComponent.vue"
-import TimerComponent from "@/components/TimerComponent.vue"
 import { globalState } from "@/global_vars"
 import { useRoute } from 'vue-router'
 import Cell from '@/components/Cell.vue'
@@ -134,7 +133,6 @@ export default {
     "v-autocomplete": VAutocomplete,
     "v-card": VCard,
     "v-text": TextComponent,
-    "v-timer": TimerComponent,
     "plotly-plot": PlotlyPlot,
     "layout-component": LayoutComponent,
     "component-wrapper": ComponentWrapper,
@@ -150,7 +148,7 @@ export default {
     }
   },
   inheritAttrs: false,
-  emits: ['componentValueChange','runCode','deleteCell', 'createCell', 'saveCell', 'copilotCompletion'],
+  emits: ['componentValueChange','runCode','deleteCell', 'createCell', 'saveCell', 'copilotCompletion', 'updateTimers'],
   data() {
     return {
       isFocused: false, // add this line to keep track of the focus state
@@ -293,12 +291,18 @@ export default {
 
       const processComponents = (items: any[]): string[] => {
         let ids: string[] = [];
+        let timers: ZTComponent[] = [];
         for (const comp of items) {
           this.compDict[comp.id] = comp
           if (comp.childComponents) {
             ids.push.apply(ids, Object.values(comp.childComponents));
           }
+          else if (comp.component === 'v-timer') {
+            timers.push(comp)
+            ids.push(comp.id);
+          }
         }
+        this.$emit('updateTimers', this.cellData.id, timers)
         return ids;
       };
 
@@ -315,6 +319,13 @@ export default {
         : 'CTRL+Enter';
     },
   },
+
+  mounted() {
+    if (this.cellData.hideCell) {
+      this.unplacedComponents
+    }
+  },
+
   methods: {
     runCode(fromComponent: boolean, componentId: string, componentValue: any) {
       if (!this.$devMode && fromComponent) {

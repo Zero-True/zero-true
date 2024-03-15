@@ -11,5 +11,5 @@ export {};
 
 export const globalState = reactive({
     copilot_active: false,
-    timers: {} as {[key: string]: Timer},
+    timers: {} as {[key: string]: {[key: string]: Timer}},
 });
