@@ -265,6 +265,7 @@ export default {
       run_socket: null as WebSocket | null,
       stop_socket: null as WebSocket | null,
       timer: 0,
+      startTime: 0,
       timerInterval: null as ReturnType<typeof setInterval> | null,
       isCodeRunning: false,
       requestQueue: [] as any[],
@@ -342,12 +343,17 @@ export default {
         this.editingProjectName = false
       }
     },
+
     startTimer() {
+      this.startTime = Date.now();
       this.timer = 0;
+      
       this.timerInterval = setInterval(() => {
-        this.timer++;
-      }, 1); // Update every millisecond
+        const currentTime = Date.now();
+        this.timer = currentTime - this.startTime;
+      }, 99);
     },
+
     stopTimer() {
       if (this.timerInterval) {
         clearInterval(this.timerInterval);
