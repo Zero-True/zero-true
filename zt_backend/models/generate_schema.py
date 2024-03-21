@@ -19,6 +19,7 @@ from .components.layout import Layout
 from .components.autocomplete import Autocomplete
 from .components.card import Card
 from .components.timer import Timer
+from .components.iframe import iFrame
 import json
 
 def generate_json(model, name):
@@ -58,3 +59,4 @@ def generate_schema():
     generate_json(Card,'card')
     generate_json(Text,'text')
     generate_json(Timer,'timer')
+    generate_json(iFrame,'iframe')

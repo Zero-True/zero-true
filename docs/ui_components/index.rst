@@ -31,3 +31,4 @@ Explore the detailed API documentation for Zero True, including component proper
    matplotlib
    plotly
    timer
+   iframe
