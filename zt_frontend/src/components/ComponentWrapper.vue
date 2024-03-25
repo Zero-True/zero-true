@@ -14,16 +14,19 @@
         v-model="component.value"
         v-on="getEventBindings(component)"
       >
-        <div v-if="component.childComponents">
-          <component-wrapper
-            :renderComponents="getChildren(component.childComponents as string[])"
-            :allComponents="allComponents"
-            @runCode="runCode"
-          />
-        </div>
-        <div v-else-if="component.component === 'v-btn'">
-          {{ component.text }}
-        </div>
+        <template v-slot:default
+          v-if="component.component !== 'v-data-table'">
+          <div v-if="component.childComponents">
+            <component-wrapper
+              :renderComponents="getChildren(component.childComponents as string[])"
+              :allComponents="allComponents"
+              @runCode="runCode"
+            />
+          </div>
+          <div v-else-if="component.component === 'v-btn'">
+            {{ component.text }}
+          </div>
+        </template>
       </component>
     </v-row>
   </div>
