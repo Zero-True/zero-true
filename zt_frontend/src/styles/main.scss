@@ -12,6 +12,8 @@ p {
   margin: 0;
 }
 
+ul { list-style-position: inside;}
+
 .zt-menu {
   border: 1px solid rgba(var(--v-theme-bluegrey));
   .v-list-item__prepend {
