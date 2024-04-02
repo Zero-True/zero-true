@@ -26,7 +26,7 @@
     "marked": "^10.0.0",
     "plotly.js-dist-min": "^2.29.1",
     "roboto-fontface": "*",
-    "tinymce": "^6.7.0",
+    "tinymce": "^7.0.0",
     "unplugin-vue-router": "^0.7.0",
     "vue": "^3.2.0",
     "vue-codemirror": "^6.1.1",
