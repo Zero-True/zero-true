@@ -8,25 +8,31 @@
         ripple
         color="primary"
         class="text-bluegrey-darken-4">
-        Share
+        Publish
         </v-btn>
       </template>
   
       <v-card>
         <v-card-title>
-          <span class="text-h5">Share Notebook</span>
+          <span class="text-h5">Publish Notebook</span>
         </v-card-title>
         <v-card-text>
           <v-form ref="form" v-model="valid" @submit.prevent="submitShareRequest">
             <v-text-field label="User Name" v-model="shareRequest.userName" :rules="[rules.required]" required></v-text-field>
             <v-text-field label="Project Name" v-model="shareRequest.projectName" :rules="[rules.required]" required></v-text-field>
             <v-text-field label="API Key" v-model="shareRequest.apiKey" :rules="[rules.required]" required></v-text-field>
-            <v-btn type="submit" color="primary">Share</v-btn>
+            <span>Need an API Key? Create an account <a href='https://www.zero-true.com/contact' target="_blank">here</a></span>
+            <br/><br/>
+            <v-row justify="space-between">
+              <v-col cols="auto">
+                <v-btn type="submit" color="primary">Share</v-btn>
+              </v-col>
+              <v-col cols="auto">
+                <v-btn @click="dialog = false" color="error">Cancel</v-btn>
+              </v-col>
+            </v-row>
           </v-form>
         </v-card-text>
-        <v-card-actions>
-          <v-btn @click="dialog = false">Cancel</v-btn>
-        </v-card-actions>
       </v-card>
     </v-dialog>
   </template>
