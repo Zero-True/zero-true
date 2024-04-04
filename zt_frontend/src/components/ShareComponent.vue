@@ -21,7 +21,7 @@
             <v-text-field label="User Name" v-model="shareRequest.userName" :rules="[rules.required]" required></v-text-field>
             <v-text-field label="Project Name" v-model="shareRequest.projectName" :rules="[rules.required]" required></v-text-field>
             <v-text-field label="API Key" v-model="shareRequest.apiKey" :rules="[rules.required]" required></v-text-field>
-            <span>Need an API Key? Create an account <a href='https://zero-true-cloud.com/' target="_blank">here</a></span>
+            <span>Need an API Key? Create an account <a href='https://www.zero-true.com/contact' target="_blank">here</a></span>
             <br/><br/>
             <v-row justify="space-between">
               <v-col cols="auto">
