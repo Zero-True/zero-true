@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, StaleElementReferenceException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -17,16 +17,21 @@ import uuid
 
 notebook_id = str(uuid.uuid4())
 
-notebook_str = '''notebookId = "''' + notebook_id + '''"
 
-[cells.57fbbd59-8f30-415c-87bf-8caae0374070]
-cellType = "code"
-code = """
+expected_code = """
 import zero_true as zt
 import time
 time.sleep(2)
 slider = zt.Slider(id='slide')
 zt.TextInput(id='text')"""
+
+
+notebook_str = '''notebookId = "''' + notebook_id + '''"
+
+[cells.57fbbd59-8f30-415c-87bf-8caae0374070]
+cellType = "code"
+code = """
+'''+expected_code+'''"""
 '''
 
 notebook_filename = "notebook.ztnb"
@@ -51,7 +56,7 @@ def driver():
 
     options = Options()
     options.add_argument("--no-sandbox") # Bypass OS security model
-    options.add_argument("--headless")
+    #options.add_argument("--headless")
     options.add_argument("--disable-gpu") # applicable to windows os only
     options.add_argument("--disable-dev-shm-usage") # overcome limited resource problems
     options.add_argument("--remote-debugging-port=9222")
@@ -75,32 +80,47 @@ def find_code_cells(driver):
     code_cells = driver.find_elements(By.XPATH, "//div[contains(@id, 'codeCard')]")
     return code_cells
 
-def extract_code_cell_info(code_cell, driver):
-    cell_info = {}
+def find_el_by_id_w_exception(driver,element_id):
+    try:
+        element = driver.find_element(By.ID, element_id)
+    except NoSuchElementException:
+        print(element_id + " not found")
+        element = None
+    return element
 
+def extract_code_cell_info(code_cell, driver,mode='notebook'):
+    cell_info = {}
     cell_id = code_cell.get_attribute('id').replace('codeCard', '')
     print('cell_id',cell_id)
+    print('mode',mode)
     # Accessing elements inside the code cell
     elements = {
-        "run_icon": driver.find_element(By.ID, f"runCode{cell_id}"),
-        "cell_toolbar": driver.find_element(By.ID, f"cellToolbar{cell_id}"),
-        "codemirror": driver.find_element(By.ID, f"codeMirrorDev{cell_id}"),
-        "output_container": driver.find_element(By.ID,f"outputContainer_{cell_id}"),
-        "cell_output": driver.find_element(By.ID, f"cellOutput{cell_id}"),
-        "add_cell": driver.find_element(By.ID, f"addCell{cell_id}"),
+        "run_icon": find_el_by_id_w_exception(driver, f"runCode{cell_id}",),
+        "cell_toolbar": find_el_by_id_w_exception(driver, f"cellToolbar{cell_id}"),
+        "codemirror": find_el_by_id_w_exception(driver, f"codeMirrorDev{cell_id}"),
+        "codemirror_app": find_el_by_id_w_exception(driver, f"codeMirrorApp{cell_id}"),
+        "output_container": find_el_by_id_w_exception(driver,f"outputContainer_{cell_id}"),
+        "cell_output": find_el_by_id_w_exception(driver, f"cellOutput{cell_id}"),
+        "add_cell": find_el_by_id_w_exception(driver, f"addCell{cell_id}"),
         "cell_id": cell_id
     }
 
     # Retrieve and verify code from CodeMirror
-    codemirror = elements['codemirror']
+    if mode == 'notebook':
+        codemirror = elements['codemirror']
+        print(codemirror)
+    else:
+        codemirror = find_el_by_id_w_exception(driver, f"codeMirrorApp{cell_id}")
+        print(find_el_by_id_w_exception(driver, f"codeMirrorApp{cell_id}"))
+
     attributes = find_element_attributes(driver,codemirror)
-    
+
     code = attributes["code"]
 
     elements["codemirror_input"] = WebDriverWait(codemirror, 10).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, f".cm-content"))
     )
-
+   
     # Storing information in the dictionary
     cell_info = {
         "cell_id": cell_id,
@@ -150,12 +170,6 @@ def test_intial_code_cell_content(driver):
     print('code cells',code_cells)
     cell_info = extract_code_cell_info(code_cells[0],driver)
     print(cell_info)
-    expected_code = """
-import zero_true as zt
-import time
-time.sleep(2)
-slider = zt.Slider(id='slide')
-zt.TextInput(id='text')"""
     assert cell_info['code'].strip() == expected_code.strip(), "Code in the cell does not match the expected code."
 
 def test_initial_code_execution_and_output(driver):
@@ -224,8 +238,53 @@ def test_slider_interaction(driver):
     #assert they are equal 
     assert new_cell_output.text == slider_value
 
+def test_app_mode(driver):
+    #find app mode button by id 
+    app_mode_btn = driver.find_element(By.ID, "appBtn")
+    app_mode_btn.click()
+    
+    #wait for the app mode to load
+    WebDriverWait(driver, 100).until(
+        EC.presence_of_element_located((By.ID, "appBar")))
+
+    
+    driver.get("http://localhost:1326/app")
+
+    WebDriverWait(driver, 100).until(
+        EC.presence_of_element_located((By.ID, "appBar")))
+
+
+    #test whether code cell is editable in app mode
+    code_cells = find_code_cells(driver)
+    cell_id_0 = code_cells[0].get_attribute('id').replace('codeCard', '')
+    expansion_panel_title = driver.find_element(By.ID, f"codeMirrorAppTitle{cell_id_0}")
+    expansion_panel_title.click()
+
+    cell_info = extract_code_cell_info(code_cells[0],driver,mode='app')
+
+    
+
+    codemirror_input = cell_info["elements"]["codemirror_input"]
+    clear_codemirror_and_send_text(driver, codemirror_input, "print('Hello World')")
+
+    #check that the code has not chenged since before the clear_codemirror_and_send_text call
+    #and that it matches the expected code
+    code_cells = find_code_cells(driver)
+    cell_info = extract_code_cell_info(code_cells[0],driver, mode='app')
+    assert cell_info['code'].strip() == expected_code.strip(), "Code in the cell does not match the expected code."
+    
+    #find notebook mode button by id
+    dev_mode_btn = driver.find_element(By.ID, "notebookBtn")
+    dev_mode_btn.click()
+
+    WebDriverWait(driver, 100).until(
+        EC.presence_of_element_located((By.ID, "appBar")))
+
+    driver.get("http://localhost:1326")
+
 
 def test_deletion_of_new_code_cell(driver):
+    driver.get("http://localhost:1326")
     code_cells = find_code_cells(driver)
     new_cell_info =  extract_code_cell_info(code_cells[1],driver)
     new_cell_info["elements"]["cell_toolbar"].click()
@@ -236,3 +295,12 @@ def test_deletion_of_new_code_cell(driver):
     time.sleep(2)
     code_cells = find_code_cells(driver)
     assert len(code_cells) == 1 and code_cells[0].get_attribute('id') == 'codeCard57fbbd59-8f30-415c-87bf-8caae0374070', "Expected code cell not found."
+
+# test hiding code cell
+
+# test hiding code but not output
+
+# test typing in app mode 
+
+# test different cell types?
+

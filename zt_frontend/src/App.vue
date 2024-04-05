@@ -70,6 +70,7 @@
             :class="{ 'text-bluegrey-darken-4' : !isAppRoute }"
             :prepend-icon="`ztIcon:${ztAliases.notebook}`"
             to="/"
+            id="notebookBtn"
           >
           Notebook</v-btn>
           <v-btn 
@@ -78,6 +79,7 @@
             :class="{ 'text-bluegrey-darken-4' : isAppRoute }"
             :prepend-icon="`ztIcon:${ztAliases.monitor}`"
             to="/app"
+            id="appBtn"
           >App</v-btn>
         </v-btn-toggle>
       </div>
