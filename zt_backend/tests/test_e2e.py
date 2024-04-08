@@ -239,6 +239,16 @@ def test_slider_interaction(driver):
     assert new_cell_output.text == slider_value
 
 def test_app_mode(driver):
+    #hide the second code cell
+    code_cells = find_code_cells(driver)
+    new_cell_info =  extract_code_cell_info(code_cells[1],driver)
+    new_cell_info["elements"]["cell_toolbar"].click()
+    WebDriverWait(driver, 25).until(
+        EC.element_to_be_clickable((By.ID, f"hideCell{new_cell_info['cell_id']}")))
+    hide_btn = driver.find_element(By.ID,f"hideCellSwitch{new_cell_info['cell_id']}")
+    hide_btn.click()
+    time.sleep(2)
+
     #find app mode button by id 
     app_mode_btn = driver.find_element(By.ID, "appBtn")
     app_mode_btn.click()
@@ -256,7 +266,13 @@ def test_app_mode(driver):
 
     #test whether code cell is editable in app mode
     code_cells = find_code_cells(driver)
-    cell_id_0 = code_cells[0].get_attribute('id').replace('codeCard', '')
+
+    #assert that there is only cell in app mode because the second cell was hidden
+
+    cell_id_0 = '57fbbd59-8f30-415c-87bf-8caae0374070'
+
+    assert len(code_cells) == 1 and code_cells[0].get_attribute('id') == f'codeCard{cell_id_0}', "Expected code cell not found."
+
     expansion_panel_title = driver.find_element(By.ID, f"codeMirrorAppTitle{cell_id_0}")
     expansion_panel_title.click()
 

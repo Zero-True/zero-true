@@ -71,7 +71,7 @@
                 </v-list-item>
                 <v-list-item :id="'hideCell' + cellId" >
                   <template v-slot:prepend>
-                    <v-switch v-model="hideCellValue" @update:modelValue="updateHideCell"></v-switch>
+                    <v-switch v-model="hideCellValue" @update:modelValue="updateHideCell" :id="'hideCellSwitch' + cellId" ></v-switch>
                   </template>
                   <v-list-item-title>Hide Cell</v-list-item-title>
                 </v-list-item>
