@@ -63,31 +63,31 @@
                 <v-btn :icon="`ztIcon:${ztAliases.more}`" :id="'cellToolbar' + cellId" v-bind="props"></v-btn>
               </template>
               <v-list bg-color="bluegrey-darken-4">
-                <v-list-item v-if="keepCodeInAppModel">
+                <v-list-item v-if="keepCodeInAppModel" :id="'updateCellReactivity' + cellId" >
                   <template v-slot:prepend>
                     <v-switch v-model="nonReactiveValue" @update:modelValue="updateReactivity"></v-switch>
                   </template>
                   <v-list-item-title>Non-Reactive</v-list-item-title>
                 </v-list-item>
-                <v-list-item>
+                <v-list-item :id="'hideCell' + cellId" >
                   <template v-slot:prepend>
-                    <v-switch v-model="hideCellValue" @update:modelValue="updateHideCell"></v-switch>
+                    <v-switch v-model="hideCellValue" @update:modelValue="updateHideCell" :id="'hideCellSwitch' + cellId" ></v-switch>
                   </template>
                   <v-list-item-title>Hide Cell</v-list-item-title>
                 </v-list-item>
-                <v-list-item v-if="keepCodeInAppModel">
+                <v-list-item v-if="keepCodeInAppModel" :id="'expandCode' + cellId" >
                   <template v-slot:prepend>
                     <v-switch v-model="hideCodeValue" @update:modelValue="updateHideCode"></v-switch>
                   </template>
                   <v-list-item-title>Hide Code</v-list-item-title>
                 </v-list-item>
-                <v-list-item v-if="keepCodeInAppModel">
+                <v-list-item v-if="keepCodeInAppModel" :id="'expandCode' + cellId" >
                   <template v-slot:prepend>
                     <v-switch v-model="expandCodeValue" @update:modelValue="updateExpandCode"></v-switch>
                   </template>
                   <v-list-item-title>Expand Code</v-list-item-title>
                 </v-list-item>
-                <v-list-item v-if="cellType==='sql'">
+                <v-list-item v-if="cellType==='sql'" :id="'updateShowTable' + cellId" >
                   <template v-slot:prepend>
                     <v-switch v-model="showTableValue" @update:modelValue="updateShowTable"></v-switch>
                   </template>
