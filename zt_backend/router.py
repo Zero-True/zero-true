@@ -1,5 +1,5 @@
 import subprocess
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, File, UploadFile, WebSocket, WebSocketDisconnect
 from zt_backend.models import notebook
 from zt_backend.models.api import request
 from zt_backend.runner.execute_code import execute_request
@@ -259,3 +259,15 @@ def share_notebook(shareRequest: request.ShareRequest):
 @router.on_event('shutdown')
 def shutdown():
     app_state.shutdown()
+
+
+@router.post("/api/upload_file")
+def upload_file(file: UploadFile = File(...)):
+
+    if app_state.run_mode == 'dev':
+        logger.debug("File upload request started")
+        file_path = os.path.join('.', file.filename.split("/")[-1])
+        with open(file_path, "wb",) as buffer:
+            buffer.write(file.file.read())
+        logger.debug("File upload request completed")
+        return {"filename": file.filename}

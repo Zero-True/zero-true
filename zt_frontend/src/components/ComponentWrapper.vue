@@ -8,7 +8,7 @@
       />
 
       <component
-        v-else
+        v-else-if="component.component !== 'v-file-input'"
         :is="component.component"
         v-bind="componentBind(component)"
         v-model="component.value"
@@ -28,6 +28,11 @@
           </div>
         </template>
       </component>
+      <v-file-input
+        v-else
+        label="Upload File"
+        @change="handleFileChange(component.id, $event,)"
+      />
     </v-row>
   </div>
 </template>
@@ -50,6 +55,8 @@ import {
 import { VDataTable } from "vuetify/components/VDataTable";
 import TextComponent from "@/components/TextComponent.vue";
 import PlotlyPlot from "@/components/PlotlyComponent.vue";
+import VFileInput from "@/components/FileInputComponent.vue";
+import axios from "axios";
 
 export default {
   components: {
@@ -65,6 +72,7 @@ export default {
     "v-data-table": VDataTable,
     "v-autocomplete": VAutocomplete,
     "v-card": VCard,
+    "v-file-input": VFileInput,
     "v-text": TextComponent,
     "plotly-plot": PlotlyPlot,
   },
@@ -131,6 +139,29 @@ export default {
         return this.allComponents[id];
       });
     },
+
+  handleFileChange(componentId: string, event: Event) {
+  const file = (event.target as HTMLInputElement).files;
+  console.log("FileList:", file);
+
+  if (file && file.length > 0) {
+    const formData = new FormData();
+    formData.append("file", file[0]);
+    console.log('file',file)
+    axios.post(import.meta.env.VITE_BACKEND_URL + "api/upload_file", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    }).then(response => {
+      console.log("File uploaded successfully", response.data);
+    }).catch(error => {
+      console.error("Error uploading file:", error.response);
+    });
+  } else {
+    console.error("No file selected");
+  }
+},
+
 
     runCode(fromComponent: boolean, componentId: string, componentValue: any) {
       if (
