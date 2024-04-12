@@ -105,6 +105,32 @@
         </v-col>
       </template>
     </v-app-bar>
+    <v-navigation-drawer v-if="$devMode && !isMobile" v-model="drawer" app class="sidebar">
+    <v-treeview
+    v-model="tree"
+    :items="items"
+    item-key="name"
+    activatable
+    open-on-click
+  >
+    <template v-slot:prepend="{ item, open}">
+      <v-icon v-if="!item.file">
+        {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
+      </v-icon>
+      <v-icon v-else>
+        {{ fileIcon(item.file) }}
+      </v-icon>
+    </template>
+  </v-treeview>
+    <v-divider></v-divider>
+    <v-file-input
+      label="Upload File"
+      prepend-icon="mdi-upload"
+      filled
+      @change="handleFileChange('sidebar_uploader', $event)"
+    ></v-file-input>
+  </v-navigation-drawer>
+
     <v-main :scrollable="false">
       <CodeCellManager 
         :notebook="notebook"
@@ -272,6 +298,11 @@ export default {
       isCodeRunning: false,
       requestQueue: [] as any[],
       componentChangeQueue: [] as  any[],
+      drawer: true,
+      files: [] as any[],
+      tree: [],
+      items: [] as any[],
+      openFolders: [],
       concatenatedCodeCache: {
       lastCellId: '' as string,
       code: '' as string,
@@ -298,7 +329,9 @@ export default {
     await this.initializeRunSocket()
     await this.initializeStopSocket()
     if (this.$devMode){
-      await this.initializeSaveSocket()
+      await this.initializeSaveSocket() 
+      this.files = await (await axios.get(import.meta.env.VITE_BACKEND_URL + "api/get_files")).data.files as any[]
+      this.items = this.files
     }
     this.isCodeRunning = true;
     this.startTimer();
@@ -332,6 +365,35 @@ export default {
         nextTick(() => {
           (this.$refs.projectNameField as VTextField).focus();
         })
+      }
+    },
+  handleFileChange(componentId: string, event: Event) {
+  const file = (event.target as HTMLInputElement).files;
+  if (file && file.length > 0) {
+    const formData = new FormData();
+    formData.append("file", file[0]);
+    axios.post(`${import.meta.env.VITE_BACKEND_URL}api/upload_file`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    .then(response => console.log("File processed", response.data))
+    .catch(error => console.error("Error processing file:", error.response)); // Directly pass the file to `runCode`
+  } else {
+    console.error("No file selected");
+  }
+},
+fileIcon(extension: string) {
+
+      switch (extension) {
+        case 'html': return 'mdi:mdi-language-html5';
+        case 'js': return 'mdi:mdi-nodejs';
+        case 'json': return 'mdi:mdi-code-json';
+        case 'md': return 'mdi:mdi-language-markdown';
+        case 'pdf': return 'mdi:mdi-file-pdf-box';
+        case 'png': return 'mdi:mdi-file-image';
+        case 'txt': return 'mdi:mdi-file-document-outline';
+        case 'xls': return 'mdi:mdi-file-excel';
+        case 'folder': return 'mdi:mdi-folder';
+        default: return 'mdi:mdi-file';
       }
     },
     async saveProjectName() {
@@ -409,7 +471,7 @@ export default {
         }
         return;
       }
-      
+      console.log(request)
       this.sendRunCodeRequest(request)
     },
 

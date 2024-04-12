@@ -2,9 +2,14 @@ import "vuetify/styles";
 import { createVuetify } from "vuetify";
 import { ztIcon } from '../iconsets/ztIcon'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
+import { VTreeview } from 'vuetify/labs/VTreeview'
+
 
 
 export default createVuetify({
+  components: {
+    VTreeview
+  },
   display: {
     mobileBreakpoint: 'md',
   },

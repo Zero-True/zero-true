@@ -12,6 +12,7 @@ from zt_backend.models.managers.k_thread import KThread
 from zt_backend.models.state.user_state import UserState
 from zt_backend.models.state.app_state import AppState
 from fastapi.responses import HTMLResponse
+from pathlib import Path
 import logging
 import uuid
 import os
@@ -261,9 +262,9 @@ def shutdown():
     app_state.shutdown()
 
 
+# file upload should come from a component that already exists in the backends user statate
 @router.post("/api/upload_file")
 def upload_file(file: UploadFile = File(...)):
-
     if app_state.run_mode == 'dev':
         logger.debug("File upload request started")
         file_path = os.path.join('.', file.filename.split("/")[-1])
@@ -271,3 +272,36 @@ def upload_file(file: UploadFile = File(...)):
             buffer.write(file.file.read())
         logger.debug("File upload request completed")
         return {"filename": file.filename}
+
+
+def get_file_type(name):
+    extension = name.split('.')[-1]
+    if extension in ['html', 'js', 'json', 'md', 'pdf', 'png', 'txt', 'xls']:
+        return extension
+    return None
+
+def list_dir(path):
+    items = []
+    for item in path.iterdir():
+        if item.is_dir():
+            if item.name in ['.git', '__pycache__', 'node_modules']:
+                items.append({'title': item.name,'file': 'folder'})  # Only title for excluded directories
+            else:
+                items.append({
+                    'title': item.name,
+                    'children': list_dir(item),
+                    'file': 'folder'
+                })
+        else:
+            file_type = get_file_type(item.name)
+            if file_type:
+                items.append({'title': item.name, 'file': file_type, 'id': item.as_posix()})
+            else:
+                items.append({'title': item.name, 'file': 'file', 'id': item.as_posix()})
+    return items
+
+@router.get("/api/get_files")
+def list_files():
+    path = Path('.')
+    files = list_dir(path)
+    return {"files": files}
