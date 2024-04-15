@@ -1,6 +1,8 @@
 name: Build and Push Images
 
 on:
+  pull_request:
+    types: [opened, synchronize]
   release:
     types: [created]
 permissions:
