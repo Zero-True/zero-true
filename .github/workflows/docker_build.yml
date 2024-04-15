@@ -1,6 +1,8 @@
 name: Build and Push Images
 
 on:
+  pull_request:
+    types: [opened, synchronize]
   release:
     types: [created]
 permissions:
@@ -12,44 +14,43 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Check out code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+
     - name: Setup Node
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: "yarn"
         cache-dependency-path: "zt_frontend/yarn.lock"
-    - name: Set output
-      id: release_tag
-      run: echo "tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+
     - name: Build Frontend Files
       run: |
-        npm install --global yarn
-        ls -a
-        rm -r zt_backend/dist_dev/
-        rm -r zt_backend/dist_app/
-        cd zt_frontend
-        yarn install
-        yarn run build
-        cp -r dist/ ../zt_backend/dist_dev/
-        yarn run buildapp
-        cp -r dist/ ../zt_backend/dist_app/
-        cd ../copilot
-        yarn install
+        echo "Cleaning up old builds..."
+        rm -rf zt_backend/dist_dev/ zt_backend/dist_app/
+        echo "Building Frontend..."
+        (cd zt_frontend && yarn install && yarn build && cp -r dist/ ../zt_backend/dist_dev/)
+        (cd zt_frontend && yarn buildapp && cp -r dist/ ../zt_backend/dist_app/)
+        (cd copilot && yarn install)
+      shell: bash
+  
     - name: configure aws credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        role-to-assume: ${{secrets.AWS_ARN }}
+        role-to-assume: ${{ secrets.AWS_ARN }}
         role-session-name: GitHub_to_AWS_via_FederatedOIDC
-        aws-region: us-east-1
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-    - name: Build, tag, and push image to Amazon ECR
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: zt-notebook-images
-        IMAGE_TAG: "${{ steps.release_tag.outputs.tag }}"
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: "Build and push image via Kaniko"
+      if: github.ref_type == 'tag'
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:zero-true-$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:zero-true-$IMAGE_TAG
+        docker run \
+        -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
+        -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
+        -e AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN} \
+        -v ${{ github.workspace }}:/workspace \
+        gcr.io/kaniko-project/executor:latest \
+        --dockerfile Dockerfile \
+        --reproducible --cleanup --cache=true \
+        --cache-repo ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}-cache \
+        --destination=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:zero-true-${GITHUB_REF_NAME} \
+        --context dir:///workspace/
