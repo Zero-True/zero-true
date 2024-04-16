@@ -105,31 +105,16 @@
         </v-col>
       </template>
     </v-app-bar>
-    <v-navigation-drawer v-if="$devMode && !isMobile" v-model="drawer" app class="sidebar">
-    <v-treeview
-    v-model="tree"
+    <SidebarComponent
+    :drawer="drawer"
     :items="items"
-    item-key="name"
-    activatable
-    open-on-click
-  >
-    <template v-slot:prepend="{ item, open}">
-      <v-icon v-if="!item.file">
-        {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
-      </v-icon>
-      <v-icon v-else>
-        {{ fileIcon(item.file) }}
-      </v-icon>
-    </template>
-  </v-treeview>
-    <v-divider></v-divider>
-    <v-file-input
-      label="Upload File"
-      prepend-icon="mdi-upload"
-      filled
-      @change="handleFileChange('sidebar_uploader', $event)"
-    ></v-file-input>
-  </v-navigation-drawer>
+    :tree="tree"
+    :fileIcon="fileIcon"
+    :isMobile="isMobile"
+    :isAppRoute="isAppRoute"
+    @handleFileChange="handleFileChange"
+    @update:drawer="updateDrawer"
+  />
 
     <v-main :scrollable="false">
       <CodeCellManager 
@@ -264,6 +249,8 @@ import type { VTextField } from "vuetify/lib/components/index.mjs";
 import { ztAliases } from '@/iconsets/ztIcon'
 import { Timer } from "@/timer";
 import { globalState } from "@/global_vars";
+import SidebarComponent from '@/components/FileExplorer.vue';
+
 
 export default {
   components: {
@@ -274,7 +261,8 @@ export default {
     PackageComponent,
     CodeCellManager,
     CopilotComponent,
-    ShareComponent
+    ShareComponent,
+    SidebarComponent
   },
 
   data() {
@@ -366,6 +354,9 @@ export default {
           (this.$refs.projectNameField as VTextField).focus();
         })
       }
+    },
+    updateDrawer(value: boolean) {
+      this.drawer = value;
     },
   handleFileChange(componentId: string, event: Event) {
   const file = (event.target as HTMLInputElement).files;
