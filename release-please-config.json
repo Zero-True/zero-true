@@ -3,7 +3,7 @@
     ".": {
       "package-name": "zero-true",
       "release-type": "python",
-      "prerelease-type": "dev",
+      "prerelease-type": "beta",
       "changelog-path": "CHANGELOG.md",
       "prerelease": true,
       "bump-minor-pre-major": true
