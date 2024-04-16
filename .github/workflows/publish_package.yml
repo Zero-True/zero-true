@@ -11,7 +11,7 @@ jobs:
     steps:
 
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -19,36 +19,22 @@ jobs:
           python-version: 3.9
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
 
-      - name: Build and Copy Dev
+      - name: Build Files
         run: |
-          npm install --global yarn
-          cd zt_frontend
-          yarn install
-          yarn run build
-          cd ..
-          rm -rf zt_backend/dist_dev
-          mkdir -p zt_backend/dist_dev
-          cp -r zt_frontend/dist/* zt_backend/dist_dev
-
-      - name: Build and Copy App
-        run: |
-          cd zt_frontend
-          yarn install
-          yarn run buildapp
-          cd ..
-          rm -rf zt_backend/dist_app
-          mkdir -p zt_backend/dist_app
-          cp -r zt_frontend/dist/* zt_backend/dist_app
+          echo "Cleaning up old builds..."
+          rm -rf zt_backend/dist_dev/ zt_backend/dist_app/
+          echo "Building Frontend..."
+          (cd zt_frontend && yarn install && yarn build && cp -r dist/ ../zt_backend/dist_dev/)
+          (cd zt_frontend && yarn buildapp && cp -r dist/ ../zt_backend/dist_app/)
+          (cd copilot && yarn install)
+        shell: bash
 
       - name: Build Package
         run: |
-          cd copilot
-          yarn install
-          cd ..
           pip install build
           python -m build
 
