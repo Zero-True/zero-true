@@ -1,0 +1,14 @@
+{
+    "packages": {
+      ".": {
+        "package-name": "zero-true"
+      },
+    "release-type": "python",
+    "prerelease-type": "dev",
+    "changelog-type": "github",
+    "prerelease": true,
+    "bump-minor-pre-major": true,
+    "pull-request-title-pattern": "chore(releases): ${scope} ${component} ${version}",
+    "commit-search-depth": 100
+  }
+}
