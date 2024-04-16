@@ -1,13 +1,9 @@
 {
-  "packages": {
-    ".": {
-      "release-type": "python",
-      "prerelease-type": "dev",
-      "changelog-type": "github",
-      "prerelease": true,
-      "bump-minor-pre-major": true
-    },
-    "commit-search-depth": 5
-  },
+  "release-type": "python",
+  "prerelease-type": "dev",
+  "changelog-type": "github",
+  "prerelease": true,
+  "bump-minor-pre-major": true,
+  "package-name": "zero-true",
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"
 }
