@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://zero-true.com/">
-    <img src="https://github.com/HonkaDonka/zero-true/assets/30189257/9c96ddca-2201-4864-a726-4d4c2701b53e" width="300">
+    <img src="https://github.com/HonkaDonka/zero-true/blob/main/docs/assets/zt_logo.png" width="300">
   </a>
 </p>
 
@@ -74,17 +74,17 @@ Zero-True comes with a variety of features designed to streamline your experienc
   <tr>
     <td>
       <a target="_blank" href="https://docs.zero-true.com/ui_components/index.html">
-        <img src="https://github.com/HonkaDonka/zero-true/assets/30189257/d72da346-6310-4d36-ac02-4dcb72b76547" style="max-height:150px; width:auto; display:block;">
+        <img src="https://github.com/HonkaDonka/zero-true/blob/main/docs/assets/zt_ui_component_examples.png" style="max-height:150px; width:1500px; display:block;">
       </a>
     </td>
     <td>
       <a target="_blank" href="https://docs.zero-true.com/cell_types.html">
-        <img src="https://github.com/HonkaDonka/zero-true/assets/30189257/ae6c311b-5d1d-4efe-968a-a1e398a17d7e" style="max-height:150px; width:auto; display:block;">
+        <img src="https://github.com/HonkaDonka/zero-true/blob/main/docs/assets/zt_cell_types.png" style="max-height:150px; width:1250px; display:block;">
       </a>
     </td>
     <td>
       <a target="_blank" href="https://docs.zero-true.com/ui_components/plotly.html">
-        <img src="https://github.com/HonkaDonka/zero-true/assets/30189257/e456c9ca-bd61-4284-a3f7-cef2b84007a2" style="max-height:150px; width:auto; display:block;">
+        <img src="https://github.com/HonkaDonka/zero-true/blob/main/docs/assets/zt_chart_example.png" style="max-height:150px; width:auto; display:block;">
       </a>
     </td>
   </tr>
