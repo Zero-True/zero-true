@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://zero-true.com/">
-    <img src="https://github.com/HonkaDonka/zero-true/blob/main/docs/assets/zt_logo.png" width="300">
+    <img src="https://github.com/Zero-True/zero-true/blob/main/docs/assets/zt_logo.png" width="300">
   </a>
 </p>
 
