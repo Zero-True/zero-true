@@ -19,3 +19,6 @@ from zt_backend.models.components.iframe import iFrame
 from zt_backend.models.components.html import HTML, pygwalker
 from zt_backend.models.state.state import state
 from zt_backend.models.state.state import global_state
+from zt_backend.models.components.chat_ui import chat_ui
+import openai
+import logging
