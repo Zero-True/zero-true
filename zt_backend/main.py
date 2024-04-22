@@ -19,12 +19,8 @@ run_mode = settings.run_mode
 project_name = settings.project_name
 user_name = settings.user_name
 
-route_prefix = ''
-if project_name:
-    route_prefix = '/'+user_name+'/'+project_name
-
-app.include_router(router.router, prefix=route_prefix)
-app.mount(route_prefix+"/copilot", copilot_app)
+app.include_router(router.router)
+app.mount("/copilot", copilot_app)
 
 app.add_middleware(
     CORSMiddleware,
@@ -54,6 +50,6 @@ def open_project():
         logger.error("Error creating new files on startup: %s", traceback.format_exc())
         
 if run_mode=='app':
-    app.mount(route_prefix, StaticFiles(directory=os.path.join(current_path, "dist_app"), html=True), name="assets")
+    app.mount('', StaticFiles(directory=os.path.join(current_path, "dist_app"), html=True), name="assets")
 else:
-    app.mount(route_prefix, StaticFiles(directory=os.path.join(current_path, "dist_dev"), html=True), name="assets")
+    app.mount('', StaticFiles(directory=os.path.join(current_path, "dist_dev"), html=True), name="assets")
