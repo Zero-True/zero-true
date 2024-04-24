@@ -43,9 +43,10 @@ def publish(key: Annotated[Optional[str],typer.Argument(help="The API key used t
             project_name:  Annotated[Optional[str],typer.Argument(help="The project to be published")],
             project_source: Annotated[Optional[str],typer.Argument(help="The directory for your project")]):
     
-    s3_key = user_name+'/'+ project_name+'/'+project_name+'.zip'
+    s3_key = user_name+'/'+ project_name+'/'+project_name+'.tar.gz'
     # Step 1: Verify the API key and get a signed URL from the Lambda function
     lambda_url = "https://mxj5v1635d.execute-api.us-east-1.amazonaws.com/default/project_upload"
+    lambda_url = "https://fs6kqh2puj.execute-api.us-east-2.amazonaws.com/default/project_upload"
     headers = {"Content-Type":"application/json",
                "x-api-key":key}
     response = requests.post(lambda_url, json={"s3_key": s3_key}, headers=headers)
@@ -65,11 +66,11 @@ def publish(key: Annotated[Optional[str],typer.Argument(help="The API key used t
         print(project_source)
         os.chdir('..')
 
-    shutil.make_archive(base_name =output_filename,format='zip', root_dir = project_source)
+    shutil.make_archive(base_name =output_filename,format='gztar', root_dir = project_source)
 
     # Step 3: Upload zip to S3 using the signed URL
-    upload_to_s3(signed_url, f"{output_filename}.zip")
-    os.remove(f"{output_filename}.zip")
+    upload_to_s3(signed_url, f"{output_filename}.tar.gz")
+    os.remove(f"{output_filename}.tar.gz")
     return signed_url
 
 @cli_app.command()
