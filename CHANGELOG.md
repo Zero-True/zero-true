@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.2 (2024-04-25)
+
+## What's Changed
+* fix: PyPi README fix by @Carson-Shaar in https://github.com/Zero-True/zero-true/pull/236
+* chore(releases): (main)  0.1.2 by @release-please in https://github.com/Zero-True/zero-true/pull/237
+* fix: update release please config by @jmymy in https://github.com/Zero-True/zero-true/pull/238
+
+
+**Full Changelog**: https://github.com/Zero-True/zero-true/compare/v0.1.1...v0.1.2
+
 ## [0.1.2](https://github.com/Zero-True/zero-true/compare/v0.1.1...v0.1.2) (2024-04-24)
 
 
