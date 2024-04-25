@@ -20,6 +20,7 @@ from .components.autocomplete import Autocomplete
 from .components.card import Card
 from .components.timer import Timer
 from .components.iframe import iFrame
+from .components.html import HTML
 import json
 
 def generate_json(model, name):
