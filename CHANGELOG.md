@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/Zero-True/zero-true/compare/v0.1.2...v0.1.3) (2024-04-25)
+
+
+### Bug Fixes
+
+* manually run release please ([#240](https://github.com/Zero-True/zero-true/issues/240)) ([b5416de](https://github.com/Zero-True/zero-true/commit/b5416de88dfd1f9cb3f0eea2d88866b18ac70feb))
+
 ## 0.1.2 (2024-04-25)
 
 ## What's Changed
