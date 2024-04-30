@@ -8,14 +8,14 @@ from zt_backend.models.components.button import Button
 from zt_backend.models.components.number_input import NumberInput
 from zt_backend.models.components.image import Image
 from zt_backend.models.components.text import Text
-from zt_backend.models.components.dataframe import DataFrame,Header
+from zt_backend.models.components.dataframe import DataFrame,Header,dataframe
 from zt_backend.models.components.layout import Column,Row,Layout
-from zt_backend.models.components.matplotlib import Matplotlib
+from zt_backend.models.components.matplotlib import Matplotlib, matplotlib
 from zt_backend.models.components.plotly import  PlotlyComponent
 from zt_backend.models.components.autocomplete import  Autocomplete
 from zt_backend.models.components.card import Card
 from zt_backend.models.components.timer import Timer
 from zt_backend.models.components.iframe import iFrame
-from zt_backend.models.components.html import HTML
+from zt_backend.models.components.html import HTML, pygwalker
 from zt_backend.models.state.state import state
 from zt_backend.models.state.state import global_state

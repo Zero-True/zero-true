@@ -61,3 +61,4 @@ def generate_schema():
     generate_json(Text,'text')
     generate_json(Timer,'timer')
     generate_json(iFrame,'iframe')
+    generate_json(HTML,'html')
