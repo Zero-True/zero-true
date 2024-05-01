@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/Zero-True/zero-true/compare/v0.1.3...v0.1.4) (2024-05-01)
+
+
+### Bug Fixes
+
+* Add HTML component ([#243](https://github.com/Zero-True/zero-true/issues/243)) ([0c2932b](https://github.com/Zero-True/zero-true/commit/0c2932b76cd6620e56bbbada986a9d60733e8edc))
+
 ## [0.1.3](https://github.com/Zero-True/zero-true/compare/v0.1.2...v0.1.3) (2024-04-25)
 
 
