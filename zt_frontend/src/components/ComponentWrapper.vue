@@ -7,6 +7,8 @@
         :figureJson="component.figure_json as string"
       />
 
+      <v-container v-else-if="component.component === 'zt-html'" v-html="component.v_html"/>
+
       <component
         v-else
         :is="component.component"

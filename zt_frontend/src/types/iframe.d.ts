@@ -41,10 +41,6 @@ export type Scrolling = string;
  * Allow transparency of the iframe
  */
 export type Allowtransparency = boolean;
-/**
- * Trigger event for when to execute a run
- */
-export type Triggerevent = string;
 
 /**
  * This is a representation of a standard iframe component
@@ -59,6 +55,5 @@ export interface IFrame {
   frameborder?: Frameborder;
   scrolling?: Scrolling;
   allowtransparency?: Allowtransparency;
-  triggerEvent?: Triggerevent;
   [k: string]: unknown;
 }
