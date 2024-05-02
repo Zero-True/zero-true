@@ -9,6 +9,10 @@
 #node modules
 node_modules/
 
+#.Ds_Store files
+zt_backend/.DS_Store
+zt_backend/models/.DS_Store
+
 # Distribution / packaging
 .Python
 build/
