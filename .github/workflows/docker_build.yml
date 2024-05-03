@@ -54,3 +54,19 @@ jobs:
         --cache-repo ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}-cache \
         --destination=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:zero-true-${GITHUB_REF_NAME} \
         --context dir:///workspace/
+
+    - name: "Build and push image via Kaniko"
+      if: github.event_name == 'pull_request'
+      run: |
+        docker run \
+        -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
+        -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
+        -e AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN} \
+        -v ${{ github.workspace }}:/workspace \
+        gcr.io/kaniko-project/executor:latest \
+        --dockerfile Dockerfile \
+        --reproducible --cleanup --cache=true \
+        --cache-repo ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}-cache \
+        --destination=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:zero-true-${GITHUB_REF_NAME} \
+        --destination=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:$(echo ${{ github.ref }} | cut -d '/' -f 3)-${{ github.sha }}-$(date +%s) \
+        --context dir:///workspace/
