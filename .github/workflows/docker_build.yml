@@ -67,5 +67,5 @@ jobs:
         --dockerfile Dockerfile \
         --reproducible --cleanup --cache=true \
         --cache-repo ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}-cache \
-        --destination=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:$(echo ${GITHUB_REF_NAME} | cut -d '/' -f 2)-${{ github.sha }}-$(date +%s) \
+        --destination=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:$(echo ${GITHUB_REF_NAME} | cut -d '/' -f 1)-${{ github.sha }}-$(date +%s) \
         --context dir:///workspace/
