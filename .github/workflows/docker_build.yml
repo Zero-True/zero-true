@@ -68,5 +68,5 @@ jobs:
         --reproducible --cleanup --cache=true \
         --cache-repo ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}-cache \
         --destination=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:zero-true-${GITHUB_REF_NAME} \
-        --destination=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:$(echo ${{ github.ref }} | cut -d '/' -f 3)-${{ github.sha }}-$(date +%s) \
+        --destination=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:$(echo ${{ github.ref }} | cut -d '/' -f 4)-${{ github.sha }}-$(date +%s) \
         --context dir:///workspace/
