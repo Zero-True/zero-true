@@ -276,6 +276,8 @@ def test_app_mode(driver):
         EC.element_to_be_clickable((By.ID, f"codeMirrorAppTitle{cell_id_0}")))
     expansion_panel_title = driver.find_element(By.ID, f"codeMirrorAppTitle{cell_id_0}")
     expansion_panel_title.click()
+    WebDriverWait(driver, 30).until(
+        EC.element_to_be_clickable((By.ID, f"codeMirrorApp{cell_id_0}")))
 
     cell_info = extract_code_cell_info(code_cells[0],driver,mode='app')
 
