@@ -162,6 +162,9 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+#.Ds_Store files
+**/.DS_Store
+
 #Custom stuff
 **/notebook.ztnb
 docs/html/
