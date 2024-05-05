@@ -263,7 +263,7 @@ def test_app_mode(driver):
     WebDriverWait(driver, 100).until(
         EC.presence_of_element_located((By.ID, "appBar")))
 
-
+    time.sleep(2)
     #test whether code cell is editable in app mode
     code_cells = find_code_cells(driver)
 
