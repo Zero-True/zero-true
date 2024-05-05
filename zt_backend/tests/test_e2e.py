@@ -263,7 +263,6 @@ def test_app_mode(driver):
     WebDriverWait(driver, 100).until(
         EC.presence_of_element_located((By.ID, "appBar")))
 
-    time.sleep(2)
     #test whether code cell is editable in app mode
     code_cells = find_code_cells(driver)
 
@@ -273,6 +272,8 @@ def test_app_mode(driver):
 
     assert len(code_cells) == 1 and code_cells[0].get_attribute('id') == f'codeCard{cell_id_0}', "Expected code cell not found."
 
+    WebDriverWait(driver, 30).until(
+        EC.element_to_be_clickable((By.ID, f"codeMirrorAppTitle{cell_id_0}")))
     expansion_panel_title = driver.find_element(By.ID, f"codeMirrorAppTitle{cell_id_0}")
     expansion_panel_title.click()
 
