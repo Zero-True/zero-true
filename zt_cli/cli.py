@@ -45,8 +45,7 @@ def publish(key: Annotated[Optional[str],typer.Argument(help="The API key used t
     
     s3_key = user_name+'/'+ project_name+'/'+project_name+'.tar.gz'
     # Step 1: Verify the API key and get a signed URL from the Lambda function
-    lambda_url = "https://mxj5v1635d.execute-api.us-east-1.amazonaws.com/default/project_upload"
-    lambda_url = "https://fs6kqh2puj.execute-api.us-east-2.amazonaws.com/default/project_upload"
+    lambda_url = "https://bxmm0wp9zk.execute-api.us-east-2.amazonaws.com/default/project_upload"
     headers = {"Content-Type":"application/json",
                "x-api-key":key}
     response = requests.post(lambda_url, json={"s3_key": s3_key}, headers=headers)
