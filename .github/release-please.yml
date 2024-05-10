@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-manifest: true
 handleGHRelease: true
 primaryBranch: main
+releaseType: python
+changelogType: github

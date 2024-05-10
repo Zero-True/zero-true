@@ -24,3 +24,10 @@ class DataFrame(ZTComponent):
         headers = [{"title": col, "key": col} for col in df.columns]
         items = df.to_dict(orient='records')
         return cls(id=id, headers=headers, items=items)
+    
+def dataframe(df: pd.DataFrame, id: str):
+    """Create a ZT DataFrame component from a pandas DataFrame"""
+    df = df.replace({np.nan:None}).replace({np.inf:None}).replace({-np.inf:None})
+    headers = [{"title": col, "key": col} for col in df.columns]
+    items = df.to_dict(orient='records')
+    return DataFrame(id=id, headers=headers, items=items)

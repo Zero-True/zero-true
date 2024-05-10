@@ -32,3 +32,4 @@ Explore the detailed API documentation for Zero True, including component proper
    plotly
    timer
    iframe
+   html
