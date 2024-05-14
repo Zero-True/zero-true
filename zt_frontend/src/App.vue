@@ -91,7 +91,7 @@
             <v-btn :icon="`ztIcon:${ztAliases.redo}`"></v-btn>
             <v-btn :icon="`ztIcon:${ztAliases.message}`"></v-btn> -->
             <CopilotComponent v-if="$devMode && !isAppRoute"/>
-            <PackageComponent v-if="$devMode && !isAppRoute" :dependencies="dependencies"/>
+            <PackageComponent v-if="$devMode && !isAppRoute" :dependencies="dependencies" :dependencyOutput="dependencyOutput" @updateDependencies="updateDependencies"/>
             <ShareComponent v-if="$devMode && !isAppRoute"/>
             <!-- <v-btn :icon="`ztIcon:${ztAliases.play}`"></v-btn>
             <v-btn
@@ -106,6 +106,11 @@
       </template>
     </v-app-bar>
     <v-main :scrollable="false">
+      <v-container v-if="errorMessage">
+        <v-alert type="error">
+            {{ errorMessage }}
+        </v-alert>
+      </v-container>
       <CodeCellManager 
         :notebook="notebook"
         :completions="completions"
@@ -226,6 +231,7 @@ import { ClearRequest } from "./types/clear_request";
 import { NotebookNameRequest } from "./types/notebook_name_request";
 import { Notebook, CodeCell, Layout, ZTComponent } from "./types/notebook";
 import { Dependencies } from "./types/notebook_response";
+import { DependencyOutput } from "./static-types/dependency_ouput";
 import CodeComponent from "@/components/CodeComponent.vue";
 import MarkdownComponent from "@/components/MarkdownComponent.vue";
 import EditorComponent from "@/components/EditorComponent.vue";
@@ -238,6 +244,7 @@ import type { VTextField } from "vuetify/lib/components/index.mjs";
 import { ztAliases } from '@/iconsets/ztIcon'
 import { Timer } from "@/timer";
 import { globalState } from "@/global_vars";
+import { DependencyRequest } from "./types/dependency_request";
 
 export default {
   components: {
@@ -253,7 +260,8 @@ export default {
 
   data() {
     return {
-      editingProjectName: false, 
+      editingProjectName: false,
+      errorMessage: '' as string,
       notebook: {} as Notebook,
       notebookName: '',
       notebookEditName: '',
@@ -266,6 +274,7 @@ export default {
       save_socket: null as WebSocket | null,
       run_socket: null as WebSocket | null,
       stop_socket: null as WebSocket | null,
+      dependency_socket: null as WebSocket | null,
       timer: 0,
       startTime: 0,
       timerInterval: null as ReturnType<typeof setInterval> | null,
@@ -273,11 +282,12 @@ export default {
       requestQueue: [] as any[],
       componentChangeQueue: [] as  any[],
       concatenatedCodeCache: {
-      lastCellId: '' as string,
-      code: '' as string,
-      followingCode: '' as string,
-      length: 0 as number,
+        lastCellId: '' as string,
+        code: '' as string,
+        followingCode: '' as string,
+        length: 0 as number,
       },
+      dependencyOutput: {output: "", isLoading: false} as DependencyOutput,
       ztAliases
     };
   },
@@ -299,6 +309,7 @@ export default {
     await this.initializeStopSocket()
     if (this.$devMode){
       await this.initializeSaveSocket()
+      await this.initializeDependencySocket()
     }
     this.isCodeRunning = true;
     this.startTimer();
@@ -434,6 +445,10 @@ export default {
           else{
             this.notebook.cells[response.cell_id].output = this.notebook.cells[response.cell_id].output.concat(response.output)
           }
+        }
+
+        else if (response.env_stale){
+          this.errorMessage = 'Some dependencies are not installed in the current environment. Open dependency manager to install missing dependencies'
         }
 
         else if (response.complete){
@@ -574,6 +589,38 @@ export default {
         // Reject the promise on connection error
         this.stop_socket!.onerror = (error) => {
           console.error("Stop socket connection error:", error);
+          reject(error);
+        };
+      });
+    },
+
+    initializeDependencySocket() {
+      this.dependency_socket = new WebSocket(this.ws_url + 'ws/dependency_update')
+      this.dependency_socket!.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.output){
+            this.dependencyOutput.output = this.dependencyOutput.output.concat(data.output)
+          }
+          else{
+            this.dependencies = JSON.parse(data);
+            this.dependencyOutput.isLoading = false;
+          }
+          this.errorMessage = '';
+        } catch (error) {
+          console.error('Error parsing server message:', error);
+        }
+      };
+      return new Promise<void>((resolve, reject) => {
+        // Resolve the promise when the connection is open
+        this.dependency_socket!.onopen = () => {
+          console.log("Dependency socket connected");
+          resolve();
+        };
+
+        // Reject the promise on connection error
+        this.dependency_socket!.onerror = (error) => {
+          console.error("Dependency socket connection error:", error);
           reject(error);
         };
       });
@@ -794,6 +841,12 @@ export default {
         default:
           throw new Error(`Unknown component type: ${cellType}`);
       }
+    },
+
+    updateDependencies(dependencies: Dependencies) {
+      this.dependencyOutput.output = '';
+      const request: DependencyRequest = {dependencies: dependencies}
+      this.dependency_socket!.send(JSON.stringify(request));
     },
 
     startTimerComponents(originId: string, timers: ZTComponent[]) {
