@@ -667,15 +667,21 @@ export default {
       this.sendComponentRequest(componentRequest)
     },
 
-    sendComponentRequest(componentRequest: ComponentRequest) {
+    async sendComponentRequest(componentRequest: ComponentRequest) {
       this.isCodeRunning = true;
       this.startTimer();
+      if (this.run_socket!.readyState !== WebSocket.OPEN) {
+        await this.initializeRunSocket()
+      }
       this.run_socket!.send(JSON.stringify(componentRequest))
     },
 
     async notebookRefresh(){//TODO: Fix this
       this.isCodeRunning = true;
       this.startTimer();
+      if (this.notebook_socket!.readyState !== WebSocket.OPEN) {
+        await this.initializeNotebookSocket()
+      }
       this.notebook_socket!.send('start')
     },
 
@@ -767,6 +773,9 @@ export default {
         column: column,
         code_w_context: this.concatenatedCodeCache.code+text+this.concatenatedCodeCache.followingCode
       };
+      if (this.save_socket!.readyState !== WebSocket.OPEN) {
+        await this.initializeSaveSocket()
+      }
       this.save_socket!.send(JSON.stringify(saveRequest))
     },
 
@@ -818,10 +827,16 @@ export default {
     async stopCodeExecution(){
       if (this.$devMode) {
         this.requestQueue = []
+        if (this.stop_socket!.readyState !== WebSocket.OPEN) {
+          await this.initializeStopSocket()
+        }
         this.stop_socket!.send("")
       }
       else {
         this.componentChangeQueue = []
+        if (this.stop_socket!.readyState !== WebSocket.OPEN) {
+          await this.initializeStopSocket()
+        }
         this.stop_socket!.send(this.notebook.userId)
       }
       this.isCodeRunning = false;
@@ -843,9 +858,12 @@ export default {
       }
     },
 
-    updateDependencies(dependencies: Dependencies) {
+    async updateDependencies(dependencies: Dependencies) {
       this.dependencyOutput.output = '';
       const request: DependencyRequest = {dependencies: dependencies}
+      if (this.dependency_socket!.readyState !== WebSocket.OPEN) {
+        await this.initializeDependencySocket()
+      }
       this.dependency_socket!.send(JSON.stringify(request));
     },
 
