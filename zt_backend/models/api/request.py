@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import List, Dict, Union
+from zt_backend.models.notebook import Dependencies
 
 class CodeRequest(BaseModel):
     id: str
@@ -79,7 +80,7 @@ class ClearRequest(BaseModel):
     userId: str
 
 class DependencyRequest(BaseModel):
-    dependencies: str
+    dependencies: Dependencies
 
 class ShareRequest(BaseModel):
     userName: str

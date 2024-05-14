@@ -5,7 +5,7 @@ from zt_backend.models.api import request
 from zt_backend.runner.execute_code import execute_request
 from zt_backend.config import settings
 from zt_backend.utils.completions import get_code_completions
-from zt_backend.utils.dependencies import dependency_update
+from zt_backend.utils.dependencies import dependency_update, parse_dependencies, check_env
 from zt_backend.utils.notebook import get_notebook_request, get_request_base, save_worker, websocket_message_sender
 from zt_backend.models.managers.connection_manager import ConnectionManager
 from zt_backend.models.managers.k_thread import KThread
@@ -193,15 +193,18 @@ def clear_state(clearRequest: request.ClearRequest):
         logger.debug("Clearing state for user %s", clearRequest.userId)
         app_state.user_states.pop(clearRequest.userId, None)
 
-@router.post("/api/dependency_update")
-def dependency_update_request(dependencyRequest: request.DependencyRequest):
-     if(app_state.run_mode=='dev'):
-        logger.debug("Updating dependencies")
+@router.websocket("/ws/dependency_update")
+async def dependency_update_request(websocket: WebSocket):
+    if(app_state.run_mode=='dev'):
+        await manager.connect(websocket)
         try:
-            dependency_update(dependencyRequest)
-            logger.debug("Successfully updated dependencies")
-        except Exception as e:
-            logger.error('Error while updating requirements: %s', traceback.format_exc())
+            while True:
+                data = await websocket.receive_json()
+                dependencyRequest = request.DependencyRequest(**data)
+                dependencyResponse = await dependency_update(dependencyRequest, websocket)
+                await websocket.send_json(dependencyResponse.model_dump_json())
+        except WebSocketDisconnect:
+            manager.disconnect(websocket)
 
 @router.websocket("/ws/notebook")
 async def load_notebook(websocket: WebSocket):
@@ -225,9 +228,10 @@ async def load_notebook(websocket: WebSocket):
                 app_state.user_threads[userId].start()
             else:
                 try:
-                    with open('requirements.txt', 'r', encoding='utf-8') as file:
-                        contents = file.read()
-                    notebook_response =  notebook.NotebookResponse(notebook=notebook_start, dependencies=notebook.Dependencies(value=contents))
+                    start_dependencies = parse_dependencies()
+                    if not check_env(start_dependencies):
+                        await websocket.send_json({"env_stale": True})
+                    notebook_response =  notebook.NotebookResponse(notebook=notebook_start, dependencies=start_dependencies)
                     await websocket.send_json(notebook_response.model_dump_json())
                     await websocket.send_json({"complete": True})
                 except FileNotFoundError:
