@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1](https://github.com/Zero-True/zero-true/compare/v0.2.0...v0.2.1) (2024-05-16)
+
+
+### Bug Fixes
+
+* Dependency error handling and ZT dependency not in frontend ([#256](https://github.com/Zero-True/zero-true/issues/256)) ([f848f93](https://github.com/Zero-True/zero-true/commit/f848f93bcbeef93458392a7b4cfa7f03f7374af2))
+* Move publish command to new prod ([#252](https://github.com/Zero-True/zero-true/issues/252)) ([504cb4b](https://github.com/Zero-True/zero-true/commit/504cb4b4f515ca98d7b9c782da379afc396c86c6))
+
 ## [0.2.0](https://github.com/Zero-True/zero-true/compare/v0.1.4...v0.2.0) (2024-05-14)
 
 
