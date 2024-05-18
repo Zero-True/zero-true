@@ -108,5 +108,54 @@ def notebook(host: Annotated[Optional[str], typer.Argument(help="Host address to
     
     uvicorn.run('zt_backend.main:app', host=host, port=port, log_config=log_config_dict)
 
+@cli_app.command()
+def convert(ipynb_path: str, ztnb_path: str) -> str: 
+    """
+    Convert a Jupyter notebook to a Zero-True notebook.
+    """
+
+    with open(ipynb_path, "r", encoding="utf-8") as f: 
+        notebook = json.loads(f.read()) 
+    output = [] 
+
+    output.append(f'notebookId = "{uuid.uuid4()}"')
+    output.append('notebookName = "Zero True"')
+    output.append('')
+    create_ztnb_cell('"code"', ['import zero-true as zt'], output)
+    
+    for cell in notebook['cells']: 
+        if (cell['cell_type'] == 'code'):    
+            create_ztnb_cell('"code"', cell['source'], output)
+        if (cell['cell_type'] == 'markdown'):
+            create_ztnb_cell('"markdown"', cell['source'], output)
+
+    with open(ztnb_path, 'w') as f:
+        for item in output:
+            f.write(item + '\n') 
+
+def create_ztnb_cell(type, source, output):
+    output.append(f'[cells.{uuid.uuid4()}]')
+    common_attributes = {
+      'cellName': '""',
+      'cellType': '"code"',
+      'hideCell': '"False"',
+      'hideCode': '"False"',
+      'expandCode': '"False"',
+      'showTable': '"False"',
+      'nonReactive': '"False"'
+    }
+  
+    for key, value in common_attributes.items():
+        if (key == 'cellType'):
+            output.append(f'{key} = {type}')
+        else:
+            output.append(f'{key} = {value}')
+
+    output.append('code = """')
+    for line in source:
+        output.append(line)
+    output[-1] = output[-1] + '"""'
+    output.append('')
+
 if __name__ == "__main__":
     cli_app()
