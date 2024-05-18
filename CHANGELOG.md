@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.2.1](https://github.com/Zero-True/zero-true/compare/v0.2.0...v0.2.1) (2024-05-16)
+
+
+### Bug Fixes
+
+* Dependency error handling and ZT dependency not in frontend ([#256](https://github.com/Zero-True/zero-true/issues/256)) ([f848f93](https://github.com/Zero-True/zero-true/commit/f848f93bcbeef93458392a7b4cfa7f03f7374af2))
+* Move publish command to new prod ([#252](https://github.com/Zero-True/zero-true/issues/252)) ([504cb4b](https://github.com/Zero-True/zero-true/commit/504cb4b4f515ca98d7b9c782da379afc396c86c6))
+
+## [0.2.0](https://github.com/Zero-True/zero-true/compare/v0.1.4...v0.2.0) (2024-05-14)
+
+
+### Bug Fixes
+
+* Chat UI component ([#250](https://github.com/Zero-True/zero-true/issues/250)) ([1e8bb5c](https://github.com/Zero-True/zero-true/commit/1e8bb5caecad24af899bda97e1480b56c1bf5162))
+* tests, added sleep before finding code cells in app mode test ([#251](https://github.com/Zero-True/zero-true/issues/251)) ([c3a82c1](https://github.com/Zero-True/zero-true/commit/c3a82c13f6e4eab295146acfa88f7e1874826c77))
+* version lock base docker image ([#247](https://github.com/Zero-True/zero-true/issues/247)) ([b8ccd5c](https://github.com/Zero-True/zero-true/commit/b8ccd5ce74d020b18308c9af6a7cddd381f7bb14))
+
 ## [0.1.4](https://github.com/Zero-True/zero-true/compare/v0.1.3...v0.1.4) (2024-05-01)
 
 

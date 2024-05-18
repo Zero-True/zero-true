@@ -7,16 +7,7 @@
 
 export type Package = string;
 export type Version = string;
-export type Dependencies1 = Dependency[];
 
-export interface DependencyRequest {
-  dependencies: Dependencies;
-  [k: string]: unknown;
-}
-export interface Dependencies {
-  dependencies?: Dependencies1;
-  [k: string]: unknown;
-}
 export interface Dependency {
   package: Package;
   version?: Version;
