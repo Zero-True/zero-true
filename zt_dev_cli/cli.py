@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 
 import subprocess
-import json
 import os
 import shutil
 import typer
-import uuid
 from zt_backend.models.generate_schema import generate_schema
 from typing_extensions import Annotated
 from typing import Optional
