@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/Zero-True/zero-true/compare/v0.2.1...v0.2.2) (2024-05-23)
+
+
+### Bug Fixes
+
+* Full requirements install and full versioning ([#258](https://github.com/Zero-True/zero-true/issues/258)) ([7b77320](https://github.com/Zero-True/zero-true/commit/7b773200dd9bf7cd16d3cae68a60ad360b5b9887))
+
 ## [0.2.1](https://github.com/Zero-True/zero-true/compare/v0.2.0...v0.2.1) (2024-05-16)
 
 
