@@ -1,6 +1,9 @@
 from zt.backend.zt_cli import convert, create_ztnb_cell
+from zt_backend.models.state.notebook_state import NotebookState
 from zt_backend.models import notebook
 import rtoml
+
+notebook_state = NotebookState()
 
 def test_ipynb_to_ztnb():
 
