@@ -257,7 +257,7 @@ import MarkdownComponent from "@/components/MarkdownComponent.vue";
 import EditorComponent from "@/components/EditorComponent.vue";
 import SQLComponent from "@/components/SQLComponent.vue";
 import PackageComponent from "@/components/PackageComponent.vue";
-import Comments from "@/components/Comments.vue";
+import Comments from "@/components/comments/Comments.vue";
 import CodeCellManager from "./components/CodeCellManager.vue";
 import CopilotComponent from "./components/CopilotComponent.vue";
 import ShareComponent from "./components/ShareComponent.vue";
