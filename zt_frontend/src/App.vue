@@ -160,6 +160,7 @@
           {{ errorMessage }}
         </v-alert>
       </v-container>
+<<<<<<< HEAD
       <v-container v-if="socketsDisconnected">
         <v-alert type="error">
           Connection to the server has been lost. Please refresh the page.
@@ -176,6 +177,33 @@
         @copilotCompletion="copilotCompletion"
         @updateTimers="startTimerComponents"
       />
+=======
+      <div :class="['content', 'px-8', 'd-flex', 'justify-center']">
+        <div class="content__cells flex-grow-1" transition="slide-x-transition">
+          <CodeCellManager
+            :notebook="notebook"
+            :completions="completions"
+            @runCode="runCode"
+            @saveCell="saveCell"
+            @componentValueChange="componentValueChange"
+            @deleteCell="deleteCell"
+            @createCell="createCodeCell"
+            @copilotCompletion="copilotCompletion"
+            @updateTimers="startTimerComponents"
+          />
+        </div>
+        <div
+          :class="[
+            'content__comments',
+            {
+              'content__comments--show': showComments,
+            },
+          ]"
+        >
+          <Comments />
+        </div>
+      </div>
+>>>>>>> 69ad292 (WIP)
     </v-main>
     <v-footer
       app
@@ -282,6 +310,7 @@ import MarkdownComponent from "@/components/MarkdownComponent.vue";
 import EditorComponent from "@/components/EditorComponent.vue";
 import SQLComponent from "@/components/SQLComponent.vue";
 import PackageComponent from "@/components/PackageComponent.vue";
+import Comments from "@/components/Comments.vue";
 import CodeCellManager from "./components/CodeCellManager.vue";
 import CopilotComponent from "./components/CopilotComponent.vue";
 import ShareComponent from "./components/ShareComponent.vue";
@@ -304,6 +333,7 @@ export default {
     CopilotComponent,
     ShareComponent,
     SidebarComponent,
+    Comments,
   },
 
   data() {
@@ -335,6 +365,8 @@ export default {
       items: [] as any[],
       openFolders: [],
       reactiveMode: true,
+      showComments: false,
+      componentChangeQueue: [] as any[],
       concatenatedCodeCache: {
         lastCellId: "" as string,
         code: "" as string,
@@ -1027,6 +1059,17 @@ export default {
 
   @include xl {
     max-width: 600px;
+  }
+}
+.content {
+  &__comments {
+    width: 0;
+    opacity: 0;
+    transition: all 0.2s ease-in;
+    &--show {
+      width: 300px;
+      opacity: 1;
+    }
   }
 }
 .footer {

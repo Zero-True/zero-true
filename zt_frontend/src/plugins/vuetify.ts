@@ -29,6 +29,9 @@ export default createVuetify({
         class: [ 'text-bluegrey-darken-1']
       }
     },
+    VCard: {
+      color: "bluegrey-darken-4"
+    },
     VDivider: {
       class: 'border-opacity-100'
     },
