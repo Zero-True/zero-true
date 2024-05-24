@@ -105,7 +105,7 @@
         </v-col>
       </template>
     </v-app-bar>
-    <v-main :scrollable="false">
+    <v-main :scrollable="false" class="w-100 mx-auto">
       <v-container v-if="errorMessage">
         <v-alert type="error">
             {{ errorMessage }}
@@ -990,11 +990,9 @@ export default {
 .content {
   &__comments {
     width: 0;
-    opacity: 0;
-    transition: all .2s ease-in;
+    transition: width .15s ease;
     &--show {
-      width: 300px;
-      opacity: 1;
+      width: 380px;
     }
   }
 }
