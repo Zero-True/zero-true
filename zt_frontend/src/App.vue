@@ -88,8 +88,8 @@
         <v-col class="d-flex justify-end">
           <div>
             <!-- <v-btn :icon="`ztIcon:${ztAliases.undo}`"></v-btn>
-            <v-btn :icon="`ztIcon:${ztAliases.redo}`"></v-btn>
-            <v-btn :icon="`ztIcon:${ztAliases.message}`"></v-btn> -->
+            <v-btn :icon="`ztIcon:${ztAliases.redo}`"></v-btn> -->
+            <v-btn v-if="$devMode && !isAppRoute" :icon="`ztIcon:${ztAliases.message}`" @click="showComments = !showComments"></v-btn>
             <CopilotComponent v-if="$devMode && !isAppRoute"/>
             <PackageComponent v-if="$devMode && !isAppRoute" :dependencies="dependencies" :dependencyOutput="dependencyOutput" @updateDependencies="updateDependencies"/>
             <ShareComponent v-if="$devMode && !isAppRoute"/>
@@ -111,17 +111,37 @@
             {{ errorMessage }}
         </v-alert>
       </v-container>
-      <CodeCellManager 
-        :notebook="notebook"
-        :completions="completions"
-        @runCode="runCode"
-        @saveCell="saveCell"
-        @componentValueChange="componentValueChange"
-        @deleteCell="deleteCell"
-        @createCell="createCodeCell"
-        @copilotCompletion="copilotCompletion"
-        @updateTimers="startTimerComponents"
-       />
+      <div :class="[
+        'content', 
+        'px-8', 
+        'd-flex',
+        'justify-center',
+      ]">
+        <div class="content__cells flex-grow-1" transition="slide-x-transition">
+          <CodeCellManager 
+            :notebook="notebook"
+            :completions="completions"
+            @runCode="runCode"
+            @saveCell="saveCell"
+            @componentValueChange="componentValueChange"
+            @deleteCell="deleteCell"
+            @createCell="createCodeCell"
+            @copilotCompletion="copilotCompletion"
+            @updateTimers="startTimerComponents"
+          />
+        </div>
+        <div
+          :class="[
+            'content__comments',
+            {
+              'content__comments--show': showComments,
+            } 
+          ]"
+        >
+          <Comments />
+        </div>
+      </div>
+      
     </v-main>
     <v-footer 
       app
@@ -237,6 +257,7 @@ import MarkdownComponent from "@/components/MarkdownComponent.vue";
 import EditorComponent from "@/components/EditorComponent.vue";
 import SQLComponent from "@/components/SQLComponent.vue";
 import PackageComponent from "@/components/PackageComponent.vue";
+import Comments from "@/components/Comments.vue";
 import CodeCellManager from "./components/CodeCellManager.vue";
 import CopilotComponent from "./components/CopilotComponent.vue";
 import ShareComponent from "./components/ShareComponent.vue";
@@ -255,7 +276,8 @@ export default {
     PackageComponent,
     CodeCellManager,
     CopilotComponent,
-    ShareComponent
+    ShareComponent,
+    Comments
   },
 
   data() {
@@ -280,6 +302,7 @@ export default {
       timerInterval: null as ReturnType<typeof setInterval> | null,
       isCodeRunning: false,
       requestQueue: [] as any[],
+      showComments: false,
       componentChangeQueue: [] as  any[],
       concatenatedCodeCache: {
         lastCellId: '' as string,
@@ -962,6 +985,17 @@ export default {
   
   @include xl {
     max-width: 600px;
+  }
+}
+.content {
+  &__comments {
+    width: 0;
+    opacity: 0;
+    transition: all .2s ease-in;
+    &--show {
+      width: 300px;
+      opacity: 1;
+    }
   }
 }
 .footer {
