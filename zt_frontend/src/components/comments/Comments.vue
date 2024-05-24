@@ -11,12 +11,17 @@
         <v-btn :value="false" class="mr-4">Open</v-btn>
         <v-btn :value="true">Resolved</v-btn>
       </v-btn-toggle>
+      <div class="mt-6">
+        <CommentsByCellType />
+      </div> 
     </div> 
   </v-card>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import { shallowRef } from 'vue'
+import CommentsByCellType from './CommentsByCellType.vue'
+
 const resolvedMode = shallowRef(false)
 </script>
 

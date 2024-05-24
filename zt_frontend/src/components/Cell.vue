@@ -151,7 +151,7 @@
 </template>
 <script setup lang="ts">
 import axios from 'axios'
-import { computed, PropType, nextTick, ref } from 'vue'
+import { computed, PropType, nextTick, ref, toRef } from 'vue'
 import type { Celltype } from '@/types/create_request'
 import { ztAliases } from '@/iconsets/ztIcon'
 import { useRoute } from 'vue-router'
@@ -163,10 +163,14 @@ import { ExpandCodeRequest } from '@/types/expand_code_request'
 import { CellReactivityRequest } from '@/types/cell_reactivity_request'
 import { ShowTableRequest } from '@/types/show_table_request'
 import { NameCellRequest } from '@/types/name_cell_request'
+import { useCellTypeColor } from '@/composables/cell-type-color'
 
 const props = defineProps({
   isDevMode: Boolean,
-  cellType: String as PropType<Celltype>,
+  cellType: {
+    type: String as PropType<Celltype>,
+    default: 'code', 
+  },
   cellId: String,
   error: Boolean,
   hideCell: {
@@ -206,19 +210,7 @@ const emits = defineEmits<{
   (e: 'renameCell', cellName: String): void
 }>()
 
-const dividerColor = computed(() => {
-  if (props.error) return 'error' 
-  switch (props.cellType) {
-    case 'markdown':
-      return '#4CBCFC';
-    case 'code':
-      return '#AE9FE8'
-    case 'sql':
-      return '#FFDCA7';
-    case 'text':
-      return '#16B48E';
-  }
-})
+const { cellTypeColor: dividerColor } = useCellTypeColor(toRef(props.cellType), toRef(props.error))
 
 const hideCellValue = ref(props.hideCell || false);
 const hideCodeValue = ref(props.hideCode || false);
