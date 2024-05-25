@@ -21,9 +21,16 @@
         <p class="message__content">Lorem ipsum and long text goes here Lorem ipsum and long text goes here</p>
       </div>
     </div>
-    <v-textarea
-      variant="outlined" 
-    ></v-textarea>
+    <div class="text-box">
+      <v-textarea
+        variant="outlined" 
+      ></v-textarea>
+      <div class="d-flex justify-end">
+        <v-btn variant="text">Cancel</v-btn>
+        <v-btn color="primary" class="ml-2">Submit</v-btn>
+      </div>
+    </div>
+    
     <v-btn
       variant="text"
       slim
