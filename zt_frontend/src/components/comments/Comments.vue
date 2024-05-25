@@ -1,5 +1,18 @@
 <template>
-  <v-card title="Comments" class="card">
+  <v-card class="card">
+    <v-template>
+      <div class="d-flex pa-4">
+        <h3>Comments</h3>
+        <v-btn
+          icon="mdi:mdi-close"
+          variant="text"
+          class="close-btn"
+          :ripple="false"
+          @click="closeComments()"
+        ></v-btn>
+      </div> 
+    </v-template>
+    
     <div class="content ma-4">
       <v-btn-toggle
         v-model="resolvedMode" 
@@ -22,6 +35,8 @@
             <v-btn
               color="primary"
               class="ml-2"
+              :disabled="!newCommentText || savingNewComment"
+              :loading="savingNewComment" 
               @click="submitNewComment()"
             >Submit</v-btn>
           </div>
@@ -53,13 +68,15 @@ import { useCommentsStore } from '@/stores/comments'
 
 const commentsStore = useCommentsStore();
 
-const { addComment } = commentsStore
+const { addComment, closeComments } = commentsStore
 
 const resolvedMode = shallowRef(false)
 const displayAddCommentTextarea = shallowRef(false)
 const newCommentText = shallowRef('')
+const savingNewComment = shallowRef(false)
 
-function submitNewComment() {
+async function submitNewComment() {
+  savingNewComment.value = true
   const newComment = {
     commentId: 1, 
     cell: commentsStore.selectedCell,
@@ -70,7 +87,10 @@ function submitNewComment() {
     resolved: false,
   };
 
-  addComment(newComment);
+  await addComment(newComment);
+  savingNewComment.value = false;
+  newCommentText.value = '';
+  displayAddCommentTextarea.value = false;
 }
 </script>
 
@@ -78,6 +98,11 @@ function submitNewComment() {
 .card {
   position: sticky;
   top: 100px;
+}
+.close-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 .content {
   position: relative;

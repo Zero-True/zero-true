@@ -10,16 +10,17 @@ export const useCommentsStore = defineStore('comments', () => {
   const displayedComments = computed(() => {
     if (!selectedCell.value) return allComments.value
     const result = allComments.value.filter(c => c.cell.cellId === selectedCell.value?.cellId)
-    console.log('allComments.value', allComments.value.length) 
     return result ?? []
   });
 
   // Actions
-  function addComment(comment: Comment) {
+  async function addComment(comment: Comment) {
+    await new Promise(resolve => setTimeout(resolve, 800))
     allComments.value.push(comment);
   }
 
-  function replyComment(replyToCommentId: string, comment: Comment) {
+  async function replyComment(replyToCommentId: string, comment: Comment) {
+    await new Promise(resolve => setTimeout(resolve, 800))
     const commentReplyTo = allComments.value.find(c => c.commentId === replyToCommentId);
     commentReplyTo?.replies.push(comment);
   }
