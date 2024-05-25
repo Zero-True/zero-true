@@ -1,8 +1,37 @@
 <template>
-  <p
-    class="mb-4 font-weight-bold"
-    :style="{ 'color': cellTypeColor }"
-  >{{ comment.cell.cellName }}</p>
+  <header class="d-flex align-center justify-space-between">
+    <p
+      class="mb-4 font-weight-bold"
+      :style="{ 'color': cellTypeColor }"
+    >{{ comment.cell.cellName }}</p>
+    <div>
+      <v-menu :close-on-content-click="false">
+        <template v-slot:activator="{ props }">
+          <v-btn
+            :icon="`ztIcon:${ztAliases.more}`"
+            v-bind="props"
+            variant="plain"
+            size="small"
+          >
+          </v-btn>
+        </template>
+        <v-list bg-color="bluegrey-darken-4">
+          <v-list-item>
+            <template v-slot:prepend>
+              <v-icon :icon="`ztIcon:${ztAliases.edit}`"></v-icon>
+            </template>
+            <v-list-item-title>Edit</v-list-item-title>
+          </v-list-item>
+          <v-list-item base-color="error">
+            <template v-slot:prepend>
+              <v-icon :icon="`ztIcon:${ztAliases.delete}`"></v-icon>
+            </template>
+            <v-list-item-title>Delete</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+    </div>
+  </header>
   <div class="messages">
     <div class="message mb-4">
       <div class="d-flex align-center">
@@ -54,7 +83,7 @@
 import { Celltype } from '@/types/create_request';
 import { Comment } from '@/types/comment';
 import { useCellTypeColor } from '@/composables/cell-type-color';
-
+import { ztAliases } from '@/iconsets/ztIcon'
 import { useCommentsStore } from '@/stores/comments'
 
 const commentsStore = useCommentsStore();
