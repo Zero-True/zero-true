@@ -12,24 +12,66 @@
         <v-btn :value="true">Resolved</v-btn>
       </v-btn-toggle>
       <div class="mt-6">
-        <CommentsPerCell />
+        <div class="text-box" v-if="!commentsStore.displayedComments.length && displayAddCommentTextarea">
+          <v-textarea
+            variant="outlined" 
+            v-model="newCommentText"
+          ></v-textarea>
+          <div class="d-flex justify-end">
+            <v-btn variant="text">Cancel</v-btn>
+            <v-btn
+              color="primary"
+              class="ml-2"
+              @click="submitNewComment()"
+            >Submit</v-btn>
+          </div>
+        </div>
+        <template v-else>
+          <Comment
+            v-for="comment in commentsStore.displayedComments"   
+            :comment="comment" 
+          />
+        </template>
       </div> 
 
       <v-btn
+        v-if="commentsStore.selectedCell"
         :prepend-icon="`ztIcon:${ztAliases.circleAdd}`"
         variant="outlined"
         class="w-100 add-comment-btn" 
+        @click="displayAddCommentTextarea=!displayAddCommentTextarea"
       >Add Comment</v-btn>
     </div> 
   </v-card>
 </template>
 
 <script setup lang="ts">
-import { shallowRef } from 'vue'
 import { ztAliases } from '@/iconsets/ztIcon'
-import CommentsPerCell from './CommentsPerCell.vue'
+import Comment from './Comment.vue'
+
+import { useCommentsStore } from '@/stores/comments'
+
+const commentsStore = useCommentsStore();
+
+const { addComment } = commentsStore
 
 const resolvedMode = shallowRef(false)
+const displayAddCommentTextarea = shallowRef(false)
+const newCommentText = shallowRef('')
+
+function submitNewComment() {
+  const newComment = {
+    commentId: 1, 
+    cell: commentsStore.selectedCell,
+    userName: 'Yuchao', 
+    date: 'today',
+    comment: newCommentText.value,
+    replies: [],
+    resolved: false,
+  };
+
+  addComment(newComment);
+}
 </script>
 
 <style lang="scss" scoped>
