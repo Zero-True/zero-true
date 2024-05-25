@@ -74,6 +74,7 @@
         <v-col class="d-flex justify-end">
           <div>
             <!-- <v-btn :icon="`ztIcon:${ztAliases.undo}`"></v-btn>
+<<<<<<< HEAD
             <v-btn :icon="`ztIcon:${ztAliases.redo}`"></v-btn>
             <v-btn :icon="`ztIcon:${ztAliases.message}`"></v-btn> -->
             <v-tooltip text="Run All" location="bottom" color="primary">
@@ -111,6 +112,22 @@
             </v-menu>
             <ShareComponent v-if="$devMode && !isAppRoute" />
           </div>
+=======
+            <v-btn :icon="`ztIcon:${ztAliases.redo}`"></v-btn> -->
+            <v-btn v-if="$devMode && !isAppRoute" :icon="`ztIcon:${ztAliases.message}`" @click="toggleComments"></v-btn>
+            <CopilotComponent v-if="$devMode && !isAppRoute"/>
+            <PackageComponent v-if="$devMode && !isAppRoute" :dependencies="dependencies" :dependencyOutput="dependencyOutput" @updateDependencies="updateDependencies"/>
+            <ShareComponent v-if="$devMode && !isAppRoute"/>
+            <!-- <v-btn :icon="`ztIcon:${ztAliases.play}`"></v-btn>
+            <v-btn
+              :prepend-icon="`ztIcon:${ztAliases.play}`"
+              variant="flat"
+              ripple
+              color="primary"
+              class="text-bluegrey-darken-4"
+            >Share</v-btn> -->
+          </div> 
+>>>>>>> de0d7db (Add pinia)
         </v-col>
       </template>
     </v-app-bar>
@@ -180,7 +197,12 @@
 =======
       <div :class="['content', 'px-8', 'd-flex', 'justify-center']">
         <div class="content__cells flex-grow-1" transition="slide-x-transition">
+<<<<<<< HEAD
           <CodeCellManager
+=======
+          <h1>aaaa {{ showComments }}</h1> 
+          <CodeCellManager 
+>>>>>>> de0d7db (Add pinia)
             :notebook="notebook"
             :completions="completions"
             @runCode="runCode"
@@ -295,6 +317,7 @@
 import axios from "axios";
 import { nextTick } from "vue";
 import { useRoute } from "vue-router";
+import { storeToRefs } from 'pinia';
 import { Request, CodeRequest } from "./types/request";
 import { ComponentRequest } from "./types/component_request";
 import { DeleteRequest } from "./types/delete_request";
@@ -321,6 +344,8 @@ import { globalState } from "@/global_vars";
 import { DependencyRequest } from "./types/dependency_request";
 import SidebarComponent from "@/components/FileExplorer.vue";
 import { WebSocketManager } from "@/websocket_manager";
+
+import { useCommentsStore } from '@/stores/comments'
 
 export default {
   components: {
@@ -358,6 +383,7 @@ export default {
       timerInterval: null as ReturnType<typeof setInterval> | null,
       isCodeRunning: false,
       requestQueue: [] as any[],
+<<<<<<< HEAD
       componentChangeQueue: [] as any[],
       drawer: false,
       files: [] as any[],
@@ -367,6 +393,9 @@ export default {
       reactiveMode: true,
       showComments: false,
       componentChangeQueue: [] as any[],
+=======
+      componentChangeQueue: [] as  any[],
+>>>>>>> de0d7db (Add pinia)
       concatenatedCodeCache: {
         lastCellId: "" as string,
         code: "" as string,
@@ -376,6 +405,16 @@ export default {
       dependencyOutput: { output: "", isLoading: false } as DependencyOutput,
       ztAliases,
     };
+  },
+
+  setup() {
+    const commentsStore  = useCommentsStore()
+    const { toggleComments } = commentsStore;
+    const { showComments } = storeToRefs(commentsStore);
+    return {
+      showComments,
+      toggleComments,
+    }
   },
 
   beforeMount() {
