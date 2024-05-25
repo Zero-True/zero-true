@@ -1,73 +1,43 @@
 <template>
-  <header class="d-flex align-center justify-space-between">
-    <p
-      class="mb-4 font-weight-bold"
-      :style="{ 'color': cellTypeColor }"
-    >{{ comment.cell.cellName }}</p>
-    <div>
-      <v-menu :close-on-content-click="false">
-        <template v-slot:activator="{ props }">
-          <v-btn
-            :icon="`ztIcon:${ztAliases.more}`"
-            v-bind="props"
-            variant="plain"
-            size="small"
-          >
-          </v-btn>
-        </template>
-        <v-list bg-color="bluegrey-darken-4">
-          <v-list-item>
-            <template v-slot:prepend>
-              <v-icon :icon="`ztIcon:${ztAliases.edit}`"></v-icon>
-            </template>
-            <v-list-item-title>Edit</v-list-item-title>
-          </v-list-item>
-          <v-list-item base-color="error">
-            <template v-slot:prepend>
-              <v-icon :icon="`ztIcon:${ztAliases.delete}`"></v-icon>
-            </template>
-            <v-list-item-title>Delete</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-    </div>
-  </header>
+  <p
+    class="mb-4 font-weight-bold"
+    :style="{ 'color': cellTypeColor }"
+  >{{ comment.cell.cellName }}</p>
   <div class="messages">
     <div class="message mb-4">
-      <div class="d-flex align-center">
-        <h3 class="message__user mr-2">{{ comment.userName }}</h3>
-        <p class="message__timestamp">{{ comment.date }}</p>
+      <div class="d-flex align-center justify-space-between">
+        <div class="d-flex align-center">
+          <h3 class="message__user mr-2">{{ comment.userName }}</h3>
+          <p class="message__timestamp">{{ comment.date }}</p>
+        </div>
+        <div>
+          <CommentMenu />
+        </div>
       </div>
       <p class="message__content">{{ comment.comment }}</p>
     </div>
     <div class="message mb-4 d-flex" v-for="reply in comment.replies">
       <v-divider class="indicator" vertical color="bluegrey" :thickness="1"></v-divider>
-      <div class="ml-6">
-        <div class="d-flex align-center">
-          <h3 class="message__user mr-2">{{ reply.user }}</h3>
-          <p class="message__timestamp">{{ reply.date }}</p>
+      <div class="ml-6 flex-1-1">
+        <div class="d-flex align-center justify-space-between">
+          <div class="d-flex align-center">
+            <h3 class="message__user mr-2">{{ reply.userName }}</h3>
+            <p class="message__timestamp">{{ reply.date }}</p>
+          </div>
+          <div>
+            <CommentMenu />
+          </div>
         </div>
         <p class="message__content">{{ reply.comment }}</p>
       </div>
     </div>
     <div class="text-box" v-if="showReplyBox">
-      <v-textarea
+      <CommentTextarea
         v-model="newCommentText" 
-        variant="outlined" 
-      ></v-textarea>
-      <div class="d-flex justify-end">
-        <v-btn
-          variant="text"
-          @click="showReplyBox=false"
-        >Cancel</v-btn>
-        <v-btn 
-          color="primary" 
-          class="ml-2"
-          :loading="savingReply"
-          :disabled="!newCommentText || savingReply" 
-          @click="submitNewReply"   
-        >Submit</v-btn>
-      </div>
+        :is-saving="savingReply" 
+        @close="showReplyBox=false"
+        @submit="submitNewReply"
+      />
     </div>
     
     <v-btn
@@ -83,7 +53,8 @@
 import { Celltype } from '@/types/create_request';
 import { Comment } from '@/types/comment';
 import { useCellTypeColor } from '@/composables/cell-type-color';
-import { ztAliases } from '@/iconsets/ztIcon'
+import CommentMenu from './CommentMenu.vue'
+import CommentTextarea from './CommentTextarea.vue'
 import { useCommentsStore } from '@/stores/comments'
 
 const commentsStore = useCommentsStore();
