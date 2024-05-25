@@ -5,7 +5,7 @@
       <header class="header" v-if="isDevMode">
         <div class="click-edit" v-if="keepCodeInAppModel">
           <div class="click-edit__show-text" v-if="!editingCellName">
-            <h4 class="text-bluegrey-darken-1 text-ellipsis click-edit__name"  @click="toggleCellName">{{ cellNameValue }} </h4>
+            <h4 class="text-bluegrey-darken-1 text-ellipsis click-edit__name"  @click="toggleCellName">{{ cellId }}aaa {{ cellNameValue }} </h4>
             <!-- <v-btn
               v-if="isDevMode"
               color="bluegrey-darken-4"
@@ -53,7 +53,7 @@
           }
         }">
           <div class="actions">
-            <!-- <v-btn icon="$message"></v-btn> -->
+            <v-btn :icon="`ztIcon:${ztAliases.message}`"></v-btn>
             <v-btn v-if="showSaveBtn" :icon="`ztIcon:${ztAliases.save}`" @click="$emit('save')"></v-btn>
 
             <v-btn v-if="showPlayBtn" :id="'runCode' + cellId" :icon="`ztIcon:${ztAliases.play}`"

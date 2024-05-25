@@ -89,7 +89,7 @@
           <div>
             <!-- <v-btn :icon="`ztIcon:${ztAliases.undo}`"></v-btn>
             <v-btn :icon="`ztIcon:${ztAliases.redo}`"></v-btn> -->
-            <v-btn v-if="$devMode && !isAppRoute" :icon="`ztIcon:${ztAliases.message}`" @click="showComments = !showComments"></v-btn>
+            <v-btn v-if="$devMode && !isAppRoute" :icon="`ztIcon:${ztAliases.message}`" @click="toggleComments"></v-btn>
             <CopilotComponent v-if="$devMode && !isAppRoute"/>
             <PackageComponent v-if="$devMode && !isAppRoute" :dependencies="dependencies" :dependencyOutput="dependencyOutput" @updateDependencies="updateDependencies"/>
             <ShareComponent v-if="$devMode && !isAppRoute"/>
@@ -118,6 +118,7 @@
         'justify-center',
       ]">
         <div class="content__cells flex-grow-1" transition="slide-x-transition">
+          <h1>aaaa {{ showComments }}</h1> 
           <CodeCellManager 
             :notebook="notebook"
             :completions="completions"
@@ -242,6 +243,7 @@
 import axios from "axios";
 import { nextTick } from 'vue';
 import { useRoute } from "vue-router";
+import { storeToRefs } from 'pinia';
 import { Request, CodeRequest } from "./types/request";
 import { ComponentRequest } from "./types/component_request";
 import { DeleteRequest } from "./types/delete_request";
@@ -266,6 +268,8 @@ import { ztAliases } from '@/iconsets/ztIcon'
 import { Timer } from "@/timer";
 import { globalState } from "@/global_vars";
 import { DependencyRequest } from "./types/dependency_request";
+
+import { useCommentsStore } from '@/stores/comments'
 
 export default {
   components: {
@@ -302,7 +306,6 @@ export default {
       timerInterval: null as ReturnType<typeof setInterval> | null,
       isCodeRunning: false,
       requestQueue: [] as any[],
-      showComments: false,
       componentChangeQueue: [] as  any[],
       concatenatedCodeCache: {
         lastCellId: '' as string,
@@ -313,6 +316,16 @@ export default {
       dependencyOutput: {output: "", isLoading: false} as DependencyOutput,
       ztAliases
     };
+  },
+
+  setup() {
+    const commentsStore  = useCommentsStore()
+    const { toggleComments } = commentsStore;
+    const { showComments } = storeToRefs(commentsStore);
+    return {
+      showComments,
+      toggleComments,
+    }
   },
 
   beforeMount() {
