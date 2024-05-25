@@ -2,14 +2,14 @@
   <p
     class="mb-4 font-weight-bold"
     :style="{ 'color': cellTypeColor }"
-  >Python Cell #1</p>
+  >{{ comment.cell.cellName }}</p>
   <div class="messages">
     <div class="message mb-4">
       <div class="d-flex align-center">
-        <h3 class="message__user mr-2">Paris</h3>
-        <p class="message__timestamp">1 day ago</p>
+        <h3 class="message__user mr-2">{{ comment.userName }}</h3>
+        <p class="message__timestamp">{{ comment.date }}</p>
       </div>
-      <p class="message__content">Lorem ipsum and long text goes here Lorem ipsum and long text goes here</p>
+      <p class="message__content">{{ comment.comment }}</p>
     </div>
     <div class="message mb-4 d-flex">
       <v-divider class="indicator" vertical color="bluegrey" :thickness="1"></v-divider>
@@ -21,7 +21,7 @@
         <p class="message__content">Lorem ipsum and long text goes here Lorem ipsum and long text goes here</p>
       </div>
     </div>
-    <div class="text-box">
+    <div class="text-box" v-if="showReplyBox">
       <v-textarea
         variant="outlined" 
       ></v-textarea>
@@ -32,31 +32,33 @@
     </div>
     
     <v-btn
+      v-if="!showReplyBox"
       variant="text"
       slim
+      @click="showReplyBox=true"
     >Reply</v-btn>
   </div> 
 </template>
 
 <script setup lang="ts">
-import { PropType, toRef } from 'vue'
 import { Celltype } from '@/types/create_request';
+import { Comment } from '@/types/comment';
 import { useCellTypeColor } from '@/composables/cell-type-color';
 
+import { useCommentsStore } from '@/stores/comments'
+
+const commentsStore = useCommentsStore();
 
 const props = defineProps({
-  cellType: {
-    type: String as PropType<Celltype>,
-    default: 'code', 
+  comment: {
+    type: Object as PropType<Comment>,
+    required: true,
   },
-  cellName: {
-    type: String,
-    default: null
-  }
 })
 
-const { cellTypeColor } = useCellTypeColor(toRef(props.cellType))
+const { cellTypeColor } = useCellTypeColor(toRef(props.comment.cell.cellType))
 
+const showReplyBox = shallowRef(false)
 </script>
 
 <style lang="scss" scoped>

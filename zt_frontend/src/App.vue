@@ -89,7 +89,7 @@
           <div>
             <!-- <v-btn :icon="`ztIcon:${ztAliases.undo}`"></v-btn>
             <v-btn :icon="`ztIcon:${ztAliases.redo}`"></v-btn> -->
-            <v-btn v-if="$devMode && !isAppRoute" :icon="`ztIcon:${ztAliases.message}`" @click="toggleComments"></v-btn>
+            <v-btn v-if="$devMode && !isAppRoute" :icon="`ztIcon:${ztAliases.message}`" @click="showAllComments"></v-btn>
             <CopilotComponent v-if="$devMode && !isAppRoute"/>
             <PackageComponent v-if="$devMode && !isAppRoute" :dependencies="dependencies" :dependencyOutput="dependencyOutput" @updateDependencies="updateDependencies"/>
             <ShareComponent v-if="$devMode && !isAppRoute"/>
@@ -241,9 +241,7 @@
 
 <script lang="ts">
 import axios from "axios";
-import { nextTick } from 'vue';
 import { useRoute } from "vue-router";
-import { storeToRefs } from 'pinia';
 import { Request, CodeRequest } from "./types/request";
 import { ComponentRequest } from "./types/component_request";
 import { DeleteRequest } from "./types/delete_request";
@@ -320,11 +318,11 @@ export default {
 
   setup() {
     const commentsStore  = useCommentsStore()
-    const { toggleComments } = commentsStore;
+    const { showAllComments } = commentsStore;
     const { showComments } = storeToRefs(commentsStore);
     return {
       showComments,
-      toggleComments,
+      showAllComments,
     }
   },
 

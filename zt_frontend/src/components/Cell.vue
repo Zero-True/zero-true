@@ -5,7 +5,7 @@
       <header class="header" v-if="isDevMode">
         <div class="click-edit" v-if="keepCodeInAppModel">
           <div class="click-edit__show-text" v-if="!editingCellName">
-            <h4 class="text-bluegrey-darken-1 text-ellipsis click-edit__name"  @click="toggleCellName">{{ cellId }}aaa {{ cellNameValue }} </h4>
+            <h4 class="text-bluegrey-darken-1 text-ellipsis click-edit__name"  @click="toggleCellName">{{ cellNameValue }} </h4>
             <!-- <v-btn
               v-if="isDevMode"
               color="bluegrey-darken-4"
@@ -53,7 +53,14 @@
           }
         }">
           <div class="actions">
-            <v-btn :icon="`ztIcon:${ztAliases.message}`"></v-btn>
+            <v-btn
+              :icon="`ztIcon:${ztAliases.message}`"
+              @click="commentsStore.showCommentsPerCell({
+                cellId,
+                cellName: cellNameValue,
+                cellType,
+              })"
+            ></v-btn>
             <v-btn v-if="showSaveBtn" :icon="`ztIcon:${ztAliases.save}`" @click="$emit('save')"></v-btn>
 
             <v-btn v-if="showPlayBtn" :id="'runCode' + cellId" :icon="`ztIcon:${ztAliases.play}`"
@@ -164,6 +171,10 @@ import { CellReactivityRequest } from '@/types/cell_reactivity_request'
 import { ShowTableRequest } from '@/types/show_table_request'
 import { NameCellRequest } from '@/types/name_cell_request'
 import { useCellTypeColor } from '@/composables/cell-type-color'
+
+import { useCommentsStore } from '@/stores/comments'
+
+const commentsStore = useCommentsStore();
 
 const props = defineProps({
   isDevMode: Boolean,
