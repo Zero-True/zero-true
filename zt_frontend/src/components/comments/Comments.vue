@@ -24,8 +24,8 @@
         <v-btn :value="false" class="mr-4">Open</v-btn>
         <v-btn :value="true">Resolved</v-btn>
       </v-btn-toggle>
-      <div class="mt-6">
-        <div class="text-box" v-if="!commentsStore.displayedComments.length && displayAddCommentTextarea">
+      <div class="mt-6 flex-1-1 ">
+        <div class="text-box" v-if="displayAddCommentTextarea">
           <v-textarea
             variant="outlined" 
             v-model="newCommentText"
@@ -40,6 +40,11 @@
               @click="submitNewComment()"
             >Submit</v-btn>
           </div>
+        </div>
+        <div class="empty-state" v-if="!commentsStore.displayedComments.length && !displayAddCommentTextarea">
+          <v-icon :icon="`ztIcon:${ztAliases.message}`"/>
+          <p>No comments yet</p>
+          <p class="empty-state__text mt-2">Add a comment by clicking on the cell you want to add a comment to.</p>
         </div>
         <template v-else>
           <Comment
@@ -69,11 +74,20 @@ import { useCommentsStore } from '@/stores/comments'
 const commentsStore = useCommentsStore();
 
 const { addComment, closeComments } = commentsStore
+const { selectedCell } = storeToRefs(commentsStore)
 
 const resolvedMode = shallowRef(false)
 const displayAddCommentTextarea = shallowRef(false)
 const newCommentText = shallowRef('')
 const savingNewComment = shallowRef(false)
+
+watch(selectedCell, () => {
+  // Reset component variables
+  resolvedMode.value = false
+  displayAddCommentTextarea.value = false
+  newCommentText.value = ''
+  savingNewComment.value = false
+})
 
 async function submitNewComment() {
   savingNewComment.value = true
@@ -108,6 +122,16 @@ async function submitNewComment() {
   position: relative;
   height: 100%;
   min-height: 700px;
+}
+.empty-state {
+  margin-top: 200px;
+  text-align: center;
+  &__text {
+    max-width: 20em;
+    margin: 0 auto;
+    line-height: 1.8rem;
+    color: rgb(var(--v-theme-bluegrey));
+  }
 }
 .add-comment-btn {
   position: absolute;
