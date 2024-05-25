@@ -20,7 +20,8 @@ export default createVuetify({
     },
     VBtn: {
       style:[{ 'text-transform': 'capitalize' }],
-      color: 'bluegrey-darken-2'
+      color: 'bluegrey-darken-2',
+      class: [ 'text-bluegrey-darken-1']
     },
     VBtnToggle: {
       density: 'comfortable',
@@ -49,6 +50,9 @@ export default createVuetify({
 			density:'compact',
 			hideDetails: true,
 		},
+    VTextarea: {
+      bgColor: 'bluegrey-darken-3'
+    }
   },
   theme: {
     defaultTheme: "dark",
