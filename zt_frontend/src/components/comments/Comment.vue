@@ -19,7 +19,7 @@
             @click="() => resolveComment(comment.id)" 
           ></v-btn>
           <CommentMenu
-            v-if="!editingCommentId"
+            v-if="!editingCommentId && !comment.resolved"
             @editComment="edit(comment)" 
             @deleteComment="() => deleteComment(comment.id)" 
           />
@@ -70,7 +70,7 @@
     </div>
     
     <v-btn
-      v-if="!showReplyBox"
+      v-if="!showReplyBox && !comment.resolved"
       variant="text"
       slim
       @click="showReplyBox=true"
