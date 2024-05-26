@@ -57,6 +57,7 @@ export const useCommentsStore = defineStore('comments', () => {
 
   function closeComments() {
     showComments.value = false;
+    selectedCell.value = undefined;
   }
   function showAllComments() {
     showComments.value = true;
