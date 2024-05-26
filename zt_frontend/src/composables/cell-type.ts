@@ -1,7 +1,10 @@
 import { Ref, computed } from 'vue'
 import type { Celltype } from '@/types/create_request'
 
-export function useCellTypeColor(type: Ref<Celltype>, error?: Ref<Boolean>) {
+export function useCellType(type: Ref<Celltype>, error?: Ref<Boolean>) {
+  const cellTypeIcon = computed(() => {
+    return  type.value
+  })
   const cellTypeColor = computed(() => {
     if (error?.value) return 'error' 
     switch (type.value) {
@@ -16,5 +19,5 @@ export function useCellTypeColor(type: Ref<Celltype>, error?: Ref<Boolean>) {
     }
   })
 
-  return { cellTypeColor }
+  return { cellTypeColor, cellTypeIcon }
 }

@@ -1,8 +1,16 @@
 <template>
-  <p
-    class="mb-4 font-weight-bold"
-    :style="{ 'color': cellTypeColor }"
-  >{{ comment.cell.cellName }}</p>
+  <div class="d-flex">
+    <v-icon
+      :icon="`ztIcon:${ztAliases[cellTypeIcon]}`"
+      :color="cellTypeColor"
+      class="mr-2" 
+    ></v-icon>
+    <p
+      class="mb-4 font-weight-bold"
+      :style="{ 'color': cellTypeColor }"
+    >{{ comment.cell.cellName }}</p>
+  </div> 
+  
   <div class="messages">
     <div class="message mb-4">
       <div class="d-flex align-center justify-space-between">
@@ -80,9 +88,10 @@
 
 <script setup lang="ts">
 import { Comment } from '@/types/comment';
-import { useCellTypeColor } from '@/composables/cell-type-color';
+import { useCellType } from '@/composables/cell-type';
 import CommentMenu from './CommentMenu.vue'
 import CommentTextarea from './CommentTextarea.vue'
+import { ztAliases } from '@/iconsets/ztIcon'
 import { useCommentsStore } from '@/stores/comments'
 
 const commentsStore = useCommentsStore();
@@ -95,7 +104,7 @@ const props = defineProps({
 })
 
 
-const { cellTypeColor } = useCellTypeColor(toRef(props.comment.cell.cellType))
+const { cellTypeColor, cellTypeIcon } = useCellType(toRef(props.comment.cell.cellType))
 
 const newCommentText = shallowRef('')
 const showReplyBox = shallowRef(false)
