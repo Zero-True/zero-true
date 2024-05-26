@@ -14,6 +14,7 @@
           <CommentMenu
             v-if="!editingCommentId"
             @editComment="edit(comment)" 
+            @deleteComment="() => deleteComment(comment.id)" 
           />
         </div>
       </div>
@@ -38,6 +39,7 @@
             <CommentMenu 
               v-if="!editingCommentId"
               @editComment="edit(reply)" 
+              @deleteComment="() => deleteComment(reply.id, comment.id)" 
             />
           </div>
         </div>
@@ -112,6 +114,11 @@ async function submitEditChange(parentCommentId?: string) {
     editingCommentId.value = undefined
     editingCommentChange.value = ''
   } 
+}
+
+// DELETE
+async function deleteComment(id: string, parentCommentId?: string) {
+  await commentsStore.deleteComment(id, parentCommentId);
 }
 
 async function submitNewReply() {

@@ -18,6 +18,18 @@ export const useCommentsStore = defineStore('comments', () => {
     await new Promise(resolve => setTimeout(resolve, 800))
     allComments.value.push(comment);
   }
+  
+  async function deleteComment(id: string, parentCommentId?: string) {
+    await new Promise(resolve => setTimeout(resolve, 800))
+    if (parentCommentId) {
+      const parentComment = allComments.value.find(c => c.id === parentCommentId)
+      if (parentComment) {
+        parentComment.replies = parentComment.replies.filter(r => r.id !== id)
+      } 
+    } else {
+      allComments.value = allComments.value.filter(c => c.id !== id)
+    }
+  }
 
   async function editComment(commentId: string, newCommentText: string, parentCommentId?: string) {
     await new Promise(resolve => setTimeout(resolve, 800))
@@ -58,6 +70,7 @@ export const useCommentsStore = defineStore('comments', () => {
     // Actions
     addComment,
     editComment,
+    deleteComment,
     replyComment,
     closeComments,
     showAllComments,
