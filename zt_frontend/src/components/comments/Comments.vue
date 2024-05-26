@@ -25,22 +25,7 @@
         <v-btn :value="true">Resolved</v-btn>
       </v-btn-toggle>
       <div class="mt-6 flex-1-1 ">
-        <div class="text-box" v-if="displayAddCommentTextarea">
-          <v-textarea
-            variant="outlined" 
-            v-model="newCommentText"
-          ></v-textarea>
-          <div class="d-flex justify-end">
-            <v-btn variant="text">Cancel</v-btn>
-            <v-btn
-              color="primary"
-              class="ml-2"
-              :disabled="!newCommentText || savingNewComment"
-              :loading="savingNewComment" 
-              @click="submitNewComment()"
-            >Submit</v-btn>
-          </div>
-        </div>
+        
         <div class="empty-state" v-if="!commentsStore.displayedComments.length && !displayAddCommentTextarea">
           <v-icon :icon="`ztIcon:${ztAliases.message}`"/>
           <p>No comments yet</p>
@@ -48,12 +33,27 @@
         </div>
         <template v-else>
           <Comment
-            v-for="comment in commentsStore.displayedComments"   
+            v-for="comment in displayedComments"   
             :comment="comment" 
           />
         </template>
       </div> 
-
+      <div class="text-box" v-if="displayAddCommentTextarea">
+        <v-textarea
+          variant="outlined" 
+          v-model="newCommentText"
+        ></v-textarea>
+        <div class="d-flex justify-end">
+          <v-btn variant="text">Cancel</v-btn>
+          <v-btn
+            color="primary"
+            class="ml-2"
+            :disabled="!newCommentText || savingNewComment"
+            :loading="savingNewComment" 
+            @click="submitNewComment()"
+          >Submit</v-btn>
+        </div>
+      </div>
       <v-btn
         v-if="commentsStore.selectedCell"
         :prepend-icon="`ztIcon:${ztAliases.circleAdd}`"
@@ -81,6 +81,14 @@ const displayAddCommentTextarea = shallowRef(false)
 const newCommentText = shallowRef('')
 const savingNewComment = shallowRef(false)
 
+const displayedComments = computed(() => commentsStore.displayedComments.filter(c => {
+  if(resolvedMode.value) {
+    return c.resolved
+  } else {
+    return !c.resolved
+  }
+}))
+
 watch(selectedCell, () => {
   // Reset component variables
   resolvedMode.value = false
@@ -92,7 +100,7 @@ watch(selectedCell, () => {
 async function submitNewComment() {
   savingNewComment.value = true
   const newComment = {
-    id: '1', 
+    id: `${Math.random()}`, 
     cell: commentsStore.selectedCell!,
     userName: 'Yuchao', 
     date: 'today',

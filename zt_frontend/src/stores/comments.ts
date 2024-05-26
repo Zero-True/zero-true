@@ -48,6 +48,13 @@ export const useCommentsStore = defineStore('comments', () => {
     commentReplyTo?.replies.push(comment);
   }
 
+  async function resolveComment(id: string) {
+    console.log('resolveComment', id)
+    await new Promise(resolve => setTimeout(resolve, 200))
+    const resolveComment = allComments.value.find(c => c.id === id);
+    if (resolveComment) resolveComment.resolved = true;
+  }
+
   function closeComments() {
     showComments.value = false;
   }
@@ -73,6 +80,7 @@ export const useCommentsStore = defineStore('comments', () => {
     deleteComment,
     replyComment,
     closeComments,
+    resolveComment,
     showAllComments,
     showCommentsPerCell
   }
