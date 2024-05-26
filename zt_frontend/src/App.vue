@@ -118,7 +118,6 @@
         'justify-center',
       ]">
         <div class="content__cells flex-grow-1" transition="slide-x-transition">
-          <h1>aaaa {{ showComments }}</h1> 
           <CodeCellManager 
             :notebook="notebook"
             :completions="completions"
