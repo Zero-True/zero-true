@@ -11,6 +11,13 @@
           <p class="message__timestamp">{{ comment.date }}</p>
         </div>
         <div>
+          <v-btn
+            v-if="!comment.resolved"
+            icon="$success"
+            variant="plain"
+            :ripple="false"
+            @click="() => resolveComment(comment.id)" 
+          ></v-btn>
           <CommentMenu
             v-if="!editingCommentId"
             @editComment="edit(comment)" 
@@ -87,6 +94,7 @@ const props = defineProps({
   },
 })
 
+
 const { cellTypeColor } = useCellTypeColor(toRef(props.comment.cell.cellType))
 
 const newCommentText = shallowRef('')
@@ -137,6 +145,10 @@ async function submitNewReply() {
   savingReply.value = false;
   newCommentText.value = '';
   showReplyBox.value = false;
+}
+
+async function resolveComment(id: string) {
+  await commentsStore.resolveComment(id);
 }
 </script>
 
