@@ -6,7 +6,7 @@ export interface Cell {
   cellType: Celltype;
 }
 export interface Comment {
-  commentId: string; 
+  id: string; 
   cell: Cell; 
   userName: string;
   date: string;

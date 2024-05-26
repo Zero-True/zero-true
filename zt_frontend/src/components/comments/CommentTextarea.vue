@@ -7,7 +7,7 @@
   <div class="d-flex justify-end">
     <v-btn
       variant="text"
-      @click="emit('close')"
+      @click="emit('cancel')"
     >Cancel</v-btn>
     <v-btn 
       color="primary" 
@@ -26,7 +26,7 @@ defineProps({
   modelValue: String
 })
 
-const emit = defineEmits(['close', 'submit', 'update:modelValue'])
+const emit = defineEmits(['cancel', 'submit', 'update:modelValue'])
 </script>
 
 <style lang="scss" scoped>

@@ -19,9 +19,20 @@ export const useCommentsStore = defineStore('comments', () => {
     allComments.value.push(comment);
   }
 
+  async function editComment(commentId: string, newCommentText: string, parentCommentId?: string) {
+    await new Promise(resolve => setTimeout(resolve, 800))
+    const editingComment = allComments.value.find(c => c.id === (parentCommentId ?? commentId));
+    if (parentCommentId) {
+      const editingReply = editingComment?.replies.find(r => r.id === commentId)
+      editingReply && (editingReply.comment = newCommentText)
+    } else {
+      editingComment && (editingComment.comment = newCommentText)
+    }
+  }
+
   async function replyComment(replyToCommentId: string, comment: Comment) {
     await new Promise(resolve => setTimeout(resolve, 800))
-    const commentReplyTo = allComments.value.find(c => c.commentId === replyToCommentId);
+    const commentReplyTo = allComments.value.find(c => c.id === replyToCommentId);
     commentReplyTo?.replies.push(comment);
   }
 
@@ -46,6 +57,7 @@ export const useCommentsStore = defineStore('comments', () => {
     displayedComments,
     // Actions
     addComment,
+    editComment,
     replyComment,
     closeComments,
     showAllComments,

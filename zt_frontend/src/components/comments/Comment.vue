@@ -11,10 +11,20 @@
           <p class="message__timestamp">{{ comment.date }}</p>
         </div>
         <div>
-          <CommentMenu />
+          <CommentMenu
+            v-if="!editingCommentId"
+            @editComment="edit(comment)" 
+          />
         </div>
       </div>
-      <p class="message__content">{{ comment.comment }}</p>
+      <CommentTextarea
+        v-if="editingCommentId === comment.id"
+        v-model="editingCommentChange" 
+        :isSaving="savingEdit" 
+        @cancel="cancelEdit" 
+        @submit="submitEditChange"
+      />
+      <p v-else class="message__content">{{ comment.comment }}</p>
     </div>
     <div class="message mb-4 d-flex" v-for="reply in comment.replies">
       <v-divider class="indicator" vertical color="bluegrey" :thickness="1"></v-divider>
@@ -25,17 +35,27 @@
             <p class="message__timestamp">{{ reply.date }}</p>
           </div>
           <div>
-            <CommentMenu />
+            <CommentMenu 
+              v-if="!editingCommentId"
+              @editComment="edit(reply)" 
+            />
           </div>
         </div>
-        <p class="message__content">{{ reply.comment }}</p>
+        <CommentTextarea
+          v-if="editingCommentId === reply.id"
+          v-model="editingCommentChange"
+          :isSaving="savingEdit"
+          @cancel="cancelEdit"
+          @submit="() => submitEditChange(comment.id)"
+        />
+        <p v-else class="message__content">{{ reply.comment }}</p>
       </div>
     </div>
     <div class="text-box" v-if="showReplyBox">
       <CommentTextarea
         v-model="newCommentText" 
         :is-saving="savingReply" 
-        @close="showReplyBox=false"
+        @cancel="showReplyBox=false"
         @submit="submitNewReply"
       />
     </div>
@@ -50,7 +70,6 @@
 </template>
 
 <script setup lang="ts">
-import { Celltype } from '@/types/create_request';
 import { Comment } from '@/types/comment';
 import { useCellTypeColor } from '@/composables/cell-type-color';
 import CommentMenu from './CommentMenu.vue'
@@ -72,10 +91,33 @@ const newCommentText = shallowRef('')
 const showReplyBox = shallowRef(false)
 const savingReply = shallowRef(false)
 
+// Edit
+const editingCommentId = shallowRef<string | undefined>(undefined)
+const editingCommentChange = shallowRef('')
+const savingEdit = shallowRef(false)
+
+function edit(comment: Comment) {
+  editingCommentId.value = comment.id;
+  editingCommentChange.value = comment.comment;
+}
+
+function cancelEdit() {
+  editingCommentId.value = undefined
+}
+async function submitEditChange(parentCommentId?: string) {
+  if (editingCommentId.value) {
+    savingEdit.value = true;
+    await commentsStore.editComment(editingCommentId.value, editingCommentChange.value, parentCommentId);
+    savingEdit.value = false;
+    editingCommentId.value = undefined
+    editingCommentChange.value = ''
+  } 
+}
+
 async function submitNewReply() {
   savingReply.value = true;
   const newReply = {
-    commentId: Math.random(),
+    id: `${Math.random()}`,
     cell: props.comment.cell,
     userName: 'User 1', 
     date: 'today',
@@ -84,7 +126,7 @@ async function submitNewReply() {
     resolved: false,
   };
 
-  await commentsStore.replyComment(props.comment.commentId, newReply);
+  await commentsStore.replyComment(props.comment.id, newReply);
   savingReply.value = false;
   newCommentText.value = '';
   showReplyBox.value = false;
