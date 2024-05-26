@@ -92,8 +92,8 @@ watch(selectedCell, () => {
 async function submitNewComment() {
   savingNewComment.value = true
   const newComment = {
-    commentId: 1, 
-    cell: commentsStore.selectedCell,
+    id: '1', 
+    cell: commentsStore.selectedCell!,
     userName: 'Yuchao', 
     date: 'today',
     comment: newCommentText.value,
