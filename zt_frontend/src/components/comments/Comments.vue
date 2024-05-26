@@ -31,12 +31,12 @@
           <p>No comments yet</p>
           <p class="empty-state__text mt-2">Add a comment by clicking on the cell you want to add a comment to.</p>
         </div>
-        <template v-else>
+        <div class="comments-wrapper" v-else>
           <Comment
             v-for="comment in displayedComments"   
             :comment="comment" 
           />
-        </template>
+        </div> 
       </div> 
       <div class="text-box" v-if="displayAddCommentTextarea">
         <v-textarea
@@ -144,5 +144,9 @@ async function submitNewComment() {
 .add-comment-btn {
   position: absolute;
   bottom: 0;
+}
+.comments-wrapper {
+  max-height: 600px;
+  overflow-y: auto;
 }
 </style>

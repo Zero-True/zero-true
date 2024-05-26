@@ -170,7 +170,7 @@ import { ExpandCodeRequest } from '@/types/expand_code_request'
 import { CellReactivityRequest } from '@/types/cell_reactivity_request'
 import { ShowTableRequest } from '@/types/show_table_request'
 import { NameCellRequest } from '@/types/name_cell_request'
-import { useCellTypeColor } from '@/composables/cell-type-color'
+import { useCellType } from '@/composables/cell-type'
 
 import { useCommentsStore } from '@/stores/comments'
 
@@ -221,7 +221,7 @@ const emits = defineEmits<{
   (e: 'renameCell', cellName: String): void
 }>()
 
-const { cellTypeColor: dividerColor } = useCellTypeColor(toRef(props.cellType), toRef(props.error))
+const { cellTypeColor: dividerColor } = useCellType(toRef(props.cellType), toRef(props.error))
 
 const hideCellValue = ref(props.hideCell || false);
 const hideCodeValue = ref(props.hideCode || false);
