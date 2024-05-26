@@ -12,5 +12,5 @@ export interface Comment {
   date: string;
   comment: string;
   replies: Comment[];
-  resolved: boolean;
+  resolved?: boolean;
 }
