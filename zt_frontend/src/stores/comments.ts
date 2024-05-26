@@ -49,7 +49,6 @@ export const useCommentsStore = defineStore('comments', () => {
   }
 
   async function resolveComment(id: string) {
-    console.log('resolveComment', id)
     await new Promise(resolve => setTimeout(resolve, 200))
     const resolveComment = allComments.value.find(c => c.id === id);
     if (resolveComment) resolveComment.resolved = true;
