@@ -54,13 +54,31 @@
         }">
           <div class="actions">
             <v-btn
-              :icon="`ztIcon:${ztAliases.message}`"
+              :class="[
+                'message-btn',
+                'pa-0',
+                {
+                  'message-btn--alert': numberOfComments,
+                },
+              ]"
               @click="commentsStore.showCommentsPerCell({
                 cellId,
                 cellName: cellNameValue,
                 cellType,
               })"
-            ></v-btn>
+              :ripple="false"
+              slim
+              rounded="circle"
+            >
+              <template #default>
+                <v-icon
+                  v-if="numberOfComments === 0" 
+                  size="x-large"
+                  :icon="`ztIcon:${ztAliases.message}`" 
+                ></v-icon>
+                <span v-else class="text-primary message-btn__counter">{{ numberOfComments }}</span>
+              </template>
+            </v-btn>
             <v-btn v-if="showSaveBtn" :icon="`ztIcon:${ztAliases.save}`" @click="$emit('save')"></v-btn>
 
             <v-btn v-if="showPlayBtn" :id="'runCode' + cellId" :icon="`ztIcon:${ztAliases.play}`"
@@ -175,6 +193,9 @@ import { useCellType } from '@/composables/cell-type'
 import { useCommentsStore } from '@/stores/comments'
 
 const commentsStore = useCommentsStore();
+const { commentsByCell } = storeToRefs(commentsStore)
+
+const numberOfComments = computed(() => commentsByCell.value(props.cellId!))
 
 const props = defineProps({
   isDevMode: Boolean,
@@ -310,7 +331,17 @@ const saveCellName = async () => {
     margin-bottom: 16px;
   }
 }
-
+.message-btn {
+  &--alert {
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjQUU5RkU4Ij48cGF0aCBkPSJNMTMuMzA1IDIyLjVMMTIgMjEuNzVMMTUgMTYuNUgxOS41QzE5Ljg5NzggMTYuNSAyMC4yNzk0IDE2LjM0MiAyMC41NjA3IDE2LjA2MDdDMjAuODQyIDE1Ljc3OTQgMjEgMTUuMzk3OCAyMSAxNVY2QzIxIDUuNjAyMTggMjAuODQyIDUuMjIwNjQgMjAuNTYwNyA0LjkzOTM0QzIwLjI3OTQgNC42NTgwNCAxOS44OTc4IDQuNSAxOS41IDQuNUg0LjVDNC4xMDIxOCA0LjUgMy43MjA2NCA0LjY1ODA0IDMuNDM5MzQgNC45MzkzNEMzLjE1ODA0IDUuMjIwNjQgMyA1LjYwMjE4IDMgNlYxNUMzIDE1LjM5NzggMy4xNTgwNCAxNS43Nzk0IDMuNDM5MzQgMTYuMDYwN0MzLjcyMDY0IDE2LjM0MiA0LjEwMjE4IDE2LjUgNC41IDE2LjVIMTEuMjVWMThINC41QzMuNzA0MzUgMTggMi45NDEyOSAxNy42ODM5IDIuMzc4NjggMTcuMTIxM0MxLjgxNjA3IDE2LjU1ODcgMS41IDE1Ljc5NTYgMS41IDE1VjZDMS41IDUuMjA0MzUgMS44MTYwNyA0LjQ0MTI5IDIuMzc4NjggMy44Nzg2OEMyLjk0MTI5IDMuMzE2MDcgMy43MDQzNSAzIDQuNSAzSDE5LjVDMjAuMjk1NiAzIDIxLjA1ODcgMy4zMTYwNyAyMS42MjEzIDMuODc4NjhDMjIuMTgzOSA0LjQ0MTI5IDIyLjUgNS4yMDQzNSAyMi41IDZWMTVDMjIuNSAxNS43OTU2IDIyLjE4MzkgMTYuNTU4NyAyMS42MjEzIDE3LjEyMTNDMjEuMDU4NyAxNy42ODM5IDIwLjI5NTYgMTggMTkuNSAxOEgxNS44N0wxMy4zMDUgMjIuNVoiIGZpbGw9IiNBRTlGRTgiLz48L3N2Zz4=');  
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: none;
+  } 
+  &__counter {
+    margin-bottom: 4px;
+  }
+}
 .delete-cell:hover {
   background-color: #6e3d41; 
 }
@@ -347,7 +378,7 @@ const saveCellName = async () => {
 }
 
 .click-edit {
-  width: calc(100% - 120px);
+  width: calc(100% - 135px);
   &__name {
     cursor: text; 
     overflow: hidden;

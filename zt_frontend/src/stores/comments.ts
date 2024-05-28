@@ -13,6 +13,8 @@ export const useCommentsStore = defineStore('comments', () => {
     return result ?? []
   });
 
+  const commentsByCell = computed(() => (cellId: string) => allComments.value.filter(c => c.cell.cellId === cellId).length);
+
   // Actions
   async function addComment(comment: Comment) {
     await new Promise(resolve => setTimeout(resolve, 800))
@@ -73,6 +75,7 @@ export const useCommentsStore = defineStore('comments', () => {
     allComments,
     selectedCell,
     // Getters,
+    commentsByCell,
     displayedComments,
     // Actions
     addComment,
