@@ -10,6 +10,8 @@ import shutil
 import requests
 import pkg_resources
 import yaml
+import json
+import uuid
 
 cli_app = typer.Typer()
 
@@ -109,32 +111,43 @@ def notebook(host: Annotated[Optional[str], typer.Argument(help="Host address to
     uvicorn.run('zt_backend.main:app', host=host, port=port, log_config=log_config_dict)
 
 @cli_app.command()
-def convert(ipynb_path: str, ztnb_path: str) -> str: 
+def convert_from_path(ipynb_path: str, ztnb_path: str) -> str:
     """
-    Convert a Jupyter notebook to a Zero-True notebook.
+    Convert a Jupyter notebook to a Zero-True notebook. 
     """
 
-    with open(ipynb_path, "r", encoding="utf-8") as f: 
-        notebook = json.loads(f.read()) 
-    output = [] 
+    # Add notebook.ztnb if not specified in the output path
+    if not ztnb_path.endswith('notebook.ztnb'):
+        ztnb_path = os.path.join(ztnb_path, 'notebook.ztnb')
 
-    output.append(f'notebookId = "{uuid.uuid4()}"')
-    output.append('notebookName = "Zero True"')
-    output.append('')
-    create_ztnb_cell('"code"', ['import zero-true as zt'], output)
-    
-    for cell in notebook['cells']: 
-        if (cell['cell_type'] == 'code'):    
-            create_ztnb_cell('"code"', cell['source'], output)
-        if (cell['cell_type'] == 'markdown'):
-            create_ztnb_cell('"markdown"', cell['source'], output)
+    try:
+        with open(ipynb_path, "r", encoding="utf-8") as f: 
+            notebook = json.loads(f.read()) 
+    except Exception as e:
+        typer.echo(f"Error occured: {e}")
+        return
+    else:
+        output = [] 
 
-    with open(ztnb_path, 'w') as f:
-        for item in output:
-            f.write(item + '\n') 
+        output.append(f'notebookId = "{uuid.uuid4()}"')
+        output.append('notebookName = "Zero True"')
+        output.append('')
+        output.extend(line for line in create_ztnb_cell('"code"', ['import zero-true as zt']))
+        
+        # Create only code or markdown cells
+        for cell in notebook['cells']: 
+            if cell['cell_type'] in ['code', 'markdown']:
+                output.extend(line for line in create_ztnb_cell(f'"{cell["cell_type"]}"', cell['source']))
 
-def create_ztnb_cell(type, source, output):
-    output.append(f'[cells.{uuid.uuid4()}]')
+        with open(ztnb_path, 'w') as f:
+            for item in output:
+                f.write(item + '\n')
+        
+        typer.echo(f"Successfully converted {ipynb_path} to {ztnb_path}")
+        return
+
+def create_ztnb_cell(cell_type, source):
+
     common_attributes = {
       'cellName': '""',
       'cellType': '"code"',
@@ -142,20 +155,25 @@ def create_ztnb_cell(type, source, output):
       'hideCode': '"False"',
       'expandCode': '"False"',
       'showTable': '"False"',
-      'nonReactive': '"False"'
+      'nonReactive': '"False"',
+      'code': '"""'
     }
+
+    cell_content = []
+    cell_content.append(f'[cells.{uuid.uuid4()}]')
   
     for key, value in common_attributes.items():
         if (key == 'cellType'):
-            output.append(f'{key} = {type}')
+            cell_content.append(f'{key} = {cell_type}')
         else:
-            output.append(f'{key} = {value}')
+            cell_content.append(f'{key} = {value}')
 
-    output.append('code = """')
     for line in source:
-        output.append(line)
-    output[-1] = output[-1] + '"""'
-    output.append('')
+        cell_content.append(line)
+    cell_content[-1] = cell_content[-1] + '"""'
+    cell_content.append('')
+
+    return cell_content
 
 if __name__ == "__main__":
     cli_app()
