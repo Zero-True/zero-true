@@ -19,10 +19,11 @@ from zt_backend.models.components.autocomplete import Autocomplete
 from zt_backend.models.components.card import Card
 from zt_backend.models.components.timer import Timer
 
+
 def deserialize_component(data: Dict[str, Any]) -> ZTComponent:
     component_map = {
         "v-slider": Slider,
-        "v-text-field":TextInput,
+        "v-text-field": TextInput,
         "v-textarea": TextArea,
         "v-number-field": NumberInput,
         "v-range-slider": RangeSlider,
@@ -34,13 +35,14 @@ def deserialize_component(data: Dict[str, Any]) -> ZTComponent:
         "v-autocomplete": Autocomplete,
         "v-card": Card,
         "v-timer": Timer,
-        "plotly-plot": PlotlyComponent
+        "plotly-plot": PlotlyComponent,
         # add other component types here
     }
     component_class = data.get("component")
     if component_class not in component_map:
         raise ValueError(f"Invalid component class: {component_class}")
     return component_map[component_class].model_validate(data)
+
 
 class CodeCell(BaseModel):
     id: str
@@ -55,28 +57,31 @@ class CodeCell(BaseModel):
     variable_name: str = Field("")
     layout: Layout = Field(Layout())
     components: List[SerializeAsAny[ZTComponent]]
-    cellType: str = Field(enum=['code', 'markdown', 'text', 'sql'])
+    cellType: str = Field(enum=["code", "markdown", "text", "sql"])
 
-    @model_validator(mode='before')
+    @model_validator(mode="before")
     def deserialize_components(cls, values):
-        components = values.get('components', [])
-        values['components'] = [deserialize_component(comp) for comp in components]
+        components = values.get("components", [])
+        values["components"] = [deserialize_component(comp) for comp in components]
         return values
-    
+
+
 class Notebook(BaseModel):
     notebookName: str = Field("Zero True")
-    notebookId: str = Field(default=str(uuid4()))  # Added notebook UUID
+    notebookId: str = Field(default=str(uuid4()))
     cells: OrderedDict[str, CodeCell]
     userId: str
+
 
 class Dependency(BaseModel):
     package: str
     version: str = Field("")
 
+
 class Dependencies(BaseModel):
     dependencies: List[Dependency] = Field([])
+
 
 class NotebookResponse(BaseModel):
     notebook: Notebook
     dependencies: Dependencies
-
