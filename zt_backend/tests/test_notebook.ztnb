@@ -1,0 +1,35 @@
+notebookId = "d8f7d425-bd7b-40ba-86be-f7911bd0643e"
+notebookName = "Zero True"
+
+[cells.21623c58-7e2b-45ed-a440-f58f62b7288e]
+cellName = ""
+cellType = "code"
+hideCell = "False"
+hideCode = "False"
+expandCode = "False"
+showTable = "False"
+nonReactive = "False"
+code = """
+import zero_true as zt"""
+
+[cells.38d10a6f-3723-41df-a518-3887470cb78d]
+cellName = ""
+cellType = "code"
+hideCell = "False"
+hideCode = "False"
+expandCode = "False"
+showTable = "False"
+nonReactive = "False"
+code = """
+print('Hello, world!')"""
+
+[cells.39055a62-f0c8-42c4-9f17-e531f90e3298]
+cellName = ""
+cellType = "markdown"
+hideCell = "False"
+hideCode = "False"
+expandCode = "False"
+showTable = "False"
+nonReactive = "False"
+code = """
+# This is a markdown cell"""

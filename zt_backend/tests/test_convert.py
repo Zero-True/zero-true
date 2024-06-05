@@ -1,43 +1,48 @@
-from zt.backend.zt_cli import convert, create_ztnb_cell
 from zt_backend.models.state.notebook_state import NotebookState
 from zt_backend.models import notebook
 import rtoml
+import subprocess
+from pathlib import Path
 
 notebook_state = NotebookState()
 
+IPYNB_PATH = Path(__file__).resolve().parent / "test_file.ipynb"
+OUTPUT_PATH = Path(__file__).resolve().parent / "notebook.ztnb"
+NOTEBOOK_PATH = Path(__file__).resolve().parent / "test_notebook.ztnb"
+
 def test_ipynb_to_ztnb():
 
-    with open("./test_file.ipynb.txt", "r", encoding="utf-8") as f: 
-        notebook = json.loads(f.read()) 
+    convert = subprocess.Popen(
+        ["zero-true", "jupyter-convert", IPYNB_PATH, OUTPUT_PATH]
+    )
+    convert.wait()
 
-    output = [] 
+    with open(NOTEBOOK_PATH, "r", encoding="utf-8") as file:
+        expected_data = rtoml.loads(file.read().replace("\\", "\\\\"))
 
-    output.append(f'notebookId = "{uuid.uuid4()}"')
-    output.append('notebookName = "Zero True"')
-    output.append('')
-    create_ztnb_cell('"code"', ['import zero-true as zt'], output)
-
-    for cell in notebook['cells']:
-        if (cell['cell_type'] == 'code'):
-            create_ztnb_cell('"code"', cell['source'], output)
-        if (cell['cell_type'] == 'markdown'):
-            create_ztnb_cell('"markdown"', cell['source'], output)
-
-    with open("notebook.ztnb", 'w') as f:
-        for item in output:
-            f.write(item + '\n') 
-        toml_data = rtoml.loads(f.read().replace('\\','\\\\'))
-
-    notebook_data = {
-        'notebookId' : toml_data['notebookId'],
-        'notebookName' : toml_data.get('notebookName', 'Zero True'),
-        'userId' : '',
-        'cells': {
-            cell_id: notebook.CodeCell(id=cell_id, **cell_data, output="")
-            for cell_id, cell_data in toml_data['cells'].items()
-        }
+    expected_notebook_data = {
+        "notebookId": "test_id",
+        "notebookName": expected_data.get("notebookName", "Zero True"),
+        "userId": "",
+        "cells": {
+            f"{index}": notebook.CodeCell(id=f"{index}", **cell_data, output="")
+            for index, (cell_id, cell_data) in enumerate(expected_data["cells"].items())
+        },
     }
+    expected_notebook = notebook.Notebook(**expected_notebook_data)
 
-    notebook_state.zt_notebook = notebook.Notebook(**notebook_data)
+    with open(OUTPUT_PATH, "r", encoding="utf-8") as file:
+        output_data = rtoml.loads(file.read().replace("\\", "\\\\"))
 
-    assert notebook_state.zt_notebook.notebookId == toml_data['notebookId']
+    output_notebook_data = {
+        "notebookId": "test_id",
+        "notebookName": output_data.get("notebookName", "Zero True"),
+        "userId": "",
+        "cells": {
+            f"{index}": notebook.CodeCell(id=f"{index}", **cell_data, output="")
+            for index, (cell_id, cell_data) in enumerate(output_data["cells"].items())
+        },
+    }
+    output_notebook = notebook.Notebook(**output_notebook_data)
+
+    assert expected_notebook == output_notebook
