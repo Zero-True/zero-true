@@ -88,8 +88,8 @@
         <v-col class="d-flex justify-end">
           <div>
             <!-- <v-btn :icon="`ztIcon:${ztAliases.undo}`"></v-btn>
-            <v-btn :icon="`ztIcon:${ztAliases.redo}`"></v-btn>
-            <v-btn :icon="`ztIcon:${ztAliases.message}`"></v-btn> -->
+            <v-btn :icon="`ztIcon:${ztAliases.redo}`"></v-btn> -->
+            <v-btn v-if="$devMode && !isAppRoute" :icon="`ztIcon:${ztAliases.message}`" @click="showAllComments"></v-btn>
             <CopilotComponent v-if="$devMode && !isAppRoute"/>
             <PackageComponent v-if="$devMode && !isAppRoute" :dependencies="dependencies" :dependencyOutput="dependencyOutput" @updateDependencies="updateDependencies"/>
             <ShareComponent v-if="$devMode && !isAppRoute"/>
@@ -105,23 +105,43 @@
         </v-col>
       </template>
     </v-app-bar>
-    <v-main :scrollable="false">
+    <v-main :scrollable="false" class="w-100 mx-auto">
       <v-container v-if="errorMessage">
         <v-alert type="error">
             {{ errorMessage }}
         </v-alert>
       </v-container>
-      <CodeCellManager 
-        :notebook="notebook"
-        :completions="completions"
-        @runCode="runCode"
-        @saveCell="saveCell"
-        @componentValueChange="componentValueChange"
-        @deleteCell="deleteCell"
-        @createCell="createCodeCell"
-        @copilotCompletion="copilotCompletion"
-        @updateTimers="startTimerComponents"
-       />
+      <div :class="[
+        'content', 
+        'px-8', 
+        'd-flex',
+        'justify-center',
+      ]">
+        <div class="content__cells flex-grow-1" transition="slide-x-transition">
+          <CodeCellManager 
+            :notebook="notebook"
+            :completions="completions"
+            @runCode="runCode"
+            @saveCell="saveCell"
+            @componentValueChange="componentValueChange"
+            @deleteCell="deleteCell"
+            @createCell="createCodeCell"
+            @copilotCompletion="copilotCompletion"
+            @updateTimers="startTimerComponents"
+          />
+        </div>
+        <div
+          :class="[
+            'content__comments',
+            {
+              'content__comments--show': showComments,
+            } 
+          ]"
+        >
+          <Comments />
+        </div>
+      </div>
+      
     </v-main>
     <v-footer 
       app
@@ -220,7 +240,6 @@
 
 <script lang="ts">
 import axios from "axios";
-import { nextTick } from 'vue';
 import { useRoute } from "vue-router";
 import { Request, CodeRequest } from "./types/request";
 import { ComponentRequest } from "./types/component_request";
@@ -237,6 +256,7 @@ import MarkdownComponent from "@/components/MarkdownComponent.vue";
 import EditorComponent from "@/components/EditorComponent.vue";
 import SQLComponent from "@/components/SQLComponent.vue";
 import PackageComponent from "@/components/PackageComponent.vue";
+import Comments from "@/components/comments/Comments.vue";
 import CodeCellManager from "./components/CodeCellManager.vue";
 import CopilotComponent from "./components/CopilotComponent.vue";
 import ShareComponent from "./components/ShareComponent.vue";
@@ -245,6 +265,8 @@ import { ztAliases } from '@/iconsets/ztIcon'
 import { Timer } from "@/timer";
 import { globalState } from "@/global_vars";
 import { DependencyRequest } from "./types/dependency_request";
+
+import { useCommentsStore } from '@/stores/comments'
 
 export default {
   components: {
@@ -255,7 +277,8 @@ export default {
     PackageComponent,
     CodeCellManager,
     CopilotComponent,
-    ShareComponent
+    ShareComponent,
+    Comments
   },
 
   data() {
@@ -290,6 +313,16 @@ export default {
       dependencyOutput: {output: "", isLoading: false} as DependencyOutput,
       ztAliases
     };
+  },
+
+  setup() {
+    const commentsStore  = useCommentsStore()
+    const { showAllComments } = commentsStore;
+    const { showComments } = storeToRefs(commentsStore);
+    return {
+      showComments,
+      showAllComments,
+    }
   },
 
   beforeMount() {
@@ -962,6 +995,15 @@ export default {
   
   @include xl {
     max-width: 600px;
+  }
+}
+.content {
+  &__comments {
+    width: 0;
+    transition: width .15s ease;
+    &--show {
+      width: 380px;
+    }
   }
 }
 .footer {
