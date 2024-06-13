@@ -20,6 +20,7 @@ from .components.card import Card
 from .components.timer import Timer
 from .components.iframe import iFrame
 from .components.html import HTML
+from .components.date_picker import DatePicker
 import json
 
 def generate_json(model, name):
@@ -63,3 +64,4 @@ def generate_schema():
     generate_json(Timer,'timer')
     generate_json(iFrame,'iframe')
     generate_json(HTML,'html')
+    generate_json(DatePicker, 'date_picker')
