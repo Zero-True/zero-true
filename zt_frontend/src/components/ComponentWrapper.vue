@@ -48,6 +48,7 @@ import {
   VImg,
   VAutocomplete,
   VCard,
+  VOtpInput
 } from "vuetify/lib/components/index.mjs";
 import { VDataTable } from "vuetify/components/VDataTable";
 import TextComponent from "@/components/TextComponent.vue";
@@ -69,6 +70,7 @@ export default {
     "v-card": VCard,
     "v-text": TextComponent,
     "plotly-plot": PlotlyPlot,
+    "v-otp":VOtpInput
   },
   emits: ["runCode"],
   props: {
