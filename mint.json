@@ -1,0 +1,100 @@
+
+  {
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "Zero-True",
+  "feedback.thumbsRating": true,
+  "logo": {
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#0D9373",
+    "light": "#07C983",
+    "dark": "#0D9373",
+    "anchors": {
+      "from": "#0D9373",
+      "to": "#07C983"
+    }
+  },
+  "topbarCtaButton": {
+    "name": "Home",
+    "url": "https://zero-true.mintlify.app/introduction"
+  },
+  "tabs": [
+    {
+      "name": "Components",
+      "url": "Components"
+    },
+    {
+      "name": "More Info",
+      "url": "api-reference"
+    }
+  ],
+  "anchors": [
+    {
+      "name": "Dashboard",
+      "icon": "newspaper",
+      "url": "https://www.zero-true-cloud.com"
+    },
+    {
+      "name": "Github",
+      "icon": "lightbulb",
+      "url": "https://github.com/Zero-True/zero-true"
+    },
+    {
+      "name": "Blog",
+      "icon": "book-open-cover",
+      "url": "https://medium.com/zero-true"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Get Started",
+      "pages": [
+        "introduction",
+        "quickstart",
+        "development",
+        "cells",
+        "CLI"
+      ]
+    },
+    {
+        "group": "Components",
+        "pages": [
+        "Components/Introduction",
+        "Components/Text",
+        "Components/Textinput",
+        "Components/Slider",
+        "Components/Image",
+        "Components/Card",
+        "Components/DataFrame",
+        "Components/RangeSlider",
+        "Components/NumberInput",
+        "Components/TextInput",
+        "Components/TextArea",
+        "Components/SelectBox",
+        "Components/Autocomplete",
+        "Components/Button",
+        "Components/Matplotlib",
+        "Components/Plotly",
+        "Components/Timer",
+        "Components/iFrame",
+        "Components/HTML"
+      ]
+    },
+    {
+      "group": "Miscellaneous",
+      "pages": [
+        "api-reference/introduction",
+        "api-reference/Github",
+        "api-reference/State",
+        "api-reference/Layout"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/Zero-True/zero-true",
+    "linkedin": "https://www.linkedin.com/company/zero-true/"
+  }
+}
