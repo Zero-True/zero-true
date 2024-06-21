@@ -79,10 +79,9 @@ export default {
     "v-list":VList,
     "v-list-item": VListItem,
     "v-list-group": VListGroup,
-    "v-list-item-title":VListItemTitle,
-    "v-list-item-subtitle":VListItemSubtitle,
-    "v-list-subheader":VListSubheader
-
+    "v-list-item-title": VListItemTitle,
+    "v-list-item-subtitle": VListItemSubtitle,
+    "v-list-subheader": VListSubheader
   },
   emits: ["runCode"],
   props: {
