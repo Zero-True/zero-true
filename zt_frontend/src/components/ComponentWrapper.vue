@@ -48,10 +48,17 @@ import {
   VImg,
   VAutocomplete,
   VCard,
+  VList,
+  VListItem,
+  VListGroup,
+  VListItemTitle,
+  VListItemSubtitle,
+  VListSubheader
 } from "vuetify/lib/components/index.mjs";
 import { VDataTable } from "vuetify/components/VDataTable";
 import TextComponent from "@/components/TextComponent.vue";
 import PlotlyPlot from "@/components/PlotlyComponent.vue";
+
 
 export default {
   components: {
@@ -69,6 +76,13 @@ export default {
     "v-card": VCard,
     "v-text": TextComponent,
     "plotly-plot": PlotlyPlot,
+    "v-list":VList,
+    "v-list-item": VListItem,
+    "v-list-group": VListGroup,
+    "v-list-item-title":VListItemTitle,
+    "v-list-item-subtitle":VListItemSubtitle,
+    "v-list-subheader":VListSubheader
+
   },
   emits: ["runCode"],
   props: {
@@ -100,6 +114,23 @@ export default {
 
     getEventBindings(component: any) {
       if (component.component === "v-card") {
+        return {};
+      }
+
+      return {
+        [component.triggerEvent]: () =>
+          this.runCode(true, component.id, component.value),
+        keydown: ($event: any) =>
+          this.handleEnterPress(
+            $event,
+            component.id,
+            component.component,
+            component.value
+          ),
+      };
+    },
+    getEventBindings(component: any) {
+      if (component.component === "v-list") {
         return {};
       }
 
