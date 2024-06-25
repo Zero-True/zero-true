@@ -50,7 +50,6 @@ import {
   VCard,
   VList,
   VListItem,
-  VListGroup,
   VListItemTitle,
   VListItemSubtitle,
   VListSubheader
@@ -78,7 +77,6 @@ export default {
     "plotly-plot": PlotlyPlot,
     "v-list":VList,
     "v-list-item": VListItem,
-    "v-list-group": VListGroup,
     "v-list-item-title": VListItemTitle,
     "v-list-item-subtitle": VListItemSubtitle,
     "v-list-subheader": VListSubheader
@@ -113,23 +111,6 @@ export default {
 
     getEventBindings(component: any) {
       if (component.component === "v-card") {
-        return {};
-      }
-
-      return {
-        [component.triggerEvent]: () =>
-          this.runCode(true, component.id, component.value),
-        keydown: ($event: any) =>
-          this.handleEnterPress(
-            $event,
-            component.id,
-            component.component,
-            component.value
-          ),
-      };
-    },
-    getEventBindings(component: any) {
-      if (component.component === "v-list") {
         return {};
       }
 
