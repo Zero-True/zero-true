@@ -55,36 +55,6 @@ class ListItem(ZTComponent):
     )
 
 
-class ListGroup(ZTComponent):
-    """List Group is used to group multiple list items in one category"""
-
-    component: str = Field(
-        "v-list-group", description="Vue component name for List group"
-    )
-    title: str = Field("", description="Title of the List Group")
-    color: str = Field(None, description="Background color of the List Group")
-    density: str = Field(
-        "default",
-        enum=["default", "comfortable", "compact"],
-        description="Density of the component",
-    )
-    width: Union[int, str] = Field("100%", description="Width of the List")
-    height: Union[int, str] = Field("100%", description="Height of the List")
-    value: str = Field("", description="Expands / Collapse the list-group.")
-    disabled: bool = Field(False, description="removes ability to click List Item")
-    collapse_icon: str = Field(
-        "$collapse", description="Icon to display when the list item is expanded."
-    )
-    expand_icon: str = Field(
-        "$expand", description="Icon to display when the list item is collapsed."
-    )
-    childComponents: List[str] = Field(
-        [],
-        description="List of child component ids to be placed within the ListGroup. List Items come as child Components of the Group",
-    )
-    ##subgroup:bool= Field(False, description="subgroup for List Group")
-
-
 class ListItemTitle(ZTComponent):
     """List Item Title is used to specify the title of the Lsit Item. Use Text component to provide the title details and pass it to the child component of List Item."""
 
@@ -98,6 +68,7 @@ class ListItemTitle(ZTComponent):
     tag: str = Field("div", description="specify a custom tag used on root element")
 
 
+# TODO: debug opacity
 class ListItemSubtitle(ZTComponent):
     """List Item SubtitleTitle is used to specify the Subtitle of the List Item. Use Text component to provide the text details of the subtitle and pass it to the child component of List Item"""
 
@@ -112,6 +83,7 @@ class ListItemSubtitle(ZTComponent):
     tag: str = Field("div", description="specify a custom tag used on root element")
 
 
+# TODO: debug the title prop
 class ListSubheader(ZTComponent):
     """List SubHeader is used to specify the Sub Header of the List. Use Text component to provide the title details and pass it to the child component of List."""
 

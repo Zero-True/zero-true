@@ -18,7 +18,7 @@ from zt_backend.models.components.plotly import PlotlyComponent
 from zt_backend.models.components.autocomplete import Autocomplete
 from zt_backend.models.components.card import Card
 from zt_backend.models.components.timer import Timer
-from zt_backend.models.components.list import ListComponent, ListItem, ListGroup, ListItemTitle, ListItemSubtitle, ListSubheader
+from zt_backend.models.components.list import ListComponent, ListItem, ListItemTitle, ListItemSubtitle, ListSubheader
 
 def deserialize_component(data: Dict[str, Any]) -> ZTComponent:
     component_map = {
@@ -38,7 +38,6 @@ def deserialize_component(data: Dict[str, Any]) -> ZTComponent:
         "plotly-plot": PlotlyComponent,
         "v-list": ListComponent,
         "v-list-item": ListItem,
-        "v-list-group":ListGroup,
         "v-list-item-title":ListItemTitle,
         "v-list-item-subtitle":ListItemSubtitle,
         "v-list-subheader":ListSubheader
