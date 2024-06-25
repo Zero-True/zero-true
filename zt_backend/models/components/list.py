@@ -65,10 +65,9 @@ class ListItemTitle(ZTComponent):
         [],
         description="List of child component ids to be placed within the ListItemTitle. Mention v-test component to show the text of title",
     )
-    tag: str = Field("div", description="specify a custom tag used on root element")
 
 
-# TODO: debug opacity
+# TODO: debug opacity prop(not working)
 class ListItemSubtitle(ZTComponent):
     """List Item SubtitleTitle is used to specify the Subtitle of the List Item. Use Text component to provide the text details of the subtitle and pass it to the child component of List Item"""
 
@@ -80,10 +79,9 @@ class ListItemSubtitle(ZTComponent):
         description="List of child component ids to be placed within the ListItemTitle. Mention v-test component to show the text of Subtitle",
     )
     opacity: Union[int, str] = Field("50%", description="opacity for subtitle")
-    tag: str = Field("div", description="specify a custom tag used on root element")
 
 
-# TODO: debug the title prop
+# TODO: debug the title prop(not working)
 class ListSubheader(ZTComponent):
     """List SubHeader is used to specify the Sub Header of the List. Use Text component to provide the title details and pass it to the child component of List."""
 
@@ -92,7 +90,6 @@ class ListSubheader(ZTComponent):
     )
     inset: bool = Field(False, description="inset for Subheader")
     sticky: bool = Field(False, description="sticky for subehader")
-    tag: str = Field("div", description="specify a custom tag used on root element")
     title: str = Field("", description="title for subheader")
     childComponents: List[str] = Field(
         [],
