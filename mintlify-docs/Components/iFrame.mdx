@@ -1,0 +1,183 @@
+---
+icon: "rectangle-code"
+iconType: "solid"
+---
+
+<Card title="Example Usage" icon="code">
+  ```python
+import zero_true as zt
+
+# Create an iFrame component
+iframe = zt.iFrame(
+    id="sample_iframe",
+    src="https://www.example.com",  # Source URL for the iframe
+    width="100%",  # Width of the iframe
+    height=300,  # Height of the iframe
+    frameborder=0,  # Frame border of the iframe
+    allowtransparency=True,  # Allow transparency of the iframe
+    scrolling="auto"  # Scrolling of the iframe
+)
+
+# Layout including the iFrame component
+layout = zt.Layout(rows=[
+    zt.Row(components=[iframe.id])
+])
+
+# Render the layout
+def render_layout():
+    pass  # Your code to render the layout goes here
+
+render_layout()
+
+```
+</Card>
+
+<Card title="Example Output" icon="computer">
+
+<iframe src="https://published.zero-true.com/srrey/exampleiframe/" width="100%" height="300"></iframe>
+
+</Card>
+
+## Overview
+
+`pydantic model zero_true.iFrame` 
+
+The iFrame component serves as a versatile tool for embedding external content directly within web applications, such as videos, web pages, or other documents. It provides comprehensive control over aspects like source URL, dimensions, scrolling behavior, and frame borders. This flexibility allows for seamless integration of varied content, enhancing the functionality and interactivity of websites by allowing them to host or display content hosted on other platforms without navigating away from the main page.
+
+## JSON Schema
+
+<Accordion title="Field Defenitions"> 
+```json
+{
+   "title": "iFrame",
+   "description": "This is a representation of a standard iframe component",
+   "type": "object",
+   "properties": {
+      "id": {
+         "description": "Unique id for a component",
+         "title": "Id",
+         "type": "string"
+      },
+      "variable_name": {
+         "default": "",
+         "description": "Optional variable name associated with a component",
+         "title": "Variable Name",
+         "type": "string"
+      },
+      "component": {
+         "default": "iframe",
+         "description": "Vue component name",
+         "title": "Component",
+         "type": "string"
+      },
+      "src": {
+         "default": "",
+         "description": "Source URL of the iframe",
+         "title": "Src",
+         "type": "string"
+      },
+      "width": {
+         "anyOf": [
+            {
+               "type": "integer"
+            },
+            {
+               "type": "string"
+            }
+         ],
+         "default": "100%",
+         "description": "Width of the iframe",
+         "title": "Width"
+      },
+      "height": {
+         "anyOf": [
+            {
+               "type": "integer"
+            },
+            {
+               "type": "string"
+            }
+         ],
+         "default": 300,
+         "description": "Height of the iframe",
+         "title": "Height"
+      },
+      "frameborder": {
+         "default": 0,
+         "description": "Frame border of the iframe",
+         "title": "Frameborder",
+         "type": "integer"
+      },
+      "scrolling": {
+         "default": "auto",
+         "description": "Scrolling of the iframe",
+         "title": "Scrolling",
+         "type": "string"
+      },
+      "allowtransparency": {
+         "default": false,
+         "description": "Allow transparency of the iframe",
+         "title": "Allowtransparency",
+         "type": "boolean"
+      }
+   },
+   "required": [
+      "id"
+   ]
+}
+```
+</Accordion> 
+
+
+<Info>Bellow are the various attributes you can assign to the component. Utlizing them can allow for modifications to the pre-created object.</Info>
+
+<ResponseField name="zero_true.iFrame" type="Zero True Component">
+  <Expandable title="properties">
+   <AccordionGroup>
+<Accordion title="field allowtransparency">
+      **field allowtransparency:** bool = False; 
+      Allow transparency of the iframe.
+</Accordion>
+
+<Accordion title="field component">
+      **field component:** str = 'iframe'; 
+      Vue component name.
+</Accordion>
+
+<Accordion title="field frameborder">
+      **field frameborder:** int = 0; 
+      Frame border of the iframe.
+</Accordion>
+
+<Accordion title="field height">
+      **field height:** int | str = 300; 
+      Height of the iframe.
+</Accordion>
+
+<Accordion title="field scrolling">
+      **field scrolling:** str = 'auto'; 
+      Scrolling of the iframe.
+</Accordion>
+
+<Accordion title="field src">
+      **field src:** str = ''; 
+      Source URL of the iframe.
+</Accordion>
+
+<Accordion title="field width">
+      **field width:** int | str = '100%'; 
+      Width of the iframe.
+</Accordion>
+
+   </AccordionGroup>
+  </Expandable>
+</ResponseField>
+
+
+
+
+
+
+
+
+

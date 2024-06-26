@@ -1,6 +1,8 @@
-{
+
+  {
   "$schema": "https://mintlify.com/schema.json",
-  "name": "Starter Kit",
+  "name": "Zero-True",
+  "feedback.thumbsRating": true,
   "logo": {
     "dark": "/logo/dark.svg",
     "light": "/logo/light.svg"
@@ -15,37 +17,35 @@
       "to": "#07C983"
     }
   },
-  "topbarLinks": [
-    {
-      "name": "Support",
-      "url": "mailto:hi@mintlify.com"
-    }
-  ],
   "topbarCtaButton": {
-    "name": "Dashboard",
-    "url": "https://dashboard.mintlify.com"
+    "name": "Home",
+    "url": "https://zero-true.mintlify.app/introduction"
   },
   "tabs": [
     {
-      "name": "API Reference",
+      "name": "Components",
+      "url": "Components"
+    },
+    {
+      "name": "More Info",
       "url": "api-reference"
     }
   ],
   "anchors": [
     {
-      "name": "Documentation",
-      "icon": "book-open-cover",
-      "url": "https://mintlify.com/docs"
+      "name": "Dashboard",
+      "icon": "newspaper",
+      "url": "https://www.zero-true-cloud.com"
     },
     {
-      "name": "Community",
-      "icon": "slack",
-      "url": "https://mintlify.com/community"
+      "name": "Github",
+      "icon": "lightbulb",
+      "url": "https://github.com/Zero-True/zero-true"
     },
     {
       "name": "Blog",
-      "icon": "newspaper",
-      "url": "https://mintlify.com/blog"
+      "icon": "book-open-cover",
+      "url": "https://medium.com/zero-true"
     }
   ],
   "navigation": [
@@ -54,38 +54,47 @@
       "pages": [
         "introduction",
         "quickstart",
-        "development"
+        "development",
+        "cells",
+        "CLI"
       ]
     },
     {
-      "group": "Essentials",
-      "pages": [
-        "essentials/markdown",
-        "essentials/code",
-        "essentials/images",
-        "essentials/settings",
-        "essentials/navigation",
-        "essentials/reusable-snippets"
+        "group": "Components",
+        "pages": [
+        "Components/Introduction",
+        "Components/Text",
+        "Components/Textinput",
+        "Components/Slider",
+        "Components/Image",
+        "Components/Card",
+        "Components/DataFrame",
+        "Components/RangeSlider",
+        "Components/NumberInput",
+        "Components/TextInput",
+        "Components/TextArea",
+        "Components/SelectBox",
+        "Components/Autocomplete",
+        "Components/Button",
+        "Components/Matplotlib",
+        "Components/Plotly",
+        "Components/Timer",
+        "Components/iFrame",
+        "Components/HTML"
       ]
     },
     {
-      "group": "API Documentation",
+      "group": "Miscellaneous",
       "pages": [
-        "api-reference/introduction"
-      ]
-    },
-    {
-      "group": "Endpoint Examples",
-      "pages": [
-        "api-reference/endpoint/get",
-        "api-reference/endpoint/create",
-        "api-reference/endpoint/delete"
+        "api-reference/introduction",
+        "api-reference/Github",
+        "api-reference/State",
+        "api-reference/Layout"
       ]
     }
   ],
   "footerSocials": {
-    "x": "https://x.com/mintlify",
-    "github": "https://github.com/mintlify",
-    "linkedin": "https://www.linkedin.com/company/mintsearch"
+    "github": "https://github.com/Zero-True/zero-true",
+    "linkedin": "https://www.linkedin.com/company/zero-true/"
   }
 }

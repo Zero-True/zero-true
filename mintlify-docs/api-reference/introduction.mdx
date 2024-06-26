@@ -1,33 +1,68 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: 'Additional Features'
 ---
 
 <Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
+  Zero-True has many features to support customization of published dashboards and more are released with each new version. Here are some of the features that are available today:
 </Note>
 
-## Welcome
+## Adding and Deleting Cells
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+You can add cells anywhere in the notebook by clicking the button between cells:
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
+<Frame>
+  <img src="/images/cell_features.png" />
+</Frame>
+
+You can delete cells by clicking the menu in an existing cell and selecting “Delete Cell”:
+
+<Frame>
+  <img src="/images/delete_cell.png" />
+</Frame>
+
+## Cell Toggles
+
+<Info>Zero-True has a number of cell toggles that allow you to customize the behavior of cells and their visibility in app mode:</Info>
+
+
+<Steps>
+  <Step title="Non-Reactive (Python/SQL cells)">
+    This is the only toggle that applies in both notebook and app mode. Marking a cell as non-reactive means that if you trigger a notebook run from a cell above and this cell is a child cell of any cell that is ran by that trigger, this cell will not be executed. This is useful for not triggering expensive queries or other operations when you don’t need them to be run but should be used with caution as it can lead to unexpected state as you continue to develop your notebook.
+  </Step>
+  <Step title="Hide Cell (All cells)">
+    This toggle will hide the cell in app mode. Although this cell will still be triggered by any parent cells, it will not be visible to a user in app mode.
+  </Step>
+  <Step title="Hide Code (Python/SQL cells)">
+    This toggle will hide the code in app mode. This is useful for creating a dashboard where sharing the code is unnecessary or confusing to your users.
+  </Step>
+  <Step title="Expand Code (Python/SQL cells)">
+    If you are developing a dashboard where the code is a key part of the user experience, you can use this toggle to expand the code by default in app mode.
+  </Step>
+  <Step title="Show Table (SQL cells)">
+    By default, the table component generated automatically by SQL cells in notebook mode is hidden in app mode. You can use this toggle to show the table in app mode but if the dataframe is large we recommend against this as it can decrease the performance of your app.
+  </Step>
+</Steps>
+
+<Frame>
+  <img src="/images/cell_toggles.png" />
+</Frame>
+
+## Mode Toggle
+
+<Card>
+You can preview what your notebook will look like in app mode when developing in notebook mode by using the mode toggle at the top of your notebook:
 </Card>
 
-## Authentication
+<Frame>
+  <img src="/images/mode_toggle.png" />
+</Frame>
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+## Titles
 
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
-```
+<Card>
+  You can edit the title of your notebook by clicking the title in the top left and edit the title of each cell by clicking the title of the cell. Save by pressing enter or simply by clicking away.
+</Card>
+
+
+
+
