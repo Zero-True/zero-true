@@ -18,14 +18,14 @@ class ExpansionPanels(ZTComponent):
     value: Union[List[Union[int, None]], None, int] = Field(
         [], description="Values of the panels selected to expand indexed at 0"
     )
-    multiple: Optional[bool] = Field(
+    multiple: bool = Field(
         False, description="Determines if multiple expansions are allowed"
     )
-    color: Optional[str] = Field("primary", description="Background color of the panel")
-    disabled: Optional[bool] = Field(
+    color: str = Field("primary", description="Background color of the panel")
+    disabled: bool = Field(
         False, description="Determines if the expansion panels are disabled"
     )
-    readonly: Optional[bool] = Field(
+    readonly: bool = Field(
         False, description="Determines if the expansion panels are read-only"
     )
 
@@ -43,13 +43,11 @@ class ExpansionPanel(ZTComponent):
     )
     title: Optional[str] = Field("", description="Specify a title text for the panel")
     text: Optional[str] = Field("", description="Specify content text for the panel")
-    color: Optional[str] = Field(
-        "primary", description="Background color of the expansion panel"
-    )
-    disabled: Optional[bool] = Field(
+    color: str = Field("primary", description="Background color of the expansion panel")
+    disabled: bool = Field(
         False, description="Determines if the expansion panel is disabled"
     )
-    readonly: Optional[bool] = Field(
+    readonly: bool = Field(
         False, description="Determines if the expansion panel is read-only"
     )
 
@@ -65,12 +63,11 @@ class ExpansionPanelTitle(ZTComponent):
         "v-expansion-title", description="Vue component name for expansion panel title"
     )
     childComponents: List[str] = Field(
-        [], description="List of child component ids to be placed within the title. This could be a v-text component"
+        [],
+        description="List of child component ids to be placed within the title. This could be a v-text component",
     )
-    color: Optional[str] = Field(
-        "primary", description="Background color of the expansion panel"
-    )
-    readonly: Optional[bool] = Field(
+    color: str = Field("primary", description="Background color of the expansion panel")
+    readonly: bool = Field(
         False, description="Determines if the expansion panels is read-only"
     )
 
@@ -87,5 +84,6 @@ class ExpansionPanelText(ZTComponent):
         description="Vue component name for expansion panels text",
     )
     childComponents: List[str] = Field(
-        [], description="List of child component ids to be placed within the Text. This could be a v-text component"
+        [],
+        description="List of child component ids to be placed within the Text. This could be a v-text component",
     )
