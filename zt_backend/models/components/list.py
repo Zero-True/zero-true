@@ -11,6 +11,7 @@ class ListComponent(ZTComponent):
     childComponents: List[str] = Field(
         [], description="List of child component ids to be placed within the List"
     )
+
     color: str = Field("primary", description="Background color of the List")
     elevation: int = Field(
         None,
@@ -63,7 +64,6 @@ class ListItem(ZTComponent):
     def validate_color(cls, color):
         return validate_color(color)
 
-
 class ListItemTitle(ZTComponent):
     """List Item Title is used to specify the title of the Lsit Item. Use Text component to provide the title details and pass it to the child component of List Item."""
 
@@ -87,7 +87,6 @@ class ListItemSubtitle(ZTComponent):
         description="List of child component ids to be placed within the ListItemTitle. Mention v-test component to show the text of Subtitle",
     )
 
-
 class ListSubheader(ZTComponent):
     """List SubHeader is used to specify the Sub Header of the List. Use Text component to provide the title details and pass it to the child component of List."""
 
@@ -100,3 +99,4 @@ class ListSubheader(ZTComponent):
         [],
         description="List of child component ids to be placed within the List Subheader. Mention v-text component to show title for subheader",
     )
+  
