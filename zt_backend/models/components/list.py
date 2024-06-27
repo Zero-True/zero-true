@@ -1,6 +1,7 @@
-from pydantic import Field
+from pydantic import Field, validator, field_validator
 from typing import List, Optional, Union
 from zt_backend.models.components.zt_component import ZTComponent
+from zt_backend.models.components.validations import validate_color
 
 
 class ListComponent(ZTComponent):
@@ -10,7 +11,7 @@ class ListComponent(ZTComponent):
     childComponents: List[str] = Field(
         [], description="List of child component ids to be placed within the List"
     )
-    color: str = Field(None, description="Background color of the List")
+    color: str = Field("primary", description="Background color of the List")
     elevation: int = Field(
         None,
         ge=0,
@@ -25,6 +26,10 @@ class ListComponent(ZTComponent):
     width: Union[int, str] = Field("100%", description="Width of the List")
     height: Union[int, str] = Field("100%", description="Height of the List")
 
+    @field_validator("color")
+    def validate_color(cls, color):
+        return validate_color(color)
+
 
 class ListItem(ZTComponent):
     """List Item helps define properties of individual items in the list"""
@@ -33,7 +38,7 @@ class ListItem(ZTComponent):
         "v-list-item", description="Vue component name for List Item"
     )
     title: str = Field("", description="item title")
-    color: str = Field(None, description="Background color of the List item")
+    color: str = Field("primary", description="Background color of the List item")
     elevation: int = Field(
         None,
         ge=0,
@@ -54,6 +59,10 @@ class ListItem(ZTComponent):
         description="List of child component ids to be placed within the ListItem. List title, subtitle come as the child components of the list item",
     )
 
+    @field_validator("color")
+    def validate_color(cls, color):
+        return validate_color(color)
+
 
 class ListItemTitle(ZTComponent):
     """List Item Title is used to specify the title of the Lsit Item. Use Text component to provide the title details and pass it to the child component of List Item."""
@@ -67,7 +76,6 @@ class ListItemTitle(ZTComponent):
     )
 
 
-# TODO: debug opacity prop(not working)
 class ListItemSubtitle(ZTComponent):
     """List Item SubtitleTitle is used to specify the Subtitle of the List Item. Use Text component to provide the text details of the subtitle and pass it to the child component of List Item"""
 
@@ -78,10 +86,8 @@ class ListItemSubtitle(ZTComponent):
         [],
         description="List of child component ids to be placed within the ListItemTitle. Mention v-test component to show the text of Subtitle",
     )
-    opacity: Union[int, str] = Field("50%", description="opacity for subtitle")
 
 
-# TODO: debug the title prop(not working)
 class ListSubheader(ZTComponent):
     """List SubHeader is used to specify the Sub Header of the List. Use Text component to provide the title details and pass it to the child component of List."""
 
@@ -90,7 +96,6 @@ class ListSubheader(ZTComponent):
     )
     inset: bool = Field(False, description="inset for Subheader")
     sticky: bool = Field(False, description="sticky for subehader")
-    title: str = Field("", description="title for subheader")
     childComponents: List[str] = Field(
         [],
         description="List of child component ids to be placed within the List Subheader. Mention v-text component to show title for subheader",
