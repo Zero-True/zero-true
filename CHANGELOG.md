@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/Zero-True/zero-true/compare/v0.2.2...v0.3.0) (2024-06-27)
+
+
+### Bug Fixes
+
+* Dataframe feature addition ([#278](https://github.com/Zero-True/zero-true/issues/278)) ([ea439c7](https://github.com/Zero-True/zero-true/commit/ea439c79c1f6aaee963e6665686f96f71236e3a7))
+
 ## [0.2.2](https://github.com/Zero-True/zero-true/compare/v0.2.1...v0.2.2) (2024-05-23)
 
 
