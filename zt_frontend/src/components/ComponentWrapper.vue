@@ -48,6 +48,10 @@ import {
   VImg,
   VAutocomplete,
   VCard,
+  VExpansionPanels,
+  VExpansionPanel,
+  VExpansionPanelTitle,
+  VExpansionPanelText
 } from "vuetify/lib/components/index.mjs";
 import { VDataTable } from "vuetify/components/VDataTable";
 import TextComponent from "@/components/TextComponent.vue";
@@ -68,6 +72,10 @@ export default {
     "v-autocomplete": VAutocomplete,
     "v-card": VCard,
     "v-text": TextComponent,
+    "v-expansion-panels": VExpansionPanels,
+    "v-expansion-panel": VExpansionPanel,
+    "v-expansion-title": VExpansionPanelTitle,
+    "v-expansion-panel-text": VExpansionPanelText,
     "plotly-plot": PlotlyPlot,
   },
   emits: ["runCode"],
