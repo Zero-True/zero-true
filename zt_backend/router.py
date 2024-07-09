@@ -13,6 +13,7 @@ from zt_backend.models.state.user_state import UserState
 from zt_backend.models.state.app_state import AppState
 from fastapi.responses import HTMLResponse
 from pathlib import Path
+from fastapi import Query
 import logging
 import uuid
 import os
@@ -284,14 +285,7 @@ def list_dir(path):
     items = []
     for item in path.iterdir():
         if item.is_dir():
-            if item.name in ['.git', '__pycache__', 'node_modules']:
-                items.append({'title': item.name,'file': 'folder'})  # Only title for excluded directories
-            else:
-                items.append({
-                    'title': item.name,
-                    'children': list_dir(item),
-                    'file': 'folder'
-                })
+            items.append({'title': item.name, 'file': 'folder', 'id': item.as_posix(), 'children': []})
         else:
             file_type = get_file_type(item.name)
             if file_type:
@@ -305,3 +299,13 @@ def list_files():
     path = Path('.')
     files = list_dir(path)
     return {"files": files}
+
+
+@router.get("/api/get_children")
+def list_children(path: str = Query(...)):
+    dir_path = Path(path)
+    if not dir_path.is_dir():
+        return {"error": "Path is not a directory"}
+
+    items = list_dir(dir_path)
+    return {"files": items}

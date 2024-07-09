@@ -112,8 +112,8 @@
     :fileIcon="fileIcon"
     :isMobile="isMobile"
     :isAppRoute="isAppRoute"
-    @handleFileChange="handleFileChange"
     @update:drawer="updateDrawer"
+    @update:items="updateItems"
   />
 
     <v-main :scrollable="false">
@@ -226,7 +226,7 @@
 
 <script lang="ts">
 import axios from "axios";
-import { nextTick } from 'vue';
+import { nextTick, defineComponent, ref } from 'vue';
 import { useRoute } from "vue-router";
 import { Request, CodeRequest } from "./types/request";
 import { ComponentRequest } from "./types/component_request";
@@ -358,6 +358,11 @@ export default {
     updateDrawer(value: boolean) {
       this.drawer = value;
     },
+
+    updateItems(newItems: any[]) {
+      this.items = newItems;
+    },
+    
   handleFileChange(componentId: string, event: Event) {
   const file = (event.target as HTMLInputElement).files;
   if (file && file.length > 0) {
