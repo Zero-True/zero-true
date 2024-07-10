@@ -35,7 +35,7 @@ def deserialize_component(data: Dict[str, Any]) -> ZTComponent:
         "v-autocomplete": Autocomplete,
         "v-card": Card,
         "v-timer": Timer,
-        "plotly-plot": PlotlyComponent
+        "plotly-plot": PlotlyComponent,
         "v-otp-input": Otp
         # add other component types here
     }
