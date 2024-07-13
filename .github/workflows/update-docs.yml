@@ -1,0 +1,21 @@
+name: Update Mintlify Documentation
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Trigger Mintlify Update
+      env:
+        MINTLIFY_API_KEY: mint_3ZUzGHZmBntdpnUS8HCyQQ2z
+        MINTLIFY_PROJECT_ID: 6667576a753dd739a276aff7
+      run: |
+        curl --request POST         --url https://api.mintlify.com/v1/project/update/${MINTLIFY_PROJECT_ID}         --header 'Authorization: Bearer ${MINTLIFY_API_KEY}'
