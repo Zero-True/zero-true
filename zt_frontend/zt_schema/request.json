@@ -1,0 +1,99 @@
+{
+  "$defs": {
+    "CodeRequest": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "variable_name": {
+          "title": "Variable Name",
+          "type": "string"
+        },
+        "nonReactive": {
+          "title": "Nonreactive",
+          "type": "boolean"
+        },
+        "showTable": {
+          "default": false,
+          "title": "Showtable",
+          "type": "boolean"
+        },
+        "cellType": {
+          "enum": [
+            "code",
+            "markdown",
+            "text",
+            "sql"
+          ],
+          "title": "Celltype",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "code",
+        "variable_name",
+        "nonReactive",
+        "cellType"
+      ],
+      "title": "CodeRequest",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "originId": {
+      "title": "Originid",
+      "type": "string"
+    },
+    "cells": {
+      "items": {
+        "$ref": "#/$defs/CodeRequest"
+      },
+      "title": "Cells",
+      "type": "array"
+    },
+    "components": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "items": {},
+            "type": "array"
+          },
+          {
+            "format": "binary",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "title": "Components",
+      "type": "object"
+    }
+  },
+  "required": [
+    "originId",
+    "cells",
+    "components"
+  ],
+  "title": "Request",
+  "type": "object"
+}

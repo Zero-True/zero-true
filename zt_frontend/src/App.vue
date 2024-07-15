@@ -91,7 +91,7 @@
             <v-btn :icon="`ztIcon:${ztAliases.redo}`"></v-btn>
             <v-btn :icon="`ztIcon:${ztAliases.message}`"></v-btn> -->
             <CopilotComponent v-if="$devMode && !isAppRoute"/>
-            <PackageComponent v-if="$devMode && !isAppRoute" :dependencies="dependencies" :dependencyOutput="dependencyOutput" @updateDependencies="updateDependencies"/>
+            <PackageComponent v-if="$devMode && !isAppRoute" :dependencies="dependencies"/>
             <ShareComponent v-if="$devMode && !isAppRoute"/>
             <!-- <v-btn :icon="`ztIcon:${ztAliases.play}`"></v-btn>
             <v-btn
@@ -105,12 +105,18 @@
         </v-col>
       </template>
     </v-app-bar>
+    <SidebarComponent
+    :drawer="drawer"
+    :items="items"
+    :tree="tree"
+    :fileIcon="fileIcon"
+    :isMobile="isMobile"
+    :isAppRoute="isAppRoute"
+    @handleFileChange="handleFileChange"
+    @update:drawer="updateDrawer"
+  />
+
     <v-main :scrollable="false">
-      <v-container v-if="errorMessage">
-        <v-alert type="error">
-            {{ errorMessage }}
-        </v-alert>
-      </v-container>
       <CodeCellManager 
         :notebook="notebook"
         :completions="completions"
@@ -231,7 +237,6 @@ import { ClearRequest } from "./types/clear_request";
 import { NotebookNameRequest } from "./types/notebook_name_request";
 import { Notebook, CodeCell, Layout, ZTComponent } from "./types/notebook";
 import { Dependencies } from "./types/notebook_response";
-import { DependencyOutput } from "./static-types/dependency_ouput";
 import CodeComponent from "@/components/CodeComponent.vue";
 import MarkdownComponent from "@/components/MarkdownComponent.vue";
 import EditorComponent from "@/components/EditorComponent.vue";
@@ -244,7 +249,8 @@ import type { VTextField } from "vuetify/lib/components/index.mjs";
 import { ztAliases } from '@/iconsets/ztIcon'
 import { Timer } from "@/timer";
 import { globalState } from "@/global_vars";
-import { DependencyRequest } from "./types/dependency_request";
+import SidebarComponent from '@/components/FileExplorer.vue';
+
 
 export default {
   components: {
@@ -255,13 +261,13 @@ export default {
     PackageComponent,
     CodeCellManager,
     CopilotComponent,
-    ShareComponent
+    ShareComponent,
+    SidebarComponent
   },
 
   data() {
     return {
-      editingProjectName: false,
-      errorMessage: '' as string,
+      editingProjectName: false, 
       notebook: {} as Notebook,
       notebookName: '',
       notebookEditName: '',
@@ -274,20 +280,23 @@ export default {
       save_socket: null as WebSocket | null,
       run_socket: null as WebSocket | null,
       stop_socket: null as WebSocket | null,
-      dependency_socket: null as WebSocket | null,
       timer: 0,
       startTime: 0,
       timerInterval: null as ReturnType<typeof setInterval> | null,
       isCodeRunning: false,
       requestQueue: [] as any[],
       componentChangeQueue: [] as  any[],
+      drawer: true,
+      files: [] as any[],
+      tree: [],
+      items: [] as any[],
+      openFolders: [],
       concatenatedCodeCache: {
-        lastCellId: '' as string,
-        code: '' as string,
-        followingCode: '' as string,
-        length: 0 as number,
+      lastCellId: '' as string,
+      code: '' as string,
+      followingCode: '' as string,
+      length: 0 as number,
       },
-      dependencyOutput: {output: "", isLoading: false} as DependencyOutput,
       ztAliases
     };
   },
@@ -308,8 +317,9 @@ export default {
     await this.initializeRunSocket()
     await this.initializeStopSocket()
     if (this.$devMode){
-      await this.initializeSaveSocket()
-      await this.initializeDependencySocket()
+      await this.initializeSaveSocket() 
+      this.files = await (await axios.get(import.meta.env.VITE_BACKEND_URL + "api/get_files")).data.files as any[]
+      this.items = this.files
     }
     this.isCodeRunning = true;
     this.startTimer();
@@ -343,6 +353,38 @@ export default {
         nextTick(() => {
           (this.$refs.projectNameField as VTextField).focus();
         })
+      }
+    },
+    updateDrawer(value: boolean) {
+      this.drawer = value;
+    },
+  handleFileChange(componentId: string, event: Event) {
+  const file = (event.target as HTMLInputElement).files;
+  if (file && file.length > 0) {
+    const formData = new FormData();
+    formData.append("file", file[0]);
+    axios.post(`${import.meta.env.VITE_BACKEND_URL}api/upload_file`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    .then(response => console.log("File processed", response.data))
+    .catch(error => console.error("Error processing file:", error.response)); // Directly pass the file to `runCode`
+  } else {
+    console.error("No file selected");
+  }
+},
+fileIcon(extension: string) {
+
+      switch (extension) {
+        case 'html': return 'mdi:mdi-language-html5';
+        case 'js': return 'mdi:mdi-nodejs';
+        case 'json': return 'mdi:mdi-code-json';
+        case 'md': return 'mdi:mdi-language-markdown';
+        case 'pdf': return 'mdi:mdi-file-pdf-box';
+        case 'png': return 'mdi:mdi-file-image';
+        case 'txt': return 'mdi:mdi-file-document-outline';
+        case 'xls': return 'mdi:mdi-file-excel';
+        case 'folder': return 'mdi:mdi-folder';
+        default: return 'mdi:mdi-file';
       }
     },
     async saveProjectName() {
@@ -420,7 +462,7 @@ export default {
         }
         return;
       }
-      
+      console.log(request)
       this.sendRunCodeRequest(request)
     },
 
@@ -445,10 +487,6 @@ export default {
           else{
             this.notebook.cells[response.cell_id].output = this.notebook.cells[response.cell_id].output.concat(response.output)
           }
-        }
-
-        else if (response.env_stale){
-          this.errorMessage = 'Some dependencies are not installed in the current environment. Open dependency manager to install missing dependencies'
         }
 
         else if (response.complete){
@@ -594,38 +632,6 @@ export default {
       });
     },
 
-    initializeDependencySocket() {
-      this.dependency_socket = new WebSocket(this.ws_url + 'ws/dependency_update')
-      this.dependency_socket!.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data.output){
-            this.dependencyOutput.output = this.dependencyOutput.output.concat(data.output)
-          }
-          else{
-            this.dependencies = JSON.parse(data);
-            this.dependencyOutput.isLoading = false;
-          }
-          this.errorMessage = '';
-        } catch (error) {
-          console.error('Error parsing server message:', error);
-        }
-      };
-      return new Promise<void>((resolve, reject) => {
-        // Resolve the promise when the connection is open
-        this.dependency_socket!.onopen = () => {
-          console.log("Dependency socket connected");
-          resolve();
-        };
-
-        // Reject the promise on connection error
-        this.dependency_socket!.onerror = (error) => {
-          console.error("Dependency socket connection error:", error);
-          reject(error);
-        };
-      });
-    },
-
     async componentValueChange(originId: string, componentId: string, newValue: any) {
       // Updating the component's value in the notebook
       const requestComponents: { [key: string]: any } = {};
@@ -667,21 +673,15 @@ export default {
       this.sendComponentRequest(componentRequest)
     },
 
-    async sendComponentRequest(componentRequest: ComponentRequest) {
+    sendComponentRequest(componentRequest: ComponentRequest) {
       this.isCodeRunning = true;
       this.startTimer();
-      if (this.run_socket!.readyState !== WebSocket.OPEN) {
-        await this.initializeRunSocket()
-      }
       this.run_socket!.send(JSON.stringify(componentRequest))
     },
 
     async notebookRefresh(){//TODO: Fix this
       this.isCodeRunning = true;
       this.startTimer();
-      if (this.notebook_socket!.readyState !== WebSocket.OPEN) {
-        await this.initializeNotebookSocket()
-      }
       this.notebook_socket!.send('start')
     },
 
@@ -773,9 +773,6 @@ export default {
         column: column,
         code_w_context: this.concatenatedCodeCache.code+text+this.concatenatedCodeCache.followingCode
       };
-      if (this.save_socket!.readyState !== WebSocket.OPEN) {
-        await this.initializeSaveSocket()
-      }
       this.save_socket!.send(JSON.stringify(saveRequest))
     },
 
@@ -827,16 +824,10 @@ export default {
     async stopCodeExecution(){
       if (this.$devMode) {
         this.requestQueue = []
-        if (this.stop_socket!.readyState !== WebSocket.OPEN) {
-          await this.initializeStopSocket()
-        }
         this.stop_socket!.send("")
       }
       else {
         this.componentChangeQueue = []
-        if (this.stop_socket!.readyState !== WebSocket.OPEN) {
-          await this.initializeStopSocket()
-        }
         this.stop_socket!.send(this.notebook.userId)
       }
       this.isCodeRunning = false;
@@ -856,15 +847,6 @@ export default {
         default:
           throw new Error(`Unknown component type: ${cellType}`);
       }
-    },
-
-    async updateDependencies(dependencies: Dependencies) {
-      this.dependencyOutput.output = '';
-      const request: DependencyRequest = {dependencies: dependencies}
-      if (this.dependency_socket!.readyState !== WebSocket.OPEN) {
-        await this.initializeDependencySocket()
-      }
-      this.dependency_socket!.send(JSON.stringify(request));
     },
 
     startTimerComponents(originId: string, timers: ZTComponent[]) {

@@ -1,0 +1,18 @@
+{
+  "properties": {
+    "cellId": {
+      "title": "Cellid",
+      "type": "string"
+    },
+    "hideCell": {
+      "title": "Hidecell",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "cellId",
+    "hideCell"
+  ],
+  "title": "HideCellRequest",
+  "type": "object"
+}

@@ -1,17 +1,18 @@
 import subprocess
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, File, UploadFile, WebSocket, WebSocketDisconnect,FastAPI
 from zt_backend.models import notebook
 from zt_backend.models.api import request
 from zt_backend.runner.execute_code import execute_request
 from zt_backend.config import settings
 from zt_backend.utils.completions import get_code_completions
-from zt_backend.utils.dependencies import dependency_update, parse_dependencies, check_env
+from zt_backend.utils.dependencies import dependency_update
 from zt_backend.utils.notebook import get_notebook_request, get_request_base, save_worker, websocket_message_sender
 from zt_backend.models.managers.connection_manager import ConnectionManager
 from zt_backend.models.managers.k_thread import KThread
 from zt_backend.models.state.user_state import UserState
 from zt_backend.models.state.app_state import AppState
 from fastapi.responses import HTMLResponse
+from pathlib import Path
 import logging
 import uuid
 import os
@@ -193,18 +194,15 @@ def clear_state(clearRequest: request.ClearRequest):
         logger.debug("Clearing state for user %s", clearRequest.userId)
         app_state.user_states.pop(clearRequest.userId, None)
 
-@router.websocket("/ws/dependency_update")
-async def dependency_update_request(websocket: WebSocket):
-    if(app_state.run_mode=='dev'):
-        await manager.connect(websocket)
+@router.post("/api/dependency_update")
+def dependency_update_request(dependencyRequest: request.DependencyRequest):
+     if(app_state.run_mode=='dev'):
+        logger.debug("Updating dependencies")
         try:
-            while True:
-                data = await websocket.receive_json()
-                dependencyRequest = request.DependencyRequest(**data)
-                dependencyResponse = await dependency_update(dependencyRequest, websocket)
-                await websocket.send_json(dependencyResponse.model_dump_json())
-        except WebSocketDisconnect:
-            manager.disconnect(websocket)
+            dependency_update(dependencyRequest)
+            logger.debug("Successfully updated dependencies")
+        except Exception as e:
+            logger.error('Error while updating requirements: %s', traceback.format_exc())
 
 @router.websocket("/ws/notebook")
 async def load_notebook(websocket: WebSocket):
@@ -228,10 +226,9 @@ async def load_notebook(websocket: WebSocket):
                 app_state.user_threads[userId].start()
             else:
                 try:
-                    start_dependencies = parse_dependencies()
-                    if not check_env(start_dependencies):
-                        await websocket.send_json({"env_stale": True})
-                    notebook_response =  notebook.NotebookResponse(notebook=notebook_start, dependencies=start_dependencies)
+                    with open('requirements.txt', 'r', encoding='utf-8') as file:
+                        contents = file.read()
+                    notebook_response =  notebook.NotebookResponse(notebook=notebook_start, dependencies=notebook.Dependencies(value=contents))
                     await websocket.send_json(notebook_response.model_dump_json())
                     await websocket.send_json({"complete": True})
                 except FileNotFoundError:
@@ -263,3 +260,48 @@ def share_notebook(shareRequest: request.ShareRequest):
 @router.on_event('shutdown')
 def shutdown():
     app_state.shutdown()
+
+
+# file upload should come from a component that already exists in the backends user statate
+@router.post("/api/upload_file")
+def upload_file(file: UploadFile = File(...)):
+    if app_state.run_mode == 'dev':
+        logger.debug("File upload request started")
+        file_path = os.path.join('.', file.filename.split("/")[-1])
+        with open(file_path, "wb",) as buffer:
+            buffer.write(file.file.read())
+        logger.debug("File upload request completed")
+        return {"filename": file.filename}
+
+
+def get_file_type(name):
+    extension = name.split('.')[-1]
+    if extension in ['html', 'js', 'json', 'md', 'pdf', 'png', 'txt', 'xls']:
+        return extension
+    return None
+
+def list_dir(path):
+    items = []
+    for item in path.iterdir():
+        if item.is_dir():
+            if item.name in ['.git', '__pycache__', 'node_modules']:
+                items.append({'title': item.name,'file': 'folder'})  # Only title for excluded directories
+            else:
+                items.append({
+                    'title': item.name,
+                    'children': list_dir(item),
+                    'file': 'folder'
+                })
+        else:
+            file_type = get_file_type(item.name)
+            if file_type:
+                items.append({'title': item.name, 'file': file_type, 'id': item.as_posix()})
+            else:
+                items.append({'title': item.name, 'file': 'file', 'id': item.as_posix()})
+    return items
+
+@router.get("/api/get_files")
+def list_files():
+    path = Path('.')
+    files = list_dir(path)
+    return {"files": files}

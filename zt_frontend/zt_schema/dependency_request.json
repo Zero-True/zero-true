@@ -1,0 +1,13 @@
+{
+  "properties": {
+    "dependencies": {
+      "title": "Dependencies",
+      "type": "string"
+    }
+  },
+  "required": [
+    "dependencies"
+  ],
+  "title": "DependencyRequest",
+  "type": "object"
+}

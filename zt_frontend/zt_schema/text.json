@@ -1,0 +1,67 @@
+{
+  "description": "Text is a read only component that is meant for static text",
+  "properties": {
+    "id": {
+      "description": "Unique id for a component",
+      "title": "Id",
+      "type": "string"
+    },
+    "variable_name": {
+      "default": "",
+      "description": "Optional variable name associated with a component",
+      "title": "Variable Name",
+      "type": "string"
+    },
+    "component": {
+      "default": "v-text",
+      "description": "Vue component name",
+      "title": "Component",
+      "type": "string"
+    },
+    "text": {
+      "default": "",
+      "description": "The actual text content",
+      "title": "Text",
+      "type": "string"
+    },
+    "type": {
+      "default": "text-body-1",
+      "description": "Text type to display",
+      "enum": [
+        "text-h1",
+        "text-h2",
+        "text-h3",
+        "text-h4",
+        "text-h5",
+        "text-h6",
+        "text-subtitle-1",
+        "text-subtitle-2",
+        "text-body-1",
+        "text-body-2",
+        "text-button",
+        "text-caption",
+        "text-overline"
+      ],
+      "title": "Type",
+      "type": "string"
+    },
+    "color": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Color of the text",
+      "title": "Color"
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "title": "Text",
+  "type": "object"
+}

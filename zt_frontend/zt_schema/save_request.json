@@ -1,0 +1,38 @@
+{
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "text": {
+      "title": "Text",
+      "type": "string"
+    },
+    "code_w_context": {
+      "default": "",
+      "title": "Code W Context",
+      "type": "string"
+    },
+    "cellType": {
+      "title": "Celltype",
+      "type": "string"
+    },
+    "line": {
+      "default": "",
+      "title": "Line",
+      "type": "string"
+    },
+    "column": {
+      "default": "",
+      "title": "Column",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "text",
+    "cellType"
+  ],
+  "title": "SaveRequest",
+  "type": "object"
+}

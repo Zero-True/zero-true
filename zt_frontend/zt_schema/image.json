@@ -1,0 +1,51 @@
+{
+  "description": "Image component for displaying web hosted or local images. Supports .png, .jpg, and .jpeg file types",
+  "properties": {
+    "id": {
+      "description": "Unique id for a component",
+      "title": "Id",
+      "type": "string"
+    },
+    "variable_name": {
+      "default": "",
+      "description": "Optional variable name associated with a component",
+      "title": "Variable Name",
+      "type": "string"
+    },
+    "component": {
+      "default": "v-img",
+      "description": "Vue component name",
+      "title": "Component",
+      "type": "string"
+    },
+    "src": {
+      "description": "Source URL or Path of the image",
+      "title": "Src",
+      "type": "string"
+    },
+    "alt": {
+      "default": "",
+      "description": "Alternative text for the image",
+      "title": "Alt",
+      "type": "string"
+    },
+    "width": {
+      "default": 100,
+      "description": "Width of the image",
+      "title": "Width",
+      "type": "integer"
+    },
+    "height": {
+      "default": 100,
+      "description": "Height of the image",
+      "title": "Height",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "id",
+    "src"
+  ],
+  "title": "Image",
+  "type": "object"
+}

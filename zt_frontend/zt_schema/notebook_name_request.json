@@ -1,0 +1,13 @@
+{
+  "properties": {
+    "notebookName": {
+      "title": "Notebookname",
+      "type": "string"
+    }
+  },
+  "required": [
+    "notebookName"
+  ],
+  "title": "NotebookNameRequest",
+  "type": "object"
+}

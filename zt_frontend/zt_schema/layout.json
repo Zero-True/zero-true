@@ -1,0 +1,77 @@
+{
+  "$defs": {
+    "Column": {
+      "description": "A Column must be a subcomponent of a Row. It can contain both individual components and rows",
+      "properties": {
+        "components": {
+          "default": [],
+          "description": "List of component IDs and rows that belong to this column, rendered in order",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/$defs/Row"
+              }
+            ]
+          },
+          "title": "Components",
+          "type": "array"
+        },
+        "width": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "boolean"
+            }
+          ],
+          "default": false,
+          "description": "Width of the column. It can be a number 1-12 and by default is automatically calculated",
+          "title": "Width"
+        }
+      },
+      "title": "Column",
+      "type": "object"
+    },
+    "Row": {
+      "description": "Rows can contain both individual components and columns. They are the top level components of a layout and can be subcomponents of columns",
+      "properties": {
+        "components": {
+          "default": [],
+          "description": "List of component IDs and columns that belong to this row, rendered in order",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/$defs/Column"
+              }
+            ]
+          },
+          "title": "Components",
+          "type": "array"
+        }
+      },
+      "title": "Row",
+      "type": "object"
+    }
+  },
+  "description": "Layout is an object that contains the list of rows to be rendered",
+  "properties": {
+    "rows": {
+      "default": [],
+      "description": "List of rows in this layout",
+      "items": {
+        "$ref": "#/$defs/Row"
+      },
+      "title": "Rows",
+      "type": "array"
+    }
+  },
+  "title": "Layout",
+  "type": "object"
+}

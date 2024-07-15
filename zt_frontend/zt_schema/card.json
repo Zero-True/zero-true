@@ -1,0 +1,110 @@
+{
+  "description": "A card is a container for components that should be displayed together. \nAny child components will be placed in their own row within the card and take up the full width",
+  "properties": {
+    "id": {
+      "description": "Unique id for a component",
+      "title": "Id",
+      "type": "string"
+    },
+    "variable_name": {
+      "default": "",
+      "description": "Optional variable name associated with a component",
+      "title": "Variable Name",
+      "type": "string"
+    },
+    "component": {
+      "default": "v-card",
+      "description": "Vue component name",
+      "title": "Component",
+      "type": "string"
+    },
+    "childComponents": {
+      "default": [],
+      "description": "List of child component ids to be placed within the card",
+      "items": {
+        "type": "string"
+      },
+      "title": "Childcomponents",
+      "type": "array"
+    },
+    "color": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Background color of the card",
+      "title": "Color"
+    },
+    "elevation": {
+      "anyOf": [
+        {
+          "maximum": 24,
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Elevation level of the card. Must be between 0 and 24",
+      "title": "Elevation"
+    },
+    "density": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Density of the component",
+      "enum": [
+        "default",
+        "comfortable",
+        "compact"
+      ],
+      "title": "Density"
+    },
+    "width": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Width of the card",
+      "title": "Width"
+    },
+    "location": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "enum": [
+        "center"
+      ],
+      "title": "Location"
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "title": "Card",
+  "type": "object"
+}

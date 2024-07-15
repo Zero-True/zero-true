@@ -3,7 +3,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from zt_backend.config import settings
 from zt_backend.utils.notebook import get_notebook, write_notebook
-from zt_backend.utils.dependencies import parse_dependencies, write_dependencies
 from copilot.copilot import copilot_app
 import zt_backend.router as router
 import os
@@ -20,8 +19,12 @@ run_mode = settings.run_mode
 project_name = settings.project_name
 user_name = settings.user_name
 
-app.include_router(router.router)
-app.mount("/copilot", copilot_app)
+route_prefix = ''
+if project_name:
+    route_prefix = '/'+user_name+'/'+project_name
+
+app.include_router(router.router, prefix=route_prefix)
+app.mount(route_prefix+"/copilot", copilot_app)
 
 app.add_middleware(
     CORSMiddleware,
@@ -46,13 +49,11 @@ def open_project():
                 subprocess.run(['lock', 'requirements.txt'])
             except Exception:
                 logger.error("Failed to lock requirements: %s", traceback.format_exc())
-        else:
-            write_dependencies(parse_dependencies())
         get_notebook()
     except Exception as e:
         logger.error("Error creating new files on startup: %s", traceback.format_exc())
         
 if run_mode=='app':
-    app.mount('', StaticFiles(directory=os.path.join(current_path, "dist_app"), html=True), name="assets")
+    app.mount(route_prefix, StaticFiles(directory=os.path.join(current_path, "dist_app"), html=True), name="assets")
 else:
-    app.mount('', StaticFiles(directory=os.path.join(current_path, "dist_dev"), html=True), name="assets")
+    app.mount(route_prefix, StaticFiles(directory=os.path.join(current_path, "dist_dev"), html=True), name="assets")

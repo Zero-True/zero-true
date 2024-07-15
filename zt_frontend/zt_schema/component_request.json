@@ -1,0 +1,50 @@
+{
+  "properties": {
+    "originId": {
+      "title": "Originid",
+      "type": "string"
+    },
+    "components": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "items": {},
+            "type": "array"
+          },
+          {
+            "format": "binary",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "title": "Components",
+      "type": "object"
+    },
+    "userId": {
+      "title": "Userid",
+      "type": "string"
+    }
+  },
+  "required": [
+    "originId",
+    "components",
+    "userId"
+  ],
+  "title": "ComponentRequest",
+  "type": "object"
+}

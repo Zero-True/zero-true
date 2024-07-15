@@ -4,7 +4,8 @@ from .api.request import DependencyRequest, Request, ComponentRequest, DeleteReq
                      ShareRequest
 
 from .api.response import Response
-from .notebook import Notebook, NotebookResponse, Dependencies, Dependency
+from .notebook import Notebook
+from .notebook import NotebookResponse
 from .components.slider import Slider
 from .components.text_input import TextInput
 from .components.text_area_input import TextArea
@@ -19,7 +20,6 @@ from .components.autocomplete import Autocomplete
 from .components.card import Card
 from .components.timer import Timer
 from .components.iframe import iFrame
-from .components.html import HTML
 import json
 
 def generate_json(model, name):
@@ -43,11 +43,9 @@ def generate_schema():
     generate_json(ShowTableRequest, 'show_table_request')
     generate_json(ShareRequest, 'share_request')
     generate_json(Response, 'response')
+    generate_json(Slider, 'slider')
     generate_json(Notebook, 'notebook')
     generate_json(NotebookResponse, 'notebook_response')
-    generate_json(Dependencies, 'dependencies')
-    generate_json(Dependency, 'dependency')
-    generate_json(Slider, 'slider')
     generate_json(TextInput, 'text_input')
     generate_json(TextArea,'text_area')
     generate_json(RangeSlider,'range_slider')
@@ -62,4 +60,3 @@ def generate_schema():
     generate_json(Text,'text')
     generate_json(Timer,'timer')
     generate_json(iFrame,'iframe')
-    generate_json(HTML,'html')

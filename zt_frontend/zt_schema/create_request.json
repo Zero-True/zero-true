@@ -1,0 +1,24 @@
+{
+  "properties": {
+    "cellType": {
+      "enum": [
+        "code",
+        "markdown",
+        "text",
+        "sql"
+      ],
+      "title": "Celltype",
+      "type": "string"
+    },
+    "position_key": {
+      "title": "Position Key",
+      "type": "string"
+    }
+  },
+  "required": [
+    "cellType",
+    "position_key"
+  ],
+  "title": "CreateRequest",
+  "type": "object"
+}

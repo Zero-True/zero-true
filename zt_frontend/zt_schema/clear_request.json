@@ -1,0 +1,13 @@
+{
+  "properties": {
+    "userId": {
+      "title": "Userid",
+      "type": "string"
+    }
+  },
+  "required": [
+    "userId"
+  ],
+  "title": "ClearRequest",
+  "type": "object"
+}

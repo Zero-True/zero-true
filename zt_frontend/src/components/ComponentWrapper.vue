@@ -7,10 +7,8 @@
         :figureJson="component.figure_json as string"
       />
 
-      <v-container v-else-if="component.component === 'zt-html'" v-html="component.v_html"/>
-
       <component
-        v-else
+        v-else-if="component.component !== 'v-file-input'"
         :is="component.component"
         v-bind="componentBind(component)"
         v-model="component.value"
@@ -30,6 +28,11 @@
           </div>
         </template>
       </component>
+      <v-file-input
+        v-else
+        label="Upload File"
+        @change="handleFileChange(component.id, $event,)"
+      />
     </v-row>
   </div>
 </template>
@@ -52,6 +55,8 @@ import {
 import { VDataTable } from "vuetify/components/VDataTable";
 import TextComponent from "@/components/TextComponent.vue";
 import PlotlyPlot from "@/components/PlotlyComponent.vue";
+import VFileInput from "@/components/FileInputComponent.vue";
+import axios from "axios";
 
 export default {
   components: {
@@ -67,6 +72,7 @@ export default {
     "v-data-table": VDataTable,
     "v-autocomplete": VAutocomplete,
     "v-card": VCard,
+    "v-file-input": VFileInput,
     "v-text": TextComponent,
     "plotly-plot": PlotlyPlot,
   },
@@ -134,15 +140,35 @@ export default {
       });
     },
 
-    runCode(fromComponent: boolean, componentId: string, componentValue: any) {
-      if (
-        this.allComponents[componentId].component === "v-btn" 
-      ) {
-        componentValue = true;
-        this.allComponents[componentId].value = true;
-      }
-      this.$emit("runCode", fromComponent, componentId, componentValue);
-    },
+  handleFileChange(componentId: string, event: Event) {
+  const file = (event.target as HTMLInputElement).files;
+  if (file && file.length > 0) {
+    const formData = new FormData();
+    formData.append("file", file[0]);
+    axios.post(`${import.meta.env.VITE_BACKEND_URL}api/upload_file`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    .then(response => console.log("File processed", response.data))
+    .catch(error => console.error("Error processing file:", error.response)); // Directly pass the file to `runCode`
+  } else {
+    console.error("No file selected");
+  }
+},
+
+
+
+runCode(fromComponent: boolean, componentId: string, componentValue: any) {
+  const component = this.allComponents[componentId];
+
+  if (component.component === "v-btn") {
+    componentValue = true;
+    component.value = true;
+    // handle other component interactions here
+  }
+  // Emit an event or other side effects here
+  this.$emit("runCode", fromComponent, componentId, componentValue);
+},
+
   },
 };
 </script>

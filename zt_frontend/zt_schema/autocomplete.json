@@ -1,0 +1,144 @@
+{
+  "description": "Autocomplete is a select box that allows users to search the available options. \nOptimal for when there are many options to choose from",
+  "properties": {
+    "id": {
+      "description": "Unique id for a component",
+      "title": "Id",
+      "type": "string"
+    },
+    "variable_name": {
+      "default": "",
+      "description": "Optional variable name associated with a component",
+      "title": "Variable Name",
+      "type": "string"
+    },
+    "component": {
+      "default": "v-autocomplete",
+      "description": "Vue component name",
+      "title": "Component",
+      "type": "string"
+    },
+    "items": {
+      "description": "Options for the autocomplete box. Can be a list of strings or integers",
+      "items": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "integer"
+          }
+        ]
+      },
+      "title": "Items",
+      "type": "array"
+    },
+    "value": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": "",
+      "description": "Selected option for the autocomplete box",
+      "title": "Value"
+    },
+    "label": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Label for the autocomplete box",
+      "title": "Label"
+    },
+    "multiple": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Determines if multiple selections are allowed",
+      "title": "Multiple"
+    },
+    "clearable": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Determines if the autocomplete box has a clearable option",
+      "title": "Clearable"
+    },
+    "disabled": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Determines if the autocomplete box is disabled",
+      "title": "Disabled"
+    },
+    "readonly": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Determines if the autocomplete box is read-only",
+      "title": "Readonly"
+    },
+    "color": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Color of the autocomplete component. Can be custom or standard Material color",
+      "pre": true,
+      "title": "Color"
+    },
+    "triggerEvent": {
+      "default": "update:modelValue",
+      "description": "Trigger event for when to run based on the selected value",
+      "title": "Triggerevent",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "items"
+  ],
+  "title": "Autocomplete",
+  "type": "object"
+}

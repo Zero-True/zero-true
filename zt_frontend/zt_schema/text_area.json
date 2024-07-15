@@ -1,0 +1,104 @@
+{
+  "description": "Text area input allows a user to input arbitrary text. This is meant for larger text inputs",
+  "properties": {
+    "id": {
+      "description": "Unique id for a component",
+      "title": "Id",
+      "type": "string"
+    },
+    "variable_name": {
+      "default": "",
+      "description": "Optional variable name associated with a component",
+      "title": "Variable Name",
+      "type": "string"
+    },
+    "component": {
+      "default": "v-textarea",
+      "description": "Vue component name",
+      "title": "Component",
+      "type": "string"
+    },
+    "hint": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": "Press Enter to Submit",
+      "description": "Hint text for the text input",
+      "title": "Hint"
+    },
+    "value": {
+      "default": "",
+      "description": "The input text value",
+      "title": "Value",
+      "type": "string"
+    },
+    "placeholder": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Placeholder text",
+      "title": "Placeholder"
+    },
+    "label": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Label for the text input",
+      "title": "Label"
+    },
+    "readonly": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "If true, the input is read-only",
+      "title": "Readonly"
+    },
+    "disabled": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "If true, the input is disabled",
+      "title": "Disabled"
+    },
+    "triggerEvent": {
+      "default": null,
+      "description": "Trigger event to send code to the backend",
+      "title": "Triggerevent",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "title": "TextArea",
+  "type": "object"
+}

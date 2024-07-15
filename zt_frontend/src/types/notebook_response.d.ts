@@ -44,9 +44,7 @@ export type VariableName1 = string;
 export type Components2 = ZTComponent[];
 export type Celltype = "code" | "markdown" | "text" | "sql";
 export type Userid = string;
-export type Package = string;
-export type Version = string;
-export type Dependencies1 = Dependency[];
+export type Value = string;
 
 export interface NotebookResponse {
   notebook: Notebook;
@@ -107,11 +105,6 @@ export interface ZTComponent {
   [k: string]: unknown;
 }
 export interface Dependencies {
-  dependencies?: Dependencies1;
-  [k: string]: unknown;
-}
-export interface Dependency {
-  package: Package;
-  version?: Version;
+  value: Value;
   [k: string]: unknown;
 }

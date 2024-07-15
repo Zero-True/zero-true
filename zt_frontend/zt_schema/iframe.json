@@ -1,0 +1,77 @@
+{
+  "description": "This is a representation of a standard iframe component",
+  "properties": {
+    "id": {
+      "description": "Unique id for a component",
+      "title": "Id",
+      "type": "string"
+    },
+    "variable_name": {
+      "default": "",
+      "description": "Optional variable name associated with a component",
+      "title": "Variable Name",
+      "type": "string"
+    },
+    "component": {
+      "default": "iframe",
+      "description": "Vue component name",
+      "title": "Component",
+      "type": "string"
+    },
+    "src": {
+      "default": "",
+      "description": "Source URL of the iframe",
+      "title": "Src",
+      "type": "string"
+    },
+    "width": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "default": "100%",
+      "description": "Width of the iframe",
+      "title": "Width"
+    },
+    "height": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "default": 300,
+      "description": "Height of the iframe",
+      "title": "Height"
+    },
+    "frameborder": {
+      "default": 0,
+      "description": "Frame border of the iframe",
+      "title": "Frameborder",
+      "type": "integer"
+    },
+    "scrolling": {
+      "default": "auto",
+      "description": "Scrolling of the iframe",
+      "title": "Scrolling",
+      "type": "string"
+    },
+    "allowtransparency": {
+      "default": false,
+      "description": "Allow transparency of the iframe",
+      "title": "Allowtransparency",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "title": "iFrame",
+  "type": "object"
+}

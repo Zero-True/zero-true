@@ -1,0 +1,45 @@
+{
+  "description": "Timer is a component that allows for execution of code at a set interval. This does not have any visual output",
+  "properties": {
+    "id": {
+      "description": "Unique id for a component",
+      "title": "Id",
+      "type": "string"
+    },
+    "variable_name": {
+      "default": "",
+      "description": "Optional variable name associated with a component",
+      "title": "Variable Name",
+      "type": "string"
+    },
+    "component": {
+      "default": "v-timer",
+      "description": "Vue component name",
+      "title": "Component",
+      "type": "string"
+    },
+    "interval": {
+      "default": 100000,
+      "description": "Interval in milliseconds",
+      "title": "Interval",
+      "type": "integer"
+    },
+    "value": {
+      "default": false,
+      "description": "Flag for execution under interval",
+      "title": "Value",
+      "type": "boolean"
+    },
+    "triggerEvent": {
+      "default": "click",
+      "description": "Trigger event for when to execute a run",
+      "title": "Triggerevent",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "title": "Timer",
+  "type": "object"
+}

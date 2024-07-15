@@ -1,0 +1,18 @@
+{
+  "properties": {
+    "cellId": {
+      "title": "Cellid",
+      "type": "string"
+    },
+    "showTable": {
+      "title": "Showtable",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "cellId",
+    "showTable"
+  ],
+  "title": "ShowTableRequest",
+  "type": "object"
+}

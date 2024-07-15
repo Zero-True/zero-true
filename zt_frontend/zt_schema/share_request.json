@@ -1,0 +1,23 @@
+{
+  "properties": {
+    "userName": {
+      "title": "Username",
+      "type": "string"
+    },
+    "projectName": {
+      "title": "Projectname",
+      "type": "string"
+    },
+    "apiKey": {
+      "title": "Apikey",
+      "type": "string"
+    }
+  },
+  "required": [
+    "userName",
+    "projectName",
+    "apiKey"
+  ],
+  "title": "ShareRequest",
+  "type": "object"
+}

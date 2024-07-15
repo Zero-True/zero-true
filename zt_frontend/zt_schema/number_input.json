@@ -1,0 +1,123 @@
+{
+  "description": "Number input allows a user to input an arbitrary number. Can be a float or an integer",
+  "properties": {
+    "id": {
+      "description": "Unique id for a component",
+      "title": "Id",
+      "type": "string"
+    },
+    "variable_name": {
+      "default": "",
+      "description": "Optional variable name associated with a component",
+      "title": "Variable Name",
+      "type": "string"
+    },
+    "component": {
+      "default": "v-number-field",
+      "description": "Vue component name",
+      "title": "Component",
+      "type": "string"
+    },
+    "hint": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": "Press Enter to Submit",
+      "description": "Hint text for the number input",
+      "title": "Hint"
+    },
+    "value": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The input number value",
+      "title": "Value"
+    },
+    "placeholder": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Placeholder number",
+      "title": "Placeholder"
+    },
+    "label": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Label for the number input",
+      "title": "Label"
+    },
+    "readonly": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "If true, the input is read-only",
+      "title": "Readonly"
+    },
+    "disabled": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "If true, the input is disabled",
+      "title": "Disabled"
+    },
+    "type": {
+      "default": "number",
+      "description": "Ensures that only numbers are accepted on the frontend",
+      "title": "Type",
+      "type": "string"
+    },
+    "triggerEvent": {
+      "default": null,
+      "description": "Trigger event to send code to the backend",
+      "title": "Triggerevent",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "title": "NumberInput",
+  "type": "object"
+}

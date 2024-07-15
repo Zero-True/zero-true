@@ -1,0 +1,18 @@
+{
+  "properties": {
+    "cellId": {
+      "title": "Cellid",
+      "type": "string"
+    },
+    "expandCode": {
+      "title": "Expandcode",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "cellId",
+    "expandCode"
+  ],
+  "title": "ExpandCodeRequest",
+  "type": "object"
+}

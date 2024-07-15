@@ -16,27 +16,11 @@ class DataFrame(ZTComponent):
     component: str = Field("v-data-table", description="Vue component name.")
     headers: List[Header] = Field([], description="List of column headers for the DataFrame")
     items: List[Dict[str, Any]] = Field([], description="List of items to be displayed in the DataFrame")
-    multi_sort: bool = Field(True, description="Enable or disable multi-sort on the DataFrame")
-    search: str = Field("", description="Create a text_input component search = zt.text_input(id='search') before to filter the DataFrame items")
-
 
     @classmethod
-    def from_dataframe(cls, df: pd.DataFrame, id: str, multi_sort: bool = True, search: str = ""):
+    def from_dataframe(cls, df: pd.DataFrame, id: str):
         """Create a DataFrame component from a pandas DataFrame"""
         df = df.replace({np.nan:None}).replace({np.inf:None}).replace({-np.inf:None})
-        if search:
-            search = search.lower()
-            df = df[df.astype(str).apply(lambda x: x.str.lower().str.contains(search)).any(axis=1)]
         headers = [{"title": col, "key": col} for col in df.columns]
         items = df.to_dict(orient='records')
-        return cls(id=id, headers=headers, items=items, multi_sort=multi_sort, search=search)
-    
-def dataframe(df: pd.DataFrame, id: str, multi_sort: bool = True, search: str = ""):
-    """Create a ZT DataFrame component from a pandas DataFrame"""
-    df = df.replace({np.nan:None}).replace({np.inf:None}).replace({-np.inf:None})
-    if search:
-        search = search.lower()
-        df = df[df.astype(str).apply(lambda x: x.str.lower().str.contains(search)).any(axis=1)]
-    headers = [{"title": col, "key": col} for col in df.columns] 
-    items = df.to_dict(orient='records')
-    return DataFrame(id=id, headers=headers, items=items, multi_sort=multi_sort, search=search)
+        return cls(id=id, headers=headers, items=items)

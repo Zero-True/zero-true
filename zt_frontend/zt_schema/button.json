@@ -1,0 +1,63 @@
+{
+  "description": "Standard button UI component",
+  "properties": {
+    "id": {
+      "description": "Unique id for a component",
+      "title": "Id",
+      "type": "string"
+    },
+    "variable_name": {
+      "default": "",
+      "description": "Optional variable name associated with a component",
+      "title": "Variable Name",
+      "type": "string"
+    },
+    "component": {
+      "default": "v-btn",
+      "description": "Vue component name",
+      "title": "Component",
+      "type": "string"
+    },
+    "value": {
+      "default": false,
+      "description": "Whether the button has been clicked",
+      "title": "Value",
+      "type": "boolean"
+    },
+    "text": {
+      "default": "Click Me",
+      "description": "Label displayed on the button",
+      "title": "Text",
+      "type": "string"
+    },
+    "color": {
+      "default": "primary",
+      "description": "Color of the button",
+      "title": "Color",
+      "type": "string"
+    },
+    "disabled": {
+      "default": false,
+      "description": "If true, the button is disabled",
+      "title": "Disabled",
+      "type": "boolean"
+    },
+    "outlined": {
+      "default": false,
+      "description": "If true, the button will have an outlined style",
+      "title": "Outlined",
+      "type": "boolean"
+    },
+    "triggerEvent": {
+      "default": "click",
+      "description": "Trigger event to send code to the backend",
+      "title": "Triggerevent",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "title": "Button",
+  "type": "object"
+}

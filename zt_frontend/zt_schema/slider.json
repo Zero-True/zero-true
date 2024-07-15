@@ -1,0 +1,142 @@
+{
+  "description": "A slider component that allows you to capture numeric input from a user",
+  "properties": {
+    "id": {
+      "description": "Unique id for a component",
+      "title": "Id",
+      "type": "string"
+    },
+    "variable_name": {
+      "default": "",
+      "description": "Optional variable name associated with a component",
+      "title": "Variable Name",
+      "type": "string"
+    },
+    "component": {
+      "default": "v-slider",
+      "description": "Vue component name",
+      "title": "Component",
+      "type": "string"
+    },
+    "value": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "default": 0,
+      "description": "Current value of the slider",
+      "title": "Value"
+    },
+    "min": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "default": 0,
+      "description": "Minimum value of the slider",
+      "title": "Min"
+    },
+    "max": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "default": 100,
+      "description": "Maximum value of the slider",
+      "title": "Max"
+    },
+    "step": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "default": 1,
+      "description": "Step increment of the slider",
+      "title": "Step"
+    },
+    "thumb_label": {
+      "default": false,
+      "description": "Displays the thumb label",
+      "title": "Thumb Label",
+      "type": "boolean"
+    },
+    "thumb_size": {
+      "default": 0,
+      "description": "Size of the thumb",
+      "title": "Thumb Size",
+      "type": "integer"
+    },
+    "tick_labels": {
+      "default": "always",
+      "description": "Displays the tick labels",
+      "title": "Tick Labels",
+      "type": "string"
+    },
+    "ticks": {
+      "default": [],
+      "description": "Displays the ticks",
+      "items": {},
+      "title": "Ticks",
+      "type": "array"
+    },
+    "color": {
+      "default": "primary",
+      "description": "Color of the range slider. Can be custom or standard Material color",
+      "pre": true,
+      "title": "Color",
+      "type": "string"
+    },
+    "size": {
+      "default": "large",
+      "description": "Size of the slider",
+      "title": "Size",
+      "type": "string"
+    },
+    "label": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A label for your slider",
+      "title": "Label"
+    },
+    "rounded": {
+      "default": true,
+      "description": "Determines if the slider has rounded edges",
+      "title": "Rounded",
+      "type": "boolean"
+    },
+    "triggerEvent": {
+      "default": "end",
+      "description": "Trigger event for when to run the slider",
+      "title": "Triggerevent",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "title": "Slider",
+  "type": "object"
+}

@@ -1,0 +1,215 @@
+{
+  "$defs": {
+    "CodeCell": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "output": {
+          "title": "Output",
+          "type": "string"
+        },
+        "cellName": {
+          "default": "",
+          "title": "Cellname",
+          "type": "string"
+        },
+        "hideCell": {
+          "default": false,
+          "title": "Hidecell",
+          "type": "boolean"
+        },
+        "hideCode": {
+          "default": false,
+          "title": "Hidecode",
+          "type": "boolean"
+        },
+        "expandCode": {
+          "default": false,
+          "title": "Expandcode",
+          "type": "boolean"
+        },
+        "showTable": {
+          "default": false,
+          "title": "Showtable",
+          "type": "boolean"
+        },
+        "nonReactive": {
+          "default": false,
+          "title": "Nonreactive",
+          "type": "boolean"
+        },
+        "variable_name": {
+          "default": "",
+          "title": "Variable Name",
+          "type": "string"
+        },
+        "layout": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/Layout"
+            }
+          ],
+          "default": {
+            "rows": []
+          }
+        },
+        "components": {
+          "items": {
+            "$ref": "#/$defs/ZTComponent"
+          },
+          "title": "Components",
+          "type": "array"
+        },
+        "cellType": {
+          "enum": [
+            "code",
+            "markdown",
+            "text",
+            "sql"
+          ],
+          "title": "Celltype",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "code",
+        "output",
+        "components",
+        "cellType"
+      ],
+      "title": "CodeCell",
+      "type": "object"
+    },
+    "Column": {
+      "description": "A Column must be a subcomponent of a Row. It can contain both individual components and rows",
+      "properties": {
+        "components": {
+          "default": [],
+          "description": "List of component IDs and rows that belong to this column, rendered in order",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/$defs/Row"
+              }
+            ]
+          },
+          "title": "Components",
+          "type": "array"
+        },
+        "width": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "boolean"
+            }
+          ],
+          "default": false,
+          "description": "Width of the column. It can be a number 1-12 and by default is automatically calculated",
+          "title": "Width"
+        }
+      },
+      "title": "Column",
+      "type": "object"
+    },
+    "Layout": {
+      "description": "Layout is an object that contains the list of rows to be rendered",
+      "properties": {
+        "rows": {
+          "default": [],
+          "description": "List of rows in this layout",
+          "items": {
+            "$ref": "#/$defs/Row"
+          },
+          "title": "Rows",
+          "type": "array"
+        }
+      },
+      "title": "Layout",
+      "type": "object"
+    },
+    "Row": {
+      "description": "Rows can contain both individual components and columns. They are the top level components of a layout and can be subcomponents of columns",
+      "properties": {
+        "components": {
+          "default": [],
+          "description": "List of component IDs and columns that belong to this row, rendered in order",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/$defs/Column"
+              }
+            ]
+          },
+          "title": "Components",
+          "type": "array"
+        }
+      },
+      "title": "Row",
+      "type": "object"
+    },
+    "ZTComponent": {
+      "properties": {
+        "id": {
+          "description": "Unique id for a component",
+          "title": "Id",
+          "type": "string"
+        },
+        "variable_name": {
+          "default": "",
+          "description": "Optional variable name associated with a component",
+          "title": "Variable Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "ZTComponent",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "notebookName": {
+      "default": "Zero True",
+      "title": "Notebookname",
+      "type": "string"
+    },
+    "notebookId": {
+      "default": "65a198c4-d4f6-4959-a991-e455b13dab7e",
+      "title": "Notebookid",
+      "type": "string"
+    },
+    "cells": {
+      "additionalProperties": {
+        "$ref": "#/$defs/CodeCell"
+      },
+      "title": "Cells",
+      "type": "object"
+    },
+    "userId": {
+      "title": "Userid",
+      "type": "string"
+    }
+  },
+  "required": [
+    "cells",
+    "userId"
+  ],
+  "title": "Notebook",
+  "type": "object"
+}
