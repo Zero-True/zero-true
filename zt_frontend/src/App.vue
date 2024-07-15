@@ -90,6 +90,14 @@
             <!-- <v-btn :icon="`ztIcon:${ztAliases.undo}`"></v-btn>
             <v-btn :icon="`ztIcon:${ztAliases.redo}`"></v-btn>
             <v-btn :icon="`ztIcon:${ztAliases.message}`"></v-btn> -->
+            <v-btn :prepend-icon="`ztIcon:${ztAliases.play}`"
+              variant="flat"
+              ripple
+              color="primary"
+              class="text-bluegrey-darken-4"
+              id="runAllBtn"
+              @click="runAllCode('')"
+            >Run All</v-btn>
             <CopilotComponent v-if="$devMode && !isAppRoute"/>
             <PackageComponent v-if="$devMode && !isAppRoute" :dependencies="dependencies" :dependencyOutput="dependencyOutput" @updateDependencies="updateDependencies"/>
             <ShareComponent v-if="$devMode && !isAppRoute"/>
@@ -115,6 +123,7 @@
         :notebook="notebook"
         :completions="completions"
         @runCode="runCode"
+        @runAllCode="runAllCode"
         @saveCell="saveCell"
         @componentValueChange="componentValueChange"
         @deleteCell="deleteCell"
@@ -423,6 +432,50 @@ export default {
       
       this.sendRunCodeRequest(request)
     },
+
+
+    async runAllCode(originId: string = '') {
+      const cellRequests: CodeRequest[] = [];
+      const requestComponents: { [key: string]: any } = {};
+      
+      for (let key in this.notebook.cells) {
+        const cellRequest: CodeRequest = {
+          id: key,
+          code: this.notebook.cells[key].code,
+          variable_name: this.notebook.cells[key].variable_name || "",
+          nonReactive: this.notebook.cells[key].nonReactive as boolean,
+          showTable: this.notebook.cells[key].showTable as boolean,
+          cellType: this.notebook.cells[key].cellType,
+        };
+        for (const c of this.notebook.cells[key].components) {
+          if (c.component === 'v-data-table') {
+            requestComponents[c.id] = '';
+          } else {
+            requestComponents[c.id] = c.value;
+          }
+        }
+        cellRequests.push(cellRequest);
+      }
+      
+      const request: Request = {
+        originId: originId,
+        cells: cellRequests,
+        components: requestComponents,
+      };
+
+      if (this.isCodeRunning) {
+        const existingRequestIndex = this.requestQueue.findIndex(req => req.originId === originId);
+        if (existingRequestIndex !== -1) {
+          this.requestQueue[existingRequestIndex] = request;
+        } else {
+          this.requestQueue.push(request);
+        }
+        return;
+      }
+      
+      this.sendRunCodeRequest(request);
+    },
+
 
     sendRunCodeRequest(request: Request) {
       this.isCodeRunning = true;
