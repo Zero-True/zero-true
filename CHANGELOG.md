@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.0](https://github.com/Zero-True/zero-true/compare/v0.2.2...v0.3.0) (2024-07-17)
+
+
+### Bug Fixes
+
+* CLI updates for teams tier and other improvements ([#286](https://github.com/Zero-True/zero-true/issues/286)) ([3d1ce0f](https://github.com/Zero-True/zero-true/commit/3d1ce0fc93f207ad144e3f5d0592015f613b882c))
+* Dataframe feature addition ([#278](https://github.com/Zero-True/zero-true/issues/278)) ([ea439c7](https://github.com/Zero-True/zero-true/commit/ea439c79c1f6aaee963e6665686f96f71236e3a7))
+* documentation update ([#281](https://github.com/Zero-True/zero-true/issues/281)) ([12d81d0](https://github.com/Zero-True/zero-true/commit/12d81d0067843de37ec087e85227064b5c7e982e))
+
 ## [0.2.2](https://github.com/Zero-True/zero-true/compare/v0.2.1...v0.2.2) (2024-05-23)
 
 
