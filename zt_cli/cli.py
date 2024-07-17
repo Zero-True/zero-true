@@ -13,6 +13,7 @@ import yaml
 import json
 import uuid
 import webbrowser
+import re
 
 cli_app = typer.Typer()
 
@@ -56,11 +57,11 @@ def publish(
         str, typer.Argument(help="The directory for your project")
     ],
     team_name: Annotated[
-        Optional[str],
-        typer.Option(
+        str,
+        typer.Argument(
             help="Optional team for this to be published to. Must have access to this team."
         ),
-    ],
+    ] = "",
     private: Annotated[
         bool,
         typer.Option(
@@ -70,19 +71,20 @@ def publish(
     ] = True,
 ):
 
-    s3_key = user_name + "/" + project_name + "/" + project_name + ".tar.gz"
     # Step 1: Verify the API key and get a signed URL from the Lambda function
+    headers = {"Content-Type": "application/json", "x-api-key": key}
     if team_name:
+        team_name = re.sub(r"\s+", "-", team_name.lower().strip())
+        s3_key = team_name + "/" + project_name + "/" + project_name + ".tar.gz"
         lambda_url = "https://bxmm0wp9zk.execute-api.us-east-2.amazonaws.com/default/team_project_upload"
-        headers = {"Content-Type": "application/json", "x-api-key": key}
         response = requests.post(
             lambda_url,
-            json={"s3_key": s3_key, "team_name": team_name, "private": private},
+            json={"s3_key": s3_key, "user_name": user_name, "private": private},
             headers=headers,
         )
     else:
+        s3_key = user_name + "/" + project_name + "/" + project_name + ".tar.gz"
         lambda_url = "https://bxmm0wp9zk.execute-api.us-east-2.amazonaws.com/default/project_upload"
-        headers = {"Content-Type": "application/json", "x-api-key": key}
         response = requests.post(
             lambda_url, json={"s3_key": s3_key, "private": private}, headers=headers
         )
@@ -99,7 +101,6 @@ def publish(
     output_filename = f"{project_name}"
     if project_source == ".":
         project_source = os.path.basename(os.path.normpath(os.getcwd()))
-        print(project_source)
         os.chdir("..")
 
     shutil.make_archive(
