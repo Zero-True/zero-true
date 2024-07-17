@@ -5,8 +5,17 @@ from zt_backend.models.api import request
 from zt_backend.runner.execute_code import execute_request
 from zt_backend.config import settings
 from zt_backend.utils.completions import get_code_completions
-from zt_backend.utils.dependencies import dependency_update, parse_dependencies, check_env
-from zt_backend.utils.notebook import get_notebook_request, get_request_base, save_worker, websocket_message_sender
+from zt_backend.utils.dependencies import (
+    dependency_update,
+    parse_dependencies,
+    check_env,
+)
+from zt_backend.utils.notebook import (
+    get_notebook_request,
+    get_request_base,
+    save_worker,
+    websocket_message_sender,
+)
 from zt_backend.models.managers.connection_manager import ConnectionManager
 from zt_backend.models.managers.k_thread import KThread
 from zt_backend.models.state.user_state import UserState
@@ -27,42 +36,55 @@ app_state = AppState()
 
 logger = logging.getLogger("__name__")
 
+
 @router.get("/app", response_class=HTMLResponse)
 async def catch_all():
-    if(app_state.run_mode=='dev'):
-        return HTMLResponse(open(os.path.join(current_path, "dist_dev", "index.html")).read())
+    if app_state.run_mode == "dev":
+        return HTMLResponse(
+            open(os.path.join(current_path, "dist_dev", "index.html")).read()
+        )
+
 
 @router.get("/health")
 def health():
-    return('UP')
+    return "UP"
+
 
 @router.get("/env_data")
 def env_data():
     return {
         "ws_url": settings.ws_url,
-        "python_version": f'{sys.version_info.major}.{sys.version_info.minor}',
-        "zt_version": pkg_resources.get_distribution('zero-true').version
+        "python_version": f"{sys.version_info.major}.{sys.version_info.minor}",
+        "zt_version": pkg_resources.get_distribution("zero-true").version,
     }
+
 
 @router.get("/base_path")
 def base_path():
-    return settings.user_name + '/' + settings.project_name
+    return settings.user_name + "/" + settings.project_name
+
 
 @router.websocket("/ws/run_code")
 async def run_code(websocket: WebSocket):
-    if(app_state.run_mode=='dev'):
-        message_send = asyncio.create_task(websocket_message_sender(app_state.notebook_state))
+    if app_state.run_mode == "dev":
+        message_send = asyncio.create_task(
+            websocket_message_sender(app_state.notebook_state)
+        )
         await manager.connect(websocket)
         try:
             while True:
                 data = await websocket.receive_json()
                 app_state.notebook_state.websocket = websocket
-                app_state.current_thread = KThread(target = execute_request, args=(request.Request(**data), app_state.notebook_state))
+                app_state.current_thread = KThread(
+                    target=execute_request,
+                    args=(request.Request(**data), app_state.notebook_state),
+                )
                 app_state.current_thread.start()
         except WebSocketDisconnect:
             manager.disconnect(websocket)
         finally:
-            message_send.cancel() 
+            message_send.cancel()
+
 
 @router.websocket("/ws/component_run")
 async def component_run(websocket: WebSocket):
@@ -72,46 +94,71 @@ async def component_run(websocket: WebSocket):
             data = await websocket.receive_json()
             logger.debug("Component change code execution started")
             component_request = request.ComponentRequest(**data)
-            code_request = get_request_base(component_request.originId, component_request.components)
-            if(app_state.run_mode=='dev'):
+            code_request = get_request_base(
+                component_request.originId, component_request.components
+            )
+            if app_state.run_mode == "dev":
                 app_state.notebook_state.websocket = websocket
-                current_thread = KThread(target = execute_request, args=(code_request, app_state.notebook_state))
+                current_thread = KThread(
+                    target=execute_request,
+                    args=(code_request, app_state.notebook_state),
+                )
                 current_thread.start()
             else:
                 if component_request.userId not in app_state.user_states:
-                    logger.debug("New user execution with id: %s, sending refresh", component_request.userId)
+                    logger.debug(
+                        "New user execution with id: %s, sending refresh",
+                        component_request.userId,
+                    )
                     await websocket.send_json({"refresh": True})
-                logger.debug("Existing user execution with id: %s", component_request.userId)
+                logger.debug(
+                    "Existing user execution with id: %s", component_request.userId
+                )
                 app_state.timer_set(component_request.userId, 1800)
                 app_state.user_states[component_request.userId].websocket = websocket
-                app_state.user_threads[component_request.userId] = KThread(target = execute_request, args=(code_request, app_state.user_states[component_request.userId]))
+                app_state.user_threads[component_request.userId] = KThread(
+                    target=execute_request,
+                    args=(
+                        code_request,
+                        app_state.user_states[component_request.userId],
+                    ),
+                )
                 app_state.user_threads[component_request.userId].start()
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
+
 @router.post("/api/create_cell")
 def create_cell(cellRequest: request.CreateRequest):
-     if(app_state.run_mode=='dev'):
+    if app_state.run_mode == "dev":
         logger.debug("Code cell addition request started")
         createdCell = notebook.CodeCell(
             id=str(uuid.uuid4()),
-            code='',
+            code="",
             components=[],
-            output='',
-            variable_name='',
-            cellType=cellRequest.cellType
+            output="",
+            variable_name="",
+            cellType=cellRequest.cellType,
         )
-        app_state.save_queue.put_nowait({"newCell": createdCell.model_copy(deep=True), "position_key":cellRequest.position_key})
+        app_state.save_queue.put_nowait(
+            {
+                "newCell": createdCell.model_copy(deep=True),
+                "position_key": cellRequest.position_key,
+            }
+        )
         logger.debug("Code cell addition request completed")
         return createdCell
 
+
 @router.post("/api/delete_cell")
 def delete_cell(deleteRequest: request.DeleteRequest):
-     cell_id = deleteRequest.cellId
-     if(app_state.run_mode=='dev'):
+    cell_id = deleteRequest.cellId
+    if app_state.run_mode == "dev":
         app_state.notebook_state.cell_outputs_dict.pop(cell_id, None)
         try:
-            cell_dict = app_state.notebook_state.cell_outputs_dict['previous_dependecy_graph'].cells
+            cell_dict = app_state.notebook_state.cell_outputs_dict[
+                "previous_dependecy_graph"
+            ].cells
             if cell_id in cell_dict:
                 cell_dict.pop(cell_id, None)
 
@@ -123,54 +170,63 @@ def delete_cell(deleteRequest: request.DeleteRequest):
 
             logger.debug("Cell %s deleted successfully", cell_id)
         except Exception as e:
-            logger.debug("Error when deleting cell %s: %s", cell_id, traceback.format_exc())
-        app_state.save_queue.put_nowait({"deletedCell":cell_id})
+            logger.debug(
+                "Error when deleting cell %s: %s", cell_id, traceback.format_exc()
+            )
+        app_state.save_queue.put_nowait({"deletedCell": cell_id})
+
 
 @router.post("/api/hide_cell")
 def hide_cell(hideCellRequest: request.HideCellRequest):
-     if(app_state.run_mode=='dev'):
+    if app_state.run_mode == "dev":
         logger.debug("Hide cell request started")
         app_state.save_queue.put_nowait({"hideCell": hideCellRequest})
         logger.debug("Hide cell request completed")
 
+
 @router.post("/api/hide_code")
 def hide_cell(hideCodeRequest: request.HideCodeRequest):
-     if(app_state.run_mode=='dev'):
+    if app_state.run_mode == "dev":
         logger.debug("Hide code request started")
         app_state.save_queue.put_nowait({"hideCode": hideCodeRequest})
         logger.debug("Hide code request completed")
 
+
 @router.post("/api/rename_cell")
 def rename_cell(renameCellRequest: request.NameCellRequest):
-     if(app_state.run_mode=='dev'):
+    if app_state.run_mode == "dev":
         logger.debug("Rename cell request started")
         app_state.save_queue.put_nowait({"renameCell": renameCellRequest})
         logger.debug("Rename cell request completed")
 
+
 @router.post("/api/cell_reactivity")
 def cell_reactivity(cellReactivityRequest: request.CellReactivityRequest):
-     if(app_state.run_mode=='dev'):
+    if app_state.run_mode == "dev":
         logger.debug("Cell reactivity request started")
         app_state.save_queue.put_nowait({"cellReactivity": cellReactivityRequest})
         logger.debug("Cell reactivity request completed")
 
+
 @router.post("/api/expand_code")
 def expand_code(expandCodeRequest: request.ExpandCodeRequest):
-     if(app_state.run_mode=='dev'):
+    if app_state.run_mode == "dev":
         logger.debug("Expand code request started")
         app_state.save_queue.put_nowait({"expandCode": expandCodeRequest})
         logger.debug("Expand code request completed")
 
+
 @router.post("/api/show_table")
 def show_table(showTableRequest: request.ShowTableRequest):
-     if(app_state.run_mode=='dev'):
+    if app_state.run_mode == "dev":
         logger.debug("Show Table request started")
         app_state.save_queue.put_nowait({"showTable": showTableRequest})
         logger.debug("Show Table request completed")
 
+
 @router.websocket("/ws/save_text")
 async def save_text(websocket: WebSocket):
-    if(app_state.run_mode=='dev'):
+    if app_state.run_mode == "dev":
         save_task = asyncio.create_task(save_worker(app_state.save_queue))
         await manager.connect(websocket)
         try:
@@ -178,33 +234,49 @@ async def save_text(websocket: WebSocket):
                 data = await websocket.receive_json()
                 cell_type = data.get("cellType")
                 cell_id = data.get("id")
-                app_state.save_queue.put_nowait({"saveCell": request.SaveRequest(id=cell_id, text=data.get("text"), cellType=cell_type)})
-                if cell_type=="code":
-                    completions = await get_code_completions(cell_id, data.get("code_w_context"), data.get("line"), data.get("column"))
+                app_state.save_queue.put_nowait(
+                    {
+                        "saveCell": request.SaveRequest(
+                            id=cell_id, text=data.get("text"), cellType=cell_type
+                        )
+                    }
+                )
+                if cell_type == "code":
+                    completions = await get_code_completions(
+                        cell_id,
+                        data.get("code_w_context"),
+                        data.get("line"),
+                        data.get("column"),
+                    )
                     await websocket.send_json(completions)
         except WebSocketDisconnect:
             manager.disconnect(websocket)
         finally:
             save_task.cancel()
 
+
 @router.post("/api/clear_state")
 def clear_state(clearRequest: request.ClearRequest):
-     if(app_state.run_mode=='app'):
+    if app_state.run_mode == "app":
         logger.debug("Clearing state for user %s", clearRequest.userId)
         app_state.user_states.pop(clearRequest.userId, None)
 
+
 @router.websocket("/ws/dependency_update")
 async def dependency_update_request(websocket: WebSocket):
-    if(app_state.run_mode=='dev'):
+    if app_state.run_mode == "dev":
         await manager.connect(websocket)
         try:
             while True:
                 data = await websocket.receive_json()
                 dependencyRequest = request.DependencyRequest(**data)
-                dependencyResponse = await dependency_update(dependencyRequest, websocket)
+                dependencyResponse = await dependency_update(
+                    dependencyRequest, websocket
+                )
                 await websocket.send_json(dependencyResponse.model_dump_json())
         except WebSocketDisconnect:
             manager.disconnect(websocket)
+
 
 @router.websocket("/ws/notebook")
 async def load_notebook(websocket: WebSocket):
@@ -215,30 +287,41 @@ async def load_notebook(websocket: WebSocket):
             logger.debug("Get notebook request received")
             notebook_start = get_notebook_request()
             await websocket.send_json({"notebook_name": notebook_start.notebookName})
-            if (app_state.run_mode=='app'):
+            if app_state.run_mode == "app":
                 userId = str(uuid.uuid4())
                 notebook_start.userId = userId
-                app_state.user_states[userId]=UserState(userId)
-                app_state.user_message_tasks[userId]=asyncio.create_task(websocket_message_sender(app_state.user_states[userId]))
+                app_state.user_states[userId] = UserState(userId)
+                app_state.user_message_tasks[userId] = asyncio.create_task(
+                    websocket_message_sender(app_state.user_states[userId])
+                )
                 app_state.timer_set(userId, 1800)
-                notebook_response = notebook.NotebookResponse(notebook=notebook_start, dependencies=notebook.Dependencies(value=''))
+                notebook_response = notebook.NotebookResponse(
+                    notebook=notebook_start,
+                    dependencies=notebook.Dependencies(value=""),
+                )
                 await websocket.send_json(notebook_response.model_dump_json())
                 app_state.user_states[userId].websocket = websocket
-                app_state.user_threads[userId] = KThread(target = execute_request, args=(get_request_base(''), app_state.user_states[userId]))
+                app_state.user_threads[userId] = KThread(
+                    target=execute_request,
+                    args=(get_request_base(""), app_state.user_states[userId]),
+                )
                 app_state.user_threads[userId].start()
             else:
                 try:
                     start_dependencies = parse_dependencies()
                     if not check_env(start_dependencies):
                         await websocket.send_json({"env_stale": True})
-                    notebook_response =  notebook.NotebookResponse(notebook=notebook_start, dependencies=start_dependencies)
+                    notebook_response = notebook.NotebookResponse(
+                        notebook=notebook_start, dependencies=start_dependencies
+                    )
                     await websocket.send_json(notebook_response.model_dump_json())
                     await websocket.send_json({"complete": True})
                 except FileNotFoundError:
-                    logger.error('Requirements file not found')
+                    logger.error("Requirements file not found")
 
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+
 
 @router.websocket("/ws/stop_execution")
 async def stop_execution(websocket: WebSocket):
@@ -250,16 +333,43 @@ async def stop_execution(websocket: WebSocket):
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
+
 @router.post("/api/notebook_name_update")
 def notebook_name_update(notebook_name: request.NotebookNameRequest):
-    if(app_state.run_mode=='dev'):
-        app_state.save_queue.put_nowait({"new_notebook_name":notebook_name.notebookName})
+    if app_state.run_mode == "dev":
+        app_state.save_queue.put_nowait(
+            {"new_notebook_name": notebook_name.notebookName}
+        )
+
 
 @router.post("/api/share_notebook")
 def share_notebook(shareRequest: request.ShareRequest):
-    if(app_state.run_mode=='dev'):
-        subprocess.run(['zero-true', 'publish', shareRequest.apiKey, shareRequest.userName, shareRequest.projectName, '.'])
+    if app_state.run_mode == "dev":
+        if shareRequest.teamName:
+            subprocess.run(
+                [
+                    "zero-true",
+                    "publish",
+                    shareRequest.apiKey,
+                    shareRequest.userName,
+                    shareRequest.projectName,
+                    ".",
+                    shareRequest.teamName,
+                ]
+            )
+        else:
+            subprocess.run(
+                [
+                    "zero-true",
+                    "publish",
+                    shareRequest.apiKey,
+                    shareRequest.userName,
+                    shareRequest.projectName,
+                    ".",
+                ]
+            )
 
-@router.on_event('shutdown')
+
+@router.on_event("shutdown")
 def shutdown():
     app_state.shutdown()
