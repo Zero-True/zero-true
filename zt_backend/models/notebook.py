@@ -18,7 +18,6 @@ from zt_backend.models.components.plotly import PlotlyComponent
 from zt_backend.models.components.autocomplete import Autocomplete
 from zt_backend.models.components.card import Card
 from zt_backend.models.components.timer import Timer
-from zt_backend.models.components.otp import Otp
 
 def deserialize_component(data: Dict[str, Any]) -> ZTComponent:
     component_map = {
@@ -35,8 +34,7 @@ def deserialize_component(data: Dict[str, Any]) -> ZTComponent:
         "v-autocomplete": Autocomplete,
         "v-card": Card,
         "v-timer": Timer,
-        "plotly-plot": PlotlyComponent,
-        "v-otp-input": Otp
+        "plotly-plot": PlotlyComponent
         # add other component types here
     }
     component_class = data.get("component")
