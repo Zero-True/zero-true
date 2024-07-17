@@ -12,6 +12,8 @@ import pkg_resources
 import yaml
 import json
 import uuid
+import webbrowser
+import re
 
 cli_app = typer.Typer()
 
@@ -45,26 +47,47 @@ def upload_to_s3(signed_url, zip_path):
 @cli_app.command()
 def publish(
     key: Annotated[
-        Optional[str], typer.Argument(help="The API key used to publish your project")
+        str, typer.Argument(help="The API key used to publish your project")
     ],
     user_name: Annotated[
-        Optional[str], typer.Argument(help="User Name to publish the project under")
+        str, typer.Argument(help="User Name to publish the project under")
     ],
-    project_name: Annotated[
-        Optional[str], typer.Argument(help="The project to be published")
-    ],
+    project_name: Annotated[str, typer.Argument(help="The project to be published")],
     project_source: Annotated[
-        Optional[str], typer.Argument(help="The directory for your project")
+        str, typer.Argument(help="The directory for your project")
     ],
+    team_name: Annotated[
+        str,
+        typer.Argument(
+            help="Optional team for this to be published to. Must have access to this team."
+        ),
+    ] = "",
+    private: Annotated[
+        bool,
+        typer.Option(
+            "--private/--public",
+            help="Project will be published as private by default. Use --public to make it public.",
+        ),
+    ] = True,
 ):
 
-    s3_key = user_name + "/" + project_name + "/" + project_name + ".tar.gz"
     # Step 1: Verify the API key and get a signed URL from the Lambda function
-    lambda_url = (
-        "https://bxmm0wp9zk.execute-api.us-east-2.amazonaws.com/default/project_upload"
-    )
     headers = {"Content-Type": "application/json", "x-api-key": key}
-    response = requests.post(lambda_url, json={"s3_key": s3_key}, headers=headers)
+    if team_name:
+        team_name = re.sub(r"\s+", "-", team_name.lower().strip())
+        s3_key = team_name + "/" + project_name + "/" + project_name + ".tar.gz"
+        lambda_url = "https://bxmm0wp9zk.execute-api.us-east-2.amazonaws.com/default/team_project_upload"
+        response = requests.post(
+            lambda_url,
+            json={"s3_key": s3_key, "user_name": user_name, "private": private},
+            headers=headers,
+        )
+    else:
+        s3_key = user_name + "/" + project_name + "/" + project_name + ".tar.gz"
+        lambda_url = "https://bxmm0wp9zk.execute-api.us-east-2.amazonaws.com/default/project_upload"
+        response = requests.post(
+            lambda_url, json={"s3_key": s3_key, "private": private}, headers=headers
+        )
 
     if response.status_code != 200:
         typer.echo(f"Execution error occured: {response.content}")
@@ -78,7 +101,6 @@ def publish(
     output_filename = f"{project_name}"
     if project_source == ".":
         project_source = os.path.basename(os.path.normpath(os.getcwd()))
-        print(project_source)
         os.chdir("..")
 
     shutil.make_archive(
@@ -94,11 +116,12 @@ def publish(
 @cli_app.command()
 def app(
     host: Annotated[
-        Optional[str], typer.Argument(help="Host address to bind to.")
+        Optional[str], typer.Option(help="Host address to bind to.")
     ] = "localhost",
-    port: Annotated[
-        Optional[int], typer.Argument(help="Port number to bind to.")
-    ] = 2613,
+    port: Annotated[Optional[int], typer.Option(help="Port number to bind to.")] = 2613,
+    remote: Annotated[
+        Optional[bool], typer.Option(help="For running zero-true on remote server. ")
+    ] = False,
 ):
     """
     Start the Zero-True application.
@@ -115,17 +138,22 @@ def app(
     with open(log_path) as f:
         log_config_dict = yaml.full_load(f)
 
+    if not remote:
+        os.environ["WS_URL"] = f"ws://{host}:{port}/"
+        webbrowser.open(f"http://{host}:{port}")
+
     uvicorn.run("zt_backend.main:app", host=host, port=port, log_config=log_config_dict)
 
 
 @cli_app.command()
 def notebook(
     host: Annotated[
-        Optional[str], typer.Argument(help="Host address to bind to.")
+        Optional[str], typer.Option(help="Host address to bind to.")
     ] = "localhost",
-    port: Annotated[
-        Optional[int], typer.Argument(help="Port number to bind to.")
-    ] = 1326,
+    port: Annotated[Optional[int], typer.Option(help="Port number to bind to.")] = 1326,
+    remote: Annotated[
+        Optional[bool], typer.Option(help="For running zero-true on remote server.")
+    ] = False,
 ):
     """
     Start the Zero-True application.
@@ -144,14 +172,16 @@ def notebook(
     with open(log_path) as f:
         log_config_dict = yaml.full_load(f)
 
+    if not remote:
+        os.environ["WS_URL"] = f"ws://{host}:{port}/"
+        webbrowser.open(f"http://{host}:{port}")
+
     uvicorn.run("zt_backend.main:app", host=host, port=port, log_config=log_config_dict)
 
 
 @cli_app.command()
 def jupyter_convert(
-    ipynb_path: Annotated[
-        Optional[str], typer.Argument(help="The path to the .ipynb file")
-    ],
+    ipynb_path: Annotated[str, typer.Argument(help="The path to the .ipynb file")],
     ztnb_path: Annotated[
         Optional[str], typer.Argument(help="The path to the output .ztnb file")
     ] = "notebook.ztnb",
