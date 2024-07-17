@@ -7,7 +7,10 @@
         :figureJson="component.figure_json as string"
       />
 
-      <v-container v-else-if="component.component === 'zt-html'" v-html="component.v_html"/>
+      <v-container
+        v-else-if="component.component === 'zt-html'"
+        v-html="component.v_html"
+      />
 
       <component
         v-else
@@ -16,8 +19,7 @@
         v-model="component.value"
         v-on="getEventBindings(component)"
       >
-        <template v-slot:default
-          v-if="component.component !== 'v-data-table'">
+        <template v-slot:default v-if="component.component !== 'v-data-table'">
           <div v-if="component.childComponents">
             <component-wrapper
               :renderComponents="getChildren(component.childComponents as string[])"
@@ -48,7 +50,6 @@ import {
   VImg,
   VAutocomplete,
   VCard,
-  VOtpInput
 } from "vuetify/lib/components/index.mjs";
 import { VDataTable } from "vuetify/components/VDataTable";
 import TextComponent from "@/components/TextComponent.vue";
@@ -70,7 +71,6 @@ export default {
     "v-card": VCard,
     "v-text": TextComponent,
     "plotly-plot": PlotlyPlot,
-    "v-otp":VOtpInput
   },
   emits: ["runCode"],
   props: {
@@ -137,9 +137,7 @@ export default {
     },
 
     runCode(fromComponent: boolean, componentId: string, componentValue: any) {
-      if (
-        this.allComponents[componentId].component === "v-btn" 
-      ) {
+      if (this.allComponents[componentId].component === "v-btn") {
         componentValue = true;
         this.allComponents[componentId].value = true;
       }
