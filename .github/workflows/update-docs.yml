@@ -20,7 +20,6 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install -r requirements.txt
         pip install pydantic
 
     - name: Generate MDX files from Pydantic models
