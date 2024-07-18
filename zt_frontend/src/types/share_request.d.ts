@@ -8,10 +8,12 @@
 export type Username = string;
 export type Projectname = string;
 export type Apikey = string;
+export type Teamname = string | null;
 
 export interface ShareRequest {
   userName: Username;
   projectName: Projectname;
   apiKey: Apikey;
+  teamName?: Teamname;
   [k: string]: unknown;
 }

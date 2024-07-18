@@ -1,5 +1,6 @@
 from zt_backend.runner.code_cell_parser import parse_cells, build_dependency_graph
 from zt_backend.models.api.request import Request,CodeRequest
+import re
 
 # Test 1: No dependencies between cells
 def test_no_dependencies():
@@ -127,7 +128,9 @@ def test_sql_cell():
                     components={})
     cell_dict = build_dependency_graph(parse_cells(cells))
     print(cell_dict)
-    assert set(cell_dict.cells['1'].defined_names) == set(['conn','df']), "Test 11 Failed"
+    pattern = re.compile(r'conn_\w+')
+    assert 'df' in set(cell_dict.cells['1'].defined_names), "Test 11 Failed"
+    assert any(pattern.match(name) for name in set(cell_dict.cells['1'].defined_names)), "Test 11 Failed"
     assert cell_dict.cells['2'].defined_names == [], "Test 12 Failed" 
     assert set(cell_dict.cells['2'].loaded_names) == set(['print','df']), "Test 13 Failed"
     

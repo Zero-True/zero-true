@@ -16,4 +16,4 @@ RUN rm -rf /usr/src/app
 
 # Run zero-true app when the container launches
 EXPOSE 1326
-CMD ["zero-true", "notebook", "0.0.0.0"]
+CMD ["zero-true", "notebook", "--host=0.0.0.0", "--remote"]
