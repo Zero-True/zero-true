@@ -24,7 +24,7 @@ jobs:
 
     - name: Generate MDX files from Pydantic models
       run: |
-        python scripts/generate_mdx_from_pydantic.py
+        python generate_mdx_from_pydantic.py
 
     - name: Commit generated MDX files
       run: |
