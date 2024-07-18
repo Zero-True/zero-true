@@ -105,6 +105,17 @@
         </v-col>
       </template>
     </v-app-bar>
+    <SidebarComponent
+    :drawer="drawer"
+    :items="items"
+    :tree="tree"
+    :fileIcon="fileIcon"
+    :isMobile="isMobile"
+    :isAppRoute="isAppRoute"
+    @update:drawer="updateDrawer"
+    @update:items="updateItems"
+    @handleFileChange="handleFileChange"
+    />
     <v-main :scrollable="false">
       <v-container v-if="errorMessage">
         <v-alert type="error">
@@ -245,6 +256,7 @@ import { ztAliases } from '@/iconsets/ztIcon'
 import { Timer } from "@/timer";
 import { globalState } from "@/global_vars";
 import { DependencyRequest } from "./types/dependency_request";
+import SidebarComponent from '@/components/FileExplorer.vue';
 
 export default {
   components: {
@@ -255,7 +267,8 @@ export default {
     PackageComponent,
     CodeCellManager,
     CopilotComponent,
-    ShareComponent
+    ShareComponent,
+    SidebarComponent
   },
 
   data() {
@@ -281,6 +294,11 @@ export default {
       isCodeRunning: false,
       requestQueue: [] as any[],
       componentChangeQueue: [] as  any[],
+      drawer: true,
+      files: [] as any[],
+      tree: [],
+      items: [] as any[],
+      openFolders: [],
       concatenatedCodeCache: {
         lastCellId: '' as string,
         code: '' as string,
@@ -381,6 +399,44 @@ export default {
         this.pythonVersion = envData.python_version
         this.ztVersion = envData.zt_version
     },
+
+    updateDrawer(value: boolean) {
+      this.drawer = value;
+    },
+
+    updateItems(newItems: any[]) {
+      this.items = newItems;
+    },
+    
+    handleFileChange(componentId: string, event: Event) {
+      const file = (event.target as HTMLInputElement).files;
+      if (file && file.length > 0) {
+        const formData = new FormData();
+        formData.append("file", file[0]);
+        axios.post(`${import.meta.env.VITE_BACKEND_URL}api/upload_file`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        .then(response => console.log("File processed", response.data))
+        .catch(error => console.error("Error processing file:", error.response)); // Directly pass the file to `runCode`
+      } else {
+        console.error("No file selected");
+      }
+    },
+
+    fileIcon(extension: string) {
+          switch (extension) {
+            case 'html': return 'mdi:mdi-language-html5';
+            case 'js': return 'mdi:mdi-nodejs';
+            case 'json': return 'mdi:mdi-code-json';
+            case 'md': return 'mdi:mdi-language-markdown';
+            case 'pdf': return 'mdi:mdi-file-pdf-box';
+            case 'png': return 'mdi:mdi-file-image';
+            case 'txt': return 'mdi:mdi-file-document-outline';
+            case 'xls': return 'mdi:mdi-file-excel';
+            case 'folder': return 'mdi:mdi-folder';
+            default: return 'mdi:mdi-file';
+          }
+        },
 
     async runCode(originId: string){
       if (!originId) return;
