@@ -1,18 +1,33 @@
-name: Update Mintlify Documentation
+name: Generate MDX Documentation
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
-  update-docs:
+  generate-docs:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Trigger Mintlify Update
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
       run: |
-        curl --request POST         --url https://api.mintlify.com/v1/project/update/${{ secrets.MINTLIFY_PROJECT_ID }}         --header 'Authorization: Bearer ${{ secrets.MINTLIFY_API_KEY }}'
+        pip install pydantic
+
+    - name: Generate MDX files from Pydantic models
+      run: |
+        python scripts/generate_mdx_from_pydantic.py
+
+    - name: Commit generated MDX files
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add docs/*.mdx
+        git commit -m "fix: Generate MDX files from Pydantic models"
+        git push origin main
