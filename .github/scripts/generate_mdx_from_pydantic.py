@@ -19,7 +19,7 @@ iconType: "solid"
 ---
 
 <Card title="Example Usage" icon="code">
-  \```python
+  ```python
 import zero_true as zt
 
 # Create a {model_name} component
@@ -35,7 +35,7 @@ sample_{model_name.lower()} = zt.{model_name}(
 # Assuming you have a mechanism to render or use this component within a layout
 layout = zt.Layout(components=[sample_{model_name.lower()}])
 
-\```
+```
 </Card>
 
 <Card title="Example Output" icon="computer">
@@ -98,3 +98,4 @@ if __name__ == "__main__":
     output_dir = 'docs'
     os.makedirs(output_dir, exist_ok=True)
     generate_mdx(ExampleModel, os.path.join(output_dir, 'example_model.mdx'))
+```
