@@ -15,7 +15,11 @@
       />
       <v-spacer />
       <FileUploader :current-path="currentPath" @file-uploaded="refreshFiles" />
-      <v-btn color="bluegrey-darken-4" icon="mdi-close" @click="localDrawer=false"/>
+      <v-btn
+        color="bluegrey-darken-4"
+        icon="mdi-close"
+        @click="localDrawer = false"
+      />
     </div>
 
     <v-list>
@@ -48,7 +52,6 @@ export default defineComponent({
   props: {
     drawer: Boolean,
     items: Array,
-    fileIcon: Function,
     handleFileChange: Function,
     isMobile: Boolean,
     isAppRoute: Boolean,
@@ -56,9 +59,9 @@ export default defineComponent({
   emits: ["update:drawer", "update:items"],
   setup(props, { emit }) {
     const localDrawer = ref(props.drawer);
-    const localItems = ref(props.items || [] as any[]);
+    const localItems = ref(props.items || ([] as any[]));
     const currentPath = ref("." as string);
-    const pathStack = ref([] as string[]) ;
+    const pathStack = ref([] as string[]);
     watch(
       () => props.drawer,
       (newValue) => {
@@ -99,6 +102,32 @@ export default defineComponent({
     const refreshFiles = () => {
       loadFiles(currentPath.value);
     };
+
+    const fileIcon = (extension: string) => {
+      switch (extension) {
+        case "html":
+          return "mdi:mdi-language-html5";
+        case "js":
+          return "mdi:mdi-nodejs";
+        case "json":
+          return "mdi:mdi-code-json";
+        case "md":
+          return "mdi:mdi-language-markdown";
+        case "pdf":
+          return "mdi:mdi-file-pdf-box";
+        case "png":
+          return "mdi:mdi-file-image";
+        case "txt":
+          return "mdi:mdi-file-document-outline";
+        case "xls":
+          return "mdi:mdi-file-excel";
+        case "folder":
+          return "mdi:mdi-folder";
+        default:
+          return "mdi:mdi-file";
+      }
+    };
+
     return {
       localDrawer,
       localItems,
@@ -107,6 +136,7 @@ export default defineComponent({
       pathStack,
       currentPath,
       refreshFiles,
+      fileIcon,
     };
   },
 });
