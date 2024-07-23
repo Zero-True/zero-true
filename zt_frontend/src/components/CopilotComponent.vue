@@ -1,7 +1,7 @@
 <template>
-  <v-dialog v-model="dialog" persistent max-width="400px">
+  <v-dialog v-model="dialog" max-width="400px">
     <template v-slot:activator="{ props }">
-      <v-btn v-bind="props" icon>
+      <v-btn color="bluegrey-darken-4" v-bind="props" icon>
         <v-icon :icon="`ztIcon:${ztAliases.copilot}`"></v-icon>
       </v-btn>
     </template>
@@ -17,11 +17,17 @@
           >Start Server
         </v-btn>
         <div v-else-if="serverStarted && !isSignedIn">
-          <div v-if="signInData && signInData.verificationUri && signInData.userCode">
+          <div
+            v-if="
+              signInData && signInData.verificationUri && signInData.userCode
+            "
+          >
             <p>Please go to the following URL and enter the code to sign in:</p>
             <p>
               <strong>URL:</strong>
-              <a :href="signInData.verificationUri" target="_blank">{{signInData.verificationUri}}</a>
+              <a :href="signInData.verificationUri" target="_blank">{{
+                signInData.verificationUri
+              }}</a>
             </p>
             <p><strong>Code:</strong> {{ signInData.userCode }}</p>
             <v-btn color="primary" @click="confirmSignIn">I Signed In</v-btn>
@@ -35,7 +41,9 @@
             <v-btn color="primary" @click="signInInitiate">Sign In</v-btn>
           </div>
         </div>
-        <v-btn v-else-if="isSignedIn" color="primary" @click="signOut">Sign Out</v-btn>
+        <v-btn v-else-if="isSignedIn" color="primary" @click="signOut"
+          >Sign Out</v-btn
+        >
       </v-card-text>
       <v-btn
         class="ma-2"
@@ -158,7 +166,7 @@ export default defineComponent({
       confirmSignIn,
       signOut,
       startServerAndCheckStatus,
-      ztAliases
+      ztAliases,
     };
   },
 });
