@@ -50,10 +50,16 @@ import {
   VImg,
   VAutocomplete,
   VCard,
+  VList,
+  VListItem,
+  VListItemTitle,
+  VListItemSubtitle,
+  VListSubheader
 } from "vuetify/lib/components/index.mjs";
 import { VDataTable } from "vuetify/components/VDataTable";
 import TextComponent from "@/components/TextComponent.vue";
 import PlotlyPlot from "@/components/PlotlyComponent.vue";
+
 
 export default {
   components: {
@@ -71,6 +77,11 @@ export default {
     "v-card": VCard,
     "v-text": TextComponent,
     "plotly-plot": PlotlyPlot,
+    "v-list":VList,
+    "v-list-item": VListItem,
+    "v-list-item-title": VListItemTitle,
+    "v-list-item-subtitle": VListItemSubtitle,
+    "v-list-subheader": VListSubheader
   },
   emits: ["runCode"],
   props: {
