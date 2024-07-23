@@ -36,7 +36,7 @@
   </v-navigation-drawer>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, ref, onMounted, watch } from "vue";
 import axios from "axios";
 import FileUploader from "@/components/FileUploader.vue";
@@ -56,9 +56,9 @@ export default defineComponent({
   emits: ["update:drawer", "update:items"],
   setup(props, { emit }) {
     const localDrawer = ref(props.drawer);
-    const localItems = ref(props.items || []);
-    const currentPath = ref(".");
-    const pathStack = ref([]);
+    const localItems = ref(props.items || [] as any[]);
+    const currentPath = ref("." as string);
+    const pathStack = ref([] as string[]) ;
     watch(
       () => props.drawer,
       (newValue) => {
@@ -68,7 +68,7 @@ export default defineComponent({
     watch(localDrawer, (newValue) => {
       emit("update:drawer", newValue);
     });
-    const loadFiles = async (path) => {
+    const loadFiles = async (path: string) => {
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL}api/get_children`,
@@ -83,7 +83,7 @@ export default defineComponent({
     onMounted(() => {
       loadFiles(currentPath.value);
     });
-    const handleItemClick = (item) => {
+    const handleItemClick = (item: any) => {
       if (item.file === "folder") {
         pathStack.value.push(currentPath.value);
         currentPath.value = item.id;
@@ -92,7 +92,7 @@ export default defineComponent({
     };
     const goBack = () => {
       if (pathStack.value.length > 0) {
-        currentPath.value = pathStack.value.pop();
+        currentPath.value = pathStack.value.pop() || ".";
         loadFiles(currentPath.value);
       }
     };
