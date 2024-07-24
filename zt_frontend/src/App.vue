@@ -76,15 +76,17 @@
             <!-- <v-btn :icon="`ztIcon:${ztAliases.undo}`"></v-btn>
             <v-btn :icon="`ztIcon:${ztAliases.redo}`"></v-btn>
             <v-btn :icon="`ztIcon:${ztAliases.message}`"></v-btn> -->
-            <v-btn :prepend-icon="`ztIcon:${ztAliases.play}`"
+            <v-btn
+              v-if="$devMode && !isAppRoute"
+              :icon="`ztIcon:${ztAliases.play}`"
               variant="flat"
               ripple
-              color="primary"
-              class="text-bluegrey-darken-4"
-              id="runAllBtn"
+              class="text-bluegrey"
+              color="bluegrey-darken-4"
+              tooltip="Run All"
               @click="runCode('')"
-            >Run All</v-btn>
-            <ShareComponent v-if="$devMode && !isAppRoute"/>
+            ></v-btn>
+            <ShareComponent v-if="$devMode && !isAppRoute" />
             <!-- <v-btn :icon="`ztIcon:${ztAliases.play}`"></v-btn>
             <v-btn
               :prepend-icon="`ztIcon:${ztAliases.play}`"
@@ -93,7 +95,7 @@
               color="primary"
               class="text-bluegrey-darken-4"
             >Share</v-btn> -->
-          </div> 
+          </div>
         </v-col>
       </template>
     </v-app-bar>
@@ -112,6 +114,7 @@
             color="bluegrey-darken-4"
             icon="mdi-folder-multiple"
             @click="drawer = true"
+            class="text-bluegrey"
           />
         </v-list-item>
         <v-list-item>
@@ -512,7 +515,6 @@ export default {
 
       this.sendRunCodeRequest(request);
     },
-
 
     sendRunCodeRequest(request: Request) {
       this.isCodeRunning = true;

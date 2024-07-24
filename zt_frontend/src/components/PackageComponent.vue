@@ -5,6 +5,7 @@
         color="bluegrey-darken-4"
         v-bind="props"
         icon="mdi-package"
+        class="text-bluegrey"
       ></v-btn>
     </template>
     <v-card>
