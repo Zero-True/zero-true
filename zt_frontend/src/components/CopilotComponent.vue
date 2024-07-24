@@ -1,8 +1,11 @@
 <template>
   <v-dialog v-model="dialog" max-width="400px">
     <template v-slot:activator="{ props }">
-      <v-btn color="bluegrey-darken-4" v-bind="props" icon>
-        <v-icon :icon="`ztIcon:${ztAliases.copilot}`"></v-icon>
+      <v-btn
+        color="bluegrey-darken-4"
+        v-bind="props"
+        :icon="`ztIcon:${ztAliases.copilot}`"
+      >
       </v-btn>
     </template>
     <v-card>
