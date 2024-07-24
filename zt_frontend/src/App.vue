@@ -1,7 +1,7 @@
 <template>
   <v-app>
-    <v-app-bar 
-      app 
+    <v-app-bar
+      app
       color="bluegrey-darken-4"
       height="51"
       id="appBar"
@@ -13,105 +13,120 @@
         :icon="`ztIcon:${ztAliases.logo}`"
         variant="plain"
         @click="navigateToApp"
-        id ="Navbutton"
-        class="logo-btn" 
-        >
+        id="Navbutton"
+        class="logo-btn"
+      >
       </v-btn>
       <div class="click-edit" v-if="$devMode && !isAppRoute">
         <div class="click-edit__show-text" v-if="!editingProjectName">
           <h5
             class="click-edit__name text-ellipsis text-h5"
             @click="toggleProjectName"
-          >{{ notebookName }}</h5> 
-          <!-- <v-btn
-            v-if="($devMode && !isAppRoute)"
-            color="bluegrey-darken-1"
-            :icon="`ztIcon:${ztAliases.edit}`"
-            @click="toggleProjectName"
-          /> -->
-        </div> 
-        
+          >
+            {{ notebookName }}
+          </h5>
+        </div>
+
         <div class="click-edit__edit-field-wrapper" v-if="editingProjectName">
-          <v-text-field 
-            v-model="notebookEditName"   
+          <v-text-field
+            v-model="notebookEditName"
             placeholder="Zero True"
-            density="compact" 
+            density="compact"
             variant="plain"
             hide-details
-            ref="projectNameField" 
-            class="click-edit__edit-field" 
+            ref="projectNameField"
+            class="click-edit__edit-field"
             @keydown.enter="saveProjectName"
-            @update:focused="focused => { if(!focused) saveProjectName() }"
+            @update:focused="
+              (focused) => {
+                if (!focused) saveProjectName();
+              }
+            "
           />
-          <!-- <v-btn
-            color="bluegrey-darken-1"
-            :icon="`ztIcon:${ztAliases.save}`"
-            @click="saveProjectName"
-          /> -->
-          <!-- <v-btn
-            color="bluegrey-darken-1"
-            icon="$close"
-            @click="toggleProjectName"
-          /> -->
-        </div> 
+        </div>
       </div>
-      <h5 v-else
-        class="text-ellipsis text-h5"
-      >{{ notebookName }}</h5> 
+      <h5 v-else class="text-ellipsis text-h5">{{ notebookName }}</h5>
       <div class="toggle-group" v-if="$devMode && !isMobile">
-        <v-btn-toggle
-          :multiple="false"
-          density="compact"
-          mandatory
-        >
+        <v-btn-toggle :multiple="false" density="compact" mandatory>
           <v-btn
-            :color="!isAppRoute ? 'primary': 'bluegrey-darken-1'"
-            :variant="!isAppRoute ? 'flat': 'text'" 
-            :class="{ 'text-bluegrey-darken-4' : !isAppRoute }"
+            :color="!isAppRoute ? 'primary' : 'bluegrey-darken-1'"
+            :variant="!isAppRoute ? 'flat' : 'text'"
+            :class="{ 'text-bluegrey-darken-4': !isAppRoute }"
             :prepend-icon="`ztIcon:${ztAliases.notebook}`"
             to="/"
             id="notebookBtn"
           >
-          Notebook</v-btn>
-          <v-btn 
-            :color="isAppRoute ? 'primary': 'bluegrey-darken-1'"
-            :variant="isAppRoute ? 'flat': 'text'" 
-            :class="{ 'text-bluegrey-darken-4' : isAppRoute }"
+            Notebook</v-btn
+          >
+          <v-btn
+            :color="isAppRoute ? 'primary' : 'bluegrey-darken-1'"
+            :variant="isAppRoute ? 'flat' : 'text'"
+            :class="{ 'text-bluegrey-darken-4': isAppRoute }"
             :prepend-icon="`ztIcon:${ztAliases.monitor}`"
             to="/app"
             id="appBtn"
-          >App</v-btn>
+            >App</v-btn
+          >
         </v-btn-toggle>
       </div>
-      
+
       <template v-slot:append>
         <v-col class="d-flex justify-end">
           <div>
             <!-- <v-btn :icon="`ztIcon:${ztAliases.undo}`"></v-btn>
             <v-btn :icon="`ztIcon:${ztAliases.redo}`"></v-btn>
             <v-btn :icon="`ztIcon:${ztAliases.message}`"></v-btn> -->
-            <CopilotComponent v-if="$devMode && !isAppRoute"/>
-            <PackageComponent v-if="$devMode && !isAppRoute" :dependencies="dependencies" :dependencyOutput="dependencyOutput" @updateDependencies="updateDependencies"/>
-            <ShareComponent v-if="$devMode && !isAppRoute"/>
-            <!-- <v-btn :icon="`ztIcon:${ztAliases.play}`"></v-btn>
-            <v-btn
-              :prepend-icon="`ztIcon:${ztAliases.play}`"
-              variant="flat"
-              ripple
-              color="primary"
-              class="text-bluegrey-darken-4"
-            >Share</v-btn> -->
-          </div> 
+            <ShareComponent v-if="$devMode && !isAppRoute" />
+          </div>
         </v-col>
       </template>
     </v-app-bar>
+    <v-navigation-drawer
+      v-if="$devMode && !isMobile && !isAppRoute"
+      :rail="true"
+      color="bluegrey-darken-4"
+      style="padding-top: 12px; padding-bottom: 12px"
+    >
+      <template #append>
+        <v-list-item>
+          <CopilotComponent v-if="$devMode && !isAppRoute" />
+        </v-list-item>
+        <v-list-item>
+          <v-btn
+            color="bluegrey-darken-4"
+            icon="mdi-folder-multiple"
+            @click="drawer = true"
+          />
+        </v-list-item>
+        <v-list-item>
+          <PackageComponent
+            v-if="$devMode && !isAppRoute"
+            :dependencies="dependencies"
+            :dependencyOutput="dependencyOutput"
+            @updateDependencies="updateDependencies"
+          />
+        </v-list-item>
+      </template>
+    </v-navigation-drawer>
+    <SidebarComponent
+      :drawer="drawer"
+      :items="items"
+      :tree="tree"
+      :fileIcon="fileIcon"
+      :isMobile="isMobile"
+      :isAppRoute="isAppRoute"
+      @update:drawer="updateDrawer"
+      @update:items="updateItems"
+      @handleFileChange="handleFileChange"
+      style="padding-top: 12px; padding-bottom: 12px"
+    />
     <v-main :scrollable="false">
       <v-container v-if="errorMessage">
         <v-alert type="error">
-            {{ errorMessage }}
+          {{ errorMessage }}
         </v-alert>
       </v-container>
-      <CodeCellManager 
+      <CodeCellManager
         :notebook="notebook"
         :completions="completions"
         @runCode="runCode"
@@ -121,26 +136,22 @@
         @createCell="createCodeCell"
         @copilotCompletion="copilotCompletion"
         @updateTimers="startTimerComponents"
-       />
+      />
     </v-main>
-    <v-footer 
+    <v-footer
       app
       class="footer bg-bluegrey-darken-4 text-bluegrey"
       v-if="!isMobile"
     >
       <div class="footer__left-container">
         <span>
-          <v-icon
-            class="footer__code-version-icon"
-            :icon="`ztIcon:${ztAliases.cubic}`" 
-          />
-          <span>Python {{pythonVersion}}</span>
-        </span> 
-        <v-icon class="dot-divider" :icon="`ztIcon:${ztAliases.dot}`"/>
-        <span>Zero-True {{ztVersion}}</span>
-        <v-icon class="dot-divider" :icon="`ztIcon:${ztAliases.dot}`"/>
+          <span>Python {{ pythonVersion }}</span>
+        </span>
+        <v-icon class="dot-divider" :icon="`ztIcon:${ztAliases.dot}`" />
+        <span>Zero-True {{ ztVersion }}</span>
+        <v-icon class="dot-divider" :icon="`ztIcon:${ztAliases.dot}`" />
         <span>{{ cellLength }} cells</span>
-      </div> 
+      </div>
       <div class="footer__right-container">
         <div class="footer__queue-length-wrapper" v-if="isCodeRunning">
           <v-progress-circular
@@ -148,10 +159,10 @@
             color="bluegrey"
             size="17"
             class="footer__code-running-loader"
-            id = "codeRunProgress"
+            id="codeRunProgress"
           ></v-progress-circular>
           <v-chip density="comfortable">{{ timer }}ms</v-chip>
-          <v-btn 
+          <v-btn
             class="footer__queue-length-btn"
             density="compact"
             append-icon="mdi:mdi-chevron-down"
@@ -160,9 +171,7 @@
             variant="flat"
           >
             Queue Length: {{ queueLength }}
-            <v-menu 
-              activator="parent"
-              >
+            <v-menu activator="parent">
               <v-list class="footer__queue-list">
                 <v-list-item
                   v-for="(item, i) in runningQueue"
@@ -171,14 +180,14 @@
                 >
                   <span class="text-bluegrey">Python #2</span>
                   <template v-slot:append>
-                    <v-icon icon="$done" color="success"/>
+                    <v-icon icon="$done" color="success" />
                   </template>
                 </v-list-item>
               </v-list>
             </v-menu>
           </v-btn>
-        </div> 
-        
+        </div>
+
         <div class="footer__status-wrapper">
           <!-- <span>
             <v-icon 
@@ -187,10 +196,7 @@
             Saved 5mins ago
           </span> -->
           <!-- <v-icon class="dot-divider" :icon="`ztIcon:${ztAliases.dot}`"/> -->
-          <div
-            v-if="isCodeRunning"  
-            class="footer__status"
-          >
+          <div v-if="isCodeRunning" class="footer__status">
             <v-icon :icon="`ztIcon:${ztAliases.status}`" />
             <span>Running</span>
           </div>
@@ -201,26 +207,26 @@
             <v-icon :icon="`ztIcon:${ztAliases.status}`" />
             <span>Stopped</span>
           </div>
-          <v-btn 
+          <v-btn
             v-if="isCodeRunning"
             density="comfortable"
-            :icon="`ztIcon:${ztAliases.stop}`"     
+            :icon="`ztIcon:${ztAliases.stop}`"
             color="bluegrey"
             variant="plain"
-            :ripple="false" 
+            :ripple="false"
             @click="stopCodeExecution()"
             rounded
           >
           </v-btn>
-        </div> 
-      </div> 
+        </div>
+      </div>
     </v-footer>
   </v-app>
 </template>
 
 <script lang="ts">
 import axios from "axios";
-import { nextTick } from 'vue';
+import { nextTick } from "vue";
 import { useRoute } from "vue-router";
 import { Request, CodeRequest } from "./types/request";
 import { ComponentRequest } from "./types/component_request";
@@ -241,10 +247,11 @@ import CodeCellManager from "./components/CodeCellManager.vue";
 import CopilotComponent from "./components/CopilotComponent.vue";
 import ShareComponent from "./components/ShareComponent.vue";
 import type { VTextField } from "vuetify/lib/components/index.mjs";
-import { ztAliases } from '@/iconsets/ztIcon'
+import { ztAliases } from "@/iconsets/ztIcon";
 import { Timer } from "@/timer";
 import { globalState } from "@/global_vars";
 import { DependencyRequest } from "./types/dependency_request";
+import SidebarComponent from "@/components/FileExplorer.vue";
 
 export default {
   components: {
@@ -255,21 +262,22 @@ export default {
     PackageComponent,
     CodeCellManager,
     CopilotComponent,
-    ShareComponent
+    ShareComponent,
+    SidebarComponent,
   },
 
   data() {
     return {
       editingProjectName: false,
-      errorMessage: '' as string,
+      errorMessage: "" as string,
       notebook: {} as Notebook,
-      notebookName: '',
-      notebookEditName: '',
+      notebookName: "",
+      notebookEditName: "",
       dependencies: {} as Dependencies,
-      completions: {} as {[key: string]: any[]},
-      ws_url: '',
-      pythonVersion: '',
-      ztVersion: '',
+      completions: {} as { [key: string]: any[] },
+      ws_url: "",
+      pythonVersion: "",
+      ztVersion: "",
       notebook_socket: null as WebSocket | null,
       save_socket: null as WebSocket | null,
       run_socket: null as WebSocket | null,
@@ -280,15 +288,20 @@ export default {
       timerInterval: null as ReturnType<typeof setInterval> | null,
       isCodeRunning: false,
       requestQueue: [] as any[],
-      componentChangeQueue: [] as  any[],
+      componentChangeQueue: [] as any[],
+      drawer: false,
+      files: [] as any[],
+      tree: [],
+      items: [] as any[],
+      openFolders: [],
       concatenatedCodeCache: {
-        lastCellId: '' as string,
-        code: '' as string,
-        followingCode: '' as string,
+        lastCellId: "" as string,
+        code: "" as string,
+        followingCode: "" as string,
         length: 0 as number,
       },
-      dependencyOutput: {output: "", isLoading: false} as DependencyOutput,
-      ztAliases
+      dependencyOutput: { output: "", isLoading: false } as DependencyOutput,
+      ztAliases,
     };
   },
 
@@ -302,47 +315,47 @@ export default {
     window.removeEventListener("unload", this.clearState);
   },
 
-  async mounted(){
-    await this.get_env_data()
-    await this.initializeNotebookSocket()
-    await this.initializeRunSocket()
-    await this.initializeStopSocket()
-    if (this.$devMode){
-      await this.initializeSaveSocket()
-      await this.initializeDependencySocket()
+  async mounted() {
+    await this.get_env_data();
+    await this.initializeNotebookSocket();
+    await this.initializeRunSocket();
+    await this.initializeStopSocket();
+    if (this.$devMode) {
+      await this.initializeSaveSocket();
+      await this.initializeDependencySocket();
     }
     this.isCodeRunning = true;
     this.startTimer();
-    this.notebook_socket!.send("")
+    this.notebook_socket!.send("");
   },
 
   computed: {
     isAppRoute() {
-      const route = useRoute()
-      return route.path === '/app'
-    }, 
+      const route = useRoute();
+      return route.path === "/app";
+    },
     isMobile() {
-      return this.$vuetify.display.mobile
+      return this.$vuetify.display.mobile;
     },
     cellLength() {
-      return this.notebook.cells ? Object.keys(this.notebook.cells).length : 0
+      return this.notebook.cells ? Object.keys(this.notebook.cells).length : 0;
     },
     runningQueue() {
-      return this.$devMode ? this.requestQueue : this.componentChangeQueue; 
+      return this.$devMode ? this.requestQueue : this.componentChangeQueue;
     },
     queueLength() {
-      return this.runningQueue.length; 
-    }
+      return this.runningQueue.length;
+    },
   },
 
   methods: {
     toggleProjectName() {
-      this.editingProjectName = !this.editingProjectName
+      this.editingProjectName = !this.editingProjectName;
       if (this.editingProjectName) {
-        this.notebookEditName = this.notebookName
+        this.notebookEditName = this.notebookName;
         nextTick(() => {
           (this.$refs.projectNameField as VTextField).focus();
-        })
+        });
       }
     },
     async saveProjectName() {
@@ -350,17 +363,20 @@ export default {
         const notebookNameRequest: NotebookNameRequest = {
           notebookName: this.notebookEditName,
         };
-        await axios.post(import.meta.env.VITE_BACKEND_URL + "api/notebook_name_update", notebookNameRequest);
-        this.notebookName = this.notebookEditName
-        document.title = this.notebookName
-        this.editingProjectName = false
+        await axios.post(
+          import.meta.env.VITE_BACKEND_URL + "api/notebook_name_update",
+          notebookNameRequest
+        );
+        this.notebookName = this.notebookEditName;
+        document.title = this.notebookName;
+        this.editingProjectName = false;
       }
     },
 
     startTimer() {
       this.startTime = Date.now();
       this.timer = 0;
-      
+
       this.timerInterval = setInterval(() => {
         const currentTime = Date.now();
         this.timer = currentTime - this.startTime;
@@ -375,14 +391,71 @@ export default {
     },
 
     async get_env_data() {
-        const response = await axios.get(import.meta.env.VITE_BACKEND_URL + "env_data");
-        const envData = response.data
-        this.ws_url = envData.ws_url || import.meta.env.VITE_WS_URL
-        this.pythonVersion = envData.python_version
-        this.ztVersion = envData.zt_version
+      const response = await axios.get(
+        import.meta.env.VITE_BACKEND_URL + "env_data"
+      );
+      const envData = response.data;
+      this.ws_url = envData.ws_url || import.meta.env.VITE_WS_URL;
+      this.pythonVersion = envData.python_version;
+      this.ztVersion = envData.zt_version;
     },
 
-    async runCode(originId: string){
+    updateDrawer(value: boolean) {
+      this.drawer = value;
+    },
+
+    updateItems(newItems: any[]) {
+      this.items = newItems;
+    },
+
+    handleFileChange(componentId: string, event: Event) {
+      const file = (event.target as HTMLInputElement).files;
+      if (file && file.length > 0) {
+        const formData = new FormData();
+        formData.append("file", file[0]);
+        axios
+          .post(
+            `${import.meta.env.VITE_BACKEND_URL}api/upload_file`,
+            formData,
+            {
+              headers: { "Content-Type": "multipart/form-data" },
+            }
+          )
+          .then((response) => console.log("File processed", response.data))
+          .catch((error) =>
+            console.error("Error processing file:", error.response)
+          ); // Directly pass the file to `runCode`
+      } else {
+        console.error("No file selected");
+      }
+    },
+
+    fileIcon(extension: string) {
+      switch (extension) {
+        case "html":
+          return "mdi:mdi-language-html5";
+        case "js":
+          return "mdi:mdi-nodejs";
+        case "json":
+          return "mdi:mdi-code-json";
+        case "md":
+          return "mdi:mdi-language-markdown";
+        case "pdf":
+          return "mdi:mdi-file-pdf-box";
+        case "png":
+          return "mdi:mdi-file-image";
+        case "txt":
+          return "mdi:mdi-file-document-outline";
+        case "xls":
+          return "mdi:mdi-file-excel";
+        case "folder":
+          return "mdi:mdi-folder";
+        default:
+          return "mdi:mdi-file";
+      }
+    },
+
+    async runCode(originId: string) {
       if (!originId) return;
       const cellRequests: CodeRequest[] = [];
       const requestComponents: { [key: string]: any } = {};
@@ -396,8 +469,8 @@ export default {
           cellType: this.notebook.cells[key].cellType,
         };
         for (const c of this.notebook.cells[key].components) {
-          if (c.component === 'v-data-table') {
-            requestComponents[c.id] = '';
+          if (c.component === "v-data-table") {
+            requestComponents[c.id] = "";
           } else {
             requestComponents[c.id] = c.value;
           }
@@ -411,70 +484,65 @@ export default {
       };
 
       if (this.isCodeRunning) {
-        const existingRequestIndex = this.requestQueue.findIndex(req => req.originId === originId);
+        const existingRequestIndex = this.requestQueue.findIndex(
+          (req) => req.originId === originId
+        );
         if (existingRequestIndex !== -1) {
           this.requestQueue[existingRequestIndex] = request;
-        
         } else {
           this.requestQueue.push(request);
         }
         return;
       }
-      
-      this.sendRunCodeRequest(request)
+
+      this.sendRunCodeRequest(request);
     },
 
     sendRunCodeRequest(request: Request) {
       this.isCodeRunning = true;
       this.startTimer();
-      this.run_socket!.send(JSON.stringify(request))
+      this.run_socket!.send(JSON.stringify(request));
     },
 
-    initializeNotebookSocket(){
-      this.notebook_socket = new WebSocket(this.ws_url + 'ws/notebook')
+    initializeNotebookSocket() {
+      this.notebook_socket = new WebSocket(this.ws_url + "ws/notebook");
       this.notebook_socket!.onmessage = (event) => {
-        const response = JSON.parse(event.data)        
+        const response = JSON.parse(event.data);
         if (response.notebook_name) {
-          this.notebookName = response.notebook_name
-          document.title = this.notebookName
-        }
-        else if (response.cell_id){
-          if (response.clear_output){
-            this.notebook.cells[response.cell_id].output=""
+          this.notebookName = response.notebook_name;
+          document.title = this.notebookName;
+        } else if (response.cell_id) {
+          if (response.clear_output) {
+            this.notebook.cells[response.cell_id].output = "";
+          } else {
+            this.notebook.cells[response.cell_id].output = this.notebook.cells[
+              response.cell_id
+            ].output.concat(response.output);
           }
-          else{
-            this.notebook.cells[response.cell_id].output = this.notebook.cells[response.cell_id].output.concat(response.output)
-          }
-        }
-
-        else if (response.env_stale){
-          this.errorMessage = 'Some dependencies are not installed in the current environment. Open dependency manager to install missing dependencies'
-        }
-
-        else if (response.complete){
+        } else if (response.env_stale) {
+          this.errorMessage =
+            "Some dependencies are not installed in the current environment. Open dependency manager to install missing dependencies";
+        } else if (response.complete) {
           this.isCodeRunning = false;
           this.stopTimer();
-        }
-
-        else {
-          const cell_response = typeof response === 'string' ? JSON.parse(response) : response
-          if (cell_response.notebook){
+        } else {
+          const cell_response =
+            typeof response === "string" ? JSON.parse(response) : response;
+          if (cell_response.notebook) {
             this.notebook = cell_response.notebook;
-            for (let cell_id in this.notebook.cells){
-              if (this.notebook.cells[cell_id].cellType==='code'){
-                this.completions[cell_id] = []
+            for (let cell_id in this.notebook.cells) {
+              if (this.notebook.cells[cell_id].cellType === "code") {
+                this.completions[cell_id] = [];
               }
             }
             this.dependencies = cell_response.dependencies;
-          }
-          else {
-            if (this.notebook.cells && this.notebook.cells[cell_response.id])  {
-              this.notebook.cells[cell_response.id].components = cell_response.components;
-              this.notebook.cells[cell_response.id].layout = cell_response.layout as
-                | Layout
-                | undefined;
+          } else {
+            if (this.notebook.cells && this.notebook.cells[cell_response.id]) {
+              this.notebook.cells[cell_response.id].components =
+                cell_response.components;
+              this.notebook.cells[cell_response.id].layout =
+                cell_response.layout as Layout | undefined;
             }
-            
           }
         }
       };
@@ -493,47 +561,44 @@ export default {
       });
     },
 
-    initializeRunSocket(){
-      this.run_socket = this.$devMode ? new WebSocket(this.ws_url + 'ws/run_code') : new WebSocket(this.ws_url + 'ws/component_run')
+    initializeRunSocket() {
+      this.run_socket = this.$devMode
+        ? new WebSocket(this.ws_url + "ws/run_code")
+        : new WebSocket(this.ws_url + "ws/component_run");
       this.run_socket!.onmessage = (event) => {
-        const response = JSON.parse(event.data)
+        const response = JSON.parse(event.data);
         if (!this.$devMode && response.refresh) {
-          this.notebookRefresh()
-        }
-
-        else if (response.cell_id){
-          if (response.clear_output){
-            this.notebook.cells[response.cell_id].output=""
+          this.notebookRefresh();
+        } else if (response.cell_id) {
+          if (response.clear_output) {
+            this.notebook.cells[response.cell_id].output = "";
+          } else {
+            this.notebook.cells[response.cell_id].output = this.notebook.cells[
+              response.cell_id
+            ].output.concat(response.output);
           }
-          else{
-            this.notebook.cells[response.cell_id].output = this.notebook.cells[response.cell_id].output.concat(response.output)
-          }
-        }
-
-        else if (response.complete){
+        } else if (response.complete) {
           this.isCodeRunning = false;
           this.stopTimer();
-          if (this.$devMode && this.requestQueue.length > 0){
+          if (this.$devMode && this.requestQueue.length > 0) {
             const currentRequest = this.requestQueue.shift() || {};
-            this.sendRunCodeRequest(currentRequest)
-          }
-          else if (!this.$devMode && this.componentChangeQueue.length > 0){
-            const componentChangeRequest = this.componentChangeQueue.shift() || {};
+            this.sendRunCodeRequest(currentRequest);
+          } else if (!this.$devMode && this.componentChangeQueue.length > 0) {
+            const componentChangeRequest =
+              this.componentChangeQueue.shift() || {};
             const componentRequest: ComponentRequest = {
               originId: componentChangeRequest.originId,
               components: componentChangeRequest.components,
               userId: componentChangeRequest.userId,
             };
-            this.sendComponentRequest(componentRequest)
+            this.sendComponentRequest(componentRequest);
           }
-        }
-
-        else {
-          const components_response = JSON.parse(response)
-          this.notebook.cells[components_response.id].components = components_response.components;
-          this.notebook.cells[components_response.id].layout = components_response.layout as
-            | Layout
-            | undefined;
+        } else {
+          const components_response = JSON.parse(response);
+          this.notebook.cells[components_response.id].components =
+            components_response.components;
+          this.notebook.cells[components_response.id].layout =
+            components_response.layout as Layout | undefined;
         }
       };
       return new Promise<void>((resolve, reject) => {
@@ -552,14 +617,16 @@ export default {
     },
 
     initializeSaveSocket() {
-      this.save_socket = new WebSocket(this.ws_url + 'ws/save_text')
+      this.save_socket = new WebSocket(this.ws_url + "ws/save_text");
       this.save_socket!.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
           // Assuming data is an array of completion objects
-          this.completions[data.cell_id] = Array.isArray(data.completions) ? data.completions : [];
+          this.completions[data.cell_id] = Array.isArray(data.completions)
+            ? data.completions
+            : [];
         } catch (error) {
-          console.error('Error parsing server message:', error);
+          console.error("Error parsing server message:", error);
         }
       };
       return new Promise<void>((resolve, reject) => {
@@ -577,8 +644,8 @@ export default {
       });
     },
 
-    initializeStopSocket(){
-      this.stop_socket = new WebSocket(this.ws_url + 'ws/stop_execution')
+    initializeStopSocket() {
+      this.stop_socket = new WebSocket(this.ws_url + "ws/stop_execution");
       return new Promise<void>((resolve, reject) => {
         // Resolve the promise when the connection is open
         this.stop_socket!.onopen = () => {
@@ -595,20 +662,23 @@ export default {
     },
 
     initializeDependencySocket() {
-      this.dependency_socket = new WebSocket(this.ws_url + 'ws/dependency_update')
+      this.dependency_socket = new WebSocket(
+        this.ws_url + "ws/dependency_update"
+      );
       this.dependency_socket!.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          if (data.output){
-            this.dependencyOutput.output = this.dependencyOutput.output.concat(data.output)
-          }
-          else{
+          if (data.output) {
+            this.dependencyOutput.output = this.dependencyOutput.output.concat(
+              data.output
+            );
+          } else {
             this.dependencies = JSON.parse(data);
             this.dependencyOutput.isLoading = false;
           }
-          this.errorMessage = '';
+          this.errorMessage = "";
         } catch (error) {
-          console.error('Error parsing server message:', error);
+          console.error("Error parsing server message:", error);
         }
       };
       return new Promise<void>((resolve, reject) => {
@@ -626,16 +696,21 @@ export default {
       });
     },
 
-    async componentValueChange(originId: string, componentId: string, newValue: any) {
+    async componentValueChange(
+      originId: string,
+      componentId: string,
+      newValue: any
+    ) {
       // Updating the component's value in the notebook
       const requestComponents: { [key: string]: any } = {};
       for (let key in this.notebook.cells) {
         for (const c of this.notebook.cells[key].components) {
-          if (c.component === 'v-data-table') {
-            requestComponents[c.id] = '';
+          if (c.component === "v-data-table") {
+            requestComponents[c.id] = "";
           } else {
             requestComponents[c.id] = c.value;
-          }        }
+          }
+        }
       }
 
       // Preparing the component change request
@@ -649,9 +724,12 @@ export default {
       // Updating the queue: if the componentId already exists, update the value; otherwise, add to the queue
       // If code is already running, exit the function to wait for the current execution to finish
       if (this.isCodeRunning) {
-        const existingRequestIndex = this.componentChangeQueue.findIndex(req => req.componentId === componentId);
+        const existingRequestIndex = this.componentChangeQueue.findIndex(
+          (req) => req.componentId === componentId
+        );
         if (existingRequestIndex !== -1) {
-          this.componentChangeQueue[existingRequestIndex] = componentChangeRequest;
+          this.componentChangeQueue[existingRequestIndex] =
+            componentChangeRequest;
         } else {
           this.componentChangeQueue.push(componentChangeRequest);
         }
@@ -664,25 +742,26 @@ export default {
         userId: componentChangeRequest.userId,
       };
 
-      this.sendComponentRequest(componentRequest)
+      this.sendComponentRequest(componentRequest);
     },
 
     async sendComponentRequest(componentRequest: ComponentRequest) {
       this.isCodeRunning = true;
       this.startTimer();
       if (this.run_socket!.readyState !== WebSocket.OPEN) {
-        await this.initializeRunSocket()
+        await this.initializeRunSocket();
       }
-      this.run_socket!.send(JSON.stringify(componentRequest))
+      this.run_socket!.send(JSON.stringify(componentRequest));
     },
 
-    async notebookRefresh(){//TODO: Fix this
+    async notebookRefresh() {
+      //TODO: Fix this
       this.isCodeRunning = true;
       this.startTimer();
       if (this.notebook_socket!.readyState !== WebSocket.OPEN) {
-        await this.initializeNotebookSocket()
+        await this.initializeNotebookSocket();
       }
-      this.notebook_socket!.send('start')
+      this.notebook_socket!.send("start");
     },
 
     navigateToApp() {
@@ -698,24 +777,27 @@ export default {
     },
 
     async createCodeCell(position_key: string, cellType: string) {
-      const cellRequest: CreateRequest = { cellType: cellType.toLowerCase() as Celltype, position_key: position_key };
+      const cellRequest: CreateRequest = {
+        cellType: cellType.toLowerCase() as Celltype,
+        position_key: position_key,
+      };
       const response = await axios.post(
         import.meta.env.VITE_BACKEND_URL + "api/create_cell",
         cellRequest
       );
       const cell: CodeCell = response.data;
       let cells: Record<string, CodeCell> = {};
-      if (!position_key){
-        cells[cell.id] = cell
+      if (!position_key) {
+        cells[cell.id] = cell;
       }
       for (let key in this.notebook.cells) {
-        cells[key] = this.notebook.cells[key]
-        if (position_key===key){
-          cells[cell.id] = cell
+        cells[key] = this.notebook.cells[key];
+        if (position_key === key) {
+          cells[cell.id] = cell;
         }
       }
-      if (cell.cellType==='code'){
-        this.completions[cell.id] = []
+      if (cell.cellType === "code") {
+        this.completions[cell.id] = [];
       }
       this.notebook.cells = cells;
     },
@@ -726,77 +808,31 @@ export default {
         import.meta.env.VITE_BACKEND_URL + "api/delete_cell",
         deleteRequest
       );
-      if (this.notebook.cells[cellId].cellType==='code'){
-        delete this.completions[cellId]
+      if (this.notebook.cells[cellId].cellType === "code") {
+        delete this.completions[cellId];
       }
       delete this.notebook.cells[cellId];
     },
 
     async saveCell(cellId: string, text: string, line: string, column: string) {
-      if (this.notebook.cells[cellId].cellType === 'code') {
+      if (this.notebook.cells[cellId].cellType === "code") {
         if (this.concatenatedCodeCache.lastCellId !== cellId) {
-            let concatenatedCode = ''
-            let followingCode = ''
-            let length = 0
-            let prevCode = true
-            for (let key in this.notebook.cells) {
-              if (key === cellId){
-                prevCode = false;
-                continue;
-              }
-              if (this.notebook.cells[key].cellType === 'code') {
-                if(prevCode){
-                  concatenatedCode += this.notebook.cells[key].code+'\n';
-                  length += this.notebook.cells[key].code.split(/\r\n|\r|\n/).length
-                }
-                else{
-                  followingCode += this.notebook.cells[key].code+'\n';
-                }
-              }
-            }
-
-            // Update the cache
-            this.concatenatedCodeCache = {
-              lastCellId: cellId,
-              code: concatenatedCode,
-              followingCode: followingCode,
-              length: length
-            };
-          }
-      }
-      // The rest of the saveCell method remains unchanged
-      const saveRequest: SaveRequest = {
-        id: cellId,
-        text: text, // Use the concatenated code from previous cells
-        cellType: this.notebook.cells[cellId].cellType,
-        line:  this.concatenatedCodeCache.length+line,
-        column: column,
-        code_w_context: this.concatenatedCodeCache.code+text+this.concatenatedCodeCache.followingCode
-      };
-      if (this.save_socket!.readyState !== WebSocket.OPEN) {
-        await this.initializeSaveSocket()
-      }
-      this.save_socket!.send(JSON.stringify(saveRequest))
-    },
-
-    async copilotCompletion(cellId: string, line: string, column: string, callback: any){
-      if (this.concatenatedCodeCache.lastCellId !== cellId) {
-          let concatenatedCode = ''
-          let followingCode = ''
-          let length = 0
-          let prevCode = true
+          let concatenatedCode = "";
+          let followingCode = "";
+          let length = 0;
+          let prevCode = true;
           for (let key in this.notebook.cells) {
-            if (key === cellId){
+            if (key === cellId) {
               prevCode = false;
               continue;
             }
-            if (this.notebook.cells[key].cellType === 'code') {
-              if(prevCode){
-                concatenatedCode += this.notebook.cells[key].code+'\n';
-                length += this.notebook.cells[key].code.split(/\r\n|\r|\n/).length
-              }
-              else{
-                followingCode += this.notebook.cells[key].code+'\n';
+            if (this.notebook.cells[key].cellType === "code") {
+              if (prevCode) {
+                concatenatedCode += this.notebook.cells[key].code + "\n";
+                length +=
+                  this.notebook.cells[key].code.split(/\r\n|\r|\n/).length;
+              } else {
+                followingCode += this.notebook.cells[key].code + "\n";
               }
             }
           }
@@ -806,38 +842,92 @@ export default {
             lastCellId: cellId,
             code: concatenatedCode,
             followingCode: followingCode,
-            length: length
+            length: length,
           };
         }
-        const response = await axios.post(import.meta.env.VITE_BACKEND_URL + "copilot/get_completions",
-            {
-              doc: {
-                version: 1,
-                uri: "file:///notebook.ztnb",
-                position: {
-                  line: this.concatenatedCodeCache.length+line,
-                  character: column
-                }
-              }
-            }
-          );
-        callback(response)
+      }
+      // The rest of the saveCell method remains unchanged
+      const saveRequest: SaveRequest = {
+        id: cellId,
+        text: text, // Use the concatenated code from previous cells
+        cellType: this.notebook.cells[cellId].cellType,
+        line: this.concatenatedCodeCache.length + line,
+        column: column,
+        code_w_context:
+          this.concatenatedCodeCache.code +
+          text +
+          this.concatenatedCodeCache.followingCode,
+      };
+      if (this.save_socket!.readyState !== WebSocket.OPEN) {
+        await this.initializeSaveSocket();
+      }
+      this.save_socket!.send(JSON.stringify(saveRequest));
     },
 
-    async stopCodeExecution(){
-      if (this.$devMode) {
-        this.requestQueue = []
-        if (this.stop_socket!.readyState !== WebSocket.OPEN) {
-          await this.initializeStopSocket()
+    async copilotCompletion(
+      cellId: string,
+      line: string,
+      column: string,
+      callback: any
+    ) {
+      if (this.concatenatedCodeCache.lastCellId !== cellId) {
+        let concatenatedCode = "";
+        let followingCode = "";
+        let length = 0;
+        let prevCode = true;
+        for (let key in this.notebook.cells) {
+          if (key === cellId) {
+            prevCode = false;
+            continue;
+          }
+          if (this.notebook.cells[key].cellType === "code") {
+            if (prevCode) {
+              concatenatedCode += this.notebook.cells[key].code + "\n";
+              length +=
+                this.notebook.cells[key].code.split(/\r\n|\r|\n/).length;
+            } else {
+              followingCode += this.notebook.cells[key].code + "\n";
+            }
+          }
         }
-        this.stop_socket!.send("")
+
+        // Update the cache
+        this.concatenatedCodeCache = {
+          lastCellId: cellId,
+          code: concatenatedCode,
+          followingCode: followingCode,
+          length: length,
+        };
       }
-      else {
-        this.componentChangeQueue = []
-        if (this.stop_socket!.readyState !== WebSocket.OPEN) {
-          await this.initializeStopSocket()
+      const response = await axios.post(
+        import.meta.env.VITE_BACKEND_URL + "copilot/get_completions",
+        {
+          doc: {
+            version: 1,
+            uri: "file:///notebook.ztnb",
+            position: {
+              line: this.concatenatedCodeCache.length + line,
+              character: column,
+            },
+          },
         }
-        this.stop_socket!.send(this.notebook.userId)
+      );
+      callback(response);
+    },
+
+    async stopCodeExecution() {
+      if (this.$devMode) {
+        this.requestQueue = [];
+        if (this.stop_socket!.readyState !== WebSocket.OPEN) {
+          await this.initializeStopSocket();
+        }
+        this.stop_socket!.send("");
+      } else {
+        this.componentChangeQueue = [];
+        if (this.stop_socket!.readyState !== WebSocket.OPEN) {
+          await this.initializeStopSocket();
+        }
+        this.stop_socket!.send(this.notebook.userId);
       }
       this.isCodeRunning = false;
       this.stopTimer();
@@ -859,19 +949,18 @@ export default {
     },
 
     async updateDependencies(dependencies: Dependencies) {
-      this.dependencyOutput.output = '';
-      const request: DependencyRequest = {dependencies: dependencies}
+      this.dependencyOutput.output = "";
+      const request: DependencyRequest = { dependencies: dependencies };
       if (this.dependency_socket!.readyState !== WebSocket.OPEN) {
-        await this.initializeDependencySocket()
+        await this.initializeDependencySocket();
       }
       this.dependency_socket!.send(JSON.stringify(request));
     },
 
     startTimerComponents(originId: string, timers: ZTComponent[]) {
-      if(!globalState.timers[originId]){
+      if (!globalState.timers[originId]) {
         globalState.timers[originId] = {};
-      }
-      else {
+      } else {
         for (const timer in globalState.timers[originId]) {
           globalState.timers[originId][timer].stop();
           delete globalState.timers[originId][timer];
@@ -882,16 +971,17 @@ export default {
       }
     },
 
-    startTimerComponent(originId: string, timerId: string, interval: number){
+    startTimerComponent(originId: string, timerId: string, interval: number) {
       const startTimer = () => {
         const timer = new Timer(interval);
         globalState.timers[originId][timerId] = timer;
         timer.start(startTimer);
-        this.notebook.cells[originId].components.find((c: ZTComponent) => c.id === timerId)!.value = true;
+        this.notebook.cells[originId].components.find(
+          (c: ZTComponent) => c.id === timerId
+        )!.value = true;
         if (this.$devMode) {
           this.runCode(originId);
-        }
-        else {
+        } else {
           this.componentValueChange(originId, timerId, true);
         }
       };
@@ -901,15 +991,13 @@ export default {
         globalState.timers[originId][timerId] = timer;
         timer.start(startTimer);
       }
-
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-
-@import '@/styles/mixins.scss';
+@import "@/styles/mixins.scss";
 .zt-app-bar {
   padding-top: 6px;
   padding-bottom: 6px;
@@ -942,12 +1030,12 @@ export default {
   &__name:hover {
     padding-left: 3px;
     padding-right: 3px;
-    cursor: text; 
+    cursor: text;
     border: 1px solid #294455;
   }
 
   &__edit-field {
-    margin-top: -11px; 
+    margin-top: -11px;
     & :deep(.v-field__input) {
       font-size: 1.5rem;
       letter-spacing: normal;
@@ -959,7 +1047,7 @@ export default {
   @include lg {
     max-width: 450px;
   }
-  
+
   @include xl {
     max-width: 600px;
   }
@@ -968,7 +1056,7 @@ export default {
   display: flex;
   justify-content: space-between;
   flex-direction: column;
-  padding: 4px 16px; 
+  padding: 4px 16px;
   &__left-container,
   &__right-container {
     display: flex;
@@ -978,16 +1066,16 @@ export default {
       width: auto;
     }
   }
-  
+
   &__right-container {
     align-items: center;
     flex-direction: column;
-    justify-content: flex-start; 
+    justify-content: flex-start;
     @include sm {
       flex-direction: row;
     }
   }
-  
+
   &__left-container {
     flex-direction: column;
     margin: 0 0 20px 0px;
@@ -1033,7 +1121,6 @@ export default {
     }
   }
 
-  
   &__code-version-icon {
     margin-right: 0px;
     margin-left: -5px;

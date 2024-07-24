@@ -10,6 +10,7 @@ import os
 import subprocess
 import logging
 import traceback
+import pkg_resources
 
 app = FastAPI()
 logger = logging.getLogger("__name__")
@@ -29,30 +30,38 @@ app.add_middleware(
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["*"]
+    expose_headers=["*"],
 )
+
 
 @app.on_event("startup")
 def open_project():
     try:
-        if not os.path.exists('notebook.ztnb'):
+        if not os.path.exists("notebook.ztnb"):
             logger.info("No notebook file found, creating with empty notebook")
             write_notebook()
-        if not os.path.exists('requirements.txt'):
+        if not os.path.exists("requirements.txt"):
             logger.info("No requirements file found, creating with base dependency")
-            with open('requirements.txt', 'w') as file:
-                file.write('zero-true')
-            try:
-                subprocess.run(['lock', 'requirements.txt'])
-            except Exception:
-                logger.error("Failed to lock requirements: %s", traceback.format_exc())
+            with open("requirements.txt", "w") as file:
+                file.write(
+                    f"zero-true=={pkg_resources.get_distribution('zero-true').version}"
+                )
         else:
             write_dependencies(parse_dependencies())
         get_notebook()
     except Exception as e:
         logger.error("Error creating new files on startup: %s", traceback.format_exc())
-        
-if run_mode=='app':
-    app.mount('', StaticFiles(directory=os.path.join(current_path, "dist_app"), html=True), name="assets")
+
+
+if run_mode == "app":
+    app.mount(
+        "",
+        StaticFiles(directory=os.path.join(current_path, "dist_app"), html=True),
+        name="assets",
+    )
 else:
-    app.mount('', StaticFiles(directory=os.path.join(current_path, "dist_dev"), html=True), name="assets")
+    app.mount(
+        "",
+        StaticFiles(directory=os.path.join(current_path, "dist_dev"), html=True),
+        name="assets",
+    )

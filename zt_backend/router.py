@@ -1,5 +1,5 @@
 import subprocess
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query, UploadFile, File, Form
 from zt_backend.models import notebook
 from zt_backend.models.api import request
 from zt_backend.runner.execute_code import execute_request
@@ -21,6 +21,7 @@ from zt_backend.models.managers.k_thread import KThread
 from zt_backend.models.state.user_state import UserState
 from zt_backend.models.state.app_state import AppState
 from fastapi.responses import HTMLResponse
+from pathlib import Path
 import logging
 import uuid
 import os
@@ -373,3 +374,54 @@ def share_notebook(shareRequest: request.ShareRequest):
 @router.on_event("shutdown")
 def shutdown():
     app_state.shutdown()
+
+@router.post("/api/upload_file")
+async def upload_file(file: UploadFile = File(...), path: str = Form(...)):
+    if app_state.run_mode == 'dev':
+        logger.debug("File upload request started")
+        
+        # Ensure the path exists
+        os.makedirs(path, exist_ok=True)
+        
+        file_path = os.path.join(path, file.filename)
+        with open(file_path, "wb") as buffer:
+            buffer.write(await file.read())
+        
+        logger.debug(f"File upload request completed. File saved to: {file_path}")
+        return {"filename": file.filename, "path": file_path}
+
+
+def get_file_type(name):
+    extension = name.split('.')[-1]
+    if extension in ['html', 'js', 'json', 'md', 'pdf', 'png', 'txt', 'xls']:
+        return extension
+    return None
+
+def list_dir(path):
+    items = []
+    for item in path.iterdir():
+        if item.is_dir():
+            items.append({'title': item.name, 'file': 'folder', 'id': item.as_posix(), 'children': []})
+        else:
+            file_type = get_file_type(item.name)
+            if file_type:
+                items.append({'title': item.name, 'file': file_type, 'id': item.as_posix()})
+            else:
+                items.append({'title': item.name, 'file': 'file', 'id': item.as_posix()})
+    return items
+
+@router.get("/api/get_files")
+def list_files():
+    path = Path('.')
+    files = list_dir(path)
+    return {"files": files}
+
+
+@router.get("/api/get_children")
+def list_children(path: str = Query(...)):
+    dir_path = Path(path)
+    if not dir_path.is_dir():
+        return {"error": "Path is not a directory"}
+
+    items = list_dir(dir_path)
+    return {"files": items}

@@ -1,7 +1,11 @@
 <template>
   <v-dialog v-model="updatingDependencies" width="1024">
     <template v-slot:activator="{ props }">
-      <v-btn v-bind="props" :icon="`ztIcon:${ztAliases.settings}`"></v-btn>
+      <v-btn
+        color="bluegrey-darken-4"
+        v-bind="props"
+        icon="mdi-package"
+      ></v-btn>
     </template>
     <v-card>
       <v-card-title>
