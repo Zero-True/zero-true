@@ -29,5 +29,5 @@ jobs:
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git add docs/*.mdx
-        git commit -m "fix: Generate MDX files from Pydantic models"
+        git commit -m "chore: Generate MDX files from Pydantic models"
         git push origin main
