@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.1](https://github.com/Zero-True/zero-true/compare/v0.3.0...v0.3.1) (2024-07-24)
+
+
+### Bug Fixes
+
+* Add workflow for Mintlify documentation updates ([#295](https://github.com/Zero-True/zero-true/issues/295)) ([605ba7a](https://github.com/Zero-True/zero-true/commit/605ba7a6cc7ca40427effddd4d29f4b5ed354080))
+* file explorer and uploader ([#291](https://github.com/Zero-True/zero-true/issues/291)) ([f91b837](https://github.com/Zero-True/zero-true/commit/f91b8378279278da57518544efde557f630d324f))
+* Remove old docs ([#288](https://github.com/Zero-True/zero-true/issues/288)) ([f20f74c](https://github.com/Zero-True/zero-true/commit/f20f74cabab2c9884eca6d2e8df108ebf061afe0))
+* run_all button ([#293](https://github.com/Zero-True/zero-true/issues/293)) ([e48ce3b](https://github.com/Zero-True/zero-true/commit/e48ce3bf13e182e81a3b76d3fc45c1b67160d987))
+
 ## [0.3.0](https://github.com/Zero-True/zero-true/compare/v0.2.2...v0.3.0) (2024-07-17)
 
 
