@@ -76,25 +76,39 @@
             <!-- <v-btn :icon="`ztIcon:${ztAliases.undo}`"></v-btn>
             <v-btn :icon="`ztIcon:${ztAliases.redo}`"></v-btn>
             <v-btn :icon="`ztIcon:${ztAliases.message}`"></v-btn> -->
-            <v-btn
-              v-if="$devMode && !isAppRoute"
-              :icon="`ztIcon:${ztAliases.play}`"
-              variant="flat"
-              ripple
-              class="text-bluegrey"
-              color="bluegrey-darken-4"
-              tooltip="Run All"
-              @click="runCode('')"
-            ></v-btn>
+            <v-tooltip text="Run All" location="bottom" color="primary">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  v-if="$devMode && !isAppRoute"
+                  :icon="`ztIcon:${ztAliases.play}`"
+                  v-bind="props"
+                  variant="flat"
+                  ripple
+                  color="bluegrey-darken-4"
+                  @click="runCode('')"
+                >
+                </v-btn>
+              </template>
+            </v-tooltip>
+            <v-menu :close-on-content-click="false">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  :icon="`ztIcon:${ztAliases.settings}`"
+                  v-bind="props"
+                ></v-btn>
+              </template>
+              <v-list bg-color="bluegrey-darken-4">
+                <v-list-item>
+                  <template v-slot:prepend>
+                    <v-switch
+                      v-model="reactiveMode"
+                    ></v-switch>
+                  </template>
+                  <v-list-item-title>Reactive Mode</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
             <ShareComponent v-if="$devMode && !isAppRoute" />
-            <!-- <v-btn :icon="`ztIcon:${ztAliases.play}`"></v-btn>
-            <v-btn
-              :prepend-icon="`ztIcon:${ztAliases.play}`"
-              variant="flat"
-              ripple
-              color="primary"
-              class="text-bluegrey-darken-4"
-            >Share</v-btn> -->
           </div>
         </v-col>
       </template>
@@ -313,6 +327,7 @@ export default {
       tree: [],
       items: [] as any[],
       openFolders: [],
+      reactiveMode: true,
       concatenatedCodeCache: {
         lastCellId: "" as string,
         code: "" as string,
@@ -497,6 +512,7 @@ export default {
       }
       const request: Request = {
         originId: originId,
+        reactiveMode: this.reactiveMode,
         cells: cellRequests,
         components: requestComponents,
       };
