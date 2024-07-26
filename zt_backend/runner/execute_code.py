@@ -66,7 +66,9 @@ def execute_request(request: request.Request, state: UserState):
         cell_outputs = []
         execution_state.component_values.update(request.components)
         component_globals={'global_state': execution_state.component_values}
-        dependency_graph = build_dependency_graph(parse_cells(request))
+        dependency_graph = parse_cells(request)
+        if not(request.isNonReactive):
+            dependency_graph = build_dependency_graph(dependency_graph)
         if request.originId:
             downstream_cells = [request.originId]+dependency_graph.cells[request.originId].child_cells
             try:

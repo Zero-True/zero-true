@@ -6,6 +6,7 @@
  */
 
 export type Originid = string;
+export type Isnonreactive = boolean;
 export type Id = string;
 export type Code = string;
 export type VariableName = string;
@@ -16,6 +17,7 @@ export type Cells = CodeRequest[];
 
 export interface Request {
   originId: Originid;
+  isNonReactive: Isnonreactive;
   cells: Cells;
   components: Components;
   [k: string]: unknown;
