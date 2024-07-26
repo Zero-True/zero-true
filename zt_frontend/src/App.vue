@@ -386,6 +386,7 @@ export default {
       if (!originId) return;
       const cellRequests: CodeRequest[] = [];
       const requestComponents: { [key: string]: any } = {};
+      let isNonReactive = false;
       for (let key in this.notebook.cells) {
         const cellRequest: CodeRequest = {
           id: key,
@@ -395,6 +396,9 @@ export default {
           showTable: this.notebook.cells[key].showTable as boolean,
           cellType: this.notebook.cells[key].cellType,
         };
+        if (key === originId) {
+            isNonReactive = this.notebook.cells[key].nonReactive as boolean
+        }
         for (const c of this.notebook.cells[key].components) {
           if (c.component === 'v-data-table') {
             requestComponents[c.id] = '';
@@ -406,6 +410,7 @@ export default {
       }
       const request: Request = {
         originId: originId,
+        isNonReactive : isNonReactive,
         cells: cellRequests,
         components: requestComponents,
       };

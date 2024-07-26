@@ -14,6 +14,7 @@ class CodeRequest(BaseModel):
 
 class Request(BaseModel):
     originId: str
+    isNonReactive: bool
     cells: List[CodeRequest]
     components: Dict[str, Union[str, bool, int, float, List, None]]
 
