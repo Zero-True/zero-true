@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/Zero-True/zero-true/compare/v0.3.1...v0.3.2) (2024-07-26)
+
+
+### Bug Fixes
+
+* non_reactive cell execution changes ([#297](https://github.com/Zero-True/zero-true/issues/297)) ([aa52b9a](https://github.com/Zero-True/zero-true/commit/aa52b9ab5e8d0c0b28651d2083fc14e93c859f9f))
+
 ## [0.3.1](https://github.com/Zero-True/zero-true/compare/v0.3.0...v0.3.1) (2024-07-24)
 
 
