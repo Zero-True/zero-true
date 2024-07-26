@@ -66,20 +66,21 @@ def execute_request(request: request.Request, state: UserState):
         cell_outputs = []
         execution_state.component_values.update(request.components)
         component_globals={'global_state': execution_state.component_values}
-        dependency_graph = parse_cells(request)
-        if not(request.isNonReactive):
-            dependency_graph = build_dependency_graph(dependency_graph)
+        dependency_graph = build_dependency_graph(parse_cells(request))
         if request.originId:
-            downstream_cells = [request.originId]+dependency_graph.cells[request.originId].child_cells
-            try:
-                old_downstream_cells = [request.originId]
-                # Find cells that are no longer dependent
-                no_longer_dependent_cells = set(old_downstream_cells) - set(downstream_cells)
-        
-                if no_longer_dependent_cells:
-                    downstream_cells.extend(list(OrderedDict.fromkeys(no_longer_dependent_cells)))
-            except Exception as e:
-                logger.error("Error while updating cell dependencies: %s", traceback.format_exc())
+            if request.reactiveMode:
+                downstream_cells = [request.originId]+dependency_graph.cells[request.originId].child_cells
+                try:
+                    old_downstream_cells = [request.originId]
+                    # Find cells that are no longer dependent
+                    no_longer_dependent_cells = set(old_downstream_cells) - set(downstream_cells)
+            
+                    if no_longer_dependent_cells:
+                        downstream_cells.extend(list(OrderedDict.fromkeys(no_longer_dependent_cells)))
+                except Exception as e:
+                    logger.error("Error while updating cell dependencies: %s", traceback.format_exc())
+            else:
+                downstream_cells = [request.originId]
         else:
             downstream_cells = [cell.id for cell in request.cells if cell.cellType in ['code', 'sql']]
         for code_cell_id in downstream_cells:
