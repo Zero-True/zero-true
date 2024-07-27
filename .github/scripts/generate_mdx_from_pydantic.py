@@ -28,9 +28,9 @@ sample_{model_name.lower()} = zt.{model_name}(
 
     for field_name, field_info in properties.items():
         default = f" = {field_info.get('default')}" if "default" in field_info else ""
-        mdx_content += f"    {field_name}={default},  # {field_info['description']}\n"
+        mdx_content += f"    {field_name}{default},  # {field_info['description']}\n"
 
-    mdx_content += """)
+    mdx_content += f""")
 
 # Assuming you have a mechanism to render or use this component within a layout
 layout = zt.Layout(components=[sample_{model_name.lower()}])
@@ -98,4 +98,3 @@ if __name__ == "__main__":
     output_dir = 'docs'
     os.makedirs(output_dir, exist_ok=True)
     generate_mdx(ExampleModel, os.path.join(output_dir, 'example_model.mdx'))
-```
