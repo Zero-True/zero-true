@@ -87,7 +87,9 @@ The {model_name} component is a fundamental element in user interfaces, offering
 </ResponseField>
 
 <Card title="Methods">
-  classmethod *get_value_from_global_state*(value, values)
+  <ul>
+    <li><code>classmethod get_value_from_global_state(value, values)</code></li>
+  </ul>
 </Card>
 """
 
