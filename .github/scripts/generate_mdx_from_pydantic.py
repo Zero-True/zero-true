@@ -58,11 +58,11 @@ The {model_name} component is a fundamental element in user interfaces, offering
 <Accordion title="Field Definitions"> 
 ```json
 {{
-   "title": "{model_name}",
-   "description": "{model.schema().get('description', '')}",
-   "type": "object",
-   "properties": {properties},
-   "required": {list(required)}
+   "title": "{{model_name}}",
+    "description": "{{model.schema().get('description', '')}}",
+    "type": "object",
+    "properties": {{properties}},
+    "required": {{list(required)}}
 }}
 ```
 </Accordion> 
