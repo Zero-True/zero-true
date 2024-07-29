@@ -50,6 +50,7 @@ import {
   VImg,
   VAutocomplete,
   VCard,
+  VDatePicker
 } from "vuetify/lib/components/index.mjs";
 import { VDataTable } from "vuetify/components/VDataTable";
 import TextComponent from "@/components/TextComponent.vue";
@@ -70,6 +71,7 @@ export default {
     "v-autocomplete": VAutocomplete,
     "v-card": VCard,
     "v-text": TextComponent,
+    "v-date-picker": VDatePicker,
     "plotly-plot": PlotlyPlot,
   },
   emits: ["runCode"],
