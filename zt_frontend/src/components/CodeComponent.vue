@@ -77,6 +77,7 @@
             @runCode="runCode"/>
         </div>
         <pre class="code-output" :id = "'cellOutput'+cellData.id">{{ cellData.output }}</pre>
+        <pre class="code-outpt">Status: <span class="text-capitalize">{{ statusFlag }}</span></pre>
       </div>
     </template>
   </cell>
@@ -105,6 +106,7 @@ import {
   VImg,
   VAutocomplete,
   VCard,
+  VRating
 } from "vuetify/lib/components/index.mjs";
 import { VDataTable } from "vuetify/components/VDataTable";
 import { CodeCell, Layout, ZTComponent } from "@/types/notebook";
@@ -122,6 +124,7 @@ export default {
     "cell": Cell,
     "codemirror": Codemirror,
     "v-slider": VSlider,
+    "v-rating": VRating,
     "v-text-field": VTextField,
     "v-number-field": VTextField,
     "v-textarea": VTextarea,
@@ -146,6 +149,10 @@ export default {
     completions: {
       type: Object as PropType<any[]>,
       required: true
+    },
+    statusFlag: {
+      type: String,
+      required: false
     }
   },
   inheritAttrs: false,

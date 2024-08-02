@@ -6,6 +6,7 @@ from .api.request import DependencyRequest, Request, ComponentRequest, DeleteReq
 from .api.response import Response
 from .notebook import Notebook, NotebookResponse, Dependencies, Dependency
 from .components.slider import Slider
+from .components.rating import Rating
 from .components.text_input import TextInput
 from .components.text_area_input import TextArea
 from .components.range_slider import RangeSlider
@@ -48,6 +49,7 @@ def generate_schema():
     generate_json(Dependencies, 'dependencies')
     generate_json(Dependency, 'dependency')
     generate_json(Slider, 'slider')
+    generate_json(Rating,'rating')
     generate_json(TextInput, 'text_input')
     generate_json(TextArea,'text_area')
     generate_json(RangeSlider,'range_slider')

@@ -65,16 +65,25 @@ def execute_request(request: request.Request, state: UserState):
         logger.debug("Code execution started")
         cell_outputs = []
         execution_state.component_values.update(request.components)
-        component_globals={'global_state': execution_state.component_values}
+        component_globals = {'global_state': execution_state.component_values}
         dependency_graph = build_dependency_graph(parse_cells(request))
+        
+        # Initialize cells to 'idle'
+        for cell in request.cells:
+            if cell.cellType in ['code', 'sql']:
+                execution_state.message_queue.put_nowait({
+                    "cell_id": cell.id, 
+                    "status": "idle"
+                })
+
         if request.originId:
             if request.reactiveMode:
-                downstream_cells = [request.originId]+dependency_graph.cells[request.originId].child_cells
+                downstream_cells = [request.originId] + dependency_graph.cells[request.originId].child_cells
                 try:
                     old_downstream_cells = [request.originId]
                     # Find cells that are no longer dependent
                     no_longer_dependent_cells = set(old_downstream_cells) - set(downstream_cells)
-            
+
                     if no_longer_dependent_cells:
                         downstream_cells.extend(list(OrderedDict.fromkeys(no_longer_dependent_cells)))
                 except Exception as e:
@@ -83,13 +92,22 @@ def execute_request(request: request.Request, state: UserState):
                 downstream_cells = [request.originId]
         else:
             downstream_cells = [cell.id for cell in request.cells if cell.cellType in ['code', 'sql']]
+        
         for code_cell_id in downstream_cells:
             code_cell = dependency_graph.cells[code_cell_id]
             if code_cell_id != request.originId and code_cell.nonReactive:
                 continue
+            
+            # Update status to "running"
+            execution_state.message_queue.put_nowait({
+                "cell_id": code_cell_id, 
+                "status": "running"
+            })
+            
             execution_state.message_queue.put_nowait({"cell_id": code_cell_id, "clear_output": True})
             execution_state.io_output = StringIO()
             execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, execution_state)
+            
             try:
                 layout = execution_state.current_cell_layout[0]
             except Exception as e:
@@ -98,20 +116,29 @@ def execute_request(request: request.Request, state: UserState):
             for component in execution_state.current_cell_components:
                 if component.component == 'v-btn' or component.component == 'v-timer':
                     component.value = False
-
-            cell_response = response.CellResponse(id=code_cell_id, layout=layout, components=execution_state.current_cell_components, output=execution_state.io_output.getvalue())
+            
+            cell_response = response.CellResponse(
+                id=code_cell_id, 
+                layout=layout, 
+                components=execution_state.current_cell_components, 
+                output=execution_state.io_output.getvalue(),
+                status="stopped"  # Final status set after execution
+            )
             cell_outputs.append(cell_response)
             execution_state.message_queue.put_nowait(cell_response.model_dump_json())
             execution_state.current_cell_components.clear()
             execution_state.current_cell_layout.clear()
+        
         execution_state.cell_outputs_dict['previous_dependecy_graph'] = dependency_graph
         execution_state.component_values.clear()
         execution_state.created_components.clear()
         execution_state.context_globals['exec_mode'] = False
         execution_response = response.Response(cells=cell_outputs)
-        execution_state.message_queue.put_nowait({"complete": True})
-        if settings.run_mode=='dev':
-            globalStateUpdate(run_response=execution_response,run_request=request)
+        # execution_state.message_queue.put_nowait({"complete": True})
+        execution_state.message_queue.put_nowait({"cell_id": code_cell_id,"complete": True,"status": "completed"})
+        if settings.run_mode == 'dev':
+            globalStateUpdate(run_response=execution_response, run_request=request)
+
 
 
 def execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, execution_state: UserContext):
@@ -120,7 +147,7 @@ def execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, e
             user_state = UserContext.get_state()
             if user_state:
                 user_state.io_output.write(message)
-                user_state.message_queue.put_nowait({"cell_id": code_cell_id, "output": message})
+                user_state.message_queue.put_nowait({"cell_id": code_cell_id, "output": message, "status":"running"})
 
         def flush(self):
             pass

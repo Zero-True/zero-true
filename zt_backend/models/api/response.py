@@ -10,6 +10,7 @@ class CellResponse(BaseModel):
     components: List[SerializeAsAny[ZTComponent]]
     layout: Union[Layout,None]
     output: str
+    status: str
 
 class Response(BaseModel):
     cells: List[CellResponse]

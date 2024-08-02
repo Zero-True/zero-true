@@ -202,8 +202,14 @@ def globalStateUpdate(
                 notebook_state.zt_notebook.cells[requestCell.id].variable_name = (
                     requestCell.variable_name
                 )
+                
+                notebook_state.zt_notebook.cells[requestCell.id].status = False
+                print("cells: ",notebook_state.zt_notebook.cells[requestCell.id])
+                # notebook_state.zt_notebook.cells["status"] = True
         if run_response is not None:
             for responseCell in run_response.cells:
+                notebook_state.zt_notebook.cells[responseCell.id].status = True
+                print("running : ",notebook_state.zt_notebook.cells[responseCell.id])
                 notebook_state.zt_notebook.cells[responseCell.id].components = (
                     responseCell.components
                 )
