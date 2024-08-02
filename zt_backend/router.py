@@ -71,6 +71,7 @@ async def run_code(websocket: WebSocket):
         message_send = asyncio.create_task(
             websocket_message_sender(app_state.notebook_state)
         )
+        print(app_state.notebook_state," :notebook state")
         await manager.connect(websocket)
         try:
             while True:

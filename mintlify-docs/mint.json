@@ -66,6 +66,7 @@
         "Components/Text",
         "Components/Textinput",
         "Components/Slider",
+        "Components/Rating",
         "Components/Image",
         "Components/Card",
         "Components/DataFrame",

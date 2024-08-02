@@ -50,6 +50,7 @@ import {
   VImg,
   VAutocomplete,
   VCard,
+  VRating
 } from "vuetify/lib/components/index.mjs";
 import { VDataTable } from "vuetify/components/VDataTable";
 import TextComponent from "@/components/TextComponent.vue";
@@ -58,6 +59,7 @@ import PlotlyPlot from "@/components/PlotlyComponent.vue";
 export default {
   components: {
     "v-slider": VSlider,
+    "v-rating": VRating,
     "v-text-field": VTextField,
     "v-number-field": VTextField,
     "v-textarea": VTextarea,

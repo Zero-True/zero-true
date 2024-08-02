@@ -160,6 +160,7 @@
         </v-alert>
       </v-container>
       <CodeCellManager
+        :cellStatus="cellStatus"
         :notebook="notebook"
         :completions="completions"
         @runCode="runCode"
@@ -235,10 +236,10 @@
           </div>
           <div
             v-if="!isCodeRunning"
-            class="footer__status footer__status--error"
+            class="footer__status"
           >
             <v-icon :icon="`ztIcon:${ztAliases.status}`" />
-            <span>Stopped</span>
+            <span>Connected</span>
           </div>
           <v-btn
             v-if="isCodeRunning"
@@ -328,6 +329,7 @@ export default {
       items: [] as any[],
       openFolders: [],
       reactiveMode: true,
+      cellStatus: {},
       concatenatedCodeCache: {
         lastCellId: "" as string,
         code: "" as string,
@@ -362,7 +364,13 @@ export default {
     this.startTimer();
     this.notebook_socket!.send("");
   },
-
+  watch: {
+    cellStatus: {
+      handler(newVal) {
+        console.log("newVal", newVal)
+      }
+    }
+  },
   computed: {
     isAppRoute() {
       const route = useRoute();
@@ -596,59 +604,81 @@ export default {
     },
 
     initializeRunSocket() {
-      this.run_socket = this.$devMode
-        ? new WebSocket(this.ws_url + "ws/run_code")
-        : new WebSocket(this.ws_url + "ws/component_run");
-      this.run_socket!.onmessage = (event) => {
-        const response = JSON.parse(event.data);
-        if (!this.$devMode && response.refresh) {
-          this.notebookRefresh();
-        } else if (response.cell_id) {
-          if (response.clear_output) {
-            this.notebook.cells[response.cell_id].output = "";
-          } else {
-            this.notebook.cells[response.cell_id].output = this.notebook.cells[
-              response.cell_id
-            ].output.concat(response.output);
-          }
-        } else if (response.complete) {
-          this.isCodeRunning = false;
-          this.stopTimer();
-          if (this.$devMode && this.requestQueue.length > 0) {
-            const currentRequest = this.requestQueue.shift() || {};
-            this.sendRunCodeRequest(currentRequest);
-          } else if (!this.$devMode && this.componentChangeQueue.length > 0) {
-            const componentChangeRequest =
-              this.componentChangeQueue.shift() || {};
-            const componentRequest: ComponentRequest = {
-              originId: componentChangeRequest.originId,
-              components: componentChangeRequest.components,
-              userId: componentChangeRequest.userId,
-            };
-            this.sendComponentRequest(componentRequest);
-          }
-        } else {
-          const components_response = JSON.parse(response);
-          this.notebook.cells[components_response.id].components =
-            components_response.components;
-          this.notebook.cells[components_response.id].layout =
-            components_response.layout as Layout | undefined;
+  this.run_socket = this.$devMode
+    ? new WebSocket(this.ws_url + "ws/run_code")
+    : new WebSocket(this.ws_url + "ws/component_run");
+  this.run_socket!.onmessage = (event) => {
+    const response = JSON.parse(event.data);
+    if (!this.$devMode && response.refresh) {
+      if (response?.status){
+      this.cellStatus = {id: response.cell_id, status: response?.status};
+      }
+      this.notebookRefresh();
+    } else if (response.cell_id) {
+      
+      if (response.clear_output) {
+        console.log("if clear output condition: ",response)
+        this.notebook.cells[response.cell_id].output = "";
+      } else {
+        console.log("if not output condition: ",response)
+        if (response?.status){
+        this.cellStatus = {id: response.cell_id, status: response?.status};
         }
-      };
-      return new Promise<void>((resolve, reject) => {
-        // Resolve the promise when the connection is open
-        this.run_socket!.onopen = () => {
-          console.log("Run socket connected");
-          resolve();
-        };
+        this.notebook.cells[response.cell_id].output = this.notebook.cells[
+          response.cell_id
+        ].output.concat(response.output);
+      }
+      // Update status
+      if (response?.status) {
+        this.cellStatus = {id: response.cell_id, status: response?.status};
+        this.notebook.cells[response.cell_id].status = response.status;
+      }
+    } else if (response.complete) {
+      this.isCodeRunning = false;
+      this.stopTimer();
 
-        // Reject the promise on connection error
-        this.run_socket!.onerror = (error) => {
-          console.error("Run socket connection error:", error);
-          reject(error);
+      if(response?.complete) {
+        this.cellStatus = response?.complete && {id: response.cell_id, status: response?.status};
+      }
+
+      if (this.$devMode && this.requestQueue.length > 0) {
+        const currentRequest = this.requestQueue.shift() || {};
+        this.sendRunCodeRequest(currentRequest);
+      } else if (!this.$devMode && this.componentChangeQueue.length > 0) {
+        const componentChangeRequest =
+          this.componentChangeQueue.shift() || {};
+        const componentRequest: ComponentRequest = {
+          originId: componentChangeRequest.originId,
+          components: componentChangeRequest.components,
+          userId: componentChangeRequest.userId,
         };
-      });
-    },
+        this.sendComponentRequest(componentRequest);
+      }
+    } else {
+      const components_response = JSON.parse(response);
+      this.cellStatus = Object.keys(components_response).length > 0 ? components_response : {};
+      
+      this.notebook.cells[components_response.id].components =
+        components_response.components;
+      this.notebook.cells[components_response.id].layout =
+        components_response.layout as Layout | undefined;
+    }
+  };
+  return new Promise<void>((resolve, reject) => {
+    // Resolve the promise when the connection is open
+    this.run_socket!.onopen = () => {
+      console.log("Run socket connected");
+      resolve();
+    };
+
+    // Reject the promise on connection error
+    this.run_socket!.onerror = (error) => {
+      console.error("Run socket connection error:", error);
+      reject(error);
+    };
+  });
+},
+
 
     initializeSaveSocket() {
       this.save_socket = new WebSocket(this.ws_url + "ws/save_text");
@@ -893,8 +923,10 @@ export default {
           this.concatenatedCodeCache.followingCode,
       };
       if (this.save_socket!.readyState !== WebSocket.OPEN) {
+        console.log("initializing")
         await this.initializeSaveSocket();
       }
+      console.log("save request: ",saveRequest)
       this.save_socket!.send(JSON.stringify(saveRequest));
     },
 

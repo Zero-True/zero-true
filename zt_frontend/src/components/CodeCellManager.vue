@@ -12,9 +12,10 @@
     ]"
     v-for="codeCell in notebook.cells"
   >
-    <component
+  <component
       v-if="codeCell.cellType === 'code'"
       :is="getComponent(codeCell.cellType)"
+      :statusFlag="codeCell?.id == cellStatus?.id ? cellStatus?.status : 'ideal'"
       :cellData="codeCell"
       :completions="completions[codeCell.id]"
       @runCode="runCode"
@@ -61,6 +62,10 @@ export default {
       type: Object as PropType<{ [key: string]: string[] }>,
       required: true,
     },
+    cellStatus: {
+      type: Object,
+      required: true,
+    },
   },
   inheritAttrs: false,
   emits: ['runCode', 'deleteCell', 'saveCell', 'createCell', 'componentValueChange', 'copilotCompletion', 'updateTimers'],
@@ -73,7 +78,6 @@ export default {
     SQLComponent,
     PackageComponent,
   },
-
   data() {
     return {
       menu_items: [

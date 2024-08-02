@@ -36,4 +36,7 @@ ul { list-style-position: inside;}
   background-color: rgba(var(--v-theme-bluegrey)); 
 }
 
+.text-capitalize {
+  text-transform: capitalize;
+}
 @import 'utilities'
