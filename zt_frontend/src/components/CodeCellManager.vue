@@ -17,6 +17,8 @@
       :is="getComponent(codeCell.cellType)"
       :cellData="codeCell"
       :completions="completions[codeCell.id]"
+      :currentlyExecutingCell="currentlyExecutingCell"
+      :isCodeRunning="isCodeRunning"
       @runCode="runCode"
       @saveCell="saveCell"
       @componentValueChange="componentValueChange"
@@ -29,6 +31,8 @@
       v-else
       :is="getComponent(codeCell.cellType)"
       :cellData="codeCell"
+      :currentlyExecutingCell="currentlyExecutingCell"
+      :isCodeRunning="isCodeRunning"
       @runCode="runCode"
       @saveCell="saveCell"
       @componentValueChange="componentValueChange"
@@ -60,6 +64,14 @@ export default {
     completions: {
       type: Object as PropType<{ [key: string]: string[] }>,
       required: true,
+    },
+     currentlyExecutingCell: {
+      type: String,
+      default: null
+    },
+    isCodeRunning:{
+      type: Boolean,
+      default: false
     },
   },
   inheritAttrs: false,

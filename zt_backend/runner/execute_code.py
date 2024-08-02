@@ -63,6 +63,9 @@ def get_parent_vars(cell_id: str, code_components: CodeDict, cell_outputs_dict: 
 def execute_request(request: request.Request, state: UserState):
     with UserContext(state) as execution_state:
         logger.debug("Code execution started")
+        # Send Current Running Cell Id to frontend
+        if request.originId:
+            execution_state.message_queue.put_nowait({"cell_executing": request.originId})
         cell_outputs = []
         execution_state.component_values.update(request.components)
         component_globals={'global_state': execution_state.component_values}

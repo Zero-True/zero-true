@@ -162,6 +162,8 @@
       <CodeCellManager
         :notebook="notebook"
         :completions="completions"
+        :currentlyExecutingCell="currentlyExecutingCell"
+        :isCodeRunning="isCodeRunning"
         @runCode="runCode"
         @saveCell="saveCell"
         @componentValueChange="componentValueChange"
@@ -320,6 +322,7 @@ export default {
       startTime: 0,
       timerInterval: null as ReturnType<typeof setInterval> | null,
       isCodeRunning: false,
+      currentlyExecutingCell: null,
       requestQueue: [] as any[],
       componentChangeQueue: [] as any[],
       drawer: false,
@@ -601,7 +604,10 @@ export default {
         : new WebSocket(this.ws_url + "ws/component_run");
       this.run_socket!.onmessage = (event) => {
         const response = JSON.parse(event.data);
-        if (!this.$devMode && response.refresh) {
+        if (response.cell_executing) {
+          // Update the UI to show which cell is currently executing
+          this.currentlyExecutingCell = response.cell_executing;
+        } else if (!this.$devMode && response.refresh) {
           this.notebookRefresh();
         } else if (response.cell_id) {
           if (response.clear_output) {

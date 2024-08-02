@@ -7,6 +7,8 @@
     :expand-code="(cellData.expandCode as boolean)"
     :non-reactive="(cellData.nonReactive as boolean)"
     :cell-name="(cellData.cellName as string)"
+    :currentlyExecutingCell="currentlyExecutingCell"
+    :isCodeRunning="isCodeRunning"
     :is-dev-mode="$devMode && !isAppRoute && !isMobile"
     @play="runCode(false, '', '')" 
     @delete="deleteCell"
@@ -148,7 +150,15 @@ export default {
     completions: {
       type: Object as PropType<any[]>,
       required: true
-    }
+    },
+     currentlyExecutingCell: {
+      type: String,
+      default: null
+    },
+     isCodeRunning:{
+      type: Boolean,
+      default: false
+    },
   },
   inheritAttrs: false,
   emits: ['componentValueChange','runCode','deleteCell', 'createCell', 'saveCell', 'copilotCompletion', 'updateTimers'],
