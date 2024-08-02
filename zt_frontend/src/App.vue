@@ -175,6 +175,8 @@
           <CodeCellManager
             :notebook="notebook"
             :completions="completions"
+            :currentlyExecutingCell="currentlyExecutingCell"
+            :isCodeRunning="isCodeRunning"
             @runCode="runCode"
             @saveCell="saveCell"
             @componentValueChange="componentValueChange"
@@ -349,6 +351,7 @@ export default {
       startTime: 0,
       timerInterval: null as ReturnType<typeof setInterval> | null,
       isCodeRunning: false,
+      currentlyExecutingCell: null,
       requestQueue: [] as any[],
       componentChangeQueue: [] as any[],
       drawer: false,
@@ -1181,9 +1184,9 @@ export default {
     &--error {
       color: rgba(var(--v-theme-error));
     }
-  &--connected {
-    color: rgba(var(--v-theme-info)); // Added css for connected status
-  }
+    &--connected {
+      color: rgba(var(--v-theme-info)); // Added css for connected status
+    }
   }
   @include md {
     flex-direction: row;

@@ -79,6 +79,18 @@
           }"
         >
           <div class="actions">
+            <div class="loading-wrapper">
+              <v-progress-circular
+                v-if="cellId == currentlyExecutingCell && isCodeRunning"
+                indeterminate
+                size="24"
+                class="mr-2"
+              />
+              <span v-if="cellId == currentlyExecutingCell && isCodeRunning"
+                >Running</span
+              >
+            </div>
+            <!-- <v-btn icon="$message"></v-btn> -->
             <v-btn
               v-if="showSaveBtn"
               :icon="`ztIcon:${ztAliases.save}`"
@@ -306,9 +318,24 @@ const props = defineProps({
   },
   cellName: {
     type: String,
+<<<<<<< HEAD
     default: null,
   },
 });
+=======
+    default: null
+  },
+
+  currentlyExecutingCell: {
+      type: String,
+      default: null
+    },
+  isCodeRunning:{
+      type: Boolean,
+      default: false
+    },
+})
+>>>>>>> 4360e6e (Addrunning cell indication in notebook)
 const emits = defineEmits<{
   (e: "delete"): void;
   (e: "play"): void;
@@ -518,6 +545,16 @@ const saveCellName = async () => {
       font-size: 1rem;
       letter-spacing: normal;
     }
+  }
+  .actions {
+    display: flex;
+    align-items: center;
+  }
+
+  .loading-wrapper {
+    display: flex;
+    align-items: center;
+    margin-right: 8px; /* Adjust as needed */
   }
 }
 </style>
