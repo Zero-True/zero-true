@@ -235,10 +235,10 @@
           </div>
           <div
             v-if="!isCodeRunning"
-            class="footer__status footer__status--error"
+            class="footer__status footer__status--connected"
           >
             <v-icon :icon="`ztIcon:${ztAliases.status}`" />
-            <span>Stopped</span>
+            <span>Connected</span>
           </div>
           <v-btn
             v-if="isCodeRunning"
@@ -1187,6 +1187,9 @@ export default {
     &--error {
       color: rgba(var(--v-theme-error));
     }
+  &--connected {
+    color: rgba(var(--v-theme-info)); // Added css for connected status
+  }
   }
   @include md {
     flex-direction: row;
