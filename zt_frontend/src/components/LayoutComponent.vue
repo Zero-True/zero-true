@@ -46,6 +46,7 @@
 import type { PropType } from "vue";
 import {
   VSlider,
+  VRating,
   VTextField,
   VTextarea,
   VRangeSlider,
@@ -66,6 +67,7 @@ export default {
   emits: ["runCode"],
   components: {
     "v-slider": VSlider,
+    "v-rating": VRating,
     "v-text-field": VTextField,
     "v-number-field": VTextField,
     "v-textarea": VTextarea,
