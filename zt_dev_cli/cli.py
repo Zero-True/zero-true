@@ -9,7 +9,6 @@ from typing_extensions import Annotated
 from typing import Optional
 from rich import print
 import pkg_resources
-import webbrowser
 
 cli_app = typer.Typer()
 
@@ -77,11 +76,11 @@ def app(
     if os.name == "nt":
         backend_cmd = ["start"] + backend_cmd
 
+    os.environ["LOCAL_URL"] = f"http://localhost:{port}"
+
     backend_process = subprocess.Popen(backend_cmd, shell=(os.name == "nt"))
     os.chdir("zt_frontend")
     frontend_process = subprocess.Popen(frontend_cmd, shell=(os.name == "nt"))
-
-    webbrowser.open(f"http://localhost:{port}")
 
     backend_process.wait()
     frontend_process.wait()
@@ -108,11 +107,11 @@ def notebook(
     if os.name == "nt":
         backend_cmd = ["start"] + backend_cmd
 
+    os.environ["LOCAL_URL"] = f"http://localhost:{port}"
+
     backend_process = subprocess.Popen(backend_cmd, shell=(os.name == "nt"))
     os.chdir("zt_frontend")
     frontend_process = subprocess.Popen(frontend_cmd, shell=(os.name == "nt"))
-
-    webbrowser.open(f"http://localhost:{port}")
 
     backend_process.wait()
     frontend_process.wait()
