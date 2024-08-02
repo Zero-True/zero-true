@@ -13,7 +13,7 @@ class NumberInput(ZTComponent):
     readonly: Optional[bool] = Field(False, description="If true, the input is read-only")
     disabled: Optional[bool] = Field(False, description="If true, the input is disabled")
     type: str = Field('number',description="Ensures that only numbers are accepted on the frontend")
-    triggerEvent: str = Field(None,description="Trigger event to send code to the backend")
+    triggerEvent: str = Field('update:modelValue',description="Trigger event to send code to the backend")
     
     @validator('value', always=True) #TODO: debug and replace with field validator
     def get_value_from_global_state(cls, value, values):
