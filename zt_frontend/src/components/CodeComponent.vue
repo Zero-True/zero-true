@@ -96,6 +96,7 @@ import { Prec, EditorState } from "@codemirror/state";
 import { autocompletion, acceptCompletion, CompletionResult, CompletionContext } from '@codemirror/autocomplete'
 import {
   VSlider,
+  VRating,
   VTextField,
   VTextarea,
   VRangeSlider,
@@ -122,6 +123,7 @@ export default {
     "cell": Cell,
     "codemirror": Codemirror,
     "v-slider": VSlider,
+    "v-rating": VRating,
     "v-text-field": VTextField,
     "v-textarea": VTextarea,
     "v-range-slider": VRangeSlider,
