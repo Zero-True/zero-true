@@ -7,11 +7,11 @@ class NumberInput(ZTComponent):
     """Number input allows a user to input an arbitrary number. Can be a float or an integer"""
     component: str = Field("v-number-field", description="Vue component name")
     hint: Optional[str] = Field('Press Enter to Submit', description="Hint text for the number input")
-    value: Union[int,float,None] = Field (None,description="The input number value")
-    placeholder: Optional[Union[int,float]] = Field(None, description="Placeholder number")
-    label: Optional[str] = Field(None, description="Label for the number input")
-    readonly: Optional[bool] = Field(None, description="If true, the input is read-only")
-    disabled: Optional[bool] = Field(None, description="If true, the input is disabled")
+    value: Union[int,float,None] = Field (...,description="The input number value")
+    placeholder: Optional[Union[int,float]] = Field('', description="Placeholder number")
+    label: Optional[str] = Field('', description="Label for the number input")
+    readonly: Optional[bool] = Field(False, description="If true, the input is read-only")
+    disabled: Optional[bool] = Field(False, description="If true, the input is disabled")
     type: str = Field('number',description="Ensures that only numbers are accepted on the frontend")
     triggerEvent: str = Field(None,description="Trigger event to send code to the backend")
     
