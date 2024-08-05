@@ -27,11 +27,19 @@ zt.TextInput(id='text')"""
 
 
 notebook_str = '''notebookId = "''' + notebook_id + '''"
+notebookName = "Zero True"
 
 [cells.57fbbd59-8f30-415c-87bf-8caae0374070]
+cellName = ""
 cellType = "code"
+hideCell = "False"
+hideCode = "False"
+expandCode = "False"
+showTable = "False"
+nonReactive = "False"
 code = """
 '''+expected_code+'''"""
+
 '''
 
 notebook_filename = "notebook.ztnb"
@@ -155,6 +163,8 @@ def test_notebook_content(driver):
     with open(notebook_filename,"r") as file:
         contents = file.read()
 
+    print(contents)
+    print(notebook_str)
     assert contents==notebook_str, 'Notebook not properly saved'
 
 def test_notebook_loading(driver):
