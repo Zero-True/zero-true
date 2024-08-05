@@ -964,6 +964,13 @@ export default {
         }
         this.stop_socket!.send(this.notebook.userId);
       }
+      for (let key in this.notebook.cells) {
+        for (const c of this.notebook.cells[key].components) {
+          if (c.component === "v-btn" || c.component === "v-timer") {
+            c.value = false;
+          }
+        }
+      }
       this.isCodeRunning = false;
       this.stopTimer();
     },

@@ -12,6 +12,7 @@ from zt_backend.models.state.state import State
 from zt_backend.models.components.layout import Layout
 from zt_backend.utils.notebook import globalStateUpdate
 from zt_backend.config import settings
+from zt_backend.models.components.zt_component import ZTComponent
 from datetime import datetime
 import logging
 import traceback
@@ -50,7 +51,10 @@ def try_pickle(obj):
 
 
 def get_parent_vars(
-    cell_id: str, code_components: CodeDict, cell_outputs_dict: Dict[str, Any]
+    cell_id: str,
+    code_components: CodeDict,
+    cell_outputs_dict: Dict[str, Any],
+    component_values: Dict[str, Any],
 ) -> Dict[str, Any]:
     """
     Gathers and returns parent variables for a given cell.
@@ -82,12 +86,17 @@ def get_parent_vars(
         )
         parent_vars += parent_vars_list
 
-    exec_parents = {
-        key: try_pickle(val)
-        for d in cell_dicts
-        for key, val in d.items()
-        if key in code_components.cells[cell_id].loaded_names
-    }
+    exec_parents = {}
+    for d in cell_dicts:
+        for key, val in d.items():
+            if key in code_components.cells[cell_id].loaded_names:
+                exec_parents[key] = try_pickle(val)
+                if isinstance(exec_parents[key], ZTComponent):
+                    if (
+                        exec_parents[key].component == "v-btn"
+                        or exec_parents[key].component == "v-timer"
+                    ):
+                        exec_parents[key].value = component_values[exec_parents[key].id]
 
     return exec_parents
 
@@ -164,7 +173,9 @@ def execute_request(request: request.Request, state: UserState):
             )
             cell_outputs.append(cell_response)
             if code_cell_id != "initial_cell":
-                execution_state.message_queue.put_nowait(cell_response.model_dump_json())
+                execution_state.message_queue.put_nowait(
+                    cell_response.model_dump_json()
+                )
             execution_state.current_cell_components.clear()
             execution_state.current_cell_layout.clear()
         execution_state.cell_outputs_dict["previous_dependecy_graph"] = dependency_graph
@@ -208,6 +219,7 @@ def execute_cell(
                     cell_id=code_cell_id,
                     code_components=dependency_graph,
                     cell_outputs_dict=execution_state.cell_outputs_dict,
+                    component_values=execution_state.component_values,
                 )
             execution_state.context_globals["exec_mode"] = True
             exec(code_cell.code, temp_globals)
