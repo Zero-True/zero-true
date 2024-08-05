@@ -1,4 +1,5 @@
 from pydantic import Field, field_validator
+from typing import Union
 from zt_backend.models.components.zt_component import ZTComponent
 import base64
 
@@ -7,8 +8,8 @@ class Image(ZTComponent):
     component: str = Field("v-img", description="Vue component name")
     src: str = Field(..., description="Source URL or Path of the image")
     alt: str = Field("", description="Alternative text for the image")
-    width: int = Field(100, description="Width of the image")
-    height: int = Field(100, description="Height of the image")
+    width: Union[int,str]  = Field(100, description="Width of the image")
+    height: Union[int,str]  = Field(100, description="Height of the image")
 
     @field_validator('src')
     def validate_src(cls, src):
