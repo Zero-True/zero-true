@@ -28,11 +28,11 @@ export type Alt = string;
 /**
  * Width of the image
  */
-export type Width = number;
+export type Width = number | string;
 /**
  * Height of the image
  */
-export type Height = number;
+export type Height = number | string;
 
 /**
  * Image component for displaying web hosted or local images. Supports .png, .jpg, and .jpeg file types

@@ -1,4 +1,5 @@
 from pydantic import Field
+from typing import Union
 from zt_backend.models.components.zt_component import ZTComponent
 import matplotlib.pyplot as plt
 import base64
@@ -9,8 +10,8 @@ class Matplotlib(ZTComponent):
     component: str = Field("v-img", description="Vue component name")
     src: str = Field(..., description="Source URL of the image of the graph")
     alt: str = Field("", description="Alternative text for the graph image")
-    width: int = Field(100, description="Width of the graph")
-    height: int = Field(100, description="Height of the graph")
+    width: Union[int,str] = Field('w-auto', description="Width of the graph")
+    height: Union[int,str] = Field('h-auto', description="Height of the graph")
     
     @classmethod
     def from_matplotlib(cls,id: str, figure: plt.Figure, alt=None, width=None, height=None):

@@ -8,8 +8,8 @@ class Card(ZTComponent):
     
     component: str = Field("v-card", description="Vue component name")
     childComponents: List[str] = Field([], description="List of child component ids to be placed within the card")
-    color: Optional[str] = Field("primary", description="Background color of the card")
+    color: Optional[str] = Field(None, description="Background color of the card")
     elevation: Optional[int] = Field(0, ge=0, le=24, description="Elevation level of the card. Must be between 0 and 24")
     density: Optional[str] = Field('default', enum=['default','comfortable','compact'], description="Density of the component")
-    width: Optional[Union[int,str]] = Field('100%' description="Width of the card")
-    location: Optional[str] = Field('center', enum=['center'])
+    width: Optional[Union[int,str]] = Field('w-auto', description="Width of the card")
+    location: Optional[str] = Field('bottom center', enum=['center', 'start', 'end', 'left', 'right', 'top', 'bottom','start center', 'end center','top center', 'bottom center'])

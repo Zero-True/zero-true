@@ -13,7 +13,7 @@ class TextInput(ZTComponent):
     label: Optional[str] = Field(None, description="Label for the text input")
     readonly: Optional[bool] = Field(None, description="If true, the input is read-only")
     disabled: Optional[bool] = Field(None, description="If true, the input is disabled")
-    triggerEvent: str = Field('update:modelValue',description="Trigger event to send code to the backend")
+    triggerEvent: str = Field('change',description="Trigger event to send code to the backend")
     
     @validator('value', always=True) #TODO: debug and replace with field validator
     def get_value_from_global_state(cls, value, values):
