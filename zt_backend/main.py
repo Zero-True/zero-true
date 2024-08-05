@@ -7,7 +7,7 @@ from zt_backend.utils.dependencies import parse_dependencies, write_dependencies
 from copilot.copilot import copilot_app
 import zt_backend.router as router
 import os
-import subprocess
+import webbrowser
 import logging
 import traceback
 import pkg_resources
@@ -20,6 +20,7 @@ current_path = os.path.dirname(os.path.abspath(__file__))
 run_mode = settings.run_mode
 project_name = settings.project_name
 user_name = settings.user_name
+local_url = settings.local_url
 
 app.include_router(router.router)
 app.mount("/copilot", copilot_app)
@@ -49,6 +50,8 @@ def open_project():
         else:
             write_dependencies(parse_dependencies())
         get_notebook()
+        if local_url:
+            webbrowser.open(local_url)
     except Exception as e:
         logger.error("Error creating new files on startup: %s", traceback.format_exc())
 

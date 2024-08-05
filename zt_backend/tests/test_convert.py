@@ -3,6 +3,7 @@ from zt_backend.models import notebook
 import rtoml
 import subprocess
 from pathlib import Path
+import os
 
 notebook_state = NotebookState()
 
@@ -46,3 +47,5 @@ def test_ipynb_to_ztnb():
     output_notebook = notebook.Notebook(**output_notebook_data)
 
     assert expected_notebook == output_notebook
+
+    os.remove(OUTPUT_PATH)

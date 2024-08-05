@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     project_name: str = ""
     user_name: str = ""
     ws_url: str = ""
+    local_url: str = ""
 
 @lru_cache()
 def get_settings():

@@ -316,6 +316,12 @@ async def load_notebook(websocket: WebSocket):
                         notebook=notebook_start, dependencies=start_dependencies
                     )
                     await websocket.send_json(notebook_response.model_dump_json())
+                    app_state.notebook_state.websocket = websocket
+                    app_state.current_thread = KThread(
+                        target=execute_request,
+                        args=(get_request_base("initial_cell"), app_state.notebook_state),
+                    )
+                    app_state.current_thread.start()
                     await websocket.send_json({"complete": True})
                 except FileNotFoundError:
                     logger.error("Requirements file not found")

@@ -12,7 +12,6 @@ import pkg_resources
 import yaml
 import json
 import uuid
-import webbrowser
 import re
 
 cli_app = typer.Typer()
@@ -140,7 +139,7 @@ def app(
 
     if not remote:
         os.environ["WS_URL"] = f"ws://{host}:{port}/"
-        webbrowser.open(f"http://{host}:{port}")
+        os.environ["LOCAL_URL"] = f"http://{host}:{port}/"
 
     uvicorn.run("zt_backend.main:app", host=host, port=port, log_config=log_config_dict)
 
@@ -174,7 +173,7 @@ def notebook(
 
     if not remote:
         os.environ["WS_URL"] = f"ws://{host}:{port}/"
-        webbrowser.open(f"http://{host}:{port}")
+        os.environ["LOCAL_URL"] = f"http://{host}:{port}/"
 
     uvicorn.run("zt_backend.main:app", host=host, port=port, log_config=log_config_dict)
 

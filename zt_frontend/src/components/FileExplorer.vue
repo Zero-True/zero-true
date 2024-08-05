@@ -28,13 +28,9 @@
         :key="item.id"
         @click="handleItemClick(item)"
       >
-        <v-list-item-icon>
-          <v-icon v-if="item.file === 'folder'">{{ "mdi-folder" }}</v-icon>
-          <v-icon v-else>{{ fileIcon(item.file) }}</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>{{ item.title }}</v-list-item-title>
-        </v-list-item-content>
+        <v-icon v-if="item.file === 'folder'">{{ "mdi-folder" }}</v-icon>
+        <v-icon v-else>{{ fileIcon(item.file) }}</v-icon>
+        <v-list-item-title>{{ item.title }}</v-list-item-title>
       </v-list-item>
     </v-list>
   </v-navigation-drawer>
