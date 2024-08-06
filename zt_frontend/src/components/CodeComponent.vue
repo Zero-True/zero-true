@@ -104,7 +104,7 @@ import {
   VBtn,
   VImg,
   VAutocomplete,
-  VCard,
+  VCard
 } from "vuetify/lib/components/index.mjs";
 import { VDataTable } from "vuetify/components/VDataTable";
 import { CodeCell, Layout, ZTComponent } from "@/types/notebook";
@@ -123,7 +123,6 @@ export default {
     "codemirror": Codemirror,
     "v-slider": VSlider,
     "v-text-field": VTextField,
-    "v-number-field": VTextField,
     "v-textarea": VTextarea,
     "v-range-slider": VRangeSlider,
     "v-select": VSelect,

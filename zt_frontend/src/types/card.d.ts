@@ -38,10 +38,21 @@ export type Density2 = "default" | "comfortable" | "compact";
 /**
  * Width of the card
  */
-export type Width = number | null;
+export type Width = number | string | null;
 export type Location = Location1 & Location2;
 export type Location1 = string | null;
-export type Location2 = "center";
+export type Location2 =
+  | "center"
+  | "start"
+  | "end"
+  | "left"
+  | "right"
+  | "top"
+  | "bottom"
+  | "start center"
+  | "end center"
+  | "top center"
+  | "bottom center";
 
 /**
  * A card is a container for components that should be displayed together.
