@@ -51,7 +51,6 @@ import {
   VAutocomplete,
   VCard
 } from "vuetify/lib/components/index.mjs";
-import { VNumberInput } from "vuetify/labs/VNumberInput";
 import { VDataTable } from "vuetify/components/VDataTable";
 import TextComponent from "@/components/TextComponent.vue";
 import PlotlyPlot from "@/components/PlotlyComponent.vue";
@@ -60,7 +59,6 @@ export default {
   components: {
     "v-slider": VSlider,
     "v-text-field": VTextField,
-    "v-number-input": VNumberInput,
     "v-textarea": VTextarea,
     "v-range-slider": VRangeSlider,
     "v-select": VSelect,
