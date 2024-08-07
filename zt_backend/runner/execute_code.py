@@ -24,11 +24,9 @@ logger = logging.getLogger("__name__")
 initial_cell = request.CodeRequest(
     id="initial_cell",
     code="""
-import matplotlib
 import sys
 import os
-sys.path.append(os.getcwd())
-matplotlib.use('agg')""",
+sys.path.append(os.getcwd())""",
     variable_name="",
     nonReactive=False,
     showTable=False,

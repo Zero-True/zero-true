@@ -5,12 +5,9 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException, TimeoutException, StaleElementReferenceException
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 import time 
 import uuid
 
@@ -50,7 +47,7 @@ def start_stop_app():
     with open(notebook_filename,"w") as file:
         file.write(notebook_str)
 
-    app_process = subprocess.Popen(["zero-true", "notebook"], cwd=os.getcwd())
+    app_process = subprocess.Popen(["zero-true", "notebook", "--remote"], cwd=os.getcwd())
     time.sleep(10)
     yield app_process
 
@@ -60,8 +57,6 @@ def start_stop_app():
 
 @pytest.fixture(scope="session")
 def driver():
-    chrome_service = Service(ChromeDriverManager().install())
-
     options = Options()
     options.add_argument("--no-sandbox") # Bypass OS security model
     options.add_argument("--headless")
@@ -70,7 +65,7 @@ def driver():
     options.add_argument("--remote-debugging-port=9222")
     options.add_argument('--window-size=1920,1080')  
 
-    driver = webdriver.Chrome(service=chrome_service, options=options)
+    driver = webdriver.Chrome(options=options)
     yield driver
     driver.quit()
 
