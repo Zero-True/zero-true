@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.3](https://github.com/Zero-True/zero-true/compare/v0.3.2...v0.3.3) (2024-08-07)
+
+
+### Bug Fixes
+
+* Bump rtoml version to support python 3.12, other rtoml bug fixed ([#307](https://github.com/Zero-True/zero-true/issues/307)) ([8a29d08](https://github.com/Zero-True/zero-true/commit/8a29d080233d46e2191c269e539c1f1b7f387ee2))
+* Initial cell to set matplotlib backend and allow for local file … ([#303](https://github.com/Zero-True/zero-true/issues/303)) ([4ddc11f](https://github.com/Zero-True/zero-true/commit/4ddc11ffcb4cd7b53a022b10e28f0f480fa60701))
+* Mintifly API Workflow  ([#299](https://github.com/Zero-True/zero-true/issues/299)) ([297464b](https://github.com/Zero-True/zero-true/commit/297464b321b9dd0850d0c2992c88158c6a67bdf0))
+* Remove none type values in components and README fix ([#305](https://github.com/Zero-True/zero-true/issues/305)) ([1f25a3e](https://github.com/Zero-True/zero-true/commit/1f25a3e6b72b1c93f90c473fbb8c4b8b691ee5c2))
+
 ## [0.3.2](https://github.com/Zero-True/zero-true/compare/v0.3.1...v0.3.2) (2024-07-26)
 
 
