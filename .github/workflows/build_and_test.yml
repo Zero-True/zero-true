@@ -81,7 +81,5 @@ jobs:
           pip install .[test] 
       - name: Setup Chrome
         uses: nanasess/setup-chromedriver@v2
-        with:
-          chromedriver-version: '121.0.6167.85'
       - name: Test with pytest
         run: pytest
