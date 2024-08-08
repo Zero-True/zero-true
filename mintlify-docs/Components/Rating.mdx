@@ -1,0 +1,418 @@
+
+title: 'Rating'
+description: 'Learn how to use the Rating component in your applications'
+icon: "star"
+iconType: "solid"
+---
+
+<Card title="Example Usage" icon="code">
+  ```python
+# An Example Rating:
+from zero_true import Rating
+
+example = Rating(length=5, value=3, label="Product Rating", color="warning")
+</Card>
+<Card title="Example Output" icon="computer">
+</Card>
+Overview
+pydantic model zero_true.Rating
+<Note>Rating provides a star-based input mechanism that can be used to capture user feedback or ratings.</Note>
+JSON Schema
+<Accordion title="Field Definitions">
+```json
+{
+  "title": "Rating",
+  "description": "A rating component that allows you to capture star-based input from a user",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "Unique id for a component",
+      "title": "Id",
+      "type": "string"
+    },
+    "variable_name": {
+      "default": "",
+      "description": "Optional variable name associated with a component",
+      "title": "Variable Name",
+      "type": "string"
+    },
+    "component": {
+      "default": "v-rating",
+      "description": "Vue component name",
+      "title": "Component",
+      "type": "string"
+    },
+    "value": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "default": 0,
+      "description": "Current value of the rating",
+      "title": "Value"
+    },
+    "length": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "integer"
+        }
+      ],
+      "default": 5,
+      "description": "Number of rating icons",
+      "title": "Length"
+    },
+    "hover": {
+      "default": true,
+      "description": "Provides visual feedback when hovering over icons",
+      "title": "Hover",
+      "type": "boolean"
+    },
+    "size": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "integer"
+        }
+      ],
+      "default": "default",
+      "description": "Size of the rating icons",
+      "title": "Size"
+    },
+    "color": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Color of the rating icons when active",
+      "title": "Color"
+    },
+    "active_color": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The applied color when the component is in an active state",
+      "title": "Active Color"
+    },
+    "empty_icon": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "default": "$ratingEmpty",
+      "description": "The icon displayed when empty",
+      "title": "Empty Icon"
+    },
+    "full_icon": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "default": "$ratingFull",
+      "description": "The icon displayed when full",
+      "title": "Full Icon"
+    },
+    "half_increments": {
+      "default": false,
+      "description": "Allows for half-increment ratings",
+      "title": "Half Increments",
+      "type": "boolean"
+    },
+    "clearable": {
+      "default": false,
+      "description": "Allows the component to be cleared",
+      "title": "Clearable",
+      "type": "boolean"
+    },
+    "readonly": {
+      "default": false,
+      "description": "Removes all hover effects and pointer events",
+      "title": "Readonly",
+      "type": "boolean"
+    },
+    "density": {
+      "default": "default",
+      "description": "Adjusts the vertical height used by the component",
+      "title": "Density",
+      "type": "string"
+    },
+    "disabled": {
+      "default": false,
+      "description": "Removes the ability to click or target the component",
+      "title": "Disabled",
+      "type": "boolean"
+    },
+    "item_aria_label": {
+      "default": "$vuetify.rating.ariaLabel.item",
+      "description": "Aria label for each item",
+      "title": "Item Aria Label",
+      "type": "string"
+    },
+    "item_label_position": {
+      "default": "top",
+      "description": "Position of item labels",
+      "title": "Item Label Position",
+      "type": "string"
+    },
+    "item_labels": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Array of labels to display next to each item",
+      "title": "Item Labels"
+    },
+    "name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Sets the component's name attribute",
+      "title": "Name"
+    },
+    "ripple": {
+      "default": false,
+      "description": "Applies the v-ripple directive",
+      "title": "Ripple",
+      "type": "boolean"
+    },
+    "tag": {
+      "default": "div",
+      "description": "Specify a custom tag used on the root element",
+      "title": "Tag",
+      "type": "string"
+    },
+    "theme": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Specify a theme for this component and all of its children",
+      "title": "Theme"
+    },
+    "label": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A label for your rating component",
+      "title": "Label"
+    },
+    "triggerEvent": {
+      "default": "update:modelValue",
+      "description": "Trigger event for when to run the rating",
+      "title": "Triggerevent",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id"
+  ]
+}
+```
+</Accordion>
+<Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
+<ResponseField name="zero_true.Rating" type="Zero True Component">
+  <Expandable title="properties">
+    <AccordionGroup>
+      <Accordion title="field active_color">
+        **field active_color:** str | None = None
+Copy    The applied color when the component is in an active state.
+
+    **VALIDATED BY:** validate_color
+  </Accordion>
+
+  <Accordion title="field clearable">
+    **field clearable:** bool = False
+
+    Allows the component to be cleared.
+  </Accordion>
+
+  <Accordion title="field color">
+    **field color:** str | None = None
+
+    Color of the rating icons when active.
+
+    **VALIDATED BY:** validate_color
+  </Accordion>
+
+  <Accordion title="field component">
+    **field component:** str = 'v-rating'
+
+    Vue component name.
+  </Accordion>
+
+  <Accordion title="field density">
+    **field density:** str = 'default'
+
+    Adjusts the vertical height used by the component.
+
+    **VALIDATED BY:** validate_density
+  </Accordion>
+
+  <Accordion title="field disabled">
+    **field disabled:** bool = False
+
+    Removes the ability to click or target the component.
+  </Accordion>
+
+  <Accordion title="field empty_icon">
+    **field empty_icon:** str | dict = '$ratingEmpty'
+
+    The icon displayed when empty.
+  </Accordion>
+
+  <Accordion title="field full_icon">
+    **field full_icon:** str | dict = '$ratingFull'
+
+    The icon displayed when full.
+  </Accordion>
+
+  <Accordion title="field half_increments">
+    **field half_increments:** bool = False
+
+    Allows for half-increment ratings.
+  </Accordion>
+
+  <Accordion title="field hover">
+    **field hover:** bool = True
+
+    Provides visual feedback when hovering over icons.
+  </Accordion>
+
+  <Accordion title="field item_aria_label">
+    **field item_aria_label:** str = '$vuetify.rating.ariaLabel.item'
+
+    Aria label for each item.
+  </Accordion>
+
+  <Accordion title="field item_label_position">
+    **field item_label_position:** str = 'top'
+
+    Position of item labels.
+
+    **VALIDATED BY:** validate_item_label_position
+  </Accordion>
+
+  <Accordion title="field item_labels">
+    **field item_labels:** List[str] | None = None
+
+    Array of labels to display next to each item.
+  </Accordion>
+
+  <Accordion title="field label">
+    **field label:** str | None = None
+
+    A label for your rating component.
+  </Accordion>
+
+  <Accordion title="field length">
+    **field length:** str | int = 5
+
+    Number of rating icons.
+  </Accordion>
+
+  <Accordion title="field name">
+    **field name:** str | None = None
+
+    Sets the component's name attribute.
+  </Accordion>
+
+  <Accordion title="field readonly">
+    **field readonly:** bool = False
+
+    Removes all hover effects and pointer events.
+  </Accordion>
+
+  <Accordion title="field ripple">
+    **field ripple:** bool = False
+
+    Applies the v-ripple directive.
+  </Accordion>
+
+  <Accordion title="field size">
+    **field size:** str | int = 'default'
+
+    Size of the rating icons.
+  </Accordion>
+
+  <Accordion title="field tag">
+    **field tag:** str = 'div'
+
+    Specify a custom tag used on the root element.
+  </Accordion>
+
+  <Accordion title="field theme">
+    **field theme:** str | None = None
+
+    Specify a theme for this component and all of its children.
+  </Accordion>
+
+  <Accordion title="field triggerEvent">
+    **field triggerEvent:** str = 'update:modelValue'
+
+    Trigger event for when to run the rating.
+  </Accordion>
+
+  <Accordion title="field value">
+    **field value:** str | float = 0
+
+    Current value of the rating.
+  </Accordion>
+</AccordionGroup>
+  </Expandable>
+</ResponseField>
+<Card title="Methods">
+  classmethod *get_value_from_global_state*(value, values)
+</Card>
+```

@@ -41,6 +41,7 @@ import type { PropType } from "vue";
 import { Components2, ZTComponent } from "@/types/notebook";
 import {
   VSlider,
+  VRating,
   VTextField,
   VTextarea,
   VRangeSlider,
@@ -58,6 +59,7 @@ import PlotlyPlot from "@/components/PlotlyComponent.vue";
 export default {
   components: {
     "v-slider": VSlider,
+    "v-rating": VRating,
     "v-text-field": VTextField,
     "v-textarea": VTextarea,
     "v-range-slider": VRangeSlider,

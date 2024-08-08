@@ -8,6 +8,8 @@
     :non-reactive="(cellData.nonReactive as boolean)"
     :showTable="(cellData.showTable as boolean)"
     :cell-name="(cellData.cellName as string)"
+    :currentlyExecutingCell="currentlyExecutingCell"
+    :isCodeRunning="isCodeRunning"
     :is-dev-mode="$devMode && !isAppRoute && !isMobile"
     @play="runCode" 
     @delete="deleteCell"
@@ -168,6 +170,14 @@ export default {
     cellData: {
       type: Object as PropType<CodeCell>,
       required: true,
+    },
+      currentlyExecutingCell: {
+      type: String,
+      default: null
+    },
+    isCodeRunning:{
+      type: Boolean,
+      default: false
     },
   },
 
