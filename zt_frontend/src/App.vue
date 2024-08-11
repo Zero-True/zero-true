@@ -369,7 +369,6 @@ export default {
       openFolders: [],
       reactiveMode: true,
       showComments: false,
-      componentChangeQueue: [] as any[],
       concatenatedCodeCache: {
         lastCellId: "" as string,
         code: "" as string,
