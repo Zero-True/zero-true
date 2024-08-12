@@ -161,24 +161,11 @@
           {{ errorMessage }}
         </v-alert>
       </v-container>
-<<<<<<< HEAD
       <v-container v-if="socketsDisconnected">
         <v-alert type="error">
           Connection to the server has been lost. Please refresh the page.
         </v-alert>
       </v-container>
-      <CodeCellManager
-        :notebook="notebook"
-        :completions="completions"
-        @runCode="runCode"
-        @saveCell="saveCell"
-        @componentValueChange="componentValueChange"
-        @deleteCell="deleteCell"
-        @createCell="createCodeCell"
-        @copilotCompletion="copilotCompletion"
-        @updateTimers="startTimerComponents"
-      />
-=======
       <div :class="['content', 'px-8', 'd-flex', 'justify-center']">
         <div class="content__cells flex-grow-1" transition="slide-x-transition">
           <CodeCellManager 
@@ -204,7 +191,6 @@
           <Comments />
         </div>
       </div>
->>>>>>> 69ad292 (WIP)
     </v-main>
     <v-footer
       app

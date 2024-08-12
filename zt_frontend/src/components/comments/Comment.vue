@@ -87,7 +87,7 @@
 </template>
 
 <script setup lang="ts">
-import { Comment } from '@/types/comment';
+import { Comment } from '@/static-types/comment';
 import { useCellType } from '@/composables/cell-type';
 import CommentMenu from './CommentMenu.vue'
 import CommentTextarea from './CommentTextarea.vue'

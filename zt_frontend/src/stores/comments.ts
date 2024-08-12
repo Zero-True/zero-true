@@ -1,4 +1,4 @@
-import { Cell, Comment } from '@/types/comment';
+import { Cell, Comment } from '@/static-types/comment';
 
 export const useCommentsStore = defineStore('comments', () => {
   // States 
