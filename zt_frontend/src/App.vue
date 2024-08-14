@@ -784,6 +784,9 @@ export default {
       this.isCodeRunning = true;
       this.startTimer();
       if (this.run_socket!.readyState !== WebSocket.OPEN) {
+        if (this.run_socket!.readyState !== WebSocket.CLOSED) {
+          this.run_socket!.close();
+        }
         await this.initializeRunSocket();
       }
       this.run_socket!.send(JSON.stringify(componentRequest));
@@ -794,6 +797,9 @@ export default {
       this.isCodeRunning = true;
       this.startTimer();
       if (this.notebook_socket!.readyState !== WebSocket.OPEN) {
+        if (this.notebook_socket!.readyState !== WebSocket.CLOSED) {
+          this.notebook_socket!.close();
+        }
         await this.initializeNotebookSocket();
       }
       this.notebook_socket!.send("start");
@@ -894,6 +900,9 @@ export default {
           this.concatenatedCodeCache.followingCode,
       };
       if (this.save_socket!.readyState !== WebSocket.OPEN) {
+        if (this.save_socket!.readyState !== WebSocket.CLOSED) {
+          this.save_socket!.close();
+        }
         await this.initializeSaveSocket();
       }
       this.save_socket!.send(JSON.stringify(saveRequest));
@@ -954,12 +963,18 @@ export default {
       if (this.$devMode) {
         this.requestQueue = [];
         if (this.stop_socket!.readyState !== WebSocket.OPEN) {
+          if (this.stop_socket!.readyState !== WebSocket.CLOSED) {
+            this.stop_socket!.close();
+          }
           await this.initializeStopSocket();
         }
         this.stop_socket!.send("");
       } else {
         this.componentChangeQueue = [];
         if (this.stop_socket!.readyState !== WebSocket.OPEN) {
+          if (this.stop_socket!.readyState !== WebSocket.CLOSED) {
+            this.stop_socket!.close();
+          }
           await this.initializeStopSocket();
         }
         this.stop_socket!.send(this.notebook.userId);
@@ -994,6 +1009,9 @@ export default {
       this.dependencyOutput.output = "";
       const request: DependencyRequest = { dependencies: dependencies };
       if (this.dependency_socket!.readyState !== WebSocket.OPEN) {
+        if (this.dependency_socket!.readyState !== WebSocket.CLOSED) {
+          this.dependency_socket!.close();
+        }
         await this.initializeDependencySocket();
       }
       this.dependency_socket!.send(JSON.stringify(request));
