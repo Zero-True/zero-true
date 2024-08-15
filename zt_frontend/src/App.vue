@@ -160,6 +160,11 @@
           {{ errorMessage }}
         </v-alert>
       </v-container>
+      <v-container v-if="socketsDisconnected">
+        <v-alert type="error">
+          Connection to the server has been lost. Please refresh the page.
+        </v-alert>
+      </v-container>
       <CodeCellManager
         :notebook="notebook"
         :completions="completions"
@@ -286,6 +291,7 @@ import { Timer } from "@/timer";
 import { globalState } from "@/global_vars";
 import { DependencyRequest } from "./types/dependency_request";
 import SidebarComponent from "@/components/FileExplorer.vue";
+import { WebSocketManager } from "@/websocket_manager";
 
 export default {
   components: {
@@ -312,11 +318,11 @@ export default {
       ws_url: "",
       pythonVersion: "",
       ztVersion: "",
-      notebook_socket: null as WebSocket | null,
-      save_socket: null as WebSocket | null,
-      run_socket: null as WebSocket | null,
-      stop_socket: null as WebSocket | null,
-      dependency_socket: null as WebSocket | null,
+      notebook_socket: null as WebSocketManager | null,
+      save_socket: null as WebSocketManager | null,
+      run_socket: null as WebSocketManager | null,
+      stop_socket: null as WebSocketManager | null,
+      dependency_socket: null as WebSocketManager | null,
       timer: 0,
       startTime: 0,
       timerInterval: null as ReturnType<typeof setInterval> | null,
@@ -352,16 +358,10 @@ export default {
 
   async mounted() {
     await this.get_env_data();
-    await this.initializeNotebookSocket();
-    await this.initializeRunSocket();
-    await this.initializeStopSocket();
-    if (this.$devMode) {
-      await this.initializeSaveSocket();
-      await this.initializeDependencySocket();
-    }
+    await this.connectSockets();
     this.isCodeRunning = true;
     this.startTimer();
-    this.notebook_socket!.send("");
+    this.notebook_socket!.send(JSON.stringify({ message: "" }));
   },
 
   computed: {
@@ -381,9 +381,45 @@ export default {
     queueLength() {
       return this.runningQueue.length;
     },
+    socketsDisconnected() {
+      return globalState.connection_lost;
+    },
   },
 
   methods: {
+    async connectSockets() {
+      this.notebook_socket = new WebSocketManager(this.ws_url + "ws/notebook", {
+        onMessage: (message: any) => this.notebookOnMessage(message),
+      });
+      this.run_socket = new WebSocketManager(
+        this.$devMode
+          ? this.ws_url + "ws/run_code"
+          : this.ws_url + "ws/component_run",
+        {
+          onMessage: (message: any) => this.runOnMessage(message),
+        }
+      );
+      this.stop_socket = new WebSocketManager(
+        this.ws_url + "ws/stop_execution"
+      );
+      await this.notebook_socket.initializeSocket();
+      await this.run_socket.initializeSocket();
+      await this.stop_socket.initializeSocket();
+      if (this.$devMode) {
+        this.save_socket = new WebSocketManager(this.ws_url + "ws/save_text", {
+          onMessage: (message: any) => this.saveOnMessage(message),
+        });
+        this.dependency_socket = new WebSocketManager(
+          this.ws_url + "ws/dependency_update",
+          {
+            onMessage: (message: any) => this.dependencyOnMessage(message),
+          }
+        );
+        await this.save_socket.initializeSocket();
+        await this.dependency_socket.initializeSocket();
+      }
+    },
+
     toggleProjectName() {
       this.editingProjectName = !this.editingProjectName;
       if (this.editingProjectName) {
@@ -539,196 +575,111 @@ export default {
       this.run_socket!.send(JSON.stringify(request));
     },
 
-    initializeNotebookSocket() {
-      this.notebook_socket = new WebSocket(this.ws_url + "ws/notebook");
-      this.notebook_socket!.onmessage = (event) => {
-        const response = JSON.parse(event.data);
-        if (response.notebook_name) {
-          this.notebookName = response.notebook_name;
-          document.title = this.notebookName;
-        } else if (response.cell_id) {
-          if (response.clear_output) {
-            this.notebook.cells[response.cell_id].output = "";
-          } else {
-            this.notebook.cells[response.cell_id].output = this.notebook.cells[
-              response.cell_id
-            ].output.concat(response.output);
-          }
-        } else if (response.env_stale) {
-          this.errorMessage =
-            "Some dependencies are not installed in the current environment. Open dependency manager to install missing dependencies";
-        } else if (response.complete) {
-          this.isCodeRunning = false;
-          this.stopTimer();
+    notebookOnMessage(event: any) {
+      const response = JSON.parse(event.data);
+      if (response.notebook_name) {
+        this.notebookName = response.notebook_name;
+        document.title = this.notebookName;
+      } else if (response.cell_id) {
+        if (response.clear_output) {
+          this.notebook.cells[response.cell_id].output = "";
         } else {
-          const cell_response =
-            typeof response === "string" ? JSON.parse(response) : response;
-          if (cell_response.notebook) {
-            this.notebook = cell_response.notebook;
-            for (let cell_id in this.notebook.cells) {
-              if (this.notebook.cells[cell_id].cellType === "code") {
-                this.completions[cell_id] = [];
-              }
-            }
-            this.dependencies = cell_response.dependencies;
-          } else {
-            if (this.notebook.cells && this.notebook.cells[cell_response.id]) {
-              this.notebook.cells[cell_response.id].components =
-                cell_response.components;
-              this.notebook.cells[cell_response.id].layout =
-                cell_response.layout as Layout | undefined;
+          this.notebook.cells[response.cell_id].output = this.notebook.cells[
+            response.cell_id
+          ].output.concat(response.output);
+        }
+      } else if (response.env_stale) {
+        this.errorMessage =
+          "Some dependencies are not installed in the current environment. Open dependency manager to install missing dependencies";
+      } else if (response.complete) {
+        this.isCodeRunning = false;
+        this.stopTimer();
+      } else {
+        const cell_response =
+          typeof response === "string" ? JSON.parse(response) : response;
+        if (cell_response.notebook) {
+          this.notebook = cell_response.notebook;
+          for (let cell_id in this.notebook.cells) {
+            if (this.notebook.cells[cell_id].cellType === "code") {
+              this.completions[cell_id] = [];
             }
           }
-        }
-      };
-      return new Promise<void>((resolve, reject) => {
-        // Resolve the promise when the connection is open
-        this.notebook_socket!.onopen = () => {
-          console.log("Notebook socket connected");
-          resolve();
-        };
-
-        // Reject the promise on connection error
-        this.notebook_socket!.onerror = (error) => {
-          console.error("Notebook socket connection error:", error);
-          reject(error);
-        };
-      });
-    },
-
-    initializeRunSocket() {
-      this.run_socket = this.$devMode
-        ? new WebSocket(this.ws_url + "ws/run_code")
-        : new WebSocket(this.ws_url + "ws/component_run");
-      this.run_socket!.onmessage = (event) => {
-        const response = JSON.parse(event.data);
-        if (!this.$devMode && response.refresh) {
-          this.notebookRefresh();
-        } else if (response.cell_id) {
-          if (response.clear_output) {
-            this.notebook.cells[response.cell_id].output = "";
-          } else {
-            this.notebook.cells[response.cell_id].output = this.notebook.cells[
-              response.cell_id
-            ].output.concat(response.output);
-          }
-        } else if (response.complete) {
-          this.isCodeRunning = false;
-          this.stopTimer();
-          if (this.$devMode && this.requestQueue.length > 0) {
-            const currentRequest = this.requestQueue.shift() || {};
-            this.sendRunCodeRequest(currentRequest);
-          } else if (!this.$devMode && this.componentChangeQueue.length > 0) {
-            const componentChangeRequest =
-              this.componentChangeQueue.shift() || {};
-            const componentRequest: ComponentRequest = {
-              originId: componentChangeRequest.originId,
-              components: componentChangeRequest.components,
-              userId: componentChangeRequest.userId,
-            };
-            this.sendComponentRequest(componentRequest);
-          }
+          this.dependencies = cell_response.dependencies;
         } else {
-          const components_response = JSON.parse(response);
-          this.notebook.cells[components_response.id].components =
-            components_response.components;
-          this.notebook.cells[components_response.id].layout =
-            components_response.layout as Layout | undefined;
-        }
-      };
-      return new Promise<void>((resolve, reject) => {
-        // Resolve the promise when the connection is open
-        this.run_socket!.onopen = () => {
-          console.log("Run socket connected");
-          resolve();
-        };
-
-        // Reject the promise on connection error
-        this.run_socket!.onerror = (error) => {
-          console.error("Run socket connection error:", error);
-          reject(error);
-        };
-      });
-    },
-
-    initializeSaveSocket() {
-      this.save_socket = new WebSocket(this.ws_url + "ws/save_text");
-      this.save_socket!.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          // Assuming data is an array of completion objects
-          this.completions[data.cell_id] = Array.isArray(data.completions)
-            ? data.completions
-            : [];
-        } catch (error) {
-          console.error("Error parsing server message:", error);
-        }
-      };
-      return new Promise<void>((resolve, reject) => {
-        // Resolve the promise when the connection is open
-        this.save_socket!.onopen = () => {
-          console.log("Save socket connected");
-          resolve();
-        };
-
-        // Reject the promise on connection error
-        this.save_socket!.onerror = (error) => {
-          console.error("Save socket connection error:", error);
-          reject(error);
-        };
-      });
-    },
-
-    initializeStopSocket() {
-      this.stop_socket = new WebSocket(this.ws_url + "ws/stop_execution");
-      return new Promise<void>((resolve, reject) => {
-        // Resolve the promise when the connection is open
-        this.stop_socket!.onopen = () => {
-          console.log("Stop socket connected");
-          resolve();
-        };
-
-        // Reject the promise on connection error
-        this.stop_socket!.onerror = (error) => {
-          console.error("Stop socket connection error:", error);
-          reject(error);
-        };
-      });
-    },
-
-    initializeDependencySocket() {
-      this.dependency_socket = new WebSocket(
-        this.ws_url + "ws/dependency_update"
-      );
-      this.dependency_socket!.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data.output) {
-            this.dependencyOutput.output = this.dependencyOutput.output.concat(
-              data.output
-            );
-          } else {
-            this.dependencies = JSON.parse(data);
-            this.dependencyOutput.isLoading = false;
+          if (this.notebook.cells && this.notebook.cells[cell_response.id]) {
+            this.notebook.cells[cell_response.id].components =
+              cell_response.components;
+            this.notebook.cells[cell_response.id].layout =
+              cell_response.layout as Layout | undefined;
           }
-          this.errorMessage = "";
-        } catch (error) {
-          console.error("Error parsing server message:", error);
         }
-      };
-      return new Promise<void>((resolve, reject) => {
-        // Resolve the promise when the connection is open
-        this.dependency_socket!.onopen = () => {
-          console.log("Dependency socket connected");
-          resolve();
-        };
+      }
+    },
 
-        // Reject the promise on connection error
-        this.dependency_socket!.onerror = (error) => {
-          console.error("Dependency socket connection error:", error);
-          reject(error);
-        };
-      });
+    runOnMessage(event: any) {
+      const response = JSON.parse(event.data);
+      if (!this.$devMode && response.refresh) {
+        this.notebookRefresh();
+      } else if (response.cell_id) {
+        if (response.clear_output) {
+          this.notebook.cells[response.cell_id].output = "";
+        } else {
+          this.notebook.cells[response.cell_id].output = this.notebook.cells[
+            response.cell_id
+          ].output.concat(response.output);
+        }
+      } else if (response.complete) {
+        this.isCodeRunning = false;
+        this.stopTimer();
+        if (this.$devMode && this.requestQueue.length > 0) {
+          const currentRequest = this.requestQueue.shift() || {};
+          this.sendRunCodeRequest(currentRequest);
+        } else if (!this.$devMode && this.componentChangeQueue.length > 0) {
+          const componentChangeRequest =
+            this.componentChangeQueue.shift() || {};
+          const componentRequest: ComponentRequest = {
+            originId: componentChangeRequest.originId,
+            components: componentChangeRequest.components,
+            userId: componentChangeRequest.userId,
+          };
+          this.sendComponentRequest(componentRequest);
+        }
+      } else {
+        const components_response = JSON.parse(response);
+        this.notebook.cells[components_response.id].components =
+          components_response.components;
+        this.notebook.cells[components_response.id].layout =
+          components_response.layout as Layout | undefined;
+      }
+    },
+
+    saveOnMessage(event: any) {
+      try {
+        const data = JSON.parse(event.data);
+        // Assuming data is an array of completion objects
+        this.completions[data.cell_id] = Array.isArray(data.completions)
+          ? data.completions
+          : [];
+      } catch (error) {
+        console.error("Error parsing server message:", error);
+      }
+    },
+
+    dependencyOnMessage(event: any) {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.output) {
+          this.dependencyOutput.output = this.dependencyOutput.output.concat(
+            data.output
+          );
+        } else {
+          this.dependencies = JSON.parse(data);
+          this.dependencyOutput.isLoading = false;
+        }
+        this.errorMessage = "";
+      } catch (error) {
+        console.error("Error parsing server message:", error);
+      }
     },
 
     async componentValueChange(
@@ -783,12 +734,6 @@ export default {
     async sendComponentRequest(componentRequest: ComponentRequest) {
       this.isCodeRunning = true;
       this.startTimer();
-      if (this.run_socket!.readyState !== WebSocket.OPEN) {
-        if (this.run_socket!.readyState !== WebSocket.CLOSED) {
-          this.run_socket!.close();
-        }
-        await this.initializeRunSocket();
-      }
       this.run_socket!.send(JSON.stringify(componentRequest));
     },
 
@@ -796,13 +741,7 @@ export default {
       //TODO: Fix this
       this.isCodeRunning = true;
       this.startTimer();
-      if (this.notebook_socket!.readyState !== WebSocket.OPEN) {
-        if (this.notebook_socket!.readyState !== WebSocket.CLOSED) {
-          this.notebook_socket!.close();
-        }
-        await this.initializeNotebookSocket();
-      }
-      this.notebook_socket!.send("start");
+      this.notebook_socket!.send(JSON.stringify({ message: "start" }));
     },
 
     navigateToApp() {
@@ -899,12 +838,6 @@ export default {
           text +
           this.concatenatedCodeCache.followingCode,
       };
-      if (this.save_socket!.readyState !== WebSocket.OPEN) {
-        if (this.save_socket!.readyState !== WebSocket.CLOSED) {
-          this.save_socket!.close();
-        }
-        await this.initializeSaveSocket();
-      }
       this.save_socket!.send(JSON.stringify(saveRequest));
     },
 
@@ -962,22 +895,12 @@ export default {
     async stopCodeExecution() {
       if (this.$devMode) {
         this.requestQueue = [];
-        if (this.stop_socket!.readyState !== WebSocket.OPEN) {
-          if (this.stop_socket!.readyState !== WebSocket.CLOSED) {
-            this.stop_socket!.close();
-          }
-          await this.initializeStopSocket();
-        }
-        this.stop_socket!.send("");
+        this.stop_socket!.send(JSON.stringify({ userId: "" }));
       } else {
         this.componentChangeQueue = [];
-        if (this.stop_socket!.readyState !== WebSocket.OPEN) {
-          if (this.stop_socket!.readyState !== WebSocket.CLOSED) {
-            this.stop_socket!.close();
-          }
-          await this.initializeStopSocket();
-        }
-        this.stop_socket!.send(this.notebook.userId);
+        this.stop_socket!.send(
+          JSON.stringify({ userId: this.notebook.userId })
+        );
       }
       for (let key in this.notebook.cells) {
         for (const c of this.notebook.cells[key].components) {
@@ -1008,12 +931,6 @@ export default {
     async updateDependencies(dependencies: Dependencies) {
       this.dependencyOutput.output = "";
       const request: DependencyRequest = { dependencies: dependencies };
-      if (this.dependency_socket!.readyState !== WebSocket.OPEN) {
-        if (this.dependency_socket!.readyState !== WebSocket.CLOSED) {
-          this.dependency_socket!.close();
-        }
-        await this.initializeDependencySocket();
-      }
       this.dependency_socket!.send(JSON.stringify(request));
     },
 
