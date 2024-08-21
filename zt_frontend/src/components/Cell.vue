@@ -6,6 +6,15 @@
         <div class="click-edit" v-if="keepCodeInAppModel">
           <div class="click-edit__show-text" v-if="!editingCellName">
             <h4 class="text-bluegrey-darken-1 text-ellipsis click-edit__name"  @click="toggleCellName">{{ cellNameValue }} </h4>
+            <div class="loading-wrapper">
+                <v-progress-circular
+                  v-if="cellId == currentlyExecutingCell && isCodeRunning"
+                  indeterminate
+                  size="24"
+                  class="ml-1 mr-2 green-loader"
+                />
+                <span v-if="cellId == currentlyExecutingCell && isCodeRunning" class="running-text">Running</span>
+              </div>
             <!-- <v-btn
               v-if="isDevMode"
               color="bluegrey-darken-4"
@@ -53,15 +62,6 @@
           }
         }">
           <div class="actions">
-          <div class="loading-wrapper">
-                <v-progress-circular
-                  v-if="cellId == currentlyExecutingCell && isCodeRunning"
-                  indeterminate
-                  size="24"
-                  class="mr-2"
-                />
-                <span v-if="cellId == currentlyExecutingCell && isCodeRunning">Running</span>
-             </div>
             <!-- <v-btn icon="$message"></v-btn> -->
             <v-btn v-if="showSaveBtn" :icon="`ztIcon:${ztAliases.save}`" @click="$emit('save')"></v-btn>
 
@@ -405,7 +405,14 @@ const saveCellName = async () => {
 .loading-wrapper {
   display: flex;
   align-items: center;
-  margin-right: 8px; /* Adjust as needed */
+  margin-right: 8px;
+}
+
+.green-loader {
+  color: rgba(var(--v-theme-success))
+}
+.running-text {
+  color: rgba(var(--v-theme-success))
 }
 }
 </style>

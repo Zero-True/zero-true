@@ -63,9 +63,7 @@ def get_parent_vars(cell_id: str, code_components: CodeDict, cell_outputs_dict: 
 def execute_request(request: request.Request, state: UserState):
     with UserContext(state) as execution_state:
         logger.debug("Code execution started")
-        # Send Current Running Cell Id to frontend
-        if request.originId:
-            execution_state.message_queue.put_nowait({"cell_executing": request.originId})
+ 
         cell_outputs = []
         execution_state.component_values.update(request.components)
         component_globals={'global_state': execution_state.component_values}
@@ -89,7 +87,12 @@ def execute_request(request: request.Request, state: UserState):
         for code_cell_id in downstream_cells:
             code_cell = dependency_graph.cells[code_cell_id]
             if code_cell_id != request.originId and code_cell.nonReactive:
-                continue
+                    continue
+            
+            # Only send "cell_executing" for the origin cell or when running all cells
+            if code_cell_id == request.originId or not request.originId:
+                execution_state.message_queue.put_nowait({"cell_executing": code_cell_id})
+
             execution_state.message_queue.put_nowait({"cell_id": code_cell_id, "clear_output": True})
             execution_state.io_output = StringIO()
             execute_cell(code_cell_id, code_cell, component_globals, dependency_graph, execution_state)
@@ -112,6 +115,8 @@ def execute_request(request: request.Request, state: UserState):
         execution_state.created_components.clear()
         execution_state.context_globals['exec_mode'] = False
         execution_response = response.Response(cells=cell_outputs)
+          #Indicate that no cell is currently executing
+        execution_state.message_queue.put_nowait({"cell_executing": ""})
         execution_state.message_queue.put_nowait({"complete": True})
         if settings.run_mode=='dev':
             globalStateUpdate(run_response=execution_response,run_request=request)
