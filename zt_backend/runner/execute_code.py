@@ -147,7 +147,13 @@ def execute_request(request: request.Request, state: UserState):
             
             # Only send "cell_executing" for the origin cell or when running all cells
             if code_cell_id == request.originId or not request.originId:
-                execution_state.message_queue.put_nowait({"cell_executing": code_cell_id})
+                    execution_state.message_queue.put_nowait({"cell_executing": code_cell_id})
+
+            if code_cell_id != "initial_cell":
+                execution_state.message_queue.put_nowait(
+                        {"cell_id": code_cell_id, "clear_output": True}
+                    )
+             
 
             execution_state.io_output = StringIO()
             execute_cell(
