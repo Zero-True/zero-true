@@ -1,5 +1,13 @@
 import subprocess
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query, UploadFile, File, Form
+from fastapi import (
+    APIRouter,
+    WebSocket,
+    WebSocketDisconnect,
+    Query,
+    UploadFile,
+    File,
+    Form,
+)
 from zt_backend.models import notebook
 from zt_backend.models.api import request
 from zt_backend.runner.execute_code import execute_request
@@ -75,12 +83,15 @@ async def run_code(websocket: WebSocket):
         try:
             while True:
                 data = await websocket.receive_json()
-                app_state.notebook_state.websocket = websocket
-                app_state.current_thread = KThread(
-                    target=execute_request,
-                    args=(request.Request(**data), app_state.notebook_state),
-                )
-                app_state.current_thread.start()
+                if data.get("type", "") == "ping":
+                    await websocket.send_text("pong")
+                else:
+                    app_state.notebook_state.websocket = websocket
+                    app_state.current_thread = KThread(
+                        target=execute_request,
+                        args=(request.Request(**data), app_state.notebook_state),
+                    )
+                    app_state.current_thread.start()
         except WebSocketDisconnect:
             manager.disconnect(websocket)
         finally:
@@ -93,38 +104,43 @@ async def component_run(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_json()
-            logger.debug("Component change code execution started")
-            component_request = request.ComponentRequest(**data)
-            code_request = get_request_base(
-                component_request.originId, component_request.components
-            )
-            if app_state.run_mode == "dev":
-                app_state.notebook_state.websocket = websocket
-                current_thread = KThread(
-                    target=execute_request,
-                    args=(code_request, app_state.notebook_state),
-                )
-                current_thread.start()
+            if data.get("type", "") == "ping":
+                await websocket.send_text("pong")
             else:
-                if component_request.userId not in app_state.user_states:
-                    logger.debug(
-                        "New user execution with id: %s, sending refresh",
-                        component_request.userId,
+                logger.debug("Component change code execution started")
+                component_request = request.ComponentRequest(**data)
+                code_request = get_request_base(
+                    component_request.originId, component_request.components
+                )
+                if app_state.run_mode == "dev":
+                    app_state.notebook_state.websocket = websocket
+                    current_thread = KThread(
+                        target=execute_request,
+                        args=(code_request, app_state.notebook_state),
                     )
-                    await websocket.send_json({"refresh": True})
-                logger.debug(
-                    "Existing user execution with id: %s", component_request.userId
-                )
-                app_state.timer_set(component_request.userId, 1800)
-                app_state.user_states[component_request.userId].websocket = websocket
-                app_state.user_threads[component_request.userId] = KThread(
-                    target=execute_request,
-                    args=(
-                        code_request,
-                        app_state.user_states[component_request.userId],
-                    ),
-                )
-                app_state.user_threads[component_request.userId].start()
+                    current_thread.start()
+                else:
+                    if component_request.userId not in app_state.user_states:
+                        logger.debug(
+                            "New user execution with id: %s, sending refresh",
+                            component_request.userId,
+                        )
+                        await websocket.send_json({"refresh": True})
+                    logger.debug(
+                        "Existing user execution with id: %s", component_request.userId
+                    )
+                    app_state.timer_set(component_request.userId, 1800)
+                    app_state.user_states[component_request.userId].websocket = (
+                        websocket
+                    )
+                    app_state.user_threads[component_request.userId] = KThread(
+                        target=execute_request,
+                        args=(
+                            code_request,
+                            app_state.user_states[component_request.userId],
+                        ),
+                    )
+                    app_state.user_threads[component_request.userId].start()
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
@@ -233,23 +249,26 @@ async def save_text(websocket: WebSocket):
         try:
             while True:
                 data = await websocket.receive_json()
-                cell_type = data.get("cellType")
-                cell_id = data.get("id")
-                app_state.save_queue.put_nowait(
-                    {
-                        "saveCell": request.SaveRequest(
-                            id=cell_id, text=data.get("text"), cellType=cell_type
-                        )
-                    }
-                )
-                if cell_type == "code":
-                    completions = await get_code_completions(
-                        cell_id,
-                        data.get("code_w_context"),
-                        data.get("line"),
-                        data.get("column"),
+                if data.get("type", "") == "ping":
+                    await websocket.send_text("pong")
+                else:
+                    cell_type = data.get("cellType")
+                    cell_id = data.get("id")
+                    app_state.save_queue.put_nowait(
+                        {
+                            "saveCell": request.SaveRequest(
+                                id=cell_id, text=data.get("text"), cellType=cell_type
+                            )
+                        }
                     )
-                    await websocket.send_json(completions)
+                    if cell_type == "code":
+                        completions = await get_code_completions(
+                            cell_id,
+                            data.get("code_w_context"),
+                            data.get("line"),
+                            data.get("column"),
+                        )
+                        await websocket.send_json(completions)
         except WebSocketDisconnect:
             manager.disconnect(websocket)
         finally:
@@ -270,11 +289,14 @@ async def dependency_update_request(websocket: WebSocket):
         try:
             while True:
                 data = await websocket.receive_json()
-                dependencyRequest = request.DependencyRequest(**data)
-                dependencyResponse = await dependency_update(
-                    dependencyRequest, websocket
-                )
-                await websocket.send_json(dependencyResponse.model_dump_json())
+                if data.get("type", "") == "ping":
+                    await websocket.send_text("pong")
+                else:
+                    dependencyRequest = request.DependencyRequest(**data)
+                    dependencyResponse = await dependency_update(
+                        dependencyRequest, websocket
+                    )
+                    await websocket.send_json(dependencyResponse.model_dump_json())
         except WebSocketDisconnect:
             manager.disconnect(websocket)
 
@@ -284,41 +306,55 @@ async def load_notebook(websocket: WebSocket):
     await manager.connect(websocket)
     try:
         while True:
-            await websocket.receive_text()
-            logger.debug("Get notebook request received")
-            notebook_start = get_notebook_request()
-            await websocket.send_json({"notebook_name": notebook_start.notebookName})
-            if app_state.run_mode == "app":
-                userId = str(uuid.uuid4())
-                notebook_start.userId = userId
-                app_state.user_states[userId] = UserState(userId)
-                app_state.user_message_tasks[userId] = asyncio.create_task(
-                    websocket_message_sender(app_state.user_states[userId])
-                )
-                app_state.timer_set(userId, 1800)
-                notebook_response = notebook.NotebookResponse(
-                    notebook=notebook_start,
-                    dependencies=notebook.Dependencies(value=""),
-                )
-                await websocket.send_json(notebook_response.model_dump_json())
-                app_state.user_states[userId].websocket = websocket
-                app_state.user_threads[userId] = KThread(
-                    target=execute_request,
-                    args=(get_request_base(""), app_state.user_states[userId]),
-                )
-                app_state.user_threads[userId].start()
+            data = await websocket.receive_json()
+            if data.get("type", "") == "ping":
+                await websocket.send_text("pong")
             else:
-                try:
-                    start_dependencies = parse_dependencies()
-                    if not check_env(start_dependencies):
-                        await websocket.send_json({"env_stale": True})
+                logger.debug("Get notebook request received")
+                notebook_start = get_notebook_request()
+                await websocket.send_json(
+                    {"notebook_name": notebook_start.notebookName}
+                )
+                if app_state.run_mode == "app":
+                    userId = str(uuid.uuid4())
+                    notebook_start.userId = userId
+                    app_state.user_states[userId] = UserState(userId)
+                    app_state.user_message_tasks[userId] = asyncio.create_task(
+                        websocket_message_sender(app_state.user_states[userId])
+                    )
+                    app_state.timer_set(userId, 1800)
                     notebook_response = notebook.NotebookResponse(
-                        notebook=notebook_start, dependencies=start_dependencies
+                        notebook=notebook_start,
+                        dependencies=notebook.Dependencies(value=""),
                     )
                     await websocket.send_json(notebook_response.model_dump_json())
-                    await websocket.send_json({"complete": True})
-                except FileNotFoundError:
-                    logger.error("Requirements file not found")
+                    app_state.user_states[userId].websocket = websocket
+                    app_state.user_threads[userId] = KThread(
+                        target=execute_request,
+                        args=(get_request_base(""), app_state.user_states[userId]),
+                    )
+                    app_state.user_threads[userId].start()
+                else:
+                    try:
+                        start_dependencies = parse_dependencies()
+                        if not check_env(start_dependencies):
+                            await websocket.send_json({"env_stale": True})
+                        notebook_response = notebook.NotebookResponse(
+                            notebook=notebook_start, dependencies=start_dependencies
+                        )
+                        await websocket.send_json(notebook_response.model_dump_json())
+                        app_state.notebook_state.websocket = websocket
+                        app_state.current_thread = KThread(
+                            target=execute_request,
+                            args=(
+                                get_request_base("initial_cell"),
+                                app_state.notebook_state,
+                            ),
+                        )
+                        app_state.current_thread.start()
+                        await websocket.send_json({"complete": True})
+                    except FileNotFoundError:
+                        logger.error("Requirements file not found")
 
     except WebSocketDisconnect:
         manager.disconnect(websocket)
@@ -329,8 +365,11 @@ async def stop_execution(websocket: WebSocket):
     await manager.connect(websocket)
     try:
         while True:
-            data = await websocket.receive_text()
-            app_state.stop_execution(data)
+            data = await websocket.receive_json()
+            if data.get("type", "") == "ping":
+                await websocket.send_text("pong")
+            else:
+                app_state.stop_execution(data.get("userId"))
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
@@ -375,44 +414,58 @@ def share_notebook(shareRequest: request.ShareRequest):
 def shutdown():
     app_state.shutdown()
 
+
 @router.post("/api/upload_file")
 async def upload_file(file: UploadFile = File(...), path: str = Form(...)):
-    if app_state.run_mode == 'dev':
+    if app_state.run_mode == "dev":
         logger.debug("File upload request started")
-        
+
         # Ensure the path exists
         os.makedirs(path, exist_ok=True)
-        
+
         file_path = os.path.join(path, file.filename)
         with open(file_path, "wb") as buffer:
             buffer.write(await file.read())
-        
+
         logger.debug(f"File upload request completed. File saved to: {file_path}")
         return {"filename": file.filename, "path": file_path}
 
 
 def get_file_type(name):
-    extension = name.split('.')[-1]
-    if extension in ['html', 'js', 'json', 'md', 'pdf', 'png', 'txt', 'xls']:
+    extension = name.split(".")[-1]
+    if extension in ["html", "js", "json", "md", "pdf", "png", "txt", "xls"]:
         return extension
     return None
+
 
 def list_dir(path):
     items = []
     for item in path.iterdir():
         if item.is_dir():
-            items.append({'title': item.name, 'file': 'folder', 'id': item.as_posix(), 'children': []})
+            items.append(
+                {
+                    "title": item.name,
+                    "file": "folder",
+                    "id": item.as_posix(),
+                    "children": [],
+                }
+            )
         else:
             file_type = get_file_type(item.name)
             if file_type:
-                items.append({'title': item.name, 'file': file_type, 'id': item.as_posix()})
+                items.append(
+                    {"title": item.name, "file": file_type, "id": item.as_posix()}
+                )
             else:
-                items.append({'title': item.name, 'file': 'file', 'id': item.as_posix()})
+                items.append(
+                    {"title": item.name, "file": "file", "id": item.as_posix()}
+                )
     return items
+
 
 @router.get("/api/get_files")
 def list_files():
-    path = Path('.')
+    path = Path(".")
     files = list_dir(path)
     return {"files": files}
 

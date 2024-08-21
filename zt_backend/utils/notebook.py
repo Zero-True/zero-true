@@ -114,11 +114,14 @@ def get_notebook_request():
 
 def get_request_base(origin_id, components=None):
     if components is None:
-        return request.Request(
+        base_request = request.Request(
             originId=origin_id,
             cells=copy.deepcopy(notebook_state.base_cells),
             components=copy.deepcopy(notebook_state.base_components),
         )
+        if origin_id == "initial_cell":
+            base_request.reactiveMode = False
+        return base_request
     else:
         return request.Request(
             originId=origin_id,
@@ -198,12 +201,16 @@ def globalStateUpdate(
             )
         if run_request is not None:
             for requestCell in run_request.cells:
+                if requestCell.id == "initial_cell":
+                    continue
                 # zt_notebook.cells[requestCell.id].code = requestCell.code
                 notebook_state.zt_notebook.cells[requestCell.id].variable_name = (
                     requestCell.variable_name
                 )
         if run_response is not None:
             for responseCell in run_response.cells:
+                if responseCell.id == "initial_cell":
+                    continue
                 notebook_state.zt_notebook.cells[responseCell.id].components = (
                     responseCell.components
                 )

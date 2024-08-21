@@ -26,7 +26,7 @@ def deserialize_component(data: Dict[str, Any]) -> ZTComponent:
         "v-rating": Rating,
         "v-text-field":TextInput,
         "v-textarea": TextArea,
-        "v-number-field": NumberInput,
+        "v-number-input": NumberInput,
         "v-range-slider": RangeSlider,
         "v-select": SelectBox,
         "v-btn": Button,

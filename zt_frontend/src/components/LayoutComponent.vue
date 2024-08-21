@@ -55,7 +55,7 @@ import {
   VBtn,
   VImg,
   VAutocomplete,
-  VCard,
+  VCard
 } from "vuetify/lib/components/index.mjs";
 import { VDataTable } from "vuetify/components/VDataTable";
 import { Column, ZTComponent, Row } from "@/types/notebook";
@@ -69,7 +69,6 @@ export default {
     "v-slider": VSlider,
     "v-rating": VRating,
     "v-text-field": VTextField,
-    "v-number-field": VTextField,
     "v-textarea": VTextarea,
     "v-range-slider": VRangeSlider,
     "v-select": VSelect,

@@ -28,7 +28,7 @@ export type Value = number | null;
 /**
  * Placeholder number
  */
-export type Placeholder = number | null;
+export type Placeholder = string | null;
 /**
  * Label for the number input
  */

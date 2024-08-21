@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://zero-true.com/">
-    <img src="https://github.com/Zero-True/zero-true/raw/main/docs/assets/zt_logo.png" width="300">
+    <img src="https://github.com/Zero-True/zero-true/raw/main/mintlify-docs/images/zt_logo.png" width="300">
   </a>
 </p>
 
@@ -74,17 +74,17 @@ Zero-True comes with a variety of features designed to streamline your experienc
   <tr>
     <td>
       <a target="_blank" href="https://docs.zero-true.com/ui_components/index.html">
-        <img src="https://github.com/Zero-True/zero-true/raw/main/docs/assets/zt_ui_component_examples.png" style="max-height:150px; width:1500px; display:block;">
+        <img src="https://github.com/Zero-True/zero-true/raw/main/mintlify-docs/images/zt_ui_component_examples.png" style="max-height:150px; width:1500px; display:block;">
       </a>
     </td>
     <td>
       <a target="_blank" href="https://docs.zero-true.com/cell_types.html">
-        <img src="https://github.com/Zero-True/zero-true/raw/main/docs/assets/zt_cell_types.png" style="max-height:150px; width:1250px; display:block;">
+        <img src="https://github.com/Zero-True/zero-true/raw/main/mintlify-docs/images/zt_cell_types.png" style="max-height:150px; width:1250px; display:block;">
       </a>
     </td>
     <td>
       <a target="_blank" href="https://docs.zero-true.com/ui_components/plotly.html">
-        <img src="https://github.com/Zero-True/zero-true/raw/main/docs/assets/zt_chart_example.png" style="max-height:150px; width:auto; display:block;">
+        <img src="https://github.com/Zero-True/zero-true/raw/main/mintlify-docs/images/zt_chart_example.png" style="max-height:150px; width:auto; display:block;">
       </a>
     </td>
   </tr>

@@ -7,7 +7,7 @@ import pygwalker as pyg
 class HTML(ZTComponent):
     """This is a component is used to render arbitrary HTML"""
     component: str = Field("zt-html", description="Vue component name")
-    v_html: str = Field('', description="HTML content of the component")
+    v_html: str = Field("", description="HTML content of the component")
 
 def pygwalker(id: str, df: pd.DataFrame, width: Union[int, str] = '100%', height: Union[int, str] = 920):
     """Create a PyGWalker component from a pandas DataFrame"""

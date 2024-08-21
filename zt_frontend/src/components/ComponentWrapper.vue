@@ -50,7 +50,7 @@ import {
   VBtn,
   VImg,
   VAutocomplete,
-  VCard,
+  VCard
 } from "vuetify/lib/components/index.mjs";
 import { VDataTable } from "vuetify/components/VDataTable";
 import TextComponent from "@/components/TextComponent.vue";
@@ -61,7 +61,6 @@ export default {
     "v-slider": VSlider,
     "v-rating": VRating,
     "v-text-field": VTextField,
-    "v-number-field": VTextField,
     "v-textarea": VTextarea,
     "v-range-slider": VRangeSlider,
     "v-select": VSelect,
@@ -126,7 +125,7 @@ export default {
         e.key === "Enter" &&
         (component_type === "v-text-field" ||
           component_type === "v-textarea" ||
-          component_type === "v-number-field")
+          component_type === "v-number-input")
       ) {
         this.runCode(true, id, value);
       }
