@@ -102,9 +102,7 @@ def get_parent_vars(
 def execute_request(request: request.Request, state: UserState):
     with UserContext(state) as execution_state:
         logger.debug("Code execution started")
-        # Send Current Running Cell Id to frontend
-        if request.originId:
-            execution_state.message_queue.put_nowait({"cell_executing": request.originId})
+ 
         cell_outputs = []
         execution_state.component_values.update(request.components)
         component_globals = {"global_state": execution_state.component_values}
@@ -146,6 +144,11 @@ def execute_request(request: request.Request, state: UserState):
                 execution_state.message_queue.put_nowait(
                     {"cell_id": code_cell_id, "clear_output": True}
                 )
+            
+            # Only send "cell_executing" for the origin cell or when running all cells
+            if code_cell_id == request.originId or not request.originId:
+                execution_state.message_queue.put_nowait({"cell_executing": code_cell_id})
+
             execution_state.io_output = StringIO()
             execute_cell(
                 code_cell_id,
@@ -185,9 +188,10 @@ def execute_request(request: request.Request, state: UserState):
         execution_state.context_globals["exec_mode"] = False
         execution_response = response.Response(cells=cell_outputs)
         if code_cell_id != "initial_cell":
+            execution_state.message_queue.put_nowait({"cell_executing": ""})
             execution_state.message_queue.put_nowait({"complete": True})
-        if settings.run_mode == "dev":
-            globalStateUpdate(run_response=execution_response, run_request=request)
+        if settings.run_mode=='dev':
+            globalStateUpdate(run_response=execution_response,run_request=request)
 
 
 def execute_cell(

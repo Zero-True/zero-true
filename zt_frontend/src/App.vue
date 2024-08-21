@@ -351,7 +351,7 @@ export default {
       startTime: 0,
       timerInterval: null as ReturnType<typeof setInterval> | null,
       isCodeRunning: false,
-      currentlyExecutingCell: null,
+      currentlyExecutingCell: undefined,
       requestQueue: [] as any[],
       componentChangeQueue: [] as any[],
       drawer: false,

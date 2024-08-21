@@ -21,6 +21,19 @@
             >
               {{ cellNameValue }}
             </h4>
+            <div class="loading-wrapper">
+              <v-progress-circular
+                v-if="cellId == currentlyExecutingCell && isCodeRunning"
+                indeterminate
+                size="24"
+                class="ml-1 mr-2 green-loader"
+              />
+              <span
+                v-if="cellId == currentlyExecutingCell && isCodeRunning"
+                class="running-text"
+                >Running</span
+              >
+            </div>
             <!-- <v-btn
               v-if="isDevMode"
               color="bluegrey-darken-4"
@@ -79,17 +92,6 @@
           }"
         >
           <div class="actions">
-            <div class="loading-wrapper">
-              <v-progress-circular
-                v-if="cellId == currentlyExecutingCell && isCodeRunning"
-                indeterminate
-                size="24"
-                class="mr-2"
-              />
-              <span v-if="cellId == currentlyExecutingCell && isCodeRunning"
-                >Running</span
-              >
-            </div>
             <!-- <v-btn icon="$message"></v-btn> -->
             <v-btn
               v-if="showSaveBtn"
@@ -318,24 +320,18 @@ const props = defineProps({
   },
   cellName: {
     type: String,
-<<<<<<< HEAD
     default: null,
-  },
-});
-=======
-    default: null
   },
 
   currentlyExecutingCell: {
-      type: String,
-      default: null
-    },
-  isCodeRunning:{
-      type: Boolean,
-      default: false
-    },
-})
->>>>>>> 4360e6e (Addrunning cell indication in notebook)
+    type: String,
+    default: null,
+  },
+  isCodeRunning: {
+    type: Boolean,
+    default: false,
+  },
+});
 const emits = defineEmits<{
   (e: "delete"): void;
   (e: "play"): void;
@@ -554,7 +550,14 @@ const saveCellName = async () => {
   .loading-wrapper {
     display: flex;
     align-items: center;
-    margin-right: 8px; /* Adjust as needed */
+    margin-right: 8px;
+  }
+
+  .green-loader {
+    color: rgba(var(--v-theme-success));
+  }
+  .running-text {
+    color: rgba(var(--v-theme-success));
   }
 }
 </style>
