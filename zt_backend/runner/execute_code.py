@@ -140,15 +140,17 @@ def execute_request(request: request.Request, state: UserState):
             code_cell = dependency_graph.cells[code_cell_id]
             if code_cell_id != request.originId and code_cell.nonReactive:
                     continue
-            if code_cell_id != "initial_cell":
-                
-            # Only send "cell_executing" for the origin cell or when running all cells
+            
+             # Only send "cell_executing" for the origin cell or when running all cells
             if code_cell_id == request.originId or not request.originId:
-                execution_state.message_queue.put_nowait({"cell_executing": code_cell_id})
+                    execution_state.message_queue.put_nowait({"cell_executing": code_cell_id})
 
-            execution_state.message_queue.put_nowait(
-                    {"cell_id": code_cell_id, "clear_output": True}
-                )
+            if code_cell_id != "initial_cell":
+                execution_state.message_queue.put_nowait(
+                        {"cell_id": code_cell_id, "clear_output": True}
+                    )
+             
+
             execution_state.io_output = StringIO()
             execute_cell(
                 code_cell_id,
@@ -187,10 +189,11 @@ def execute_request(request: request.Request, state: UserState):
         execution_state.created_components.clear()
         execution_state.context_globals["exec_mode"] = False
         execution_response = response.Response(cells=cell_outputs)
-        if code_cell_id != "initial_cell":
-              #Indicate that no cell is currently executing
+
         execution_state.message_queue.put_nowait({"cell_executing": ""})
-        execution_state.message_queue.put_nowait({"complete": True})
+        if code_cell_id != "initial_cell":
+            execution_state.message_queue.put_nowait({"complete": True})
+       
         if settings.run_mode == "dev":
             globalStateUpdate(run_response=execution_response, run_request=request)
 

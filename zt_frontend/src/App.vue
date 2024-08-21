@@ -621,7 +621,11 @@ export default {
 
     runOnMessage(event: any) {
       const response = JSON.parse(event.data);
-      if (!this.$devMode && response.refresh) {
+      if (response.cell_executing!=undefined) {
+          // Update the UI to show which cell is currently executing
+          this.currentlyExecutingCell = response.cell_executing;
+        } 
+      else if (!this.$devMode && response.refresh) {
         this.notebookRefresh();
       } else if (response.cell_id) {
         if (response.clear_output) {
