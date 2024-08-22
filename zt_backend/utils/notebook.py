@@ -153,6 +153,13 @@ def globalStateUpdate(
     run_request: request.Request = None,
     run_response: response.Response = None,
     new_notebook_name: str = "",
+    add_comment: request.AddCommentRequest = None,
+    delete_comment: request.DeleteCommentRequest = None,
+    edit_comment: request.EditCommentRequest = None,
+    resolve_comment: request.ResolveCommentRequest = None,
+    add_reply: request.AddReplyRequest = None,
+    delete_reply: request.DeleteReplyRequest = None,
+    edit_reply: request.EditReplyRequest = None,
 ):
     logger.debug(
         "Updating state for notebook %s", notebook_state.zt_notebook.notebookId
@@ -222,6 +229,44 @@ def globalStateUpdate(
                 )
         if new_notebook_name:
             notebook_state.zt_notebook.notebookName = new_notebook_name
+        if add_comment is not None:
+            notebook_state.zt_notebook.cells[add_comment.cellId].comments[
+                add_comment.commentId
+            ] = notebook.Comment(
+                id=add_comment.commentId,
+                comment=add_comment.comment,
+                date=add_comment.date,
+            )
+        if delete_comment is not None:
+            del notebook_state.zt_notebook.cells[delete_comment.cellId].comments[
+                delete_comment.commentId
+            ]
+        if edit_comment is not None:
+            notebook_state.zt_notebook.cells[edit_comment.cellId].comments[
+                edit_comment.commentId
+            ].comment = edit_comment.comment
+        if resolve_comment is not None:
+            notebook_state.zt_notebook.cells[resolve_comment.cellId].comments[
+                resolve_comment.commentId
+            ].resolved = resolve_comment.resolved
+        if add_reply is not None:
+            notebook_state.zt_notebook.cells[add_reply.cellId].comments[
+                add_reply.parentCommentId
+            ].replies[add_reply.commentId] = notebook.Comment(
+                id=add_reply.commentId,
+                comment=add_reply.comment,
+                date=add_reply.date,
+            )
+        if delete_reply is not None:
+            del (
+                notebook_state.zt_notebook.cells[delete_reply.cellId]
+                .comments[delete_reply.parentCommentId]
+                .replies[delete_reply.commentId]
+            )
+        if edit_reply is not None:
+            notebook_state.zt_notebook.cells[edit_reply.cellId].comments[
+                edit_reply.parentCommentId
+            ].replies[edit_reply.commentId].comment = edit_reply.comment
         save_notebook()
     except Exception as e:
         logger.error(
@@ -269,7 +314,23 @@ def write_notebook():
                 escaped_code = (
                     cell.code.encode().decode("unicode_escape").replace('"""', "'''")
                 )
-                project_file.write(f'code = """\n{escaped_code}"""\n\n')
+                project_file.write(f'code = """\n{escaped_code}"""\n')
+
+                for comment_id, comment in cell.comments.items():
+                    project_file.write(f"[cells.{cell_id}.comments.{comment_id}]\n")
+                    project_file.write(f'comment = "{comment.comment}"\n')
+                    project_file.write(f'date = "{comment.date}"\n')
+                    project_file.write(f'resolved = "{comment.resolved}"\n')
+
+                    for reply_id, reply in comment.replies.items():
+                        project_file.write(
+                            f"[cells.{cell_id}.comments.{comment_id}.replies.{reply_id}]\n"
+                        )
+                        project_file.write(f'comment = "{reply.comment}"\n')
+                        project_file.write(f'date = "{reply.date}"\n')
+                
+                project_file.write("\n")
+
         os.replace(tmp_uuid_file, "notebook.ztnb")
     except Exception as e:
         logger.error(

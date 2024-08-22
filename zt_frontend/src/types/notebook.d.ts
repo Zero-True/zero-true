@@ -43,6 +43,10 @@ export type Id1 = string;
 export type VariableName1 = string;
 export type Components2 = ZTComponent[];
 export type Celltype = "code" | "markdown" | "text" | "sql";
+export type Id2 = string;
+export type Comment1 = string;
+export type Date = string;
+export type Resolved = boolean;
 export type Userid = string;
 
 export interface Notebook {
@@ -69,6 +73,7 @@ export interface CodeCell {
   layout?: Layout;
   components: Components2;
   cellType: Celltype;
+  comments?: Comments;
   [k: string]: unknown;
 }
 /**
@@ -97,4 +102,18 @@ export interface ZTComponent {
   id: Id1;
   variable_name?: VariableName1;
   [k: string]: unknown;
+}
+export interface Comments {
+  [k: string]: Comment;
+}
+export interface Comment {
+  id: Id2;
+  comment: Comment1;
+  date: Date;
+  replies?: Replies;
+  resolved?: Resolved;
+  [k: string]: unknown;
+}
+export interface Replies {
+  [k: string]: Comment;
 }

@@ -109,7 +109,11 @@
                 </v-list-item>
               </v-list>
             </v-menu>
-            <v-btn v-if="$devMode && !isAppRoute" :icon="`ztIcon:${ztAliases.message}`" @click="showAllComments"></v-btn>
+            <!-- <v-btn
+              v-if="$devMode && !isAppRoute"
+              :icon="`ztIcon:${ztAliases.message}`"
+              @click="showAllComments"
+            ></v-btn> -->
             <ShareComponent v-if="$devMode && !isAppRoute" />
           </div>
         </v-col>
@@ -168,7 +172,7 @@
       </v-container>
       <div :class="['content', 'px-8', 'd-flex', 'justify-center']">
         <div class="content__cells flex-grow-1" transition="slide-x-transition">
-          <CodeCellManager 
+          <CodeCellManager
             :notebook="notebook"
             :completions="completions"
             @runCode="runCode"
@@ -308,8 +312,7 @@ import { globalState } from "@/global_vars";
 import { DependencyRequest } from "./types/dependency_request";
 import SidebarComponent from "@/components/FileExplorer.vue";
 import { WebSocketManager } from "@/websocket_manager";
-
-import { useCommentsStore } from '@/stores/comments'
+import { useCommentsStore } from "@/stores/comments";
 
 export default {
   components: {
@@ -367,13 +370,14 @@ export default {
   },
 
   setup() {
-    const commentsStore  = useCommentsStore()
-    const { showAllComments } = commentsStore;
+    const commentsStore = useCommentsStore();
+    const { showAllComments, loadComments } = commentsStore;
     const { showComments } = storeToRefs(commentsStore);
     return {
       showComments,
+      loadComments,
       showAllComments,
-    }
+    };
   },
 
   beforeMount() {
@@ -633,6 +637,12 @@ export default {
             if (this.notebook.cells[cell_id].cellType === "code") {
               this.completions[cell_id] = [];
             }
+            this.loadComments(
+              this.notebook.cells[cell_id].comments ?? {},
+              cell_id,
+              this.notebook.cells[cell_id].cellType,
+              this.notebook.cells[cell_id].cellName ?? ""
+            );
           }
           this.dependencies = cell_response.dependencies;
         } else {
@@ -1060,9 +1070,11 @@ export default {
   }
 }
 .content {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
   &__comments {
     width: 0;
-    transition: width .15s ease;
+    transition: width 0.15s ease;
     &--show {
       width: 380px;
     }

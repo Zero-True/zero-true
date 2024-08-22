@@ -26,10 +26,6 @@ export type Hint = string | null;
  */
 export type Value = number | null;
 /**
- * Placeholder number
- */
-export type Placeholder = string | null;
-/**
  * Label for the number input
  */
 export type Label = string | null;
@@ -46,6 +42,10 @@ export type Disabled = boolean | null;
  */
 export type Type = string;
 /**
+ * The number to increment or decrement by
+ */
+export type Step = number | null;
+/**
  * Trigger event to send code to the backend
  */
 export type Triggerevent = string;
@@ -59,11 +59,11 @@ export interface NumberInput {
   component?: Component;
   hint?: Hint;
   value?: Value;
-  placeholder?: Placeholder;
   label?: Label;
   readonly?: Readonly;
   disabled?: Disabled;
   type?: Type;
+  step?: Step;
   triggerEvent?: Triggerevent;
   [k: string]: unknown;
 }

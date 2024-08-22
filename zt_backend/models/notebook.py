@@ -1,6 +1,6 @@
 from fastapi import dependencies
 from pydantic import BaseModel, Field, SerializeAsAny, model_validator
-from typing import OrderedDict, List, Dict, Any
+from typing import OrderedDict, List, Dict, Any, ForwardRef
 from uuid import uuid4
 from zt_backend.models.components.zt_component import ZTComponent
 from zt_backend.models.components.slider import Slider
@@ -19,10 +19,13 @@ from zt_backend.models.components.autocomplete import Autocomplete
 from zt_backend.models.components.card import Card
 from zt_backend.models.components.timer import Timer
 
+Comment = ForwardRef("Comment")
+
+
 def deserialize_component(data: Dict[str, Any]) -> ZTComponent:
     component_map = {
         "v-slider": Slider,
-        "v-text-field":TextInput,
+        "v-text-field": TextInput,
         "v-textarea": TextArea,
         "v-number-input": NumberInput,
         "v-range-slider": RangeSlider,
@@ -34,13 +37,14 @@ def deserialize_component(data: Dict[str, Any]) -> ZTComponent:
         "v-autocomplete": Autocomplete,
         "v-card": Card,
         "v-timer": Timer,
-        "plotly-plot": PlotlyComponent
+        "plotly-plot": PlotlyComponent,
         # add other component types here
     }
     component_class = data.get("component")
     if component_class not in component_map:
         raise ValueError(f"Invalid component class: {component_class}")
     return component_map[component_class].model_validate(data)
+
 
 class CodeCell(BaseModel):
     id: str
@@ -55,28 +59,39 @@ class CodeCell(BaseModel):
     variable_name: str = Field("")
     layout: Layout = Field(Layout())
     components: List[SerializeAsAny[ZTComponent]]
-    cellType: str = Field(enum=['code', 'markdown', 'text', 'sql'])
+    cellType: str = Field(enum=["code", "markdown", "text", "sql"])
+    comments: OrderedDict[str, Comment] = Field({})
 
-    @model_validator(mode='before')
+    @model_validator(mode="before")
     def deserialize_components(cls, values):
-        components = values.get('components', [])
-        values['components'] = [deserialize_component(comp) for comp in components]
+        components = values.get("components", [])
+        values["components"] = [deserialize_component(comp) for comp in components]
         return values
-    
+
+
 class Notebook(BaseModel):
     notebookName: str = Field("Zero True")
     notebookId: str = Field(default=str(uuid4()))  # Added notebook UUID
     cells: OrderedDict[str, CodeCell]
     userId: str
 
+
 class Dependency(BaseModel):
     package: str
     version: str = Field("")
 
+
 class Dependencies(BaseModel):
     dependencies: List[Dependency] = Field([])
+
+
+class Comment(BaseModel):
+    id: str
+    comment: str
+    date: str
+    replies: OrderedDict[str, Comment] = Field({})
+    resolved: bool = Field(False)
 
 class NotebookResponse(BaseModel):
     notebook: Notebook
     dependencies: Dependencies
-
