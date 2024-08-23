@@ -8,6 +8,12 @@ import logging
 import traceback
 from zt_backend.config import settings
 
+class CellParseException(Exception):
+    """Custom exception for cell parsing failures."""
+    def __init__(self, message, cell_id=None):
+        self.message = message
+        self.cell_id = cell_id
+        super().__init__(self.message)
 
 logger = logging.getLogger("__name__")
 
@@ -136,7 +142,9 @@ def parse_cells(request: Request) -> CodeDict:
             try:
                 table_names = duckdb.get_table_names(re.sub(r"\{.*?\}", "1", cell.code))
             except Exception as e:
-                print(e)
+                error_message = f"Error in SQL: {str(e)}\n"
+                raise CellParseException(error_message, cell.id)
+            
             uuid_value = str(uuid.uuid4())
             cell.code = generate_sql_code(cell, uuid_value)
 
@@ -167,14 +175,10 @@ def parse_cells(request: Request) -> CodeDict:
                 "Error while parsing cells, returning empty names lists: %s",
                 traceback.format_exc(),
             )
-            cell_dict[cell.id] = Cell(
-                **{
-                    "code": cell.code,
-                    "nonReactive": cell.nonReactive,
-                    "defined_names": [],
-                    "loaded_names": [],
-                }
-            )
+            error_message = f"{str(e)}\n"
+            error_message += "\nSuggestion: Check syntax, indentation, and ensure all delimiters are properly closed."
+            raise CellParseException(error_message, cell.id)
+
 
     return CodeDict(cells=cell_dict)
 
