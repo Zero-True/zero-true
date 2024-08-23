@@ -6,6 +6,7 @@ from zt_backend.runner.code_cell_parser import (
     parse_cells,
     build_dependency_graph,
     CodeDict,
+    CellParseException
 )
 from zt_backend.models.state.user_state import UserState, UserContext
 from zt_backend.models.state.state import State
@@ -108,7 +109,28 @@ def execute_request(request: request.Request, state: UserState):
         component_globals = {"global_state": execution_state.component_values}
         if not request.originId or request.originId == "initial_cell":
             request.cells.insert(0, initial_cell)
-        dependency_graph = build_dependency_graph(parse_cells(request))
+
+        try:
+            dependency_graph = build_dependency_graph(parse_cells(request))
+        except CellParseException as e:
+            # Send parsing error message as cell output
+            error_response = response.CellResponse(
+                id=e.cell_id,
+                layout=Layout(**{}),
+                components=[],
+                output=e.message
+            )
+            if e.cell_id != "initial_cell":
+                execution_state.message_queue.put_nowait(
+                        {"cell_id": e.cell_id, "clear_output": True}                    )
+            execution_state.message_queue.put_nowait(error_response.model_dump_json())
+            execution_state.message_queue.put_nowait(
+                    {"cell_id": e.cell_id, "output": e.message}
+                )
+            execution_state.message_queue.put_nowait({"cell_executing": ""})
+            execution_state.message_queue.put_nowait({"complete": True})   
+            return
+
         if request.originId:
             if request.reactiveMode:
                 downstream_cells = [request.originId] + dependency_graph.cells[
