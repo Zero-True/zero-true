@@ -106,3 +106,48 @@ class ShareRequest(BaseModel):
     projectName: str
     apiKey: str
     teamName: Optional[str] = ""
+
+
+class AddCommentRequest(BaseModel):
+    cellId: str
+    commentId: str
+    comment: str
+    date: str
+
+
+class DeleteCommentRequest(BaseModel):
+    cellId: str
+    commentId: str
+
+
+class EditCommentRequest(BaseModel):
+    cellId: str
+    commentId: str
+    comment: str
+
+
+class ResolveCommentRequest(BaseModel):
+    cellId: str
+    commentId: str
+    resolved: bool
+
+
+class AddReplyRequest(BaseModel):
+    cellId: str
+    parentCommentId: str
+    commentId: str
+    comment: str
+    date: str
+
+
+class DeleteReplyRequest(BaseModel):
+    cellId: str
+    parentCommentId: str
+    commentId: str
+
+
+class EditReplyRequest(BaseModel):
+    cellId: str
+    parentCommentId: str
+    commentId: str
+    comment: str

@@ -410,11 +410,6 @@ def share_notebook(shareRequest: request.ShareRequest):
             )
 
 
-@router.on_event("shutdown")
-def shutdown():
-    app_state.shutdown()
-
-
 @router.post("/api/upload_file")
 async def upload_file(file: UploadFile = File(...), path: str = Form(...)):
     if app_state.run_mode == "dev":
@@ -478,3 +473,43 @@ def list_children(path: str = Query(...)):
 
     items = list_dir(dir_path)
     return {"files": items}
+
+
+@router.post("/api/add_comment")
+def add_comment(comment: request.AddCommentRequest):
+    app_state.save_queue.put_nowait({"add_comment": comment})
+
+
+@router.post("/api/delete_comment")
+def delete_comment(comment: request.DeleteCommentRequest):
+    app_state.save_queue.put_nowait({"delete_comment": comment})
+
+
+@router.post("/api/edit_comment")
+def edit_comment(comment: request.EditCommentRequest):
+    app_state.save_queue.put_nowait({"edit_comment": comment})
+
+
+@router.post("/api/resolve_comment")
+def resolve_comment(comment: request.ResolveCommentRequest):
+    app_state.save_queue.put_nowait({"resolve_comment": comment})
+
+
+@router.post("/api/add_reply")
+def add_reply(reply: request.AddReplyRequest):
+    app_state.save_queue.put_nowait({"add_reply": reply})
+
+
+@router.post("/api/delete_reply")
+def delete_reply(reply: request.DeleteReplyRequest):
+    app_state.save_queue.put_nowait({"delete_reply": reply})
+
+
+@router.post("/api/edit_reply")
+def edit_reply(reply: request.EditReplyRequest):
+    app_state.save_queue.put_nowait({"edit_reply": reply})
+
+
+@router.on_event("shutdown")
+def shutdown():
+    app_state.shutdown()

@@ -109,6 +109,11 @@
                 </v-list-item>
               </v-list>
             </v-menu>
+            <!-- <v-btn
+              v-if="$devMode && !isAppRoute"
+              :icon="`ztIcon:${ztAliases.message}`"
+              @click="showAllComments"
+            ></v-btn> -->
             <ShareComponent v-if="$devMode && !isAppRoute" />
           </div>
         </v-col>
@@ -154,7 +159,7 @@
       @handleFileChange="handleFileChange"
       style="padding-top: 12px; padding-bottom: 12px"
     />
-    <v-main :scrollable="false">
+    <v-main :scrollable="false" class="w-100 mx-auto">
       <v-container v-if="errorMessage">
         <v-alert type="error">
           {{ errorMessage }}
@@ -165,17 +170,31 @@
           Connection to the server has been lost. Please refresh the page.
         </v-alert>
       </v-container>
-      <CodeCellManager
-        :notebook="notebook"
-        :completions="completions"
-        @runCode="runCode"
-        @saveCell="saveCell"
-        @componentValueChange="componentValueChange"
-        @deleteCell="deleteCell"
-        @createCell="createCodeCell"
-        @copilotCompletion="copilotCompletion"
-        @updateTimers="startTimerComponents"
-      />
+      <div :class="['content', 'px-8', 'd-flex', 'justify-center']">
+        <div class="content__cells flex-grow-1" transition="slide-x-transition">
+          <CodeCellManager
+            :notebook="notebook"
+            :completions="completions"
+            @runCode="runCode"
+            @saveCell="saveCell"
+            @componentValueChange="componentValueChange"
+            @deleteCell="deleteCell"
+            @createCell="createCodeCell"
+            @copilotCompletion="copilotCompletion"
+            @updateTimers="startTimerComponents"
+          />
+        </div>
+        <div
+          :class="[
+            'content__comments',
+            {
+              'content__comments--show': showComments,
+            },
+          ]"
+        >
+          <Comments />
+        </div>
+      </div>
     </v-main>
     <v-footer
       app
@@ -282,6 +301,7 @@ import MarkdownComponent from "@/components/MarkdownComponent.vue";
 import EditorComponent from "@/components/EditorComponent.vue";
 import SQLComponent from "@/components/SQLComponent.vue";
 import PackageComponent from "@/components/PackageComponent.vue";
+import Comments from "@/components/comments/Comments.vue";
 import CodeCellManager from "./components/CodeCellManager.vue";
 import CopilotComponent from "./components/CopilotComponent.vue";
 import ShareComponent from "./components/ShareComponent.vue";
@@ -292,6 +312,7 @@ import { globalState } from "@/global_vars";
 import { DependencyRequest } from "./types/dependency_request";
 import SidebarComponent from "@/components/FileExplorer.vue";
 import { WebSocketManager } from "@/websocket_manager";
+import { useCommentsStore } from "@/stores/comments";
 
 export default {
   components: {
@@ -304,6 +325,7 @@ export default {
     CopilotComponent,
     ShareComponent,
     SidebarComponent,
+    Comments,
   },
 
   data() {
@@ -335,6 +357,7 @@ export default {
       items: [] as any[],
       openFolders: [],
       reactiveMode: true,
+      showComments: false,
       concatenatedCodeCache: {
         lastCellId: "" as string,
         code: "" as string,
@@ -343,6 +366,17 @@ export default {
       },
       dependencyOutput: { output: "", isLoading: false } as DependencyOutput,
       ztAliases,
+    };
+  },
+
+  setup() {
+    const commentsStore = useCommentsStore();
+    const { showAllComments, loadComments } = commentsStore;
+    const { showComments } = storeToRefs(commentsStore);
+    return {
+      showComments,
+      loadComments,
+      showAllComments,
     };
   },
 
@@ -603,6 +637,12 @@ export default {
             if (this.notebook.cells[cell_id].cellType === "code") {
               this.completions[cell_id] = [];
             }
+            this.loadComments(
+              this.notebook.cells[cell_id].comments ?? {},
+              cell_id,
+              this.notebook.cells[cell_id].cellType,
+              this.notebook.cells[cell_id].cellName ?? ""
+            );
           }
           this.dependencies = cell_response.dependencies;
         } else {
@@ -1027,6 +1067,17 @@ export default {
 
   @include xl {
     max-width: 600px;
+  }
+}
+.content {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  &__comments {
+    width: 0;
+    transition: width 0.15s ease;
+    &--show {
+      width: 380px;
+    }
   }
 }
 .footer {

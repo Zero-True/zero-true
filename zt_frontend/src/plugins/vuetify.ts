@@ -20,7 +20,8 @@ export default createVuetify({
     },
     VBtn: {
       style:[{ 'text-transform': 'capitalize' }],
-      color: 'bluegrey-darken-2'
+      color: 'bluegrey-darken-2',
+      class: [ 'text-bluegrey-darken-1']
     },
     VBtnToggle: {
       density: 'comfortable',
@@ -28,6 +29,9 @@ export default createVuetify({
         style: [{ borderRadius: 'inherit' }],
         class: [ 'text-bluegrey-darken-1']
       }
+    },
+    VCard: {
+      color: "bluegrey-darken-4"
     },
     VDivider: {
       class: 'border-opacity-100'
@@ -46,6 +50,9 @@ export default createVuetify({
 			density:'compact',
 			hideDetails: true,
 		},
+    VTextarea: {
+      bgColor: 'bluegrey-darken-3'
+    }
   },
   theme: {
     defaultTheme: "dark",
