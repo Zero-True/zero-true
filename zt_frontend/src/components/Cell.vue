@@ -15,12 +15,6 @@
       <header class="header" v-if="isDevMode">
         <div class="click-edit" v-if="keepCodeInAppModel">
           <div class="click-edit__show-text" v-if="!editingCellName">
-            <h4
-              class="text-bluegrey-darken-1 text-ellipsis click-edit__name"
-              @click="toggleCellName"
-            >
-              {{ cellNameValue }}
-            </h4>
             <div class="loading-wrapper">
               <v-progress-circular
                 v-if="cellId == currentlyExecutingCell && isCodeRunning"
@@ -28,12 +22,14 @@
                 size="24"
                 class="ml-1 mr-2 green-loader"
               />
-              <span
-                v-if="cellId == currentlyExecutingCell && isCodeRunning"
-                class="running-text"
-                >Running</span
-              >
             </div>
+            <h4
+              class="text-bluegrey-darken-1 text-ellipsis click-edit__name"
+              @click="toggleCellName"
+            >
+              {{ cellNameValue }}
+            </h4>
+
             <!-- <v-btn
               v-if="isDevMode"
               color="bluegrey-darken-4"
@@ -554,9 +550,6 @@ const saveCellName = async () => {
   }
 
   .green-loader {
-    color: rgba(var(--v-theme-success));
-  }
-  .running-text {
     color: rgba(var(--v-theme-success));
   }
 }
