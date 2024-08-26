@@ -142,11 +142,6 @@ def execute_request(request: request.Request, state: UserState):
                 continue
             if code_cell_id != "initial_cell":
                 execution_state.message_queue.put_nowait(
-                    {"cell_id": code_cell_id, "clear_output": True}
-                )
-
-            if code_cell_id != "initial_cell":
-                execution_state.message_queue.put_nowait(
                     {"cell_executing": code_cell_id}
                 )
                 execution_state.message_queue.put_nowait(
