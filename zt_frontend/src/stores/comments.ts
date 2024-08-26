@@ -57,6 +57,7 @@ export const useCommentsStore = defineStore("comments", () => {
 
   // Getters
   const displayedComments = computed(() => {
+    editorAvailable.value = true;
     if (!selectedCell.value) return allComments.value;
     const result = allComments.value.filter(
       (c) => c.cell.cellId === selectedCell.value?.cellId
