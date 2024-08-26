@@ -20,7 +20,7 @@
     "@types/plotly.js-basic-dist": "^1.54.2",
     "@types/plotly.js-dist-min": "^2.3.4",
     "@types/uuid": "^10.0.0",
-    "axios": "^1.5.0",
+    "axios": "^1.7.4",
     "codemirror": "^6.0.1",
     "codemirror-extension-inline-suggestion": "^0.0.1",
     "json-schema-to-typescript": "^13.1.1",
