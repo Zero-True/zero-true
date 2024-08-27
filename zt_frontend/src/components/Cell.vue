@@ -15,12 +15,21 @@
       <header class="header" v-if="isDevMode">
         <div class="click-edit" v-if="keepCodeInAppModel">
           <div class="click-edit__show-text" v-if="!editingCellName">
+            <div class="loading-wrapper">
+              <v-progress-circular
+                v-if="cellId == currentlyExecutingCell && isCodeRunning"
+                indeterminate
+                size="24"
+                class="ml-1 mr-2 green-loader"
+              />
+            </div>
             <h4
               class="text-bluegrey-darken-1 text-ellipsis click-edit__name"
               @click="toggleCellName"
             >
               {{ cellNameValue }}
             </h4>
+
             <!-- <v-btn
               v-if="isDevMode"
               color="bluegrey-darken-4"
@@ -79,6 +88,7 @@
           }"
         >
           <div class="actions">
+            <!-- <v-btn icon="$message"></v-btn> -->
             <v-btn
               v-if="showSaveBtn"
               :icon="`ztIcon:${ztAliases.save}`"
@@ -308,6 +318,15 @@ const props = defineProps({
     type: String,
     default: null,
   },
+
+  currentlyExecutingCell: {
+    type: String,
+    default: null,
+  },
+  isCodeRunning: {
+    type: Boolean,
+    default: false,
+  },
 });
 const emits = defineEmits<{
   (e: "delete"): void;
@@ -518,6 +537,20 @@ const saveCellName = async () => {
       font-size: 1rem;
       letter-spacing: normal;
     }
+  }
+  .actions {
+    display: flex;
+    align-items: center;
+  }
+
+  .loading-wrapper {
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
+  }
+
+  .green-loader {
+    color: rgba(var(--v-theme-success));
   }
 }
 </style>

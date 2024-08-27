@@ -175,6 +175,8 @@
           <CodeCellManager
             :notebook="notebook"
             :completions="completions"
+            :currentlyExecutingCell="currentlyExecutingCell"
+            :isCodeRunning="isCodeRunning"
             @runCode="runCode"
             @saveCell="saveCell"
             @componentValueChange="componentValueChange"
@@ -260,10 +262,10 @@
           </div>
           <div
             v-if="!isCodeRunning"
-            class="footer__status footer__status--error"
+            class="footer__status footer__status--connected"
           >
             <v-icon :icon="`ztIcon:${ztAliases.status}`" />
-            <span>Stopped</span>
+            <span>Connected</span>
           </div>
           <v-btn
             v-if="isCodeRunning"
@@ -349,6 +351,7 @@ export default {
       startTime: 0,
       timerInterval: null as ReturnType<typeof setInterval> | null,
       isCodeRunning: false,
+      currentlyExecutingCell: "",
       requestQueue: [] as any[],
       componentChangeQueue: [] as any[],
       drawer: false,
@@ -658,7 +661,9 @@ export default {
 
     runOnMessage(event: any) {
       const response = JSON.parse(event.data);
-      if (!this.$devMode && response.refresh) {
+      if (response.cell_executing) {
+        this.currentlyExecutingCell = response.cell_executing;
+      } else if (!this.$devMode && response.refresh) {
         this.notebookRefresh();
       } else if (response.cell_id) {
         if (response.clear_output) {
@@ -1180,6 +1185,9 @@ export default {
     color: rgba(var(--v-theme-success));
     &--error {
       color: rgba(var(--v-theme-error));
+    }
+    &--connected {
+      color: rgba(var(--v-theme-info)); // Added css for connected status
     }
   }
   @include md {

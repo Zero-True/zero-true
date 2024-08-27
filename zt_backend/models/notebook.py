@@ -4,6 +4,7 @@ from typing import OrderedDict, List, Dict, Any, ForwardRef
 from uuid import uuid4
 from zt_backend.models.components.zt_component import ZTComponent
 from zt_backend.models.components.slider import Slider
+from zt_backend.models.components.rating import Rating
 from zt_backend.models.components.text_input import TextInput
 from zt_backend.models.components.text_area_input import TextArea
 from zt_backend.models.components.range_slider import RangeSlider
@@ -25,6 +26,7 @@ Comment = ForwardRef("Comment")
 def deserialize_component(data: Dict[str, Any]) -> ZTComponent:
     component_map = {
         "v-slider": Slider,
+        "v-rating": Rating,
         "v-text-field": TextInput,
         "v-textarea": TextArea,
         "v-number-input": NumberInput,
@@ -91,6 +93,7 @@ class Comment(BaseModel):
     date: str
     replies: OrderedDict[str, Comment] = Field({})
     resolved: bool = Field(False)
+
 
 class NotebookResponse(BaseModel):
     notebook: Notebook
