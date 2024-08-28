@@ -1,6 +1,8 @@
 from pydantic import BaseModel, Field
 from typing import List, Dict, Optional, Union
 from zt_backend.models.notebook import Dependencies
+from typing import Literal
+
 
 
 class CodeRequest(BaseModel):
@@ -152,3 +154,17 @@ class EditReplyRequest(BaseModel):
     parentCommentId: str
     commentId: str
     comment: str
+
+class CreateItemRequest(BaseModel):
+    path: str
+    name: str
+    type: Literal["file", "folder"]
+
+class RenameItemRequest(BaseModel):
+    path: str
+    oldName: str
+    newName: str
+
+class DeleteItemRequest(BaseModel):
+    path: str
+    name: str
