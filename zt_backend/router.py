@@ -1,4 +1,5 @@
 import subprocess
+import shutil
 from fastapi import (
     APIRouter,
     WebSocket,
@@ -7,6 +8,7 @@ from fastapi import (
     UploadFile,
     File,
     Form,
+    HTTPException
 )
 from zt_backend.models import notebook
 from zt_backend.models.api import request
@@ -425,7 +427,91 @@ async def upload_file(file: UploadFile = File(...), path: str = Form(...)):
         logger.debug(f"File upload request completed. File saved to: {file_path}")
         return {"filename": file.filename, "path": file_path}
 
+@router.post("/api/create_item")
+def create_item(item: request.CreateItemRequest):
+    try:
+        full_path = Path(item.path) / item.name
 
+        if full_path.exists():
+            raise HTTPException(status_code=400, detail="Item already exists")
+
+        if item.type == "folder":
+            full_path.mkdir(parents=True, exist_ok=True)
+        elif item.type == "file":
+            full_path.touch()
+        else:
+            raise HTTPException(status_code=400, detail="Invalid item type")
+
+        return {"success": True, "message": f"{item.type.capitalize()} created successfully", "path": str(full_path)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create {item.type}: {str(e)}")
+
+
+@router.post("/api/rename_item")
+def rename_item(rename_request: request.RenameItemRequest):
+    try:
+        old_path = Path(rename_request.path) / rename_request.oldName
+        new_path = Path(rename_request.path) / rename_request.newName.strip()
+
+        if not old_path.exists():
+            raise HTTPException(status_code=404, detail="Item not found")
+
+        if old_path == new_path:
+            return {
+                "success": True,
+                "message": f"Item renamed successfully (no change in name)",
+                "oldPath": str(old_path),
+                "newPath": str(new_path)
+            }
+
+        if new_path.exists():
+            raise HTTPException(status_code=400, detail="An item with the new name already exists")
+
+        os.rename(old_path, new_path)
+
+        return {
+            "success": True,
+            "message": f"Item renamed successfully from {rename_request.oldName} to {rename_request.newName}",
+            "oldPath": str(old_path),
+            "newPath": str(new_path)
+        }
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="Permission denied. Unable to rename the item.")
+    except OSError as e:
+        raise HTTPException(status_code=500, detail=f"System error: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
+
+
+@router.post("/api/delete_item")
+def delete_item(delete_request: request.DeleteItemRequest):
+    try:
+        item_path = Path(delete_request.path) / delete_request.name
+
+        if not item_path.exists():
+            raise HTTPException(status_code=404, detail="Item not found")
+
+        if item_path.is_file():
+            os.remove(item_path)
+        elif item_path.is_dir():
+            if any(item_path.iterdir()):
+                raise HTTPException(status_code=400, detail="Cannot delete non-empty directory")
+            os.rmdir(item_path)
+        else:
+            raise HTTPException(status_code=400, detail="Invalid item type")
+
+        return {
+            "success": True,
+            "message": f"Item '{delete_request.name}' deleted successfully",
+            "deletedPath": str(item_path)
+        }
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="Permission denied. Unable to delete the item.")
+    except OSError as e:
+        raise HTTPException(status_code=500, detail=f"System error: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
+    
 def get_file_type(name):
     extension = name.split(".")[-1]
     if extension in ["html", "js", "json", "md", "pdf", "png", "txt", "xls"]:
