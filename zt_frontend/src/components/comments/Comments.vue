@@ -42,8 +42,20 @@
           color="primary"
           rounded="pill"
         >
-          <v-btn :value="false" class="mr-4">Open</v-btn>
-          <v-btn :value="true" class="mr-4">Resolved</v-btn>
+          <v-btn
+            :value="false"
+            class="mr-4"
+            :disabled="!resolvedMode"
+            @click="commentsStore.editorAvailable = true"
+            >Open</v-btn
+          >
+          <v-btn
+            :value="true"
+            :disabled="resolvedMode"
+            class="mr-4"
+            @click="displayAddCommentTextarea = false"
+            >Resolved</v-btn
+          >
         </v-btn-toggle>
       </div>
       <div class="mt-6 flex-1-1">

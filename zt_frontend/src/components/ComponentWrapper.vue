@@ -122,7 +122,7 @@ export default {
     handleEnterPress(e: any, id: string, component_type: any, value: any) {
       // Run code when Enter is pressed in a text, number or text are field
       if (
-        e.key === "Enter" &&
+        e.key === "Enter" && !e.shiftKey &&
         (component_type === "v-text-field" ||
           component_type === "v-textarea" ||
           component_type === "v-number-input")
