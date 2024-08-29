@@ -11,13 +11,6 @@ from zt_backend.config import settings
 
 logger = logging.getLogger("__name__")
 
-class CellParseException(Exception):
-    """Custom exception for cell parsing failures."""
-    def __init__(self, message, cell_id=None):
-        self.message = message
-        self.cell_id = cell_id
-        super().__init__(self.message)
-
 
 def get_imports(module) -> List[str]:
     import_froms = [
@@ -137,14 +130,14 @@ def generate_sql_code(cell, uuid_value, db_file="zt_db.db"):
 def parse_cells(request: Request) -> CodeDict:
     cell_dict = {}
     all_imports = []
+    parse_exceptions = {}
     for cell in [c for c in request.cells if c.cellType in ["code", "sql"]]:
         table_names = []
         if cell.cellType == "sql" and cell.code:
             try:
                 table_names = duckdb.get_table_names(re.sub(r"\{.*?\}", "1", cell.code))
             except Exception as e:
-                error_message = f"Error in SQL: {str(e)}\n"
-                raise CellParseException(error_message, cell.id)
+                logger.error("Error getting table names: %s", traceback.format_exc())
             uuid_value = str(uuid.uuid4())
             cell.code = generate_sql_code(cell, uuid_value)
 
@@ -171,16 +164,17 @@ def parse_cells(request: Request) -> CodeDict:
                 }
             )
         except Exception as e:
-            logger.error(
-                "Error while parsing cells, returning empty names lists: %s",
-                traceback.format_exc(),
+            parse_exceptions[cell.id] = str(e)
+            cell_dict[cell.id] = Cell(
+                **{
+                    "code": cell.code,
+                    "nonReactive": cell.nonReactive,
+                    "defined_names": [],
+                    "loaded_names": [],
+                }
             )
-            error_message = f"{str(e)}\n"
-            error_message += "\nSuggestion: Check syntax, indentation, and ensure all delimiters are properly closed."
-            raise CellParseException(error_message, cell.id)
 
-
-    return CodeDict(cells=cell_dict)
+    return CodeDict(cells=cell_dict, exceptions=parse_exceptions)
 
 
 def build_dependency_graph(

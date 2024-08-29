@@ -6,7 +6,6 @@ from zt_backend.runner.code_cell_parser import (
     parse_cells,
     build_dependency_graph,
     CodeDict,
-    CellParseException
 )
 from zt_backend.models.state.user_state import UserState, UserContext
 from zt_backend.models.state.state import State
@@ -110,26 +109,7 @@ def execute_request(request: request.Request, state: UserState):
         if not request.originId or request.originId == "initial_cell":
             request.cells.insert(0, initial_cell)
 
-        try:
-            dependency_graph = build_dependency_graph(parse_cells(request))
-        except CellParseException as e:
-            # Send parsing error message as cell output
-            error_response = response.CellResponse(
-                id=e.cell_id,
-                layout=Layout(**{}),
-                components=[],
-                output=e.message
-            )
-            if e.cell_id != "initial_cell":
-                execution_state.message_queue.put_nowait(
-                        {"cell_id": e.cell_id, "clear_output": True}                    )
-            execution_state.message_queue.put_nowait(error_response.model_dump_json())
-            execution_state.message_queue.put_nowait(
-                    {"cell_id": e.cell_id, "output": e.message}
-                )
-            execution_state.message_queue.put_nowait({"cell_executing": ""})
-            execution_state.message_queue.put_nowait({"complete": True})   
-            return
+        dependency_graph = build_dependency_graph(parse_cells(request))
 
         if request.originId:
             if request.reactiveMode:
@@ -163,6 +143,13 @@ def execute_request(request: request.Request, state: UserState):
             if code_cell_id != request.originId and code_cell.nonReactive:
                 continue
             if code_cell_id != "initial_cell":
+                if dependency_graph.exceptions.get(code_cell_id, None):
+                    execution_state.message_queue.put_nowait(
+                        {
+                            "cell_id": code_cell_id,
+                            "exception": dependency_graph.exceptions.get(code_cell_id),
+                        }
+                    )
                 execution_state.message_queue.put_nowait(
                     {"cell_executing": code_cell_id}
                 )
@@ -208,9 +195,8 @@ def execute_request(request: request.Request, state: UserState):
         execution_state.created_components.clear()
         execution_state.context_globals["exec_mode"] = False
         execution_response = response.Response(cells=cell_outputs)
-        if code_cell_id != "initial_cell":
-            execution_state.message_queue.put_nowait({"cell_executing": ""})
-            execution_state.message_queue.put_nowait({"complete": True})
+        execution_state.message_queue.put_nowait({"cell_executing": ""})
+        execution_state.message_queue.put_nowait({"complete": True})
         if settings.run_mode == "dev":
             globalStateUpdate(run_response=execution_response, run_request=request)
 

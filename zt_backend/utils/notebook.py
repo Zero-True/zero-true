@@ -58,7 +58,34 @@ def get_notebook(id=""):
             "notebookName": toml_data.get("notebookName", "Zero True"),
             "userId": "",
             "cells": {
-                cell_id: notebook.CodeCell(id=cell_id, **cell_data, output="")
+                cell_id: notebook.CodeCell(
+                    id=cell_id,
+                    **{
+                        cell_key: cell_value
+                        for cell_key, cell_value in cell_data.items()
+                        if cell_key != "comments"
+                    },
+                    output="",
+                    comments={
+                        comment_id: notebook.Comment(
+                            id=comment_id,
+                            **{
+                                comment_key: comment_value
+                                for comment_key, comment_value in comment_data.items()
+                                if comment_key != "replies"
+                            },
+                            replies={
+                                reply_id: notebook.Comment(id=reply_id, **reply_data)
+                                for reply_id, reply_data in comment_data.get(
+                                    "replies", {}
+                                ).items()
+                            },
+                        )
+                        for comment_id, comment_data in cell_data.get(
+                            "comments", {}
+                        ).items()
+                    },
+                )
                 for cell_id, cell_data in toml_data["cells"].items()
             },
         }
@@ -328,7 +355,7 @@ def write_notebook():
                         )
                         project_file.write(f'comment = "{reply.comment}"\n')
                         project_file.write(f'date = "{reply.date}"\n')
-                
+
                 project_file.write("\n")
 
         os.replace(tmp_uuid_file, "notebook.ztnb")
