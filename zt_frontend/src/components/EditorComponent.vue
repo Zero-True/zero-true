@@ -26,6 +26,12 @@ import "tinymce/themes/silver";
 import "tinymce/icons/default";
 import "tinymce/skins/ui/tinymce-5-dark/skin.css";
 import "tinymce/plugins/autoresize";
+import "tinymce/plugins/advlist";
+import "tinymce/plugins/autolink";
+import "tinymce/plugins/lists";
+import "tinymce/plugins/link";
+import "tinymce/plugins/table";
+import "tinymce/plugins/image";
 import Editor from "@tinymce/tinymce-vue";
 import { CodeCell } from "@/types/notebook";
 import { useRoute } from "vue-router";
@@ -47,9 +53,9 @@ export default {
   data() {
       return {
         init: {
-          plugins: "autoresize",
+          plugins: "autoresize advlist autolink lists link image table",
           toolbar:
-            "undo redo | bold italic underline strikethrough | fontfamily fontsize blocks | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl",
+            "undo redo | bold italic underline strikethrough | fontfamily fontsize blocks | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample table | ltr rtl",
           branding: false,
           menubar: false,
           statusbar: false,
