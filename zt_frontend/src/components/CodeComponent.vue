@@ -7,6 +7,8 @@
     :expand-code="(cellData.expandCode as boolean)"
     :non-reactive="(cellData.nonReactive as boolean)"
     :cell-name="(cellData.cellName as string)"
+    :currentlyExecutingCell="currentlyExecutingCell"
+    :isCodeRunning="isCodeRunning"
     :is-dev-mode="$devMode && !isAppRoute && !isMobile"
     @play="runCode(false, '', '')" 
     @delete="deleteCell"
@@ -96,6 +98,7 @@ import { Prec, EditorState } from "@codemirror/state";
 import { autocompletion, acceptCompletion, CompletionResult, CompletionContext } from '@codemirror/autocomplete'
 import {
   VSlider,
+  VRating,
   VTextField,
   VTextarea,
   VRangeSlider,
@@ -122,6 +125,7 @@ export default {
     "cell": Cell,
     "codemirror": Codemirror,
     "v-slider": VSlider,
+    "v-rating": VRating,
     "v-text-field": VTextField,
     "v-textarea": VTextarea,
     "v-range-slider": VRangeSlider,
@@ -145,7 +149,15 @@ export default {
     completions: {
       type: Object as PropType<any[]>,
       required: true
-    }
+    },
+     currentlyExecutingCell: {
+      type: String,
+      default: null
+    },
+     isCodeRunning:{
+      type: Boolean,
+      default: false
+    },
   },
   inheritAttrs: false,
   emits: ['componentValueChange','runCode','deleteCell', 'createCell', 'saveCell', 'copilotCompletion', 'updateTimers'],
