@@ -89,6 +89,7 @@
     </div>
     <div class="text-box" v-if="showReplyBox">
       <CommentTextarea
+        v-if="!comment.resolved"
         v-model="newCommentText"
         :is-saving="savingReply"
         @cancel="

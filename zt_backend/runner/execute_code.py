@@ -195,7 +195,7 @@ def execute_request(request: request.Request, state: UserState):
         execution_state.created_components.clear()
         execution_state.context_globals["exec_mode"] = False
         execution_response = response.Response(cells=cell_outputs)
-        if code_cell_id != "initial_cell": 
+        if code_cell_id != "initial_cell":
             execution_state.message_queue.put_nowait({"cell_executing": ""})
             execution_state.message_queue.put_nowait({"complete": True})
         if settings.run_mode == "dev":
