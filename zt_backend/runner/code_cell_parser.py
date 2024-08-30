@@ -130,13 +130,14 @@ def generate_sql_code(cell, uuid_value, db_file="zt_db.db"):
 def parse_cells(request: Request) -> CodeDict:
     cell_dict = {}
     all_imports = []
+    parse_exceptions = {}
     for cell in [c for c in request.cells if c.cellType in ["code", "sql"]]:
         table_names = []
         if cell.cellType == "sql" and cell.code:
             try:
                 table_names = duckdb.get_table_names(re.sub(r"\{.*?\}", "1", cell.code))
             except Exception as e:
-                print(e)
+                logger.error("Error getting table names: %s", traceback.format_exc())
             uuid_value = str(uuid.uuid4())
             cell.code = generate_sql_code(cell, uuid_value)
 
@@ -163,10 +164,7 @@ def parse_cells(request: Request) -> CodeDict:
                 }
             )
         except Exception as e:
-            logger.error(
-                "Error while parsing cells, returning empty names lists: %s",
-                traceback.format_exc(),
-            )
+            parse_exceptions[cell.id] = str(e)
             cell_dict[cell.id] = Cell(
                 **{
                     "code": cell.code,
@@ -176,7 +174,7 @@ def parse_cells(request: Request) -> CodeDict:
                 }
             )
 
-    return CodeDict(cells=cell_dict)
+    return CodeDict(cells=cell_dict, exceptions=parse_exceptions)
 
 
 def build_dependency_graph(

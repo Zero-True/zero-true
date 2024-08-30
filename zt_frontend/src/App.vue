@@ -620,11 +620,18 @@ export default {
       } else if (response.cell_id) {
         if (response.clear_output) {
           this.notebook.cells[response.cell_id].output = "";
+        } else if (response.exception) {
+          console.log(response.exception);
         } else {
           this.notebook.cells[response.cell_id].output = this.notebook.cells[
             response.cell_id
           ].output.concat(response.output);
         }
+      } else if (
+        response.cell_executing !== undefined &&
+        response.cell_executing !== null
+      ) {
+        this.currentlyExecutingCell = response.cell_executing;
       } else if (response.env_stale) {
         this.errorMessage =
           "Some dependencies are not installed in the current environment. Open dependency manager to install missing dependencies";
@@ -661,13 +668,18 @@ export default {
 
     runOnMessage(event: any) {
       const response = JSON.parse(event.data);
-      if (response.cell_executing) {
+      if (
+        response.cell_executing !== undefined &&
+        response.cell_executing !== null
+      ) {
         this.currentlyExecutingCell = response.cell_executing;
       } else if (!this.$devMode && response.refresh) {
         this.notebookRefresh();
       } else if (response.cell_id) {
         if (response.clear_output) {
           this.notebook.cells[response.cell_id].output = "";
+        } else if (response.exception) {
+          console.log(response.exception);
         } else {
           this.notebook.cells[response.cell_id].output = this.notebook.cells[
             response.cell_id

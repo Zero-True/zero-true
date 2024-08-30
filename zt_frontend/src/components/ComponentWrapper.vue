@@ -50,7 +50,7 @@ import {
   VBtn,
   VImg,
   VAutocomplete,
-  VCard
+  VCard,
 } from "vuetify/lib/components/index.mjs";
 import { VDataTable } from "vuetify/components/VDataTable";
 import TextComponent from "@/components/TextComponent.vue";
@@ -123,6 +123,7 @@ export default {
       // Run code when Enter is pressed in a text, number or text are field
       if (
         e.key === "Enter" &&
+        !e.shiftKey &&
         (component_type === "v-text-field" ||
           component_type === "v-textarea" ||
           component_type === "v-number-input")

@@ -33,6 +33,7 @@ class Cell(BaseModel):
 
 class CodeDict(BaseModel):
     cells: Dict[str, Cell]
+    exceptions: Dict[str, str]
 
 
 class ComponentRequest(BaseModel):

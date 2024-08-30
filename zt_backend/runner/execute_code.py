@@ -108,7 +108,9 @@ def execute_request(request: request.Request, state: UserState):
         component_globals = {"global_state": execution_state.component_values}
         if not request.originId or request.originId == "initial_cell":
             request.cells.insert(0, initial_cell)
+
         dependency_graph = build_dependency_graph(parse_cells(request))
+
         if request.originId:
             if request.reactiveMode:
                 downstream_cells = [request.originId] + dependency_graph.cells[
@@ -141,6 +143,13 @@ def execute_request(request: request.Request, state: UserState):
             if code_cell_id != request.originId and code_cell.nonReactive:
                 continue
             if code_cell_id != "initial_cell":
+                if dependency_graph.exceptions.get(code_cell_id, None):
+                    execution_state.message_queue.put_nowait(
+                        {
+                            "cell_id": code_cell_id,
+                            "exception": dependency_graph.exceptions.get(code_cell_id),
+                        }
+                    )
                 execution_state.message_queue.put_nowait(
                     {"cell_executing": code_cell_id}
                 )
