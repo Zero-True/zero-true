@@ -17,6 +17,7 @@
       :is="getComponent(codeCell.cellType)"
       :cellData="codeCell"
       :completions="completions[codeCell.id]"
+      :lintResults="lintResults[codeCell.id] || []"
       :currentlyExecutingCell="currentlyExecutingCell"
       :isCodeRunning="isCodeRunning"
       @runCode="runCode"
@@ -62,6 +63,10 @@ export default {
       required: true,
     },
     completions: {
+      type: Object as PropType<{ [key: string]: string[] }>,
+      required: true,
+    },
+    lintResults: {
       type: Object as PropType<{ [key: string]: string[] }>,
       required: true,
     },

@@ -174,6 +174,7 @@
         <div class="content__cells flex-grow-1" transition="slide-x-transition">
           <CodeCellManager
             :notebook="notebook"
+            :lintResults="lintResults"
             :completions="completions"
             :currentlyExecutingCell="currentlyExecutingCell"
             :isCodeRunning="isCodeRunning"
@@ -339,6 +340,7 @@ export default {
       notebookEditName: "",
       dependencies: {} as Dependencies,
       completions: {} as { [key: string]: any[] },
+      lintResults: {} as { [key: string]: any[] },
       ws_url: "",
       pythonVersion: "",
       ztVersion: "",
@@ -646,6 +648,7 @@ export default {
           for (let cell_id in this.notebook.cells) {
             if (this.notebook.cells[cell_id].cellType === "code") {
               this.completions[cell_id] = [];
+              this.lintResults[cell_id] = [];
             }
             this.loadComments(
               this.notebook.cells[cell_id].comments ?? {},
@@ -714,9 +717,17 @@ export default {
       try {
         const data = JSON.parse(event.data);
         // Assuming data is an array of completion objects
-        this.completions[data.cell_id] = Array.isArray(data.completions)
-          ? data.completions
-          : [];
+        if (data.cell_id) {
+          // Update completions
+          this.completions[data.cell_id] = Array.isArray(data.completions)
+            ? data.completions
+            : [];
+          
+           // Update lint results
+            this.lintResults[data.cell_id] = Array.isArray(data.lint_results)
+              ? data.lint_results
+              : [];
+              }
       } catch (error) {
         console.error("Error parsing server message:", error);
       }
@@ -835,6 +846,7 @@ export default {
       }
       if (cell.cellType === "code") {
         this.completions[cell.id] = [];
+        this.lintResults[cell.id] = [];
       }
       this.notebook.cells = cells;
     },
@@ -847,6 +859,7 @@ export default {
       );
       if (this.notebook.cells[cellId].cellType === "code") {
         delete this.completions[cellId];
+        delete this.lintResults[cellId];
       }
       delete this.notebook.cells[cellId];
     },

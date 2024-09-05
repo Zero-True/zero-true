@@ -13,6 +13,7 @@ from zt_backend.models.api import request
 from zt_backend.runner.execute_code import execute_request
 from zt_backend.config import settings
 from zt_backend.utils.completions import get_code_completions
+from zt_backend.utils.linting import debounced_get_cell_linting
 from zt_backend.utils.dependencies import (
     dependency_update,
     parse_dependencies,
@@ -262,13 +263,34 @@ async def save_text(websocket: WebSocket):
                         }
                     )
                     if cell_type == "code":
-                        completions = await get_code_completions(
-                            cell_id,
-                            data.get("code_w_context"),
-                            data.get("line"),
-                            data.get("column"),
-                        )
-                        await websocket.send_json(completions)
+                        try:
+                            completions = await get_code_completions(
+                                cell_id,
+                                data.get("code_w_context"),
+                                data.get("line"),
+                                data.get("column"),
+                            )
+                            
+                            linting_results = await debounced_get_cell_linting(
+                                cell_id,
+                                data.get("text"),
+                                data.get("code_w_context")
+                            )
+                            
+                            combined_results = {
+                                "cell_id": cell_id,
+                                "completions": completions.get("completions", []),
+                                "lint_results": linting_results.get(cell_id, [])
+                            }
+
+                            await websocket.send_json(combined_results)
+
+                        except Exception as e:
+                            logger.error(f"Error processing code cell {cell_id}: {str(e)}")
+                            await websocket.send_json({
+                                "cell_id": cell_id,
+                                "error": "An error occurred while processing the code cell"
+                            })
         except WebSocketDisconnect:
             manager.disconnect(websocket)
         finally:
