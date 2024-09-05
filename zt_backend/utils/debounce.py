@@ -1,5 +1,7 @@
 from threading import Timer
 import asyncio
+from typing import Dict, Callable, Coroutine, Any
+
 
 def debounce(wait):
     """ Decorator that will postpone a functions
@@ -40,3 +42,28 @@ def async_debounce(wait):
 
         return debounced
     return decorator
+
+
+class LintingDebouncer:
+    def __init__(self, wait_time: float):
+        self.wait_time = wait_time
+        self.pending_tasks: Dict[str, asyncio.Task] = {}
+
+    async def debounce(self, key: str, coro: Callable[..., Coroutine[Any, Any, Any]], *args, **kwargs):
+        if key in self.pending_tasks:
+            self.pending_tasks[key].cancel()
+
+        async def delayed_execution():
+            await asyncio.sleep(self.wait_time)
+            return await coro(*args, **kwargs)
+
+        task = asyncio.create_task(delayed_execution())
+        self.pending_tasks[key] = task
+
+        try:
+            result = await task
+            return result
+        except asyncio.CancelledError:
+            return None
+        finally:
+            self.pending_tasks.pop(key, None)
