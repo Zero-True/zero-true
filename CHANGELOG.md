@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/Zero-True/zero-true/compare/v0.4.0...v0.4.1) (2024-09-10)
+
+
+### Bug Fixes
+
+* Comments in app mode and docs update ([#320](https://github.com/Zero-True/zero-true/issues/320)) ([37b25c2](https://github.com/Zero-True/zero-true/commit/37b25c294b2f7ab563a5d708c6a36f88240ba918))
+
 ## [0.4.0](https://github.com/Zero-True/zero-true/compare/v0.3.2...v0.4.0) (2024-08-30)
 
 
