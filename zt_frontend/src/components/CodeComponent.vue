@@ -18,27 +18,13 @@
     @updateReactivity="e => updateReactivity(e)"
     @addCell="e => createCell(e)"
   >
-    <template v-slot:code>
-      <codemirror
-        v-if="$devMode && !isAppRoute && !isMobile"
-        v-model="cellData.code"
-        :style="{ height: '400px' }"
-        :autofocus="true"
-        :indent-with-tab="true"
-        :tab-size="2"
-        :viewportMargin="Infinity"
-        :extensions="extensions"
-        @ready="handleReady"
-        @keyup="saveCell"
-        :code="cellData.code"
-        :id = "'codeMirrorDev'+cellData.id"
-      />
-      <div v-else>
+    <template v-slot:header-title>
+      <div v-if="!$devMode || isAppRoute || isMobile" style="display: flex; width: 100%;">
         <h4 v-if="cellData.hideCode" class="text-bluegrey-darken-1 text-ellipsis app-static-name" >{{ cellData.cellName }} </h4>
-        <v-expansion-panels v-else v-model="expanded" >
+        <v-expansion-panels v-else v-model="expanded">
           <v-expansion-panel v-model="expanded" bg-color="bluegrey-darken-3">
             <v-expansion-panel-title class="text-bluegrey-darken-1" :id = "'codeMirrorAppTitle'+cellData.id">
-              <h4 class="text-ellipsis app-static-name" > View Code </h4>
+              <h4 class="text-ellipsis app-static-name" > {{ cellData.cellName }} </h4>
             </v-expansion-panel-title>
             <v-expansion-panel-text>
               <codemirror
@@ -56,6 +42,22 @@
           </v-expansion-panel>
         </v-expansion-panels>
       </div>
+    </template>
+    <template v-slot:code>
+      <codemirror
+        v-if="$devMode && !isAppRoute && !isMobile"
+        v-model="cellData.code"
+        :style="{ height: '400px' }"
+        :autofocus="true"
+        :indent-with-tab="true"
+        :tab-size="2"
+        :viewportMargin="Infinity"
+        :extensions="extensions"
+        @ready="handleReady"
+        @keyup="saveCell"
+        :code="cellData.code"
+        :id = "'codeMirrorDev'+cellData.id"
+      />
       <div v-if="$devMode && !isAppRoute && !isMobile">
         <p class="text-caption text-disabled text-right">
           {{ shortcutText }} to run</p>

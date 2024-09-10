@@ -71,11 +71,12 @@
           </div>
         </div>
         <h4
-          v-else-if="isDevMode || keepCodeInAppModel"
+          v-else-if="isDevMode"
           class="text-bluegrey-darken-1 text-ellipsis click-edit__static-name"
         >
           {{ cellNameValue }}
         </h4>
+        <slot v-else-if="keepCodeInAppModel" name="header-title"></slot>
         <v-spacer v-else></v-spacer>
         <v-defaults-provider
           :defaults="{

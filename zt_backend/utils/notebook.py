@@ -345,7 +345,7 @@ def write_notebook():
 
                 for comment_id, comment in cell.comments.items():
                     project_file.write(f"[cells.{cell_id}.comments.{comment_id}]\n")
-                    project_file.write(f'comment = "{comment.comment}"\n')
+                    project_file.write(f'comment = """{comment.comment}"""\n')
                     project_file.write(f'date = "{comment.date}"\n')
                     project_file.write(f'resolved = "{comment.resolved}"\n')
 
@@ -353,7 +353,7 @@ def write_notebook():
                         project_file.write(
                             f"[cells.{cell_id}.comments.{comment_id}.replies.{reply_id}]\n"
                         )
-                        project_file.write(f'comment = "{reply.comment}"\n')
+                        project_file.write(f'comment = """{reply.comment}"""\n')
                         project_file.write(f'date = "{reply.date}"\n')
 
                 project_file.write("\n")
