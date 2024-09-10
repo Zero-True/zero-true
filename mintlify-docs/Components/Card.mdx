@@ -1,221 +1,56 @@
 ---
-title: 'Card'
-description: ''
 icon: "rectangle-code"
 iconType: "solid"
 ---
-
 
 <Card title="Example Usage" icon="code">
   ```python
 import zero_true as zt
 
-# First, define the image component to be placed inside the card
-sample_image = zt.Image(id="Sample", height=200, src="https://letsenhance.io/static/8f5e523ee6b2479e26ecc91b9c25261e/1015f/MainAfter.jpg")
-
-# Now, define the card using the specified parameters
+# Create a Card component
 sample_card = zt.Card(
-    id="sample_card",
-    childComponents=[sample_image.id],  # List containing the ID of the image component
-    color="lightblue",  # You can specify any CSS color here
-    component='v-card',  # Vue component name for the card
-    elevation=2,  # Elevation level of the card (must be between 0 and 24)
-    width=500  # Specify the width of the card
+    id = 'sample_card',  # Unique id for a component
+    childComponents = [],  # List of child component ids to be placed within the card
+    color = None,  # Background color of the card
+    elevation = 0,  # Elevation level of the card. Must be between 0 and 24
+    density = default,  # Density of the component
+    width = 100%,  # Width of the card
+    location = center,  # Location of the card within the parent component. Can be center, start, end, left, right, top, bottom, or a logical combination of two locations (e.g. left top)
 )
 
-# Assuming you have a mechanism to render or use this card within a layout
-layout = zt.Layout(components=[sample_card])
-
 ```
 </Card>
 
-<Card title="Example Output" icon="computer">
-
-<iframe src="https://published.zero-true.com/srrey/examplecard/" width="100%" height="300"></iframe>
-
-</Card>
-
-## Overview
-
-`pydantic model zero_true.Card` 
-
- The Card component serves as a versatile container in user interfaces, designed to group related UI elements together. 
-
-It offers customization options through various properties such as background color, elevation, and density, enabling designers to tailor its appearance and behavior to fit different contexts and layouts. 
-
-<Note>Each card can house multiple child components, each occupying its own row, which makes it an ideal choice for creating structured, yet visually appealing content displays.</Note>
-
-
-## JSON Schema
-
-<Accordion title="Field Defenitions"> 
-```json
-{
-   "title": "Card",
-   "description": "A card is a container for components that should be displayed together. \nAny child components will be placed in their own row within the card and take up the full width",
-   "type": "object",
-   "properties": {
-      "id": {
-         "description": "Unique id for a component",
-         "title": "Id",
-         "type": "string"
-      },
-      "variable_name": {
-         "default": "",
-         "description": "Optional variable name associated with a component",
-         "title": "Variable Name",
-         "type": "string"
-      },
-      "component": {
-         "default": "v-card",
-         "description": "Vue component name",
-         "title": "Component",
-         "type": "string"
-      },
-      "childComponents": {
-         "default": [],
-         "description": "List of child component ids to be placed within the card",
-         "items": {
-            "type": "string"
-         },
-         "title": "Childcomponents",
-         "type": "array"
-      },
-      "color": {
-         "anyOf": [
-            {
-               "type": "string"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "description": "Background color of the card",
-         "title": "Color"
-      },
-      "elevation": {
-         "anyOf": [
-            {
-               "maximum": 24,
-               "minimum": 0,
-               "type": "integer"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "description": "Elevation level of the card. Must be between 0 and 24",
-         "title": "Elevation"
-      },
-      "density": {
-         "anyOf": [
-            {
-               "type": "string"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "description": "Density of the component",
-         "enum": [
-            "default",
-            "comfortable",
-            "compact"
-         ],
-         "title": "Density"
-      },
-      "width": {
-         "anyOf": [
-            {
-               "type": "integer"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "description": "Width of the card",
-         "title": "Width"
-      },
-      "location": {
-         "anyOf": [
-            {
-               "type": "string"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "enum": [
-            "center"
-         ],
-         "title": "Location"
-      }
-   },
-   "required": [
-      "id"
-   ]
-}
-```
-</Accordion> 
-
-
-<Info>Bellow are the various attributes you can assign to the component. Utlizing them can allow for modifications to the pre-created object.</Info>
+<Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
 
 <ResponseField name="zero_true.Card" type="Zero True Component">
   <Expandable title="properties">
    <AccordionGroup>
-<Accordion title="field childComponents">
-      **field childComponents:** List[str] = []; 
-      List of child component ids to be placed within the card
+<Accordion title="childComponents">
+        **childComponents:** array = []; 
+        List of child component ids to be placed within the card
 </Accordion>
-
-<Accordion title="field color">
-      **field color:** str | None = None; 
-      Background color of the card
+<Accordion title="color">
+        **color:**  = None; 
+        Background color of the card
 </Accordion>
-
-<Accordion title="field component">
-      **field component:** str = 'v-card'; 
-      Vue component name
+<Accordion title="elevation">
+        **elevation:**  = 0; 
+        Elevation level of the card. Must be between 0 and 24
 </Accordion>
-
-<Accordion title="field density">
-      **field density:** str | None = None; 
-      Density of the component
+<Accordion title="density">
+        **density:**  = default; 
+        Density of the component
 </Accordion>
-
-<Accordion title="field elevation">
-      **field elevation:** int | None = None; 
-      Elevation level of the card. Must be between 0 and 24
+<Accordion title="width">
+        **width:**  = 100%; 
+        Width of the card
 </Accordion>
-
-<Accordion title="field location">
-      **field location:** str | None = None;
-</Accordion>
-
-<Accordion title="field width">
-      **field width:** int | None = None; 
-      Width of the card
+<Accordion title="location">
+        **location:**  = center; 
+        Location of the card within the parent component. Can be center, start, end, left, right, top, bottom, or a logical combination of two locations (e.g. left top)
 </Accordion>
 
    </AccordionGroup>
   </Expandable>
 </ResponseField>
-
-<Card title="Methods">
-  classmethod *get_value_from_global_state*(value, values)
-</Card>
-
-
-
-
-
-
-
-
-

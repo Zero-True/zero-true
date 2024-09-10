@@ -36,9 +36,9 @@
       <div v-else>
         <h4 v-if="cellData.hideCode" class="text-bluegrey-darken-1 text-ellipsis app-static-name" >{{ cellData.cellName }} </h4>
         <v-expansion-panels v-else v-model="expanded" >
-          <v-expansion-panel v-model="expanded" bg-color="bluegrey-darken-4">
+          <v-expansion-panel v-model="expanded" bg-color="bluegrey-darken-3">
             <v-expansion-panel-title class="text-bluegrey-darken-1" :id = "'codeMirrorAppTitle'+cellData.id">
-              <h4 class="text-ellipsis app-static-name" >{{ cellData.cellName }} </h4>
+              <h4 class="text-ellipsis app-static-name" > View Code </h4>
             </v-expansion-panel-title>
             <v-expansion-panel-text>
               <codemirror

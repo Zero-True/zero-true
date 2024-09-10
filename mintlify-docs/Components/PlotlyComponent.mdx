@@ -7,10 +7,10 @@ iconType: "solid"
   ```python
 import zero_true as zt
 
-# Create a HTML component
-sample_html = zt.HTML(
-    id = 'sample_html',  # Unique id for a component
-    v_html = '',  # HTML content of the component
+# Create a PlotlyComponent component
+sample_plotlycomponent = zt.PlotlyComponent(
+    id = 'sample_plotlycomponent',  # ID for the component
+    figure_json'',  # Serialized Plotly figure as JSON string
 )
 
 ```
@@ -18,12 +18,12 @@ sample_html = zt.HTML(
 
 <Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
 
-<ResponseField name="zero_true.HTML" type="Zero True Component">
+<ResponseField name="zero_true.PlotlyComponent" type="Zero True Component">
   <Expandable title="properties">
    <AccordionGroup>
-<Accordion title="v_html">
-        **v_html:** string = ; 
-        HTML content of the component
+<Accordion title="figure_json">
+        **figure_json:** string = None; 
+        Serialized Plotly figure as JSON string
 </Accordion>
 
    </AccordionGroup>

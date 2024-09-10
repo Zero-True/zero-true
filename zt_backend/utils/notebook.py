@@ -192,70 +192,70 @@ def globalStateUpdate(
         "Updating state for notebook %s", notebook_state.zt_notebook.notebookId
     )
     try:
-        old_state = notebook_state.zt_notebook.model_dump()
-        if newCell is not None:
-            if position_key:
-                new_cell_dict = OrderedDict()
-                for k, v in notebook_state.zt_notebook.cells.items():
-                    new_cell_dict[k] = v
-                    if k == position_key:
-                        new_cell_dict[newCell.id] = newCell
-                notebook_state.zt_notebook.cells = new_cell_dict
-            else:
-                new_cell_dict = OrderedDict({newCell.id: newCell})
-                new_cell_dict.update(notebook_state.zt_notebook.cells)
-                notebook_state.zt_notebook.cells = new_cell_dict
-        if deletedCell is not None:
-            del notebook_state.zt_notebook.cells[deletedCell]
-        if saveCell is not None:
-            notebook_state.zt_notebook.cells[saveCell.id].code = saveCell.text
-        if hideCell is not None:
-            notebook_state.zt_notebook.cells[hideCell.cellId].hideCell = (
-                hideCell.hideCell
-            )
-        if hideCode is not None:
-            notebook_state.zt_notebook.cells[hideCode.cellId].hideCode = (
-                hideCode.hideCode
-            )
-        if expandCode is not None:
-            notebook_state.zt_notebook.cells[expandCode.cellId].expandCode = (
-                expandCode.expandCode
-            )
-        if renameCell is not None:
-            notebook_state.zt_notebook.cells[renameCell.cellId].cellName = (
-                renameCell.cellName
-            )
-        if cellReactivity is not None:
-            notebook_state.zt_notebook.cells[cellReactivity.cellId].nonReactive = (
-                cellReactivity.nonReactive
-            )
-        if showTable is not None:
-            notebook_state.zt_notebook.cells[showTable.cellId].showTable = (
-                showTable.showTable
-            )
-        if run_request is not None:
-            for requestCell in run_request.cells:
-                if requestCell.id == "initial_cell":
-                    continue
-                # zt_notebook.cells[requestCell.id].code = requestCell.code
-                notebook_state.zt_notebook.cells[requestCell.id].variable_name = (
-                    requestCell.variable_name
+        if settings.run_mode == "dev":
+            if newCell is not None:
+                if position_key:
+                    new_cell_dict = OrderedDict()
+                    for k, v in notebook_state.zt_notebook.cells.items():
+                        new_cell_dict[k] = v
+                        if k == position_key:
+                            new_cell_dict[newCell.id] = newCell
+                    notebook_state.zt_notebook.cells = new_cell_dict
+                else:
+                    new_cell_dict = OrderedDict({newCell.id: newCell})
+                    new_cell_dict.update(notebook_state.zt_notebook.cells)
+                    notebook_state.zt_notebook.cells = new_cell_dict
+            if deletedCell is not None:
+                del notebook_state.zt_notebook.cells[deletedCell]
+            if saveCell is not None:
+                notebook_state.zt_notebook.cells[saveCell.id].code = saveCell.text
+            if hideCell is not None:
+                notebook_state.zt_notebook.cells[hideCell.cellId].hideCell = (
+                    hideCell.hideCell
                 )
-        if run_response is not None:
-            for responseCell in run_response.cells:
-                if responseCell.id == "initial_cell":
-                    continue
-                notebook_state.zt_notebook.cells[responseCell.id].components = (
-                    responseCell.components
+            if hideCode is not None:
+                notebook_state.zt_notebook.cells[hideCode.cellId].hideCode = (
+                    hideCode.hideCode
                 )
-                notebook_state.zt_notebook.cells[responseCell.id].output = (
-                    responseCell.output
+            if expandCode is not None:
+                notebook_state.zt_notebook.cells[expandCode.cellId].expandCode = (
+                    expandCode.expandCode
                 )
-                notebook_state.zt_notebook.cells[responseCell.id].layout = (
-                    responseCell.layout
+            if renameCell is not None:
+                notebook_state.zt_notebook.cells[renameCell.cellId].cellName = (
+                    renameCell.cellName
                 )
-        if new_notebook_name:
-            notebook_state.zt_notebook.notebookName = new_notebook_name
+            if cellReactivity is not None:
+                notebook_state.zt_notebook.cells[cellReactivity.cellId].nonReactive = (
+                    cellReactivity.nonReactive
+                )
+            if showTable is not None:
+                notebook_state.zt_notebook.cells[showTable.cellId].showTable = (
+                    showTable.showTable
+                )
+            if run_request is not None:
+                for requestCell in run_request.cells:
+                    if requestCell.id == "initial_cell":
+                        continue
+                    # zt_notebook.cells[requestCell.id].code = requestCell.code
+                    notebook_state.zt_notebook.cells[requestCell.id].variable_name = (
+                        requestCell.variable_name
+                    )
+            if run_response is not None:
+                for responseCell in run_response.cells:
+                    if responseCell.id == "initial_cell":
+                        continue
+                    notebook_state.zt_notebook.cells[responseCell.id].components = (
+                        responseCell.components
+                    )
+                    notebook_state.zt_notebook.cells[responseCell.id].output = (
+                        responseCell.output
+                    )
+                    notebook_state.zt_notebook.cells[responseCell.id].layout = (
+                        responseCell.layout
+                    )
+            if new_notebook_name:
+                notebook_state.zt_notebook.notebookName = new_notebook_name
         if add_comment is not None:
             notebook_state.zt_notebook.cells[add_comment.cellId].comments[
                 add_comment.commentId

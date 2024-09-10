@@ -1,5 +1,4 @@
 ---
-title: 'Number Input'
 icon: "rectangle-code"
 iconType: "solid"
 ---
@@ -9,233 +8,54 @@ iconType: "solid"
 import zero_true as zt
 
 # Create a NumberInput component
-number_input = zt.NumberInput(
-    id="sample_number_input",
-    disabled=False,             # If true, the input is disabled
-    hint="Press Enter to Submit",  # Hint text for the number input
-    label="Enter a Number",     # Label for the number input
-    placeholder=0,              # Placeholder number
-    readonly=False,             # If true, the input is read-only
-    triggerEvent="change",      # Trigger event to send code to the backend
-    type="number",              # Ensures that only numbers are accepted on the frontend
-    value=None                  # The input number value
+sample_numberinput = zt.NumberInput(
+    id = 'sample_numberinput',  # Unique id for a component
+    hint = Press Enter to Submit,  # Hint text for the number input
+    value = 0,  # The input number value
+    label = ,  # Label for the number input
+    readonly = False,  # If true, the input is read-only
+    disabled = False,  # If true, the input is disabled
+    type = 'number',  # Ensures that only numbers are accepted on the frontend
+    step = 1,  # The number to increment or decrement by
 )
 
-# Assuming you have a mechanism to render or use this NumberInput within a layout
-layout = zt.Layout(components=[number_input])
-
 ```
 </Card>
 
-<Card title="Example Output" icon="computer">
-
-<iframe src="https://published.zero-true.com/srrey/examplenumberinput/" width="100%" height="300"></iframe>
-
-</Card>
-
-## Overview
-
-`pydantic model zero_true.NumberInput` 
-
-The NumberInput component is designed for scenarios where users need to enter numerical data, either as integers or floating-point numbers. This versatile input field supports features such as placeholders, hints, and labels to guide users during data entry. 
-
-<Note> Additionally, it can be set to a read-only or disabled state depending on the context of use. The component ensures that only numeric inputs are accepted, making it suitable for applications requiring precise numerical data inputs, such as financial, scientific, or statistical tools.</Note>
-
-
-## JSON Schema
-
-<Accordion title="Field Defenitions"> 
-```json
-{
-   "title": "NumberInput",
-   "description": "Number input allows a user to input an arbitrary number. Can be a float or an integer",
-   "type": "object",
-   "properties": {
-      "id": {
-         "description": "Unique id for a component",
-         "title": "Id",
-         "type": "string"
-      },
-      "variable_name": {
-         "default": "",
-         "description": "Optional variable name associated with a component",
-         "title": "Variable Name",
-         "type": "string"
-      },
-      "component": {
-         "default": "v-number-field",
-         "description": "Vue component name",
-         "title": "Component",
-         "type": "string"
-      },
-      "hint": {
-         "anyOf": [
-            {
-               "type": "string"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": "Press Enter to Submit",
-         "description": "Hint text for the number input",
-         "title": "Hint"
-      },
-      "value": {
-         "anyOf": [
-            {
-               "type": "integer"
-            },
-            {
-               "type": "number"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "description": "The input number value",
-         "title": "Value"
-      },
-      "placeholder": {
-         "anyOf": [
-            {
-               "type": "integer"
-            },
-            {
-               "type": "number"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "description": "Placeholder number",
-         "title": "Placeholder"
-      },
-      "label": {
-         "anyOf": [
-            {
-               "type": "string"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "description": "Label for the number input",
-         "title": "Label"
-      },
-      "readonly": {
-         "anyOf": [
-            {
-               "type": "boolean"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "description": "If true, the input is read-only",
-         "title": "Readonly"
-      },
-      "disabled": {
-         "anyOf": [
-            {
-               "type": "boolean"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "description": "If true, the input is disabled",
-         "title": "Disabled"
-      },
-      "type": {
-         "default": "number",
-         "description": "Ensures that only numbers are accepted on the frontend",
-         "title": "Type",
-         "type": "string"
-      },
-      "triggerEvent": {
-         "default": null,
-         "description": "Trigger event to send code to the backend",
-         "title": "Triggerevent",
-         "type": "string"
-      }
-   },
-   "required": [
-      "id"
-   ]
-}
-```
-</Accordion> 
-
-
-<Info>Bellow are the various attributes you can assign to the component. Utlizing them can allow for modifications to the pre-created object.</Info>
+<Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
 
 <ResponseField name="zero_true.NumberInput" type="Zero True Component">
   <Expandable title="properties">
    <AccordionGroup>
-<Accordion title="field component">
-      **field component:** str = 'v-number-field'; 
-      Vue component name.
+<Accordion title="hint">
+        **hint:**  = Press Enter to Submit; 
+        Hint text for the number input
+</Accordion>
+<Accordion title="value">
+        **value:**  = 0; 
+        The input number value
+</Accordion>
+<Accordion title="label">
+        **label:**  = ; 
+        Label for the number input
+</Accordion>
+<Accordion title="readonly">
+        **readonly:**  = False; 
+        If true, the input is read-only
+</Accordion>
+<Accordion title="disabled">
+        **disabled:**  = False; 
+        If true, the input is disabled
+</Accordion>
+<Accordion title="type">
+        **type:** string = number; 
+        Ensures that only numbers are accepted on the frontend
+</Accordion>
+<Accordion title="step">
+        **step:**  = 1; 
+        The number to increment or decrement by
 </Accordion>
 
-<Accordion title="field disabled">
-      **field disabled:** bool | None = None; 
-      If true, the input is disabled.
-</Accordion>
-
-<Accordion title="field hint">
-      **field hint:** str | None = 'Press Enter to Submit'; 
-      Hint text for the number input.
-</Accordion>
-
-<Accordion title="field label">
-      **field label:** str | None = None; 
-      Label for the number input.
-</Accordion>
-
-<Accordion title="field placeholder">
-      **field placeholder:** int | float | None = None; 
-      Placeholder number.
-</Accordion>
-
-<Accordion title="field readonly">
-      **field readonly:** bool | None = None; 
-      If true, the input is read-only.
-</Accordion>
-
-<Accordion title="field triggerEvent">
-      **field triggerEvent:** str = None; 
-      Trigger event to send code to the backend.
-</Accordion>
-
-<Accordion title="field type">
-      **field type:** str = 'number'; 
-      Ensures that only numbers are accepted on the frontend.
-</Accordion>
-
-<Accordion title="field value">
-      **field value:** int | float | None = None; 
-      The input number value.
-</Accordion>
    </AccordionGroup>
   </Expandable>
 </ResponseField>
-
-<Card title="Methods">
-  classmethod *get_value_from_global_state*(value, values)
-</Card>
-
-
-
-
-
-
-
-
-
-
