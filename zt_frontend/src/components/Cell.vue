@@ -12,8 +12,8 @@
       :thickness="4"
     ></v-divider>
     <div class="content">
-      <header class="header" v-if="isDevMode">
-        <div class="click-edit" v-if="keepCodeInAppModel">
+      <header class="header">
+        <div class="click-edit" v-if="isDevMode && keepCodeInAppModel">
           <div class="click-edit__show-text" v-if="!editingCellName">
             <div class="loading-wrapper">
               <v-progress-circular
@@ -71,11 +71,13 @@
           </div>
         </div>
         <h4
-          v-else
+          v-else-if="isDevMode"
           class="text-bluegrey-darken-1 text-ellipsis click-edit__static-name"
         >
           {{ cellNameValue }}
         </h4>
+        <slot v-else-if="keepCodeInAppModel" name="header-title"></slot>
+        <v-spacer v-else></v-spacer>
         <v-defaults-provider
           :defaults="{
             VIcon: {
@@ -90,13 +92,13 @@
           <div class="actions">
             <!-- <v-btn icon="$message"></v-btn> -->
             <v-btn
-              v-if="showSaveBtn"
+              v-if="isDevMode && showSaveBtn"
               :icon="`ztIcon:${ztAliases.save}`"
               @click="$emit('save')"
             ></v-btn>
 
             <v-btn
-              v-if="showPlayBtn"
+              v-if="isDevMode && showPlayBtn"
               :id="'runCode' + cellId"
               :icon="`ztIcon:${ztAliases.play}`"
               @click="$emit('play')"
@@ -131,7 +133,7 @@
                 }}</span>
               </template>
             </v-btn>
-            <v-menu :close-on-content-click="false">
+            <v-menu v-if="isDevMode" :close-on-content-click="false">
               <template v-slot:activator="{ props }">
                 <v-btn
                   :icon="`ztIcon:${ztAliases.more}`"

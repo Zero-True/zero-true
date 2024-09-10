@@ -9,7 +9,7 @@
           @cancel="cancelEdit"
           @submit="submitEditChange(comment.cell.cellId ?? '')"
         />
-        <p v-else class="message__content">{{ comment.comment }}</p>
+        <pre v-else class="message__content">{{ comment.comment }}</pre>
         <div class="d-flex align-center">
           <v-btn
             v-if="!comment.resolved && !editingCommentId"
@@ -57,7 +57,7 @@
               () => submitEditChange(comment.cell.cellId ?? '', comment.id)
             "
           />
-          <p v-else class="message__content">{{ reply.comment }}</p>
+          <pre v-else class="message__content">{{ reply.comment }}</pre>
           <div class="d-flex align-center">
             <div>
               <CommentMenu

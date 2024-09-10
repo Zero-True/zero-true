@@ -7,101 +7,25 @@ iconType: "solid"
   ```python
 import zero_true as zt
 
-# Create an HTML component
-html_content = """
-<div style="text-align: center;">
-    <h1>Welcome to zero_true!</h1>
-    <p>This is an example of rendering arbitrary HTML content.</p>
-    <a href="https://www.example.com" target="_blank">Visit Example</a>
-</div>
-"""
-
-html_component = zt.HTML(
-    id="sample_html",
-    v_html=html_content  # HTML content to render
+# Create a HTML component
+sample_html = zt.HTML(
+    id = 'sample_html',  # Unique id for a component
+    v_html = '',  # HTML content of the component
 )
 
-# Layout including the HTML component
-layout = zt.Layout(rows=[
-    zt.Row(components=[html_component.id])
-])
 ```
 </Card>
 
-<Card title="Example Output" icon="computer">
-
-<iframe src="https://published.zero-true.com/srrey/examplehtml/" width="100%" height="300"></iframe>
-
-</Card>
-
-
-## Overview
-
-`pydantic model zero_true.HTML` 
-
-The HTML component is designed to render arbitrary HTML content within web applications, allowing developers to dynamically insert custom HTML, CSS, and JavaScript directly into the app's user interface. This capability is crucial for applications that need to display varied content that doesn't conform to standard components or requires specific customizations not supported directly by the application framework. It offers extensive flexibility and control over content presentation and behavior.
-
-## JSON Schema
-
-<Accordion title="Field Defenitions"> 
-```json
-{
-   "title": "HTML",
-   "description": "This is a component is used to render arbitrary HTML",
-   "type": "object",
-   "properties": {
-      "id": {
-         "description": "Unique id for a component",
-         "title": "Id",
-         "type": "string"
-      },
-      "variable_name": {
-         "default": "",
-         "description": "Optional variable name associated with a component",
-         "title": "Variable Name",
-         "type": "string"
-      },
-      "component": {
-         "default": "zt-html",
-         "description": "Vue component name",
-         "title": "Component",
-         "type": "string"
-      },
-      "v_html": {
-         "default": "",
-         "description": "HTML content of the component",
-         "title": "V Html",
-         "type": "string"
-      }
-   },
-   "required": [
-      "id"
-   ]
-}
-
-```
-</Accordion> 
-
-
-<Info>Bellow are the various attributes you can assign to the component. Utlizing them can allow for modifications to the pre-created object.</Info>
+<Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
 
 <ResponseField name="zero_true.HTML" type="Zero True Component">
   <Expandable title="properties">
    <AccordionGroup>
-<Accordion title="field component">
-      **field component:** str = 'zt-html'; 
-      Vue component name.
-</Accordion>
-
-<Accordion title="field v_html">
-      **field v_html:** str = ''; 
-      HTML content of the component.
+<Accordion title="v_html">
+        **v_html:** string = ; 
+        HTML content of the component
 </Accordion>
 
    </AccordionGroup>
   </Expandable>
 </ResponseField>
-
-
-
-

@@ -6,189 +6,41 @@ iconType: "solid"
 <Card title="Example Usage" icon="code">
   ```python
 import zero_true as zt
-import matplotlib.pyplot as plt
-import plotly.graph_objects as go
-import io
-import base64
-import json
-import pandas as pd
-import warnings
 
-# Use Agg backend for Matplotlib to avoid GUI issues
-plt.switch_backend('Agg')
+# Create a Matplotlib component
+sample_matplotlib = zt.Matplotlib(
+    id = 'sample_matplotlib',  # Unique id for a component
+    src'',  # Source URL of the image of the graph
+    alt = '',  # Alternative text for the graph image
+    width = 100%,  # Width of the graph
+    height = 100%,  # Height of the graph
+)
 
-# Suppress matplotlib warnings about the GUI backend
-warnings.filterwarnings("ignore", category=UserWarning, message="Starting a Matplotlib GUI outside of the main thread will likely fail.")
-
-# Initialize state
-zt_state = zt.state()
-
-# Sample data for demonstration
-data = {
-    'Category': ['A', 'B', 'C', 'D'],
-    'Values': [23, 17, 35, 29]
-}
-
-df = pd.DataFrame(data)
-
-# Function to create Matplotlib component
-def create_matplotlib_component():
-    # Create a sample matplotlib figure
-    fig, ax = plt.subplots()
-    ax.bar(df['Category'], df['Values'])
-    ax.set_title('Sample Matplotlib Bar Chart')
-    ax.set_xlabel('Category')
-    ax.set_ylabel('Values')
-
-    # Save the figure to a BytesIO object without displaying the GUI
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-
-    # Encode the image to base64 string
-    image_base64 = base64.b64encode(buf.read()).decode('utf-8')
-    image_src = f'data:image/png;base64,{image_base64}'
-
-    # Create a Matplotlib component
-    sample_matplotlib = zt.Matplotlib(
-        id="sample_matplotlib",
-        alt="Sample Matplotlib Bar Chart",  # Alternative text for the graph image
-        height=400,                         # Height of the graph
-        src=image_src,                      # Source URL of the image of the graph
-        width=600                           # Width of the graph
-    )
-
-    return sample_matplotlib
-
-# Create components
-matplotlib_component = create_matplotlib_component()
-
-layout = zt.Layout(columns=[
-    zt.Column(components=[
-        zt.Row(components=[matplotlib_component.id]),
-    ])
-])
 ```
 </Card>
 
-<Card title="Example Output" icon="computer">
-
-<iframe src="https://published.zero-true.com/srrey/examplematplotlib/" width="100%" height="300"></iframe>
-
-</Card>
-
-## Overview
-
-`pydantic model zero_true.Matplotlib` 
-
-The Matplotlib component allows for the seamless integration of matplotlib figures into web applications, displaying them as images. This is particularly useful for scientific, engineering, or statistical dashboards where graphical data visualization is crucial. 
-
-<Note> Users can specify the dimensions and alternative text for accessibility, enhancing the usability and presentation of complex data. The ability to generate these components dynamically from matplotlib figures makes it a powerful tool for real-time data analysis and reporting.</Note>
-
-
-## JSON Schema
-
-<Accordion title="Field Defenitions"> 
-```json
-{
-   "title": "Matplotlib",
-   "description": "Matplotlib component for displaying matplotlib figures as images",
-   "type": "object",
-   "properties": {
-      "id": {
-         "description": "Unique id for a component",
-         "title": "Id",
-         "type": "string"
-      },
-      "variable_name": {
-         "default": "",
-         "description": "Optional variable name associated with a component",
-         "title": "Variable Name",
-         "type": "string"
-      },
-      "component": {
-         "default": "v-img",
-         "description": "Vue component name",
-         "title": "Component",
-         "type": "string"
-      },
-      "src": {
-         "description": "Source URL of the image of the graph",
-         "title": "Src",
-         "type": "string"
-      },
-      "alt": {
-         "default": "",
-         "description": "Alternative text for the graph image",
-         "title": "Alt",
-         "type": "string"
-      },
-      "width": {
-         "default": 100,
-         "description": "Width of the graph",
-         "title": "Width",
-         "type": "integer"
-      },
-      "height": {
-         "default": 100,
-         "description": "Height of the graph",
-         "title": "Height",
-         "type": "integer"
-      }
-   },
-   "required": [
-      "id",
-      "src"
-   ]
-}
-```
-</Accordion> 
-
-
-<Info>Bellow are the various attributes you can assign to the component. Utlizing them can allow for modifications to the pre-created object.</Info>
+<Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
 
 <ResponseField name="zero_true.Matplotlib" type="Zero True Component">
   <Expandable title="properties">
    <AccordionGroup>
-<Accordion title="field alt">
-      **field alt:** str = ''; 
-      Alternative text for the graph image.
+<Accordion title="src">
+        **src:** string = None; 
+        Source URL of the image of the graph
+</Accordion>
+<Accordion title="alt">
+        **alt:** string = ; 
+        Alternative text for the graph image
+</Accordion>
+<Accordion title="width">
+        **width:**  = 100%; 
+        Width of the graph
+</Accordion>
+<Accordion title="height">
+        **height:**  = 100%; 
+        Height of the graph
 </Accordion>
 
-<Accordion title="field component">
-      **field component:** str = 'v-img'; 
-      Vue component name.
-</Accordion>
-
-<Accordion title="field height">
-      **field height:** int = 100; 
-      Height of the graph.
-</Accordion>
-
-<Accordion title="field src">
-      **field src:** str [Required]; 
-      Source URL of the image of the graph.
-</Accordion>
-
-<Accordion title="field width">
-      **field width:** int = 100; 
-      Width of the graph.
-</Accordion>
    </AccordionGroup>
   </Expandable>
 </ResponseField>
-
-<Card title="Methods">
-  classmethod from_matplotlib: (id: str, figure: Figure, alt=None, width=None, height=None);
-      Create a Matplotlib component from a matplotlib figure.
-</Card>
-
-
-
-
-
-
-
-
-
-

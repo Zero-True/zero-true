@@ -304,6 +304,8 @@ async def dependency_update_request(websocket: WebSocket):
 @router.websocket("/ws/notebook")
 async def load_notebook(websocket: WebSocket):
     await manager.connect(websocket)
+    if app_state.run_mode == "app":
+        save_task = asyncio.create_task(save_worker(app_state.save_queue))
     try:
         while True:
             data = await websocket.receive_json()
@@ -358,6 +360,9 @@ async def load_notebook(websocket: WebSocket):
 
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+    finally:
+        if app_state.run_mode == "app":
+            save_task.cancel()
 
 
 @router.websocket("/ws/stop_execution")

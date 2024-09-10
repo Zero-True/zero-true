@@ -1,0 +1,40 @@
+---
+title: 'Layout'
+---
+
+Defining a layout is optional but provides a way to explicitly define the position of components defined in a cell. By default, each component is rendered in its own row, taking up the full width available.
+
+## Specifying Rows, Columns, and Nested Layouts
+
+Zero-True allows you to create complicated nested layouts:
+
+- Layout is an object that contains the list of rows to be rendered.
+
+- Rows can contain both individual components and columns. They are the top level components of a layout and can be subcomponents of columns.
+
+- A Column must be a subcomponent of a Row. It can contain both individual components and rows.
+
+<Note>Note that any Rows and Columns defined must be placed inside of a Layout or will not be rendered.</Note>
+
+## Mixed Layouts
+
+If some components are placed in a layout and others are not, the layout will accommodate both:
+
+<Steps>
+  <Step title="Rendering Order">
+    Rows defined in the layout will be rendered in the order they are in the list and their subcomponents and columns will be rendered in the order they are defined in the list.
+  </Step>
+  <Step title="Multiple Rendering">
+    If a row or column is a subcomponent of another row/column or the layout itself, its components will be rendered multiple times wherever it is included.
+  </Step>
+  <Step title="Component Definition">
+    Any components included in a row, column, or layout must be defined in the cell where that row, column, or layout is defined or they will not be rendered.
+  </Step>
+  <Step title="Full Width Rendering">
+    All other components not in a row or column will be rendered in the order they are defined in code and take up the full width available, each in their own row.
+  </Step>
+</Steps>
+
+## Example
+
+Here is an [example with actual code](https://published.zero-true.com/carson/layout-example/) that shows how the layout works. Expand the code to see how to implement in your app.
