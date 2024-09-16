@@ -1,6 +1,6 @@
 {
     "dependencies": {
         "copilot-node-server": "^1.15.0",
-        "express": "^4.20.0"
+        "express": "^4.21.0"
     }
 }
