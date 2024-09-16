@@ -60,7 +60,7 @@ export default {
   data: () => ({
     uploadingFile: false,
     fileInput: null,
-    formData: null as FormData | null,
+    file: null as File | null,
     fileName: "",
     snackbar: false,
     snackbarText: "",
@@ -90,27 +90,37 @@ export default {
       }
     },
     handleFileUpload(file: File) {
-      this.formData = new FormData();
-      this.formData.append("file", file);
+      this.file = file;
       this.fileName = file.name;
-      console.log(file); // process the file
     },
     async submitFile() {
-      if (this.formData) {
+      if (this.file) {
         try {
-          this.formData.append("path", this.currentPath);
-          const response = await axios.post(
-            import.meta.env.VITE_BACKEND_URL + "api/upload_file",
-            this.formData,
-            {
-              headers: { "Content-Type": "multipart/form-data" },
-            }
-          );
-          console.log("File processed", response.data);
+          const chunkSize = 1024 * 1024;
+          const totalChunks = Math.ceil(this.file.size / chunkSize);
+          for (let i = 0; i < totalChunks; i++) {
+            const start = i * chunkSize;
+            const end = Math.min(this.file.size, start + chunkSize);
+            const chunk = this.file.slice(start, end);
+            const formData = new FormData();
+            formData.append("file", chunk);
+            formData.append("chunk_index", String(i));
+            formData.append("total_chunks", String(totalChunks));
+            formData.append("path", this.currentPath);
+            formData.append("file_name", this.file.name);
+            console.log(formData)
+            await axios.post(
+              import.meta.env.VITE_BACKEND_URL + "api/upload_file",
+              formData,
+              {
+                headers: { "Content-Type": "multipart/form-data" },
+              }
+            );
+          }
           this.snackbarText = "File uploaded successfully";
           this.snackbar = true;
-          this.uploadingFile = false; // Close the dialog
-          this.$emit("file-uploaded"); // Emit event to refresh file list
+          this.uploadingFile = false;
+          this.$emit("file-uploaded");
         } catch (error) {
           console.error("Error processing file:", error);
           this.snackbarText = "Error uploading file";
@@ -123,7 +133,7 @@ export default {
       }
     },
     cleanUp() {
-      this.formData = null;
+      this.file = null;
       this.fileName = "";
       this.snackbarText = "";
     },

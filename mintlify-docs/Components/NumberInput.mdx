@@ -3,16 +3,49 @@ icon: "rectangle-code"
 iconType: "solid"
 ---
 
+<Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
+
+<ResponseField name="zero_true.NumberInput" type="Zero True Component">
+  <Expandable title="properties">
+   <AccordionGroup>
+<Accordion title="id">
+        **id (string):** Unique id for a component
+</Accordion>
+<Accordion title="hint">
+        **hint (string):** Hint text for the number input
+</Accordion>
+<Accordion title="value">
+        **value (integer | float):** The input number value
+</Accordion>
+<Accordion title="label">
+        **label (string):** Label for the number input
+</Accordion>
+<Accordion title="readonly">
+        **readonly (boolean):** If true, the input is read-only
+</Accordion>
+<Accordion title="disabled">
+        **disabled (boolean):** If true, the input is disabled
+</Accordion>
+<Accordion title="type">
+        **type (string):** Ensures that only numbers are accepted on the frontend
+</Accordion>
+<Accordion title="step">
+        **step (integer | float):** The number to increment or decrement by
+</Accordion>
+
+   </AccordionGroup>
+  </Expandable>
+</ResponseField>
+
 <Card title="Example Usage" icon="code">
   ```python
 import zero_true as zt
 
-# Create a NumberInput component
 sample_numberinput = zt.NumberInput(
     id = 'sample_numberinput',  # Unique id for a component
-    hint = Press Enter to Submit,  # Hint text for the number input
+    hint = 'Press Enter to Submit',  # Hint text for the number input
     value = 0,  # The input number value
-    label = ,  # Label for the number input
+    label = '',  # Label for the number input
     readonly = False,  # If true, the input is read-only
     disabled = False,  # If true, the input is disabled
     type = 'number',  # Ensures that only numbers are accepted on the frontend
@@ -21,41 +54,3 @@ sample_numberinput = zt.NumberInput(
 
 ```
 </Card>
-
-<Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
-
-<ResponseField name="zero_true.NumberInput" type="Zero True Component">
-  <Expandable title="properties">
-   <AccordionGroup>
-<Accordion title="hint">
-        **hint:**  = Press Enter to Submit; 
-        Hint text for the number input
-</Accordion>
-<Accordion title="value">
-        **value:**  = 0; 
-        The input number value
-</Accordion>
-<Accordion title="label">
-        **label:**  = ; 
-        Label for the number input
-</Accordion>
-<Accordion title="readonly">
-        **readonly:**  = False; 
-        If true, the input is read-only
-</Accordion>
-<Accordion title="disabled">
-        **disabled:**  = False; 
-        If true, the input is disabled
-</Accordion>
-<Accordion title="type">
-        **type:** string = number; 
-        Ensures that only numbers are accepted on the frontend
-</Accordion>
-<Accordion title="step">
-        **step:**  = 1; 
-        The number to increment or decrement by
-</Accordion>
-
-   </AccordionGroup>
-  </Expandable>
-</ResponseField>

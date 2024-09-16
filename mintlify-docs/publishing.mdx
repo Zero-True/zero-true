@@ -1,0 +1,34 @@
+---
+title: 'Publishing'
+---
+
+<Note>Publishing is not available to all users right now as we are still in alpha. If you would like to be able to publish your app, please join our waitlist or contact us on our [main website](https://www.zero-true.com/contact).</Note>
+
+#### Publishing your notebook will create a project in our cloud from your notebook. Some important things to consider before publishing:
+<Steps>
+  <Step title="Cleanup Working Directory">
+    Only the files that your notebook is based on should be included in the directory you are publishing from. This must include your notebook.ztnb and requirements.txt files.
+  </Step>
+  <Step title="Ensure requirements.txt is Accurate">
+    Ensure that all dependencies and versions are specified in your requirements.txt before you publish.
+  </Step>
+  <Step title="Publish Destination">
+    Ensure that you are correctly publishing to either your own personal account (leaving team blank) or a team you are a member of. Projects published to your personal account will be public while those published to a team will be private with managable access.
+  </Step>
+  <Step title="Project Title">
+    Check that your project title does not already exist in your publish destination. If it does, that project will be overwritten by whatever you publish.
+  </Step>
+</Steps>
+
+#### You can publish your notebook in two ways:
+
+Directly from your notebook:
+<Frame>
+  <img src="/images/publish_button.png" />
+</Frame>
+
+Using the CLI:
+
+```bash
+zero-true publish [api-key] [user-name] [project-name] [project-source] [team-name (optional)]
+```

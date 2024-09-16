@@ -3,11 +3,59 @@ icon: "rectangle-code"
 iconType: "solid"
 ---
 
+<Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
+
+<ResponseField name="zero_true.Slider" type="Zero True Component">
+  <Expandable title="properties">
+   <AccordionGroup>
+<Accordion title="id">
+        **id (string):** Unique id for a component
+</Accordion>
+<Accordion title="value">
+        **value (integer | float):** Current value of the slider
+</Accordion>
+<Accordion title="min">
+        **min (integer | float):** Minimum value of the slider
+</Accordion>
+<Accordion title="max">
+        **max (integer | float):** Maximum value of the slider
+</Accordion>
+<Accordion title="step">
+        **step (integer | float):** Step increment of the slider
+</Accordion>
+<Accordion title="thumb_label">
+        **thumb_label (boolean):** Displays the thumb label
+</Accordion>
+<Accordion title="thumb_size">
+        **thumb_size (integer):** Size of the thumb
+</Accordion>
+<Accordion title="tick_labels">
+        **tick_labels (string):** When to display tick_labels
+</Accordion>
+<Accordion title="ticks">
+        **ticks (list):** Value of tick labels
+</Accordion>
+<Accordion title="color">
+        **color (string):** Color of the range slider. Can be custom or standard Material color
+</Accordion>
+<Accordion title="size">
+        **size (string):** Size of the slider
+</Accordion>
+<Accordion title="label">
+        **label (string):** A label for your slider
+</Accordion>
+<Accordion title="rounded">
+        **rounded (boolean):** Determines if the slider has rounded edges
+</Accordion>
+
+   </AccordionGroup>
+  </Expandable>
+</ResponseField>
+
 <Card title="Example Usage" icon="code">
   ```python
 import zero_true as zt
 
-# Create a Slider component
 sample_slider = zt.Slider(
     id = 'sample_slider',  # Unique id for a component
     value = 0,  # Current value of the slider
@@ -16,8 +64,8 @@ sample_slider = zt.Slider(
     step = 1,  # Step increment of the slider
     thumb_label = False,  # Displays the thumb label
     thumb_size = 0,  # Size of the thumb
-    tick_labels = 'always',  # Displays the tick labels
-    ticks = [],  # Displays the ticks
+    tick_labels = 'always',  # When to display tick_labels
+    ticks = [],  # Value of tick labels
     color = 'primary',  # Color of the range slider. Can be custom or standard Material color
     size = 'large',  # Size of the slider
     label = None,  # A label for your slider
@@ -26,61 +74,3 @@ sample_slider = zt.Slider(
 
 ```
 </Card>
-
-<Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
-
-<ResponseField name="zero_true.Slider" type="Zero True Component">
-  <Expandable title="properties">
-   <AccordionGroup>
-<Accordion title="value">
-        **value:**  = 0; 
-        Current value of the slider
-</Accordion>
-<Accordion title="min">
-        **min:**  = 0; 
-        Minimum value of the slider
-</Accordion>
-<Accordion title="max">
-        **max:**  = 100; 
-        Maximum value of the slider
-</Accordion>
-<Accordion title="step">
-        **step:**  = 1; 
-        Step increment of the slider
-</Accordion>
-<Accordion title="thumb_label">
-        **thumb_label:** boolean = False; 
-        Displays the thumb label
-</Accordion>
-<Accordion title="thumb_size">
-        **thumb_size:** integer = 0; 
-        Size of the thumb
-</Accordion>
-<Accordion title="tick_labels">
-        **tick_labels:** string = always; 
-        Displays the tick labels
-</Accordion>
-<Accordion title="ticks">
-        **ticks:** array = []; 
-        Displays the ticks
-</Accordion>
-<Accordion title="color">
-        **color:** string = primary; 
-        Color of the range slider. Can be custom or standard Material color
-</Accordion>
-<Accordion title="size">
-        **size:** string = large; 
-        Size of the slider
-</Accordion>
-<Accordion title="label">
-        **label:**  = None; 
-        A label for your slider
-</Accordion>
-<Accordion title="rounded">
-        **rounded:** boolean = True; 
-        Determines if the slider has rounded edges
-</Accordion>
-
-   </AccordionGroup>
-  </Expandable>
-</ResponseField>

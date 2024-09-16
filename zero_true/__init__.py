@@ -12,7 +12,7 @@ from zt_backend.models.components.text import Text
 from zt_backend.models.components.dataframe import DataFrame,Header,dataframe
 from zt_backend.models.components.layout import Column,Row,Layout
 from zt_backend.models.components.matplotlib import Matplotlib, matplotlib
-from zt_backend.models.components.plotly import  PlotlyComponent
+from zt_backend.models.components.plotly import  PlotlyComponent, plotlyComponent
 from zt_backend.models.components.autocomplete import  Autocomplete
 from zt_backend.models.components.card import Card
 from zt_backend.models.components.timer import Timer

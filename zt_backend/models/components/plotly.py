@@ -29,3 +29,11 @@ class PlotlyComponent(ZTComponent):
             "figureJson": self.figure_json,
             "id": self.id
         }
+
+def plotlyComponent(id: str, figure: Figure):
+    """Creates a PlotlyComponent instance from a Plotly figure."""
+    figure.update_layout(template='plotly_dark')
+    if not isinstance(figure, Figure):
+        raise ValueError("Input must be a Plotly Figure")
+    figure_json = figure_to_json(figure)  # Serialize figure to JSON
+    return PlotlyComponent(id=id, figure_json=figure_json)

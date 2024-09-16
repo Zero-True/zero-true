@@ -3,11 +3,38 @@ icon: "rectangle-code"
 iconType: "solid"
 ---
 
+<Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
+
+<ResponseField name="zero_true.Button" type="Zero True Component">
+  <Expandable title="properties">
+   <AccordionGroup>
+<Accordion title="id">
+        **id (string):** Unique id for a component
+</Accordion>
+<Accordion title="value">
+        **value (boolean):** Whether the button has been clicked
+</Accordion>
+<Accordion title="text">
+        **text (string):** Label displayed on the button
+</Accordion>
+<Accordion title="color">
+        **color (string):** Color of the button
+</Accordion>
+<Accordion title="disabled">
+        **disabled (boolean):** If true, the button is disabled
+</Accordion>
+<Accordion title="outlined">
+        **outlined (boolean):** If true, the button will have an outlined style
+</Accordion>
+
+   </AccordionGroup>
+  </Expandable>
+</ResponseField>
+
 <Card title="Example Usage" icon="code">
   ```python
 import zero_true as zt
 
-# Create a Button component
 sample_button = zt.Button(
     id = 'sample_button',  # Unique id for a component
     value = False,  # Whether the button has been clicked
@@ -19,33 +46,3 @@ sample_button = zt.Button(
 
 ```
 </Card>
-
-<Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
-
-<ResponseField name="zero_true.Button" type="Zero True Component">
-  <Expandable title="properties">
-   <AccordionGroup>
-<Accordion title="value">
-        **value:** boolean = False; 
-        Whether the button has been clicked
-</Accordion>
-<Accordion title="text">
-        **text:** string = Click Me; 
-        Label displayed on the button
-</Accordion>
-<Accordion title="color">
-        **color:** string = primary; 
-        Color of the button
-</Accordion>
-<Accordion title="disabled">
-        **disabled:** boolean = False; 
-        If true, the button is disabled
-</Accordion>
-<Accordion title="outlined">
-        **outlined:** boolean = False; 
-        If true, the button will have an outlined style
-</Accordion>
-
-   </AccordionGroup>
-  </Expandable>
-</ResponseField>

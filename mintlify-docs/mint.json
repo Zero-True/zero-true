@@ -25,16 +25,17 @@
     {
       "name": "Components",
       "url": "Components"
-    },
-    {
-      "name": "Additional Features",
-      "url": "additional-features"
     }
   ],
   "anchors": [
     {
+      "name": "Website",
+      "icon": "globe",
+      "url": "https://www.zero-true-cloud.com"
+    },
+    {
       "name": "Dashboard",
-      "icon": "table-columns",
+      "icon": "browser",
       "url": "https://www.zero-true-cloud.com"
     },
     {
@@ -53,9 +54,14 @@
       "group": "Get Started",
       "pages": [
         "quickstart",
-        "development",
+        "CLI",
+        "app-bar",
+        "toolbar",
+        "cell-types",
         "cells",
-        "CLI"
+        "state",
+        "layout",
+        "publishing"
       ]
     },
     {
@@ -80,15 +86,6 @@
         "Components/Timer",
         "Components/iFrame",
         "Components/HTML"
-      ]
-    },
-    {
-      "group": "Additional Features",
-      "pages": [
-        "additional-features/introduction",
-        "additional-features/Github",
-        "additional-features/State",
-        "additional-features/Layout"
       ]
     }
   ],

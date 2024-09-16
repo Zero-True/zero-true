@@ -11,7 +11,7 @@ class Autocomplete(ZTComponent):
 
     component: str = Field("v-autocomplete", description="Vue component name")
     items: List[Union[str, int]] = Field(
-        ...,
+        [],
         description="Options for the autocomplete box. Can be a list of strings or integers",
     )
     value: Union[str, int, None] = Field(
