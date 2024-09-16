@@ -3,44 +3,42 @@ icon: "rectangle-code"
 iconType: "solid"
 ---
 
-<Card title="Example Usage" icon="code">
-  ```python
-import zero_true as zt
-
-# Create a Image component
-sample_image = zt.Image(
-    id = 'sample_image',  # Unique id for a component
-    src'',  # Source URL or Path of the image
-    alt = '',  # Alternative text for the image
-    width = 100%,  # Width of the image
-    height = 100%,  # Height of the image
-)
-
-```
-</Card>
-
 <Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
 
 <ResponseField name="zero_true.Image" type="Zero True Component">
   <Expandable title="properties">
    <AccordionGroup>
+<Accordion title="id">
+        **id (string):** Unique id for a component
+</Accordion>
 <Accordion title="src">
-        **src:** string = None; 
-        Source URL or Path of the image
+        **src (string):** Source URL or Path of the image
 </Accordion>
 <Accordion title="alt">
-        **alt:** string = ; 
-        Alternative text for the image
+        **alt (string):** Alternative text for the image
 </Accordion>
 <Accordion title="width">
-        **width:**  = 100%; 
-        Width of the image
+        **width (integer | string):** Width of the image
 </Accordion>
 <Accordion title="height">
-        **height:**  = 100%; 
-        Height of the image
+        **height (integer | string):** Height of the image
 </Accordion>
 
    </AccordionGroup>
   </Expandable>
 </ResponseField>
+
+<Card title="Example Usage" icon="code">
+  ```python
+import zero_true as zt
+
+sample_image = zt.Image(
+    id = 'sample_image',  # Unique id for a component
+    src = '',  # Source URL or Path of the image
+    alt = '',  # Alternative text for the image
+    width = '100%',  # Width of the image
+    height = '100%',  # Height of the image
+)
+
+```
+</Card>

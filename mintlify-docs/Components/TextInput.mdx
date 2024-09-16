@@ -3,54 +3,50 @@ icon: "rectangle-code"
 iconType: "solid"
 ---
 
+<Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
+
+<ResponseField name="zero_true.TextInput" type="Zero True Component">
+  <Expandable title="properties">
+   <AccordionGroup>
+<Accordion title="id">
+        **id (string):** Unique id for a component
+</Accordion>
+<Accordion title="hint">
+        **hint (string):** Hint text for the text input
+</Accordion>
+<Accordion title="value">
+        **value (string):** The input text value
+</Accordion>
+<Accordion title="placeholder">
+        **placeholder (string):** Placeholder text
+</Accordion>
+<Accordion title="label">
+        **label (string):** Label for the text input
+</Accordion>
+<Accordion title="readonly">
+        **readonly (boolean):** If true, the input is read-only
+</Accordion>
+<Accordion title="disabled">
+        **disabled (boolean):** If true, the input is disabled
+</Accordion>
+
+   </AccordionGroup>
+  </Expandable>
+</ResponseField>
+
 <Card title="Example Usage" icon="code">
   ```python
 import zero_true as zt
 
-# Create a TextInput component
 sample_textinput = zt.TextInput(
     id = 'sample_textinput',  # Unique id for a component
-    hint = Press Enter to Submit,  # Hint text for the text input
+    hint = 'Press Enter to Submit',  # Hint text for the text input
     value = '',  # The input text value
-    placeholder = ,  # Placeholder text
-    label = ,  # Label for the text input
+    placeholder = '',  # Placeholder text
+    label = '',  # Label for the text input
     readonly = False,  # If true, the input is read-only
     disabled = False,  # If true, the input is disabled
 )
 
 ```
 </Card>
-
-<Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
-
-<ResponseField name="zero_true.TextInput" type="Zero True Component">
-  <Expandable title="properties">
-   <AccordionGroup>
-<Accordion title="hint">
-        **hint:**  = Press Enter to Submit; 
-        Hint text for the text input
-</Accordion>
-<Accordion title="value">
-        **value:** string = ; 
-        The input text value
-</Accordion>
-<Accordion title="placeholder">
-        **placeholder:**  = ; 
-        Placeholder text
-</Accordion>
-<Accordion title="label">
-        **label:**  = ; 
-        Label for the text input
-</Accordion>
-<Accordion title="readonly">
-        **readonly:**  = False; 
-        If true, the input is read-only
-</Accordion>
-<Accordion title="disabled">
-        **disabled:**  = False; 
-        If true, the input is disabled
-</Accordion>
-
-   </AccordionGroup>
-  </Expandable>
-</ResponseField>

@@ -3,11 +3,32 @@ icon: "rectangle-code"
 iconType: "solid"
 ---
 
+<Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
+
+<ResponseField name="zero_true.Text" type="Zero True Component">
+  <Expandable title="properties">
+   <AccordionGroup>
+<Accordion title="id">
+        **id (string):** Unique id for a component
+</Accordion>
+<Accordion title="text">
+        **text (string):** The actual text content
+</Accordion>
+<Accordion title="type">
+        **type (string):** Text type to display
+</Accordion>
+<Accordion title="color">
+        **color (string):** Color of the text
+</Accordion>
+
+   </AccordionGroup>
+  </Expandable>
+</ResponseField>
+
 <Card title="Example Usage" icon="code">
   ```python
 import zero_true as zt
 
-# Create a Text component
 sample_text = zt.Text(
     id = 'sample_text',  # Unique id for a component
     text = '',  # The actual text content
@@ -17,25 +38,3 @@ sample_text = zt.Text(
 
 ```
 </Card>
-
-<Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
-
-<ResponseField name="zero_true.Text" type="Zero True Component">
-  <Expandable title="properties">
-   <AccordionGroup>
-<Accordion title="text">
-        **text:** string = ; 
-        The actual text content
-</Accordion>
-<Accordion title="type">
-        **type:** string = text-body-1; 
-        Text type to display
-</Accordion>
-<Accordion title="color">
-        **color:**  = None; 
-        Color of the text
-</Accordion>
-
-   </AccordionGroup>
-  </Expandable>
-</ResponseField>

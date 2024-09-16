@@ -3,29 +3,39 @@ icon: "rectangle-code"
 iconType: "solid"
 ---
 
-<Card title="Example Usage" icon="code">
-  ```python
-import zero_true as zt
-
-# Create a PlotlyComponent component
-sample_plotlycomponent = zt.PlotlyComponent(
-    id = 'sample_plotlycomponent',  # ID for the component
-    figure_json'',  # Serialized Plotly figure as JSON string
-)
-
-```
-</Card>
-
 <Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
 
 <ResponseField name="zero_true.PlotlyComponent" type="Zero True Component">
   <Expandable title="properties">
    <AccordionGroup>
+<Accordion title="id">
+        **id (string):** ID for the component
+</Accordion>
 <Accordion title="figure_json">
-        **figure_json:** string = None; 
-        Serialized Plotly figure as JSON string
+        **figure_json (string):** Serialized Plotly figure as JSON string
 </Accordion>
 
    </AccordionGroup>
   </Expandable>
 </ResponseField>
+
+<Card title="Example Usage" icon="code">
+  ```python
+import zero_true as zt
+import pandas as pd
+import plotly.express as px
+
+# Some sample data pulled from Wikipedia
+table_MN = pd.read_html('https://en.wikipedia.org/wiki/Minnesota')
+example_data = table_MN[6]
+example_data['Country'] = example_data['Country'].str.replace(r"\[.*\]", "", regex=True)
+
+fig = px.bar(example_data, x='Country', y='Population')
+zt.plotlyComponent(id='plot', figure=fig)
+```
+</Card>
+<Card title="Example Output">
+<Frame>
+  <img src="/images/plotly_example.png" />
+</Frame>
+</Card>

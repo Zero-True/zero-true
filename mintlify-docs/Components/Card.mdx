@@ -3,54 +3,46 @@ icon: "rectangle-code"
 iconType: "solid"
 ---
 
-<Card title="Example Usage" icon="code">
-  ```python
-import zero_true as zt
-
-# Create a Card component
-sample_card = zt.Card(
-    id = 'sample_card',  # Unique id for a component
-    childComponents = [],  # List of child component ids to be placed within the card
-    color = None,  # Background color of the card
-    elevation = 0,  # Elevation level of the card. Must be between 0 and 24
-    density = default,  # Density of the component
-    width = 100%,  # Width of the card
-    location = center,  # Location of the card within the parent component. Can be center, start, end, left, right, top, bottom, or a logical combination of two locations (e.g. left top)
-)
-
-```
-</Card>
-
 <Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
 
 <ResponseField name="zero_true.Card" type="Zero True Component">
   <Expandable title="properties">
    <AccordionGroup>
+<Accordion title="id">
+        **id (string):** Unique id for a component
+</Accordion>
 <Accordion title="childComponents">
-        **childComponents:** array = []; 
-        List of child component ids to be placed within the card
+        **childComponents (list):** List of child component ids to be placed within the card
 </Accordion>
 <Accordion title="color">
-        **color:**  = None; 
-        Background color of the card
+        **color (string):** Background color of the card
 </Accordion>
 <Accordion title="elevation">
-        **elevation:**  = 0; 
-        Elevation level of the card. Must be between 0 and 24
+        **elevation (integer):** Elevation level of the card. Must be between 0 and 24
 </Accordion>
 <Accordion title="density">
-        **density:**  = default; 
-        Density of the component
+        **density (string):** Density of the component
 </Accordion>
 <Accordion title="width">
-        **width:**  = 100%; 
-        Width of the card
-</Accordion>
-<Accordion title="location">
-        **location:**  = center; 
-        Location of the card within the parent component. Can be center, start, end, left, right, top, bottom, or a logical combination of two locations (e.g. left top)
+        **width (integer | string):** Width of the card
 </Accordion>
 
    </AccordionGroup>
   </Expandable>
 </ResponseField>
+
+<Card title="Example Usage" icon="code">
+  ```python
+import zero_true as zt
+
+sample_card = zt.Card(
+    id = 'sample_card',  # Unique id for a component
+    childComponents = [],  # List of child component ids to be placed within the card
+    color = None,  # Background color of the card
+    elevation = 0,  # Elevation level of the card. Must be between 0 and 24
+    density = 'default',  # Density of the component
+    width = '100%',  # Width of the card
+)
+
+```
+</Card>

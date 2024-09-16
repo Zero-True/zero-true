@@ -3,64 +3,58 @@ icon: "rectangle-code"
 iconType: "solid"
 ---
 
-<Card title="Example Usage" icon="code">
-  ```python
-import zero_true as zt
-
-# Create a Autocomplete component
-sample_autocomplete = zt.Autocomplete(
-    id = 'sample_autocomplete',  # Unique id for a component
-    itemsNone,  # Options for the autocomplete box. Can be a list of strings or integers
-    value = ,  # Selected option for the autocomplete box
-    label = ,  # Label for the autocomplete box
-    multiple = False,  # Determines if multiple selections are allowed
-    clearable = True,  # Determines if the autocomplete box has a clearable option
-    disabled = False,  # Determines if the autocomplete box is disabled
-    readonly = False,  # Determines if the autocomplete box is read-only
-    color = primary,  # Color of the autocomplete component. Can be custom or standard Material color
-)
-
-```
-</Card>
-
 <Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
 
 <ResponseField name="zero_true.Autocomplete" type="Zero True Component">
   <Expandable title="properties">
    <AccordionGroup>
+<Accordion title="id">
+        **id (string):** Unique id for a component
+</Accordion>
 <Accordion title="items">
-        **items:** array = None; 
-        Options for the autocomplete box. Can be a list of strings or integers
+        **items (list):** Options for the autocomplete box. Can be a list of strings or integers
 </Accordion>
 <Accordion title="value">
-        **value:**  = ; 
-        Selected option for the autocomplete box
+        **value (string | integer):** Selected option for the autocomplete box
 </Accordion>
 <Accordion title="label">
-        **label:**  = ; 
-        Label for the autocomplete box
+        **label (string):** Label for the autocomplete box
 </Accordion>
 <Accordion title="multiple">
-        **multiple:**  = False; 
-        Determines if multiple selections are allowed
+        **multiple (boolean):** Determines if multiple selections are allowed
 </Accordion>
 <Accordion title="clearable">
-        **clearable:**  = True; 
-        Determines if the autocomplete box has a clearable option
+        **clearable (boolean):** Determines if the autocomplete box has a clearable option
 </Accordion>
 <Accordion title="disabled">
-        **disabled:**  = False; 
-        Determines if the autocomplete box is disabled
+        **disabled (boolean):** Determines if the autocomplete box is disabled
 </Accordion>
 <Accordion title="readonly">
-        **readonly:**  = False; 
-        Determines if the autocomplete box is read-only
+        **readonly (boolean):** Determines if the autocomplete box is read-only
 </Accordion>
 <Accordion title="color">
-        **color:**  = primary; 
-        Color of the autocomplete component. Can be custom or standard Material color
+        **color (string):** Color of the autocomplete component. Can be custom or standard Material color
 </Accordion>
 
    </AccordionGroup>
   </Expandable>
 </ResponseField>
+
+<Card title="Example Usage" icon="code">
+  ```python
+import zero_true as zt
+
+sample_autocomplete = zt.Autocomplete(
+    id = 'sample_autocomplete',  # Unique id for a component
+    items = [],  # Options for the autocomplete box. Can be a list of strings or integers
+    value = '',  # Selected option for the autocomplete box
+    label = '',  # Label for the autocomplete box
+    multiple = False,  # Determines if multiple selections are allowed
+    clearable = True,  # Determines if the autocomplete box has a clearable option
+    disabled = False,  # Determines if the autocomplete box is disabled
+    readonly = False,  # Determines if the autocomplete box is read-only
+    color = 'primary',  # Color of the autocomplete component. Can be custom or standard Material color
+)
+
+```
+</Card>

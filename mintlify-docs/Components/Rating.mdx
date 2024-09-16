@@ -3,129 +3,82 @@ icon: "rectangle-code"
 iconType: "solid"
 ---
 
+<Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
+
+<ResponseField name="zero_true.Rating" type="Zero True Component">
+  <Expandable title="properties">
+   <AccordionGroup>
+<Accordion title="id">
+        **id (string):** Unique id for a component
+</Accordion>
+<Accordion title="value">
+        **value (string | float):** Current value of the rating
+</Accordion>
+<Accordion title="length">
+        **length (string | integer):** Number of rating icons
+</Accordion>
+<Accordion title="hover">
+        **hover (boolean):** Provides visual feedback when hovering over icons
+</Accordion>
+<Accordion title="size">
+        **size (string | integer):** Size of the rating icons
+</Accordion>
+<Accordion title="color">
+        **color (string):** Color of the rating icons when active
+</Accordion>
+<Accordion title="active_color">
+        **active_color (string):** The applied color when the component is in an active state
+</Accordion>
+<Accordion title="half_increments">
+        **half_increments (boolean):** Allows for half-increment ratings
+</Accordion>
+<Accordion title="readonly">
+        **readonly (boolean):** Removes all hover effects and pointer events
+</Accordion>
+<Accordion title="density">
+        **density (string):** Adjusts the vertical height used by the component
+</Accordion>
+<Accordion title="disabled">
+        **disabled (boolean):** Removes the ability to click or target the component
+</Accordion>
+<Accordion title="item_aria_label">
+        **item_aria_label (string):** Aria label for each item
+</Accordion>
+<Accordion title="item_label_position">
+        **item_label_position (string):** Position of item labels
+</Accordion>
+<Accordion title="item_labels">
+        **item_labels (list):** Array of labels to display next to each item
+</Accordion>
+<Accordion title="ripple">
+        **ripple (boolean):** Applies the v-ripple directive
+</Accordion>
+
+   </AccordionGroup>
+  </Expandable>
+</ResponseField>
+
 <Card title="Example Usage" icon="code">
   ```python
 import zero_true as zt
 
-# Create a Rating component
 sample_rating = zt.Rating(
     id = 'sample_rating',  # Unique id for a component
     value = 0,  # Current value of the rating
     length = 5,  # Number of rating icons
     hover = True,  # Provides visual feedback when hovering over icons
-    size = default,  # Size of the rating icons
-    color = None,  # Color of the rating icons when active
-    active_color = None,  # The applied color when the component is in an active state
-    empty_icon = $ratingEmpty,  # The icon displayed when empty
-    full_icon = $ratingFull,  # The icon displayed when full
+    size = 'default',  # Size of the rating icons
+    color = 'primary',  # Color of the rating icons when active
+    active_color = 'primary',  # The applied color when the component is in an active state
     half_increments = False,  # Allows for half-increment ratings
-    clearable = False,  # Allows the component to be cleared
     readonly = False,  # Removes all hover effects and pointer events
     density = 'default',  # Adjusts the vertical height used by the component
     disabled = False,  # Removes the ability to click or target the component
     item_aria_label = '$vuetify.rating.ariaLabel.item',  # Aria label for each item
     item_label_position = 'top',  # Position of item labels
     item_labels = None,  # Array of labels to display next to each item
-    name = None,  # Sets the component's name attribute
     ripple = False,  # Applies the v-ripple directive
-    tag = 'div',  # Specify a custom tag used on the root element
-    theme = None,  # Specify a theme for this component and all of its children
-    label = None,  # A label for your rating component
 )
 
 ```
 </Card>
-
-<Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
-
-<ResponseField name="zero_true.Rating" type="Zero True Component">
-  <Expandable title="properties">
-   <AccordionGroup>
-<Accordion title="value">
-        **value:**  = 0; 
-        Current value of the rating
-</Accordion>
-<Accordion title="length">
-        **length:**  = 5; 
-        Number of rating icons
-</Accordion>
-<Accordion title="hover">
-        **hover:** boolean = True; 
-        Provides visual feedback when hovering over icons
-</Accordion>
-<Accordion title="size">
-        **size:**  = default; 
-        Size of the rating icons
-</Accordion>
-<Accordion title="color">
-        **color:**  = None; 
-        Color of the rating icons when active
-</Accordion>
-<Accordion title="active_color">
-        **active_color:**  = None; 
-        The applied color when the component is in an active state
-</Accordion>
-<Accordion title="empty_icon">
-        **empty_icon:**  = $ratingEmpty; 
-        The icon displayed when empty
-</Accordion>
-<Accordion title="full_icon">
-        **full_icon:**  = $ratingFull; 
-        The icon displayed when full
-</Accordion>
-<Accordion title="half_increments">
-        **half_increments:** boolean = False; 
-        Allows for half-increment ratings
-</Accordion>
-<Accordion title="clearable">
-        **clearable:** boolean = False; 
-        Allows the component to be cleared
-</Accordion>
-<Accordion title="readonly">
-        **readonly:** boolean = False; 
-        Removes all hover effects and pointer events
-</Accordion>
-<Accordion title="density">
-        **density:** string = default; 
-        Adjusts the vertical height used by the component
-</Accordion>
-<Accordion title="disabled">
-        **disabled:** boolean = False; 
-        Removes the ability to click or target the component
-</Accordion>
-<Accordion title="item_aria_label">
-        **item_aria_label:** string = $vuetify.rating.ariaLabel.item; 
-        Aria label for each item
-</Accordion>
-<Accordion title="item_label_position">
-        **item_label_position:** string = top; 
-        Position of item labels
-</Accordion>
-<Accordion title="item_labels">
-        **item_labels:**  = None; 
-        Array of labels to display next to each item
-</Accordion>
-<Accordion title="name">
-        **name:**  = None; 
-        Sets the component's name attribute
-</Accordion>
-<Accordion title="ripple">
-        **ripple:** boolean = False; 
-        Applies the v-ripple directive
-</Accordion>
-<Accordion title="tag">
-        **tag:** string = div; 
-        Specify a custom tag used on the root element
-</Accordion>
-<Accordion title="theme">
-        **theme:**  = None; 
-        Specify a theme for this component and all of its children
-</Accordion>
-<Accordion title="label">
-        **label:**  = None; 
-        A label for your rating component
-</Accordion>
-
-   </AccordionGroup>
-  </Expandable>
-</ResponseField>

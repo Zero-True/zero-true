@@ -416,19 +416,23 @@ def share_notebook(shareRequest: request.ShareRequest):
 
 
 @router.post("/api/upload_file")
-async def upload_file(file: UploadFile = File(...), path: str = Form(...)):
+async def upload_file(file: UploadFile = File(...), chunk_index: int = Form(...), total_chunks: int = Form(...), path: str = Form(...), file_name: str = Form(...)):
     if app_state.run_mode == "dev":
         logger.debug("File upload request started")
 
         # Ensure the path exists
         os.makedirs(path, exist_ok=True)
 
-        file_path = os.path.join(path, file.filename)
-        with open(file_path, "wb") as buffer:
+        file_path = os.path.join(path, "temp_upload_file")
+        with open(file_path, "ab") as buffer:
             buffer.write(await file.read())
 
-        logger.debug(f"File upload request completed. File saved to: {file_path}")
-        return {"filename": file.filename, "path": file_path}
+        final_path = os.path.join(path, file_name)
+        if chunk_index == total_chunks - 1:
+            os.rename(file_path, final_path)
+
+        logger.debug(f"File upload request completed. File saved to: {final_path}")
+        return {"filename": file_name, "path": final_path}
 
 
 def get_file_type(name):

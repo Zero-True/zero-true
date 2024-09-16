@@ -17,7 +17,7 @@ class Matplotlib(ZTComponent):
 
     @classmethod
     def from_matplotlib(
-        cls, id: str, figure: plt.Figure, alt=None, width=None, height=None
+        cls, id: str, figure: plt.Figure, alt="", width=200, height=200
     ):
         """Create a Matplotlib component from a matplotlib figure"""
         plt.style.use("dark_background")
@@ -29,7 +29,7 @@ class Matplotlib(ZTComponent):
         return cls(id=id, src=src, alt=alt, width=width, height=height)
 
 
-def matplotlib(id: str, figure: plt.Figure, alt=None, width=None, height=None):
+def matplotlib(id: str, figure: plt.Figure, alt="", width=200, height=200):
     """Create a Matplotlib component from a matplotlib figure"""
     plt.style.use("dark_background")
     buffer = BytesIO()

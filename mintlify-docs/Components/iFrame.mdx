@@ -3,16 +3,46 @@ icon: "rectangle-code"
 iconType: "solid"
 ---
 
+<Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
+
+<ResponseField name="zero_true.iFrame" type="Zero True Component">
+  <Expandable title="properties">
+   <AccordionGroup>
+<Accordion title="id">
+        **id (string):** Unique id for a component
+</Accordion>
+<Accordion title="src">
+        **src (string):** Source URL of the iframe
+</Accordion>
+<Accordion title="width">
+        **width (integer | string):** Width of the iframe
+</Accordion>
+<Accordion title="height">
+        **height (integer | string):** Height of the iframe
+</Accordion>
+<Accordion title="frameborder">
+        **frameborder (integer):** Frame border of the iframe
+</Accordion>
+<Accordion title="scrolling">
+        **scrolling (string):** Scrolling of the iframe
+</Accordion>
+<Accordion title="allowtransparency">
+        **allowtransparency (boolean):** Allow transparency of the iframe
+</Accordion>
+
+   </AccordionGroup>
+  </Expandable>
+</ResponseField>
+
 <Card title="Example Usage" icon="code">
   ```python
 import zero_true as zt
 
-# Create a iFrame component
 sample_iframe = zt.iFrame(
     id = 'sample_iframe',  # Unique id for a component
     src = '',  # Source URL of the iframe
-    width = 100%,  # Width of the iframe
-    height = 100%,  # Height of the iframe
+    width = '100%',  # Width of the iframe
+    height = '100%',  # Height of the iframe
     frameborder = 0,  # Frame border of the iframe
     scrolling = 'auto',  # Scrolling of the iframe
     allowtransparency = False,  # Allow transparency of the iframe
@@ -20,37 +50,3 @@ sample_iframe = zt.iFrame(
 
 ```
 </Card>
-
-<Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
-
-<ResponseField name="zero_true.iFrame" type="Zero True Component">
-  <Expandable title="properties">
-   <AccordionGroup>
-<Accordion title="src">
-        **src:** string = ; 
-        Source URL of the iframe
-</Accordion>
-<Accordion title="width">
-        **width:**  = 100%; 
-        Width of the iframe
-</Accordion>
-<Accordion title="height">
-        **height:**  = 100%; 
-        Height of the iframe
-</Accordion>
-<Accordion title="frameborder">
-        **frameborder:** integer = 0; 
-        Frame border of the iframe
-</Accordion>
-<Accordion title="scrolling">
-        **scrolling:** string = auto; 
-        Scrolling of the iframe
-</Accordion>
-<Accordion title="allowtransparency">
-        **allowtransparency:** boolean = False; 
-        Allow transparency of the iframe
-</Accordion>
-
-   </AccordionGroup>
-  </Expandable>
-</ResponseField>
