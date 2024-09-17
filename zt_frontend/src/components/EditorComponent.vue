@@ -72,6 +72,7 @@ export default {
           "body { background-color: #1B2F3C; color: #FFFFFF; font-family: 'Roboto', sans-serif; }",
         autoresize_bottom_margin: 10,
         min_height: 100,
+        license_key: "gpl",
       },
       app_init: {
         plugins: "autoresize",
@@ -87,6 +88,7 @@ export default {
           "body { background-color: #0E1B23; color: #FFFFFF; font-family: 'Roboto', sans-serif; }",
         min_height: 0,
         autoresize_bottom_margin: 0,
+        license_key: "gpl",
       },
       items: [
         { title: "Code" },
