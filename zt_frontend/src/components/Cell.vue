@@ -104,6 +104,7 @@
               @click="$emit('play')"
             ></v-btn>
             <v-btn
+              v-if="globalState.comments_enabled"
               :class="[
                 'message-btn',
                 'pa-0',
@@ -280,6 +281,7 @@ import { CellReactivityRequest } from "@/types/cell_reactivity_request";
 import { ShowTableRequest } from "@/types/show_table_request";
 import { NameCellRequest } from "@/types/name_cell_request";
 import { useCellType } from "@/composables/cell-type";
+import { globalState } from "@/global_vars";
 
 import { useCommentsStore } from "@/stores/comments";
 
