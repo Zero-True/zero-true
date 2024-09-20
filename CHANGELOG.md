@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.4.2](https://github.com/Zero-True/zero-true/compare/v0.4.1...v0.4.2) (2024-09-20)
+
+
+### Bug Fixes
+
+* Bump TinyMCE for security issue ([#326](https://github.com/Zero-True/zero-true/issues/326)) ([32afa7b](https://github.com/Zero-True/zero-true/commit/32afa7b1c4e9d42854a854845226715d9e180408))
+* Disable comments by default ([#328](https://github.com/Zero-True/zero-true/issues/328)) ([882adf9](https://github.com/Zero-True/zero-true/commit/882adf953aa20ec12a9712d3aee28add827e3dd2))
+* Docs update and large file uploads ([#322](https://github.com/Zero-True/zero-true/issues/322)) ([31af286](https://github.com/Zero-True/zero-true/commit/31af2866d229e69e0b50bb05181165a3fe264e3a))
+* Extend text editor and file explorer extension ([#325](https://github.com/Zero-True/zero-true/issues/325)) ([74b80d3](https://github.com/Zero-True/zero-true/commit/74b80d3b946e7c6272a1f361f9975aa61d021db4))
+
 ## [0.4.1](https://github.com/Zero-True/zero-true/compare/v0.4.0...v0.4.1) (2024-09-10)
 
 
