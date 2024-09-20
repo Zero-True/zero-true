@@ -13,7 +13,7 @@ from zt_backend.models.api import request
 from zt_backend.runner.execute_code import execute_request
 from zt_backend.config import settings
 from zt_backend.utils.completions import get_code_completions
-from zt_backend.utils.linting import debounced_get_cell_linting
+from zt_backend.utils.linting import queued_get_cell_linting
 from zt_backend.utils.dependencies import (
     dependency_update,
     parse_dependencies,
@@ -271,7 +271,7 @@ async def save_text(websocket: WebSocket):
                                 data.get("column"),
                             )
                             
-                            linting_results = await debounced_get_cell_linting(
+                            linting_results = await queued_get_cell_linting(
                                 cell_id,
                                 data.get("text"),
                                 data.get("code_w_context")
