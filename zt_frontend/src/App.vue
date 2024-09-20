@@ -506,6 +506,7 @@ export default {
       this.ws_url = envData.ws_url || import.meta.env.VITE_WS_URL;
       this.pythonVersion = envData.python_version;
       this.ztVersion = envData.zt_version;
+      globalState.comments_enabled = envData.comments_enabled;
     },
 
     updateDrawer(value: boolean) {

@@ -67,6 +67,7 @@ def env_data():
         "ws_url": settings.ws_url,
         "python_version": f"{sys.version_info.major}.{sys.version_info.minor}",
         "zt_version": pkg_resources.get_distribution("zero-true").version,
+        "comments_enabled": settings.comments_enabled,
     }
 
 
@@ -574,37 +575,44 @@ def list_children(path: str = Query(...)):
 
 @router.post("/api/add_comment")
 def add_comment(comment: request.AddCommentRequest):
-    app_state.save_queue.put_nowait({"add_comment": comment})
+    if settings.comments_enabled:
+        app_state.save_queue.put_nowait({"add_comment": comment})
 
 
 @router.post("/api/delete_comment")
 def delete_comment(comment: request.DeleteCommentRequest):
-    app_state.save_queue.put_nowait({"delete_comment": comment})
+    if settings.comments_enabled:
+        app_state.save_queue.put_nowait({"delete_comment": comment})
 
 
 @router.post("/api/edit_comment")
 def edit_comment(comment: request.EditCommentRequest):
-    app_state.save_queue.put_nowait({"edit_comment": comment})
+    if settings.comments_enabled:
+        app_state.save_queue.put_nowait({"edit_comment": comment})
 
 
 @router.post("/api/resolve_comment")
 def resolve_comment(comment: request.ResolveCommentRequest):
-    app_state.save_queue.put_nowait({"resolve_comment": comment})
+    if settings.comments_enabled:
+        app_state.save_queue.put_nowait({"resolve_comment": comment})
 
 
 @router.post("/api/add_reply")
 def add_reply(reply: request.AddReplyRequest):
-    app_state.save_queue.put_nowait({"add_reply": reply})
+    if settings.comments_enabled:
+        app_state.save_queue.put_nowait({"add_reply": reply})
 
 
 @router.post("/api/delete_reply")
 def delete_reply(reply: request.DeleteReplyRequest):
-    app_state.save_queue.put_nowait({"delete_reply": reply})
+    if settings.comments_enabled:
+        app_state.save_queue.put_nowait({"delete_reply": reply})
 
 
 @router.post("/api/edit_reply")
 def edit_reply(reply: request.EditReplyRequest):
-    app_state.save_queue.put_nowait({"edit_reply": reply})
+    if settings.comments_enabled:
+        app_state.save_queue.put_nowait({"edit_reply": reply})
 
 
 @router.on_event("shutdown")
