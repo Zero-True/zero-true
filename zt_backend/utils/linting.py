@@ -1,53 +1,74 @@
-from typing import List, Dict, Union
+import asyncio
+from typing import List, Dict, Union, Callable, Coroutine, Any
 import tempfile
 import os
-from pylint import epylint as lint
-from fastapi import HTTPException
 import json
 import logging
-from zt_backend.utils.debounce import LintingDebouncer
+from fastapi import HTTPException
+
 
 logger = logging.getLogger(__name__)
 
-linting_debouncer = LintingDebouncer(wait_time=0.2)  # 200ms debounce time
+class LintingQueue:
+    def __init__(self, interval: float):
+        self.interval = interval
+        self.queue: asyncio.Queue = asyncio.Queue()
+        self.processing_task: asyncio.Task = asyncio.create_task(self._process_queue())
 
+    async def enqueue(self, coro: Callable[..., Coroutine[Any, Any, Any]], *args, **kwargs):
+        future = asyncio.Future()
+        await self.queue.put((coro, args, kwargs, future))
+        return await future
 
-async def debounced_get_cell_linting(cell_id: str, cell_code: str, context_code: str):
+    async def _process_queue(self):
+        while True:
+            await asyncio.sleep(self.interval)
+            if not self.queue.empty():
+                coro, args, kwargs, future = await self.queue.get()
+                try:
+                    # Process only the most recent request
+                    while not self.queue.empty():
+                        coro, args, kwargs, future = self.queue.get_nowait()
+                    result = await coro(*args, **kwargs)
+                    future.set_result(result)
+                except Exception as e:
+                    future.set_exception(e)
+
+linting_queue = LintingQueue(interval=1.0)  # Process queue every 1 second
+
+async def queued_get_cell_linting(cell_id: str, cell_code: str, context_code: str):
     """
-    Debounced version of get_cell_linting
+    Queued version of get_cell_linting
     """
-    return await linting_debouncer.debounce(cell_id, get_cell_linting, cell_id, cell_code, context_code)
-
+    return await linting_queue.enqueue(get_cell_linting, cell_id, cell_code, context_code)
 
 async def get_cell_linting(cell_id: str, cell_code: str, context_code: str) -> Dict[str, List[Dict[str, Union[int, str, Dict[str, int]]]]]:
     """
     Lint the provided Python code for a specific cell, considering the context, and return the linting results.
-
-    Args:
-        cell_id (str): The ID of the cell being linted.
-        cell_code (str): The code of the specific cell to lint.
-        context_code (str): The entire notebook code for context.
-
-    Returns:
-        Dict[str, List[Dict[str, Union[int, str, Dict[str, int]]]]]: Linting results as a dictionary with cell_id as key.
     """
     try:
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as temp_file:
             temp_file.write(context_code)
             temp_file_path = temp_file.name
 
-        (pylint_stdout, _) = lint.py_run(
-            f'{temp_file_path} --output-format=json',
-            return_std=True
+        # Run pylint as a subprocess
+        process = await asyncio.create_subprocess_exec(
+            'pylint', temp_file_path, '--output-format=json',
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
         )
+        stdout, stderr = await process.communicate()
 
-        lint_output = pylint_stdout.getvalue()
         os.unlink(temp_file_path)
 
-        if not lint_output:
+        if stderr:
+            logger.error(f"Pylint error: {stderr.decode()}")
+            raise HTTPException(status_code=500, detail=f"Pylint error: {stderr.decode()}")
+
+        if not stdout:
             return {cell_id: []}
 
-        lint_messages = json.loads(lint_output)
+        lint_messages = json.loads(stdout.decode())
         
         # Filter lint messages to only include those relevant to the current cell
         cell_start_line = context_code.count('\n', 0, context_code.index(cell_code)) + 1
@@ -68,13 +89,6 @@ async def get_cell_linting(cell_id: str, cell_code: str, context_code: str) -> D
 def transform_pylint_messages(pylint_messages: List[Dict], cell_start_line: int) -> List[Dict[str, Union[int, str, Dict[str, int]]]]:
     """
     Transform Pylint messages into a format suitable for the frontend, adjusting line numbers to be cell-relative.
-
-    Args:
-        pylint_messages (List[Dict]): List of Pylint messages.
-        cell_start_line (int): The starting line number of the cell in the context.
-
-    Returns:
-        List[Dict[str, Union[int, str, Dict[str, int]]]]: List of transformed messages.
     """
     transformed_messages = []
     for message in pylint_messages:
@@ -97,12 +111,6 @@ def transform_pylint_messages(pylint_messages: List[Dict], cell_start_line: int)
 def map_severity(pylint_type: str) -> str:
     """
     Map Pylint message types to severity levels.
-
-    Args:
-        pylint_type (str): Pylint message type.
-
-    Returns:
-        str: Corresponding severity level.
     """
     severity_map = {
         "convention": "info",
