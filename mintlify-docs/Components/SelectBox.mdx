@@ -3,324 +3,62 @@ icon: "rectangle-code"
 iconType: "solid"
 ---
 
-<Card title="Example Usage" icon="code">
-  ```python
-import zero_true as zt
-
-# Create a SelectBox component
-select_box = zt.SelectBox(
-    id="sample_select_box",
-    clearable=True,                      # Determines if the select box has a clearable option
-    color="primary",                     # Color of the select box
-    dense=True,                          # Determines if the select box is dense
-    disabled=False,                      # Determines if the select box is disabled
-    items=["Option 1", "Option 2", "Option 3"],  # Options for the select box
-    label="Choose an option",            # Label for the select box
-    multiple=False,                      # Determines if multiple selections are allowed
-    outlined=True,                       # Determines if the select box has an outlined style
-    readonly=False,                      # Determines if the select box is read-only
-    triggerEvent="update:modelValue",    # Trigger event for when to trigger a run
-    value=None                           # Selected options for the select box
-)
-
-# Assuming you have a mechanism to render or use this SelectBox within a layout
-layout = zt.Layout(components=[select_box])
-
-```
-</Card>
-
-<Card title="Example Output" icon="computer">
-
-<iframe src="https://published.zero-true.com/srrey/exampleselectbox/" width="100%" height="300"></iframe>
-
-</Card>
-
-## Overview
-
-`pydantic model zero_true.SelectBox` 
-
-The SelectBox component is essential for user interfaces that require options selection. It supports both single and multiple selections, offering flexibility for different use cases such as filters, settings, or forms. Features like clearable selections, custom colors, and dense styling make this component adaptable and user-friendly. 
-
-<Note> It can be configured to be readonly or disabled as needed, and its ability to trigger backend actions on value updates makes it a dynamic tool for real-time applications.</Note>
-
-
-## JSON Schema
-
-<Accordion title="Field Defenitions"> 
-```json
-{
-   "title": "SelectBox",
-   "description": "SelectBox component allows users to select from a list of options. Can be a single or multiple selection",
-   "type": "object",
-   "properties": {
-      "id": {
-         "description": "Unique id for a component",
-         "title": "Id",
-         "type": "string"
-      },
-      "variable_name": {
-         "default": "",
-         "description": "Optional variable name associated with a component",
-         "title": "Variable Name",
-         "type": "string"
-      },
-      "component": {
-         "default": "v-select",
-         "description": "Vue component name",
-         "title": "Component",
-         "type": "string"
-      },
-      "items": {
-         "description": "Options for the select box. Can be a list of strings or integers",
-         "items": {
-            "anyOf": [
-               {
-                  "type": "string"
-               },
-               {
-                  "type": "integer"
-               }
-            ]
-         },
-         "title": "Items",
-         "type": "array"
-      },
-      "value": {
-         "anyOf": [
-            {
-               "items": {
-                  "anyOf": [
-                     {
-                        "type": "string"
-                     },
-                     {
-                        "type": "integer"
-                     },
-                     {
-                        "type": "null"
-                     }
-                  ]
-               },
-               "type": "array"
-            },
-            {
-               "type": "string"
-            },
-            {
-               "type": "integer"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "description": "Selected options for the select box",
-         "title": "Value"
-      },
-      "label": {
-         "anyOf": [
-            {
-               "type": "string"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "description": "Label for the select box",
-         "title": "Label"
-      },
-      "multiple": {
-         "anyOf": [
-            {
-               "type": "boolean"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "description": "Determines if multiple selections are allowed",
-         "title": "Multiple"
-      },
-      "dense": {
-         "anyOf": [
-            {
-               "type": "boolean"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "description": "Determines if the select box is dense",
-         "title": "Dense"
-      },
-      "outlined": {
-         "anyOf": [
-            {
-               "type": "boolean"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "description": "Determines if the select box has an outlined style",
-         "title": "Outlined"
-      },
-      "clearable": {
-         "anyOf": [
-            {
-               "type": "boolean"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "description": "Determines if the select box has a clearable option",
-         "title": "Clearable"
-      },
-      "disabled": {
-         "anyOf": [
-            {
-               "type": "boolean"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "description": "Determines if the select box is disabled",
-         "title": "Disabled"
-      },
-      "readonly": {
-         "anyOf": [
-            {
-               "type": "boolean"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "description": "Determines if the select box is read-only",
-         "title": "Readonly"
-      },
-      "color": {
-         "anyOf": [
-            {
-               "type": "string"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "description": "Color of the range slider. Can be custom or standard Material color",
-         "pre": true,
-         "title": "Color"
-      },
-      "triggerEvent": {
-         "default": "update:modelValue",
-         "description": "Trigger event for when to trigger a run",
-         "title": "Triggerevent",
-         "type": "string"
-      }
-   },
-   "required": [
-      "id",
-      "items"
-   ]
-}
-```
-</Accordion> 
-
-
-<Info>Bellow are the various attributes you can assign to the component. Utlizing them can allow for modifications to the pre-created object.</Info>
+<Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
 
 <ResponseField name="zero_true.SelectBox" type="Zero True Component">
   <Expandable title="properties">
    <AccordionGroup>
-<Accordion title="field clearable">
-      **field clearable:** bool | None = None; 
-      Determines if the select box has a clearable option.
+<Accordion title="id">
+        **id (string):** Unique id for a component
 </Accordion>
-
-<Accordion title="field color">
-      **field color:** str | None = None; 
-      Color of the select box. Can be custom or standard Material color.
+<Accordion title="items">
+        **items (list):** Options for the select box. Can be a list of strings or integers
 </Accordion>
-
-<Accordion title="field component">
-      **field component:** str = 'v-select'; 
-      Vue component name.
+<Accordion title="value">
+        **value (list | string | integer):** Selected options for the select box
 </Accordion>
-
-<Accordion title="field dense">
-      **field dense:** bool | None = None; 
-      Determines if the select box is dense.
+<Accordion title="label">
+        **label (string):** Label for the select box
 </Accordion>
-
-<Accordion title="field disabled">
-      **field disabled:** bool | None = None; 
-      Determines if the select box is disabled.
+<Accordion title="multiple">
+        **multiple (boolean):** Determines if multiple selections are allowed
 </Accordion>
-
-<Accordion title="field items">
-      **field items:** List[str | int] [Required]; 
-      Options for the select box. Can be a list of strings or integers.
+<Accordion title="outlined">
+        **outlined (boolean):** Determines if the select box has an outlined style
 </Accordion>
-
-<Accordion title="field label">
-      **field label:** str | None = None; 
-      Label for the select box.
+<Accordion title="clearable">
+        **clearable (boolean):** Determines if the select box has a clearable option
 </Accordion>
-
-<Accordion title="field multiple">
-      **field multiple:** bool | None = None; 
-      Determines if multiple selections are allowed.
+<Accordion title="disabled">
+        **disabled (boolean):** Determines if the select box is disabled
 </Accordion>
-
-<Accordion title="field outlined">
-      **field outlined:** bool | None = None; 
-      Determines if the select box has an outlined style.
+<Accordion title="readonly">
+        **readonly (boolean):** Determines if the select box is read-only
 </Accordion>
-
-<Accordion title="field readonly">
-      **field readonly:** bool | None = None; 
-      Determines if the select box is read-only.
-</Accordion>
-
-<Accordion title="field triggerEvent">
-      **field triggerEvent:** str = 'update:modelValue'; 
-      Trigger event for when to trigger a run.
-</Accordion>
-
-<Accordion title="field value">
-      **field value:** List[str | int | None] | None | str | int = None; 
-      Selected options for the select box.
-</Accordion>
-
-<Accordion title="classmethod from_dict">
-      **classmethod from_dict:** (items_map: dict, id: str, value: str | int | None = None, label: str | None = None, multiple: bool | None = None, dense: bool | None = None, outlined: bool | None = None, clearable: bool | None = None, disabled: bool | None = None, readonly: bool | None = None, color: str | None = None, triggerEvent: str = 'update:modelValue');
+<Accordion title="color">
+        **color (string):** Color of the range slider. Can be custom or standard Material color
 </Accordion>
 
    </AccordionGroup>
   </Expandable>
 </ResponseField>
 
-<Card title="Methods">
-  classmethod *get_value_from_global_state*(value, values)
+<Card title="Example Usage" icon="code">
+  ```python
+import zero_true as zt
+
+sample_selectbox = zt.SelectBox(
+    id = 'sample_selectbox',  # Unique id for a component
+    items = [],  # Options for the select box. Can be a list of strings or integers
+    value = [],  # Selected options for the select box
+    label = '',  # Label for the select box
+    multiple = False,  # Determines if multiple selections are allowed
+    outlined = False,  # Determines if the select box has an outlined style
+    clearable = False,  # Determines if the select box has a clearable option
+    disabled = False,  # Determines if the select box is disabled
+    readonly = False,  # Determines if the select box is read-only
+    color = 'primary',  # Color of the range slider. Can be custom or standard Material color
+)
+
+```
 </Card>
-
-
-
-
-
-
-
-
-
-

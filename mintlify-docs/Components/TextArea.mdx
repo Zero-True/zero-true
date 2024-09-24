@@ -3,213 +3,50 @@ icon: "rectangle-code"
 iconType: "solid"
 ---
 
-<Card title="Example Usage" icon="code">
-  ```python
-import zero_true as zt
-
-# Create a TextArea component
-text_area = zt.TextArea(
-    id="sample_text_area",
-    disabled=False,               # If true, the input is disabled
-    hint="Press Enter to Submit", # Hint text for the text input
-    label="Enter Description",    # Label for the text input
-    placeholder="Type your text here...", # Placeholder text
-    readonly=False,               # If true, the input is read-only
-    triggerEvent="change",        # Trigger event to send code to the backend
-    value=""                      # The input text value
-)
-
-# Assuming you have a mechanism to render or use this TextArea within a layout
-layout = zt.Layout(components=[text_area])
-```
-</Card>
-
-<Card title="Example Output" icon="computer">
-
-<iframe src="https://published.zero-true.com/srrey/exampletextarea/" width="100%" height="300"></iframe>
-
-</Card>
-
-## Overview
-
-`pydantic model zero_true.TextArea` 
-
-The TextArea component is designed for capturing larger blocks of text, such as comments, descriptions, or any extensive user feedback. This component is highly adaptable, featuring options for hints, placeholders, and labels to assist users during their input.
-
-<Note> It can also be set to a read-only or disabled state to suit different scenarios. This capability, combined with event triggers for backend integration, makes it highly effective for interactive applications requiring detailed text input.</Note>
-
-
-## JSON Schema
-
-<Accordion title="Field Defenitions"> 
-```json
-{
-   "title": "TextArea",
-   "description": "Text area input allows a user to input arbitrary text. This is meant for larger text inputs",
-   "type": "object",
-   "properties": {
-      "id": {
-         "description": "Unique id for a component",
-         "title": "Id",
-         "type": "string"
-      },
-      "variable_name": {
-         "default": "",
-         "description": "Optional variable name associated with a component",
-         "title": "Variable Name",
-         "type": "string"
-      },
-      "component": {
-         "default": "v-textarea",
-         "description": "Vue component name",
-         "title": "Component",
-         "type": "string"
-      },
-      "hint": {
-         "anyOf": [
-            {
-               "type": "string"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": "Press Enter to Submit",
-         "description": "Hint text for the text input",
-         "title": "Hint"
-      },
-      "value": {
-         "default": "",
-         "description": "The input text value",
-         "title": "Value",
-         "type": "string"
-      },
-      "placeholder": {
-         "anyOf": [
-            {
-               "type": "string"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "description": "Placeholder text",
-         "title": "Placeholder"
-      },
-      "label": {
-         "anyOf": [
-            {
-               "type": "string"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "description": "Label for the text input",
-         "title": "Label"
-      },
-      "readonly": {
-         "anyOf": [
-            {
-               "type": "boolean"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "description": "If true, the input is read-only",
-         "title": "Readonly"
-      },
-      "disabled": {
-         "anyOf": [
-            {
-               "type": "boolean"
-            },
-            {
-               "type": "null"
-            }
-         ],
-         "default": null,
-         "description": "If true, the input is disabled",
-         "title": "Disabled"
-      },
-      "triggerEvent": {
-         "default": null,
-         "description": "Trigger event to send code to the backend",
-         "title": "Triggerevent",
-         "type": "string"
-      }
-   },
-   "required": [
-      "id"
-   ]
-}
-```
-</Accordion> 
-
-
-<Info>Bellow are the various attributes you can assign to the component. Utlizing them can allow for modifications to the pre-created object.</Info>
+<Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
 
 <ResponseField name="zero_true.TextArea" type="Zero True Component">
   <Expandable title="properties">
    <AccordionGroup>
-<Accordion title="field component">
-      **field component:** str = 'v-textarea'; 
-      Vue component name.
+<Accordion title="id">
+        **id (string):** Unique id for a component
 </Accordion>
-
-<Accordion title="field disabled">
-      **field disabled:** bool | None = None; 
-      If true, the input is disabled.
+<Accordion title="hint">
+        **hint (string):** Hint text for the text input
 </Accordion>
-
-<Accordion title="field hint">
-      **field hint:** str | None = 'Press Enter to Submit'; 
-      Hint text for the text input.
+<Accordion title="value">
+        **value (string):** The input text value
 </Accordion>
-
-<Accordion title="field label">
-      **field label:** str | None = None; 
-      Label for the text input.
+<Accordion title="placeholder">
+        **placeholder (string):** Placeholder text
 </Accordion>
-
-<Accordion title="field placeholder">
-      **field placeholder:** str | None = None; 
-      Placeholder text.
+<Accordion title="label">
+        **label (string):** Label for the text input
 </Accordion>
-
-<Accordion title="field readonly">
-      **field readonly:** bool | None = None; 
-      If true, the input is read-only.
+<Accordion title="readonly">
+        **readonly (boolean):** If true, the input is read-only
 </Accordion>
-
-<Accordion title="field triggerEvent">
-      **field triggerEvent:** str = None; 
-      Trigger event to send code to the backend.
-</Accordion>
-
-<Accordion title="field value">
-      **field value:** str = ''; 
-      The input text value.
+<Accordion title="disabled">
+        **disabled (boolean):** If true, the input is disabled
 </Accordion>
 
    </AccordionGroup>
   </Expandable>
 </ResponseField>
 
-<Card title="Methods">
-  classmethod *get_value_from_global_state*(value, values)
+<Card title="Example Usage" icon="code">
+  ```python
+import zero_true as zt
+
+sample_textarea = zt.TextArea(
+    id = 'sample_textarea',  # Unique id for a component
+    hint = 'Press Enter to Submit',  # Hint text for the text input
+    value = '',  # The input text value
+    placeholder = '',  # Placeholder text
+    label = '',  # Label for the text input
+    readonly = False,  # If true, the input is read-only
+    disabled = False,  # If true, the input is disabled
+)
+
+```
 </Card>
-
-
-
-
-
-
-
-
-
-

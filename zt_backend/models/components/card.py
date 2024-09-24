@@ -25,7 +25,3 @@ class Card(ZTComponent):
         description="Density of the component",
     )
     width: Optional[Union[int, str]] = Field("100%", description="Width of the card")
-    location: Optional[str] = Field(
-        "center",
-        description="Location of the card within the parent component. Can be center, start, end, left, right, top, bottom, or a logical combination of two locations (e.g. left top)",
-    )

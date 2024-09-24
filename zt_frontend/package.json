@@ -15,7 +15,7 @@
     "@codemirror/lang-sql": "^6.5.4",
     "@codemirror/theme-one-dark": "^6.1.2",
     "@mdi/font": "^7.3.67",
-    "@tinymce/tinymce-vue": "^5",
+    "@tinymce/tinymce-vue": "^6",
     "@types/codemirror": "^5.60.15",
     "@types/plotly.js-basic-dist": "^1.54.2",
     "@types/plotly.js-dist-min": "^2.3.4",
@@ -45,7 +45,7 @@
     "sass": "^1.70.0",
     "typescript": "^5.0.0",
     "unplugin-auto-import": "^0.17.6",
-    "vite": "^4.5.3",
+    "vite": "^4.5.5",
     "vite-plugin-vuetify": "^1.0.0",
     "vue-tsc": "^1.2.0"
   }

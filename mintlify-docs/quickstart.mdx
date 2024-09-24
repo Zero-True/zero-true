@@ -1,10 +1,7 @@
 ---
-title: 'Installation'
-description: 'Install Zero-True like any other Python package.'
+title: 'Quickstart'
 ---
 
-
-<Note>Follow the instructions below to get started:</Note>
 
 ## Using pip
 
@@ -20,14 +17,25 @@ After installation, you can verify that Zero-True is installed by running:
 pip show zero-true
 ```
 
-## Installing Other Dependencies
 
-If your Zero-True project requires additional dependencies, anything you install inside of your Python environment will be available. You can also install additional dependencies and track them in the generated requirements.txt file by specifying each package on a new line in the dependency component. The dependency component can be found in the top right corner of the Zero-True UI:
-
-
-Blank
+## Running Zero-True
 
 
+Run Zero-True notebook locally with the following command:
 
+```bash
+zero-true notebook
+```
 
+Begin your Zero-True journey with this simple slider component example:
 
+```python
+import zero_true as zt
+
+my_slider = zt.Slider(id="my_slider")
+print(my_slider.value)
+```
+
+## Tutorials and Examples
+
+Check out our [blog](https://medium.com/zero-true) and [gallery](https://www.zero-true.com/gallery) for all the latest tutorials and examples.
