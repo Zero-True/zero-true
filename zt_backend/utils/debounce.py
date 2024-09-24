@@ -1,7 +1,5 @@
 from threading import Timer
 import asyncio
-from typing import Dict, Callable, Coroutine, Any
-
 
 def debounce(wait):
     """ Decorator that will postpone a functions
