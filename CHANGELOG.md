@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.3](https://github.com/Zero-True/zero-true/compare/v0.4.2...v0.4.3) (2024-09-25)
+
+
+### Bug Fixes
+
+* Reduce chunk size ([#330](https://github.com/Zero-True/zero-true/issues/330)) ([1f71cc3](https://github.com/Zero-True/zero-true/commit/1f71cc3673ddc3781164f9aeeb852a03f74ded80))
+
 ## [0.4.2](https://github.com/Zero-True/zero-true/compare/v0.4.1...v0.4.2) (2024-09-20)
 
 
