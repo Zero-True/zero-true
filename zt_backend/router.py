@@ -68,6 +68,7 @@ def env_data():
         "python_version": f"{sys.version_info.major}.{sys.version_info.minor}",
         "zt_version": pkg_resources.get_distribution("zero-true").version,
         "comments_enabled": settings.comments_enabled,
+        "show_create_button": settings.show_create_button,
     }
 
 

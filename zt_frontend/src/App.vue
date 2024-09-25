@@ -115,6 +115,7 @@
               @click="showAllComments"
             ></v-btn> -->
             <ShareComponent v-if="$devMode && !isAppRoute" />
+            <a v-if="showCreateButton && (!$devMode || isAppRoute)" target="_blank" href="https://www.zero-true.com/contact">Create your own project</a>
           </div>
         </v-col>
       </template>
@@ -361,6 +362,7 @@ export default {
       openFolders: [],
       reactiveMode: true,
       showComments: false,
+      showCreateButton: false,
       concatenatedCodeCache: {
         lastCellId: "" as string,
         code: "" as string,
@@ -506,6 +508,7 @@ export default {
       this.ws_url = envData.ws_url || import.meta.env.VITE_WS_URL;
       this.pythonVersion = envData.python_version;
       this.ztVersion = envData.zt_version;
+      this.showCreateButton = envData.show_create_button;
       globalState.comments_enabled = envData.comments_enabled;
     },
 

@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     ws_url: str = ""
     local_url: str = ""
     comments_enabled: bool = False
+    show_create_button: bool = False
 
 @lru_cache()
 def get_settings():
