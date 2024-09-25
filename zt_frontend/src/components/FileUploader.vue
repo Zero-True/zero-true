@@ -96,7 +96,7 @@ export default {
     async submitFile() {
       if (this.file) {
         try {
-          const chunkSize = 1024 * 1024;
+          const chunkSize = 1024 * 512;
           const totalChunks = Math.ceil(this.file.size / chunkSize);
           for (let i = 0; i < totalChunks; i++) {
             const start = i * chunkSize;
