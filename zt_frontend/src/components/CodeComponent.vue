@@ -319,9 +319,9 @@ export default {
 
 
       if (this.$devMode && !this.isAppRoute){
-        return [Prec.highest(keyMap), python(), indentUnit.of("    "), oneDark, inlineSuggestion({fetchFn: fetchSuggestion, delay: 400}), autocompletion({ override: [customCompletionSource]}),customLinter,lintGutter()]
+        return [Prec.highest(keyMap), python(), indentUnit.of("    "), oneDark, inlineSuggestion({fetchFn: fetchSuggestion, delay: 400}), autocompletion({ override: [customCompletionSource]}),customLinter]
       }
-      return [EditorState.readOnly.of(true), Prec.highest(keyMap), python(), oneDark, autocompletion({ override: [customCompletionSource] }),customLinter,lintGutter()]
+      return [EditorState.readOnly.of(true), Prec.highest(keyMap), python(), oneDark, autocompletion({ override: [customCompletionSource] }),customLinter]
     },
 
     unplacedComponents() {
