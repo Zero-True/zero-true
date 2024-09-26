@@ -5,18 +5,21 @@ import logging
 from collections import defaultdict
 import time
 
+# Constants
+DEBOUNCE_TIME = 0.5  # seconds
+RUFF_COMMAND = ['ruff', 'check', '--output-format=json', '-']
+
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Debounce settings
-DEBOUNCE_TIME = 0.5  # seconds
 last_run_time = defaultdict(float)
-pending_tasks = {}
+pending_tasks: Dict[str, asyncio.Task] = {}
 
 async def run_ruff_linting(text: str) -> List[Dict]:
     process = await asyncio.create_subprocess_exec(
-        'ruff', 'check', '--output-format=json', '-',
+        *RUFF_COMMAND,
         stdin=asyncio.subprocess.PIPE,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE
@@ -40,8 +43,9 @@ def get_severity(code: str) -> str:
     
     severity_map = {
         'E': 'error',
-        'F': 'warning',  # Formatting issues
+        'F': 'error',
         'W': 'warning',
+        'P': 'warning', 
         'C': 'info',  # Convention
         'N': 'info',  # Naming
         'Q': 'info',  # Quote style
@@ -50,6 +54,10 @@ def get_severity(code: str) -> str:
         'S': 'warning',  # Security issues
     }
     
+    # Special handling for F8 series, excluding F82
+    if code.startswith('F8') and not code.startswith('F82'):
+        return 'warning'
+
     return severity_map.get(code[0], 'warning')
 
 def transform_ruff_results(lint_errors: List[Dict], cell_line_count: int) -> List[Dict]:
@@ -77,7 +85,7 @@ def transform_ruff_results(lint_errors: List[Dict], cell_line_count: int) -> Lis
                     "ch": max(0, message["end_location"]["column"] - 1 if "end_location" in message else message["location"]["column"])
                 },
                 "severity": severity,
-                "message": f"{message.get('code', 'Unknown')}: {message.get('message', 'No message provided')}"
+                "message": f"{message.get('message', 'Error')}"
             }
             transformed_messages.append(transformed_message)
         except KeyError as e:
