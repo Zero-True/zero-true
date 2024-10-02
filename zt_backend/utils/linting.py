@@ -92,29 +92,6 @@ def transform_ruff_results(lint_errors: List[Dict], cell_line_count: int) -> Lis
             logger.error(f"Error processing linting message: {str(e)}. Message: {message}")
     return transformed_messages
 
-async def debounced_get_cell_linting(cell_id: str, text: str, code_w_context: str) -> Dict[str, List[Dict]]:
-    global last_run_time, pending_tasks
-
-    now = time.time()
-    if now - last_run_time[cell_id] < DEBOUNCE_TIME:
-        # Cancel any pending task for this cell
-        if cell_id in pending_tasks:
-            pending_tasks[cell_id].cancel()
-        
-        # Schedule a new task
-        task = asyncio.create_task(queued_get_cell_linting(cell_id, text, code_w_context))
-        pending_tasks[cell_id] = task
-        
-        try:
-            result = await task
-            del pending_tasks[cell_id]
-            return result
-        except asyncio.CancelledError:
-            return {cell_id: []}
-    else:
-        last_run_time[cell_id] = now
-        return await queued_get_cell_linting(cell_id, text, code_w_context)
-
 async def queued_get_cell_linting(cell_id: str, text: str, code_w_context: str) -> Dict[str, List[Dict]]:
     try:
         context_lines = code_w_context.split('\n')

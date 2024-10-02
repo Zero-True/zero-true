@@ -752,15 +752,11 @@ export default {
         // Assuming data is an array of completion objects
         if (data.cell_id) {
           // Update completions
-          this.completions[data.cell_id] = Array.isArray(data.completions)
-            ? data.completions
-            : [];
-          
+          this.completions[data.cell_id] = Array.isArray(data.completions) ? data.completions : [];
+
            // Update lint results
-            this.lintResults[data.cell_id] = Array.isArray(data.lint_results)
-              ? data.lint_results
-              : [];
-              }
+            this.lintResults[data.cell_id] = Array.isArray(data.lint_results) ? data.lint_results : [];
+        }
       } catch (error) {
         console.error("Error parsing server message:", error);
       }
