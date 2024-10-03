@@ -3,6 +3,7 @@ type WebSocketOptions = {
   onMessage?: (message: any) => void;
   onClose?: (event: CloseEvent) => void;
   onError?: (error: Event) => void;
+  isCodeRunning?: () => boolean;
   pingInterval?: number;
   reconnectDelay?: number;
 };
@@ -70,7 +71,9 @@ export class WebSocketManager {
         this.socket!.send(JSON.stringify({ type: "ping" }));
         this.pingTimeout = window.setTimeout(() => {
           console.log(`Ping timeout: ${this.url}`);
-          this.socket!.close();
+          if (!this.options.isCodeRunning || !this.options.isCodeRunning()) {
+            this.socket!.close();
+          }
         }, 5000);
       }
     }, interval);
