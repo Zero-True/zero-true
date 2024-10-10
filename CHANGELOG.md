@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.4](https://github.com/Zero-True/zero-true/compare/v0.4.3...v0.4.4) (2024-10-10)
+
+
+### Bug Fixes
+
+* Only disconnect and try reconnect when code isn't running ([#332](https://github.com/Zero-True/zero-true/issues/332)) ([26eefc3](https://github.com/Zero-True/zero-true/commit/26eefc3bf8c6f1a4ccc0991e623178048cb3eb44))
+* support multiple versions of python ([#334](https://github.com/Zero-True/zero-true/issues/334)) ([955187d](https://github.com/Zero-True/zero-true/commit/955187d064956b577a84720d911d878b6573292f))
+* update dockerfile for security and optimizations ([#335](https://github.com/Zero-True/zero-true/issues/335)) ([9a4d95e](https://github.com/Zero-True/zero-true/commit/9a4d95e52528fdaa6265e48eca7f5ab9b268d102))
+
 ## [0.4.3](https://github.com/Zero-True/zero-true/compare/v0.4.2...v0.4.3) (2024-09-25)
 
 
