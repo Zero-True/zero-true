@@ -1,5 +1,6 @@
 # Use an official Python runtime as a parent image
-FROM python:3.9.19-slim-bookworm as builder
+ARG PYTHON_VERSION=3.9
+FROM python:${PYTHON_VERSION}-slim
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
