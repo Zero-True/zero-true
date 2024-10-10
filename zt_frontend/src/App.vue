@@ -115,7 +115,12 @@
               @click="showAllComments"
             ></v-btn> -->
             <ShareComponent v-if="$devMode && !isAppRoute" />
-            <a v-if="showCreateButton && (!$devMode || isAppRoute)" target="_blank" href="https://www.zero-true.com/contact">Create your own project</a>
+            <a
+              v-if="showCreateButton && (!$devMode || isAppRoute)"
+              target="_blank"
+              href="https://www.zero-true.com/contact"
+              >Create your own project</a
+            >
           </div>
         </v-col>
       </template>
@@ -429,6 +434,7 @@ export default {
     async connectSockets() {
       this.notebook_socket = new WebSocketManager(this.ws_url + "ws/notebook", {
         onMessage: (message: any) => this.notebookOnMessage(message),
+        isCodeRunning: () => this.isCodeRunning,
       });
       this.run_socket = new WebSocketManager(
         this.$devMode
@@ -436,10 +442,14 @@ export default {
           : this.ws_url + "ws/component_run",
         {
           onMessage: (message: any) => this.runOnMessage(message),
+          isCodeRunning: () => this.isCodeRunning,
         }
       );
       this.stop_socket = new WebSocketManager(
-        this.ws_url + "ws/stop_execution"
+        this.ws_url + "ws/stop_execution",
+        {
+          isCodeRunning: () => this.isCodeRunning,
+        }
       );
       await this.notebook_socket.initializeSocket();
       await this.run_socket.initializeSocket();
@@ -447,11 +457,13 @@ export default {
       if (this.$devMode) {
         this.save_socket = new WebSocketManager(this.ws_url + "ws/save_text", {
           onMessage: (message: any) => this.saveOnMessage(message),
+          isCodeRunning: () => this.isCodeRunning,
         });
         this.dependency_socket = new WebSocketManager(
           this.ws_url + "ws/dependency_update",
           {
             onMessage: (message: any) => this.dependencyOnMessage(message),
+            isCodeRunning: () => this.isCodeRunning,
           }
         );
         await this.save_socket.initializeSocket();
