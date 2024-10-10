@@ -5,13 +5,18 @@ on:
     types: [opened, synchronize]
   release:
     types: [created]
+
 permissions:
-      id-token: write
-      contents: read
+  id-token: write
+  contents: read
+
 jobs:
   build:
     name: Build Launch Images
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
     steps:
     - name: Check out code
       uses: actions/checkout@v4
@@ -33,7 +38,7 @@ jobs:
         (cd copilot && yarn install)
       shell: bash
   
-    - name: configure aws credentials
+    - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: ${{ secrets.AWS_ARN }}
@@ -52,5 +57,6 @@ jobs:
         --dockerfile Dockerfile \
         --reproducible --cleanup --cache=true \
         --cache-repo ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}-cache \
-        --destination=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:zero-true-${GITHUB_REF_NAME} \
-        --context dir:///workspace/
+        --destination=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:zero-true-${GITHUB_REF_NAME}-python${{ matrix.python-version }} \
+        --context dir:///workspace/ \
+        --build-arg PYTHON_VERSION=${{ matrix.python-version }}
