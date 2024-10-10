@@ -1,19 +1,38 @@
 # Use an official Python runtime as a parent image
-FROM python:3.9.19-slim-bookworm as builder
+ARG PYTHON_VERSION=3.9
+FROM python:${PYTHON_VERSION}-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_DEFAULT_TIMEOUT=100
 
 # Set the working directory in the container
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# Copy the current directory contents into the container at /usr/src/app
-COPY . /usr/src/app
+# Create a virtual environment
+RUN python -m venv /venv
 
-# Install any needed packages specified in setup.py
-RUN pip install . 
-RUN pip install 'nodejs-bin[cmd]'
+# Copy the current directory contents into the container at /app
+COPY . .
+
+# Install packages specified in setup.py and nodejs-bin
+RUN /venv/bin/pip install . && \
+    /venv/bin/pip install 'nodejs-bin[cmd]'
 
 # Remove the source files to keep the container clean
-RUN rm -rf /usr/src/app
+RUN rm -rf /app/*
 
-# Run zero-true app when the container launches
+# Create a non-root user
+RUN groupadd -r -g 1001 appuser && \
+    useradd -r -u 1001 -g appuser -d /app appuser && \
+    chown -R appuser:appuser /app
+
+USER appuser
+
+ENV PATH="/venv/bin:$PATH"
+
+# Expose port and run zero-true app when the container launches
 EXPOSE 1326
 CMD ["zero-true", "notebook", "--host=0.0.0.0", "--remote"]
