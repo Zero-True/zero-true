@@ -3,7 +3,7 @@ import json
 from typing import Dict, List
 import logging
 from collections import defaultdict
-import time
+import subprocess
 
 # Constants
 DEBOUNCE_TIME = 0.5  # seconds
@@ -18,13 +18,14 @@ last_run_time = defaultdict(float)
 pending_tasks: Dict[str, asyncio.Task] = {}
 
 async def run_ruff_linting(text: str) -> List[Dict]:
-    process = await asyncio.create_subprocess_exec(
-        *RUFF_COMMAND,
-        stdin=asyncio.subprocess.PIPE,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE
+    process = subprocess.Popen(
+            RUFF_COMMAND,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
     )
-    stdout, stderr = await process.communicate(input=text.encode())
+    stdout, stderr = process.communicate(input=text)
     
     if stderr:
         logger.error(f"Error running Ruff: {stderr.decode()}")
