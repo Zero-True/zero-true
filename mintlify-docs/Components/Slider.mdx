@@ -24,7 +24,7 @@ iconType: "solid"
         **step (integer | float):** Step increment of the slider
 </Accordion>
 <Accordion title="thumb_label">
-        **thumb_label (boolean):** Displays the thumb label
+        **thumb_label (string):** Displays the thumb label
 </Accordion>
 <Accordion title="thumb_size">
         **thumb_size (integer):** Size of the thumb
@@ -62,7 +62,7 @@ sample_slider = zt.Slider(
     min = 0,  # Minimum value of the slider
     max = 100,  # Maximum value of the slider
     step = 1,  # Step increment of the slider
-    thumb_label = False,  # Displays the thumb label
+    thumb_label = 'always',  # Displays the thumb label
     thumb_size = 0,  # Size of the thumb
     tick_labels = 'always',  # When to display tick_labels
     ticks = [],  # Value of tick labels

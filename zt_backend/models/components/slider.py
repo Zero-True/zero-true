@@ -11,7 +11,7 @@ class Slider(ZTComponent):
     min: Union[int,float] = Field(0,  description="Minimum value of the slider")
     max: Union[int,float] = Field(100, description="Maximum value of the slider")
     step: Union[int,float] = Field(1,  description="Step increment of the slider")
-    thumb_label: bool = Field(False, description="Displays the thumb label")
+    thumb_label: str = Field('always', description="Displays the thumb label")
     thumb_size: int = Field(0, description="Size of the thumb")
     tick_labels: str = Field('always', description="When to display tick_labels")
     ticks: list = Field([], description="Value of tick labels")
