@@ -17,6 +17,9 @@
       <v-card-title>
         <span class="text-h5">Publish Notebook</span>
       </v-card-title>
+      <v-alert v-if="errorMessage" type="error" class="mb-4">
+        {{ errorMessage }}
+      </v-alert>
       <v-card-text>
         <v-form ref="form" v-model="valid" @submit.prevent="submitShareRequest">
           <v-text-field
@@ -90,19 +93,27 @@ const rules = {
   required: (value: string) => !!value || "Required.",
 };
 
+const errorMessage = ref("");
 const isLoading = ref(false);
 
 const submitShareRequest = async () => {
   if (valid.value) {
     isLoading.value = true;
     try {
-      await axios.post(
+      const response = await axios.post(
         import.meta.env.VITE_BACKEND_URL + "api/share_notebook",
         shareRequest.value
       );
-      console.log("Share request submitted successfully");
-      dialog.value = false;
+      if (response.data.Error){
+        errorMessage.value = response.data.Error;
+        console.error("Error submitting share request:", response.data.Error);
+      }
+      else{
+        errorMessage.value = "";
+        dialog.value = false;
+      }
     } catch (error) {
+      errorMessage.value = "Error submitting share request";
       console.error("Error submitting share request:", error);
     }
     isLoading.value = false;
