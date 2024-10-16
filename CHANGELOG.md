@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.5](https://github.com/Zero-True/zero-true/compare/v0.4.4...v0.4.5) (2024-10-16)
+
+
+### Bug Fixes
+
+* **escaping:** Corrected triple string and backslash character handling in TOML file creation ([#339](https://github.com/Zero-True/zero-true/issues/339)) ([245b9df](https://github.com/Zero-True/zero-true/commit/245b9df30920ce805ddb98bb738b0fb8aff96374))
+
 ## [0.4.4](https://github.com/Zero-True/zero-true/compare/v0.4.3...v0.4.4) (2024-10-10)
 
 
