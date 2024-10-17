@@ -30,7 +30,8 @@ from zt_backend.models.managers.connection_manager import ConnectionManager
 from zt_backend.models.managers.k_thread import KThread
 from zt_backend.models.state.user_state import UserState
 from zt_backend.models.state.app_state import AppState
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse, Response
+from fastapi.requests import Request
 from pathlib import Path
 import logging
 import uuid
@@ -39,6 +40,11 @@ import traceback
 import sys
 import asyncio
 import pkg_resources
+import mimetypes
+from typing import Dict, Tuple, Optional
+import aiofiles
+import tempfile
+import zipfile
 
 router = APIRouter()
 manager = ConnectionManager()
@@ -46,7 +52,6 @@ current_path = os.path.dirname(os.path.abspath(__file__))
 app_state = AppState()
 
 logger = logging.getLogger("__name__")
-
 
 @router.get("/app", response_class=HTMLResponse)
 async def catch_all():
@@ -525,6 +530,136 @@ def delete_item(delete_request: request.DeleteItemRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
     
+
+def initialize_mime_types():
+    """Initialize and customize MIME types."""
+    mimetypes.init()
+
+    custom_mime_types: Dict[str, str] = {
+        '.md': 'text/markdown',
+        '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        '.7z': 'application/x-7z-compressed',
+        '.rar': 'application/vnd.rar',
+        '.webp': 'image/webp',
+        # Add more custom MIME types here as needed
+    }
+
+    for ext, mime_type in custom_mime_types.items():
+        mimetypes.add_type(mime_type, ext)
+
+def get_mime_type(filename: str) -> str:
+    """Determine the MIME type of a file based on its filename."""
+    initialize_mime_types()
+    return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+
+def validate_path(path: Path, filename: str):
+    """Validate the path and raise appropriate exceptions if invalid."""
+    if not path.exists():
+        raise HTTPException(status_code=404, detail=f"Path not found: {filename}")
+
+async def create_zip_file(folder_path: Path, temp_zip_path: str):
+    """Create a zip file from a folder."""
+    with zipfile.ZipFile(temp_zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        for root, _, files in os.walk(folder_path):
+            for file in files:
+                file_path = os.path.join(root, file)
+                arcname = os.path.relpath(file_path, start=str(folder_path))
+                zipf.write(file_path, arcname)
+
+async def parse_range_header(range_header: Optional[str], file_size: int) -> Tuple[int, int]:
+    """Parse Range header and return start and end bytes."""
+    if not range_header:
+        return 0, file_size - 1
+
+    try:
+        range_str = range_header.replace('bytes=', '')
+        start_str, end_str = range_str.split('-')
+        start = int(start_str)
+        end = int(end_str) if end_str else file_size - 1
+        return start, min(end, file_size - 1)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid range header")
+
+async def stream_file_range(file_path: str, start: int, end: int, chunk_size: int = 8192):
+    """Stream file content for the specified byte range."""
+    async with aiofiles.open(file_path, mode='rb') as file:
+        await file.seek(start)
+        bytes_remaining = end - start + 1
+        
+        while bytes_remaining > 0:
+            chunk_size = min(chunk_size, bytes_remaining)
+            chunk = await file.read(chunk_size)
+            if not chunk:
+                break
+            yield chunk
+            bytes_remaining -= len(chunk)
+
+@router.get("/api/download")
+async def download_item(
+    request: Request,
+    path: str, 
+    filename: str,
+    isFolder: bool,
+    chunk_size: int = 8192
+):
+    """Stream download with range support and error handling for both files and folders."""
+    try:
+        file_path = Path(path)
+        validate_path(file_path, filename)
+        
+        if isFolder:
+            # Create a temporary zip file
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.zip') as temp_zip:
+                temp_zip_path = temp_zip.name
+
+            # Create a zip file containing the folder contents
+            await create_zip_file(file_path, temp_zip_path)
+            file_path = Path(temp_zip_path)
+            filename = f"{filename}.zip"
+        elif not file_path.is_file():
+            raise HTTPException(status_code=400, detail=f"The path specified is not a file: {filename}")
+        
+        file_size = file_path.stat().st_size
+        start, end = await parse_range_header(
+            request.headers.get('range'),
+            file_size
+        )
+        
+        # Create response with proper headers
+        response = StreamingResponse(
+            stream_file_range(str(file_path), start, end, chunk_size),
+            status_code=206 if request.headers.get('range') else 200,
+            media_type=get_mime_type(filename)
+        )
+        
+        # Set headers
+        response.headers.update({
+            "Content-Range": f"bytes {start}-{end}/{file_size}",
+            "Content-Length": str(end - start + 1),
+            "Content-Disposition": f"attachment; filename={filename}",
+            "Accept-Ranges": "bytes",
+            "Cache-Control": "no-cache",
+            "Content-Encoding": "identity"
+        })
+        
+        if isFolder:
+            # Clean up the temporary zip file after streaming
+            async def cleanup_temp_file():
+                yield
+                os.unlink(temp_zip_path)
+
+            response.background = cleanup_temp_file()
+        
+        return response
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Download failed: {str(e)}"
+        )
+
 def get_file_type(name):
     extension = name.split(".")[-1]
     if extension in ["html", "js", "json", "md", "pdf", "png", "txt", "xls"]:
