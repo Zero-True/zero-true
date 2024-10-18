@@ -38,10 +38,10 @@
           <v-icon v-else>{{ fileIcon(item.file) }}</v-icon>
         </template>
         
-        <v-list-item-title @click="handleItemClick(item)">{{ item.title }}</v-list-item-title>
+        <v-list-item-title @click="handleItemClick(item)" :class="{'clickable-item': item.file === 'folder'}">{{ item.title }}</v-list-item-title>
         
         <template v-slot:append>
-          <v-menu v-if="!isProtectedFile(item.title)">
+          <v-menu>
             <template v-slot:activator="{ props }">
               <v-btn
                 icon
@@ -54,10 +54,18 @@
               </v-btn>
             </template>
             <v-list>
-              <v-list-item @click="openRenameDialog(item)">
+              <v-list-item 
+                @click="openDownloadDialog(item)"
+              >
+                <v-list-item-title>
+                  <v-icon size="small" class="mr-2">mdi-download</v-icon>
+                  Download
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item v-if="!isProtectedFile(item.title)" @click="openRenameDialog(item)">
                 <v-list-item-title>Rename</v-list-item-title>
               </v-list-item>
-              <v-list-item @click="openDeleteDialog(item)">
+              <v-list-item v-if="!isProtectedFile(item.title)" @click="openDeleteDialog(item)">
                 <v-list-item-title>Delete</v-list-item-title>
               </v-list-item>
             </v-list>
@@ -84,6 +92,12 @@
     </template>
   </v-snackbar>
 
+  <FileFolderDownloadDialog
+      ref="downloadDialog"
+      :current-path="currentPath"
+      @file-downloaded="refreshFiles"
+    />
+
   <RenameDialog
       ref="renameDialog"
       :current-path="currentPath"
@@ -108,6 +122,7 @@ import FileUploader from "@/components/FileUploader.vue";
 import FileFolderCreator from "@/components/FileFolderCreator.vue";
 import RenameDialog from "@/components/FileFolderRenameDialog.vue";
 import DeleteDialog from "@/components/FileFolderDeleteDialog.vue";
+import FileFolderDownloadDialog from "@/components/FileFolderDownloadDialog.vue";
 
 
 
@@ -117,7 +132,8 @@ export default defineComponent({
     FileUploader,
     FileFolderCreator,
     RenameDialog,
-    DeleteDialog
+    DeleteDialog,
+    FileFolderDownloadDialog
   },
   props: {
     drawer: Boolean,
@@ -147,9 +163,13 @@ export default defineComponent({
       return protectedFiles.value.includes(filename);
     };
 
+    const downloadDialog = ref<InstanceType<typeof FileFolderDownloadDialog> | null>(null);
     const renameDialog = ref<InstanceType<typeof RenameDialog> | null>(null);
     const deleteDialog = ref<InstanceType<typeof DeleteDialog> | null>(null);
 
+    const openDownloadDialog = (item: any) => {
+      downloadDialog.value?.openDialog(item);
+    };
        
     const openRenameDialog = (item: any) => {
       renameDialog.value?.openDialog(item);
@@ -250,6 +270,8 @@ export default defineComponent({
       fileIcon,
       newItemName,
       itemTypes,
+      downloadDialog,
+      openDownloadDialog,
       renameDialog,
       openRenameDialog,
       openDeleteDialog,
@@ -261,3 +283,13 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.clickable-item {
+  cursor: pointer;
+}
+.clickable-item:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+</style>
