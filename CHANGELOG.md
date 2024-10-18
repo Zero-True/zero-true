@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.7](https://github.com/Zero-True/zero-true/compare/v0.4.6...v0.4.7) (2024-10-18)
+
+
+### Bug Fixes
+
+* Dockerfile update to give ownership to appuser of venv ([#347](https://github.com/Zero-True/zero-true/issues/347)) ([4902cfc](https://github.com/Zero-True/zero-true/commit/4902cfcf01198723d9667024190c477edcd6223f))
+
 ## [0.4.6](https://github.com/Zero-True/zero-true/compare/v0.4.5...v0.4.6) (2024-10-18)
 
 
