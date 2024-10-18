@@ -8,7 +8,7 @@ from fastapi import (
     UploadFile,
     File,
     Form,
-    HTTPException
+    HTTPException,
 )
 from zt_backend.models import notebook
 from zt_backend.models.api import request
@@ -39,6 +39,9 @@ import traceback
 import sys
 import asyncio
 import pkg_resources
+import requests
+import re
+import tarfile
 
 router = APIRouter()
 manager = ConnectionManager()
@@ -393,34 +396,75 @@ def notebook_name_update(notebook_name: request.NotebookNameRequest):
 
 @router.post("/api/share_notebook")
 def share_notebook(shareRequest: request.ShareRequest):
-    if app_state.run_mode == "dev":
-        if shareRequest.teamName:
-            subprocess.run(
-                [
-                    "zero-true",
-                    "publish",
-                    shareRequest.apiKey,
-                    shareRequest.userName,
-                    shareRequest.projectName,
-                    ".",
-                    shareRequest.teamName,
-                ]
+    try:
+        if app_state.run_mode == "dev":
+            headers = {
+                "Content-Type": "application/json",
+                "x-api-key": shareRequest.apiKey,
+            }
+            user_name = shareRequest.userName.lower().strip()
+            project_name = shareRequest.projectName.lower().strip()
+            python_version = (f"{sys.version_info.major}.{sys.version_info.minor}",)
+            zt_version = (pkg_resources.get_distribution("zero-true").version,)
+            if shareRequest.teamName:
+                team_name = re.sub(r"\s+", "-", shareRequest.teamName.lower().strip())
+                s3_key = team_name + "/" + project_name + "/" + project_name + ".tar.gz"
+                response = requests.post(
+                    settings.publish_url + "team_project_upload",
+                    json={"s3_key": s3_key, "user_name": user_name, "private": True},
+                    headers=headers,
+                )
+            else:
+                s3_key = user_name + "/" + project_name + "/" + project_name + ".tar.gz"
+                response = requests.post(
+                    settings.publish_url + "project_upload",
+                    json={"s3_key": s3_key, "private": False},
+                    headers=headers,
+                )
+
+            if response.status_code != 200:
+                return {
+                    "Error": response.json().get(
+                        "message",
+                        response.json().get("Message", "Failed to get signed URL"),
+                    )
+                }
+
+            signed_url = response.json().get("uploadURL")
+            if not signed_url:
+                return {"Error": "Failed to get signed URL"}
+
+            output_filename = f"{project_name}"
+            project_source = os.path.normpath(os.getcwd())
+            logger.info(project_source)
+            shutil.make_archive(
+                base_name=output_filename, format="gztar", root_dir=project_source
             )
-        else:
-            subprocess.run(
-                [
-                    "zero-true",
-                    "publish",
-                    shareRequest.apiKey,
-                    shareRequest.userName,
-                    shareRequest.projectName,
-                    ".",
-                ]
+
+            upload_files = {"file": open(f"{output_filename}.tar.gz", "rb")}
+            upload_response = requests.post(
+                signed_url["url"], data=signed_url["fields"], files=upload_files
             )
+            if upload_response.status_code != 204:
+                return {
+                    "Error": response.json().get(
+                        "message",
+                        response.json().get("Message", "Failed to get signed URL"),
+                    )
+                }
+
+    except Exception as e:
+        return {"Error": str(e)}
 
 
 @router.post("/api/upload_file")
-async def upload_file(file: UploadFile = File(...), chunk_index: int = Form(...), total_chunks: int = Form(...), path: str = Form(...), file_name: str = Form(...)):
+async def upload_file(
+    file: UploadFile = File(...),
+    chunk_index: int = Form(...),
+    total_chunks: int = Form(...),
+    path: str = Form(...),
+    file_name: str = Form(...),
+):
     if app_state.run_mode == "dev":
         logger.debug("File upload request started")
 
@@ -438,6 +482,7 @@ async def upload_file(file: UploadFile = File(...), chunk_index: int = Form(...)
         logger.debug(f"File upload request completed. File saved to: {final_path}")
         return {"filename": file_name, "path": final_path}
 
+
 @router.post("/api/create_item")
 def create_item(item: request.CreateItemRequest):
     if app_state.run_mode == "dev":
@@ -454,9 +499,15 @@ def create_item(item: request.CreateItemRequest):
             else:
                 raise HTTPException(status_code=400, detail="Invalid item type")
 
-            return {"success": True, "message": f"{item.type.capitalize()} created successfully", "path": str(full_path)}
+            return {
+                "success": True,
+                "message": f"{item.type.capitalize()} created successfully",
+                "path": str(full_path),
+            }
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Failed to create {item.type}: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"Failed to create {item.type}: {str(e)}"
+            )
 
 
 @router.post("/api/rename_item")
@@ -474,11 +525,13 @@ def rename_item(rename_request: request.RenameItemRequest):
                     "success": True,
                     "message": f"Item renamed successfully (no change in name)",
                     "oldPath": str(old_path),
-                    "newPath": str(new_path)
+                    "newPath": str(new_path),
                 }
 
             if new_path.exists():
-                raise HTTPException(status_code=400, detail="An item with the new name already exists")
+                raise HTTPException(
+                    status_code=400, detail="An item with the new name already exists"
+                )
 
             os.rename(old_path, new_path)
 
@@ -486,14 +539,18 @@ def rename_item(rename_request: request.RenameItemRequest):
                 "success": True,
                 "message": f"Item renamed successfully from {rename_request.oldName} to {rename_request.newName}",
                 "oldPath": str(old_path),
-                "newPath": str(new_path)
+                "newPath": str(new_path),
             }
         except PermissionError:
-            raise HTTPException(status_code=403, detail="Permission denied. Unable to rename the item.")
+            raise HTTPException(
+                status_code=403, detail="Permission denied. Unable to rename the item."
+            )
         except OSError as e:
             raise HTTPException(status_code=500, detail=f"System error: {str(e)}")
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"An unexpected error occurred: {str(e)}"
+            )
 
 
 @router.post("/api/delete_item")
@@ -508,7 +565,9 @@ def delete_item(delete_request: request.DeleteItemRequest):
             os.remove(item_path)
         elif item_path.is_dir():
             if any(item_path.iterdir()):
-                raise HTTPException(status_code=400, detail="Cannot delete non-empty directory")
+                raise HTTPException(
+                    status_code=400, detail="Cannot delete non-empty directory"
+                )
             os.rmdir(item_path)
         else:
             raise HTTPException(status_code=400, detail="Invalid item type")
@@ -516,15 +575,20 @@ def delete_item(delete_request: request.DeleteItemRequest):
         return {
             "success": True,
             "message": f"Item '{delete_request.name}' deleted successfully",
-            "deletedPath": str(item_path)
+            "deletedPath": str(item_path),
         }
     except PermissionError:
-        raise HTTPException(status_code=403, detail="Permission denied. Unable to delete the item.")
+        raise HTTPException(
+            status_code=403, detail="Permission denied. Unable to delete the item."
+        )
     except OSError as e:
         raise HTTPException(status_code=500, detail=f"System error: {str(e)}")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
-    
+        raise HTTPException(
+            status_code=500, detail=f"An unexpected error occurred: {str(e)}"
+        )
+
+
 def get_file_type(name):
     extension = name.split(".")[-1]
     if extension in ["html", "js", "json", "md", "pdf", "png", "txt", "xls"]:

@@ -72,6 +72,8 @@ def publish(
 
     # Step 1: Verify the API key and get a signed URL from the Lambda function
     headers = {"Content-Type": "application/json", "x-api-key": key}
+    user_name = user_name.lower().strip()
+    project_name = project_name.lower().strip()
     if team_name:
         team_name = re.sub(r"\s+", "-", team_name.lower().strip())
         s3_key = team_name + "/" + project_name + "/" + project_name + ".tar.gz"
