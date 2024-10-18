@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.6](https://github.com/Zero-True/zero-true/compare/v0.4.5...v0.4.6) (2024-10-18)
+
+
+### Bug Fixes
+
+* Dynamic upload url and responsive from notebook ([#344](https://github.com/Zero-True/zero-true/issues/344)) ([1a23236](https://github.com/Zero-True/zero-true/commit/1a232360d5b032264d999c29824d7628f059f014))
+
 ## [0.4.5](https://github.com/Zero-True/zero-true/compare/v0.4.4...v0.4.5) (2024-10-16)
 
 
