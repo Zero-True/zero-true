@@ -13,6 +13,7 @@ import traceback
 import json
 import copy
 import rtoml
+import ast
 
 logger = logging.getLogger("__name__")
 notebook_state = NotebookState()
@@ -338,9 +339,8 @@ def write_notebook():
                         project_file.write(f'variable_name = "{cell.variable_name}"\n')
 
                 # Format code as a multi-line string
-                escaped_code = (
-                    cell.code.encode().decode("unicode_escape").replace('"""', "'''")
-                )
+                escaped_code =ast.literal_eval(repr(cell.code))
+                escaped_code =  escaped_code.replace('"""', "'''") # Replace triple double quotes with single
                 project_file.write(f'code = """\n{escaped_code}"""\n')
 
                 for comment_id, comment in cell.comments.items():
