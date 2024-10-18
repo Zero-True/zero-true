@@ -104,7 +104,7 @@ const submitShareRequest = async () => {
         import.meta.env.VITE_BACKEND_URL + "api/share_notebook",
         shareRequest.value
       );
-      if (response.data.Error){
+      if (response.data?.Error){
         errorMessage.value = response.data.Error;
         console.error("Error submitting share request:", response.data.Error);
       }

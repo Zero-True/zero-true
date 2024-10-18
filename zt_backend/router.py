@@ -441,6 +441,18 @@ def share_notebook(shareRequest: request.ShareRequest):
                 base_name=output_filename, format="gztar", root_dir=project_source
             )
 
+            upload_files = {"file": open(f"{output_filename}.tar.gz", "rb")}
+            upload_response = requests.post(
+                signed_url["url"], data=signed_url["fields"], files=upload_files
+            )
+            if upload_response.status_code != 204:
+                return {
+                    "Error": response.json().get(
+                        "message",
+                        response.json().get("Message", "Failed to get signed URL"),
+                    )
+                }
+
     except Exception as e:
         return {"Error": str(e)}
 
