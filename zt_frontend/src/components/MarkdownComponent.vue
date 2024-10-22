@@ -16,7 +16,7 @@
         :style="{ height: '400px' }"
         :autofocus="true"
         :indent-with-tab="true"
-        :tab-size="2"
+        :tab-size="4"
         :viewportMargin="Infinity"
         :extensions="extensions"
         @keyup="saveCell"
