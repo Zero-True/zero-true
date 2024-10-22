@@ -42,29 +42,9 @@ export type Color = string | null;
  */
 export type ActiveColor = string | null;
 /**
- * The icon displayed when empty
- */
-export type EmptyIcon =
-  | string
-  | {
-      [k: string]: unknown;
-    };
-/**
- * The icon displayed when full
- */
-export type FullIcon =
-  | string
-  | {
-      [k: string]: unknown;
-    };
-/**
  * Allows for half-increment ratings
  */
 export type HalfIncrements = boolean;
-/**
- * Allows the component to be cleared
- */
-export type Clearable = boolean;
 /**
  * Removes all hover effects and pointer events
  */
@@ -90,25 +70,9 @@ export type ItemLabelPosition = string;
  */
 export type ItemLabels = string[] | null;
 /**
- * Sets the component's name attribute
- */
-export type Name = string | null;
-/**
  * Applies the v-ripple directive
  */
 export type Ripple = boolean;
-/**
- * Specify a custom tag used on the root element
- */
-export type Tag = string;
-/**
- * Specify a theme for this component and all of its children
- */
-export type Theme = string | null;
-/**
- * A label for your rating component
- */
-export type Label = string | null;
 /**
  * Trigger event for when to run the rating
  */
@@ -127,21 +91,14 @@ export interface Rating {
   size?: Size;
   color?: Color;
   active_color?: ActiveColor;
-  empty_icon?: EmptyIcon;
-  full_icon?: FullIcon;
   half_increments?: HalfIncrements;
-  clearable?: Clearable;
   readonly?: Readonly;
   density?: Density;
   disabled?: Disabled;
   item_aria_label?: ItemAriaLabel;
   item_label_position?: ItemLabelPosition;
   item_labels?: ItemLabels;
-  name?: Name;
   ripple?: Ripple;
-  tag?: Tag;
-  theme?: Theme;
-  label?: Label;
   triggerEvent?: Triggerevent;
   [k: string]: unknown;
 }

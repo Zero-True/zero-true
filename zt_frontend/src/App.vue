@@ -114,7 +114,12 @@
               :icon="`ztIcon:${ztAliases.message}`"
               @click="showAllComments"
             ></v-btn> -->
-            <ShareComponent v-if="$devMode && !isAppRoute" />
+            <ShareComponent
+              v-if="$devMode && !isAppRoute"
+              :userName="envUserName"
+              :projectName="envProjectName"
+              :teamName="envTeamName"
+            />
             <a
               v-if="showCreateButton && (!$devMode || isAppRoute)"
               target="_blank"
@@ -368,6 +373,9 @@ export default {
       reactiveMode: true,
       showComments: false,
       showCreateButton: false,
+      envUserName: "",
+      envProjectName: "",
+      envTeamName: "",
       concatenatedCodeCache: {
         lastCellId: "" as string,
         code: "" as string,
@@ -522,6 +530,15 @@ export default {
       this.ztVersion = envData.zt_version;
       this.showCreateButton = envData.show_create_button;
       globalState.comments_enabled = envData.comments_enabled;
+      if (envData?.user_name) {
+        this.envUserName = envData.user_name;
+      }
+      if (envData?.project_name) {
+        this.envProjectName = envData.project_name;
+      }
+      if (envData?.team_name) {
+        this.envTeamName = envData.team_name;
+      }
     },
 
     updateDrawer(value: boolean) {

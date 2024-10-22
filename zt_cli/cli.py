@@ -9,6 +9,7 @@ from rich import print
 import shutil
 import requests
 import pkg_resources
+import sys
 import yaml
 import json
 import uuid
@@ -61,6 +62,12 @@ def publish(
             help="Optional team for this to be published to. Must have access to this team."
         ),
     ] = "",
+    compute_profile: Annotated[
+        str,
+        typer.Option(
+            help="Options: xsmall, small, medium, large, xlarge. Default is xsmall.",
+        ),
+    ] = "xsmall",
     private: Annotated[
         bool,
         typer.Option(
@@ -74,29 +81,68 @@ def publish(
     headers = {"Content-Type": "application/json", "x-api-key": key}
     user_name = user_name.lower().strip()
     project_name = project_name.lower().strip()
+    compute_profile = compute_profile.lower().strip()
+    python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+    zt_version = pkg_resources.get_distribution("zero-true").version
     if team_name:
+        if compute_profile not in ["xsmall", "small", "medium", "large", "xlarge"]:
+            typer.echo("Invalid compute profile")
+            return
         team_name = re.sub(r"\s+", "-", team_name.lower().strip())
         s3_key = team_name + "/" + project_name + "/" + project_name + ".tar.gz"
         lambda_url = "https://bxmm0wp9zk.execute-api.us-east-2.amazonaws.com/default/team_project_upload"
         response = requests.post(
             lambda_url,
-            json={"s3_key": s3_key, "user_name": user_name, "private": private},
+            json={
+                "s3_key": s3_key,
+                "user_name": user_name,
+                "python_version": python_version,
+                "zero_true_version": zt_version,
+                "compute_profile": compute_profile,
+                "private": private,
+            },
             headers=headers,
         )
     else:
+        if compute_profile not in ["xsmall", "small", "medium"]:
+            typer.echo("Invalid compute profile for individual project")
+            return
         s3_key = user_name + "/" + project_name + "/" + project_name + ".tar.gz"
         lambda_url = "https://bxmm0wp9zk.execute-api.us-east-2.amazonaws.com/default/project_upload"
         response = requests.post(
-            lambda_url, json={"s3_key": s3_key, "private": private}, headers=headers
+            lambda_url,
+            json={
+                "s3_key": s3_key,
+                "python_version": python_version,
+                "zero_true_version": zt_version,
+                "compute_profile": compute_profile,
+                "private": private,
+            },
+            headers=headers,
         )
 
     if response.status_code != 200:
         typer.echo(f"Execution error occured: {response.content}")
         return
-    signed_url = response.json().get("uploadURL")
+    response_json = response.json()
+    signed_url = response_json.get("uploadURL")
     if not signed_url:
         typer.echo("Failed to get a signed URL.")
         return
+    
+    python_warning = response_json.get("pythonWarning", None)
+    zt_warning = response_json.get("ztWarning", None)
+    if python_warning:
+        typer.echo(python_warning)
+    if zt_warning:
+        typer.echo(zt_warning)
+    
+    if python_warning or zt_warning:
+        typer.echo("We recommend upgrading your versions before continuing")
+        if typer.confirm("Do you want to continue anyway?"):
+            pass
+        else:
+            return
 
     # Step 2: Zip the project files using shutil
     output_filename = f"{project_name}"

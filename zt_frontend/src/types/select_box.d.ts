@@ -34,10 +34,6 @@ export type Label = string | null;
  */
 export type Multiple = boolean | null;
 /**
- * Determines if the select box is dense
- */
-export type Dense = boolean | null;
-/**
  * Determines if the select box has an outlined style
  */
 export type Outlined = boolean | null;
@@ -69,11 +65,10 @@ export interface SelectBox {
   id: Id;
   variable_name?: VariableName;
   component?: Component;
-  items: Items;
+  items?: Items;
   value?: Value;
   label?: Label;
   multiple?: Multiple;
-  dense?: Dense;
   outlined?: Outlined;
   clearable?: Clearable;
   disabled?: Disabled;

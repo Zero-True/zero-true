@@ -36,17 +36,17 @@ export type Step = number;
 /**
  * Displays the thumb label
  */
-export type ThumbLabel = boolean;
+export type ThumbLabel = string;
 /**
  * Size of the thumb
  */
 export type ThumbSize = number;
 /**
- * Displays the tick labels
+ * When to display tick_labels
  */
 export type TickLabels = string;
 /**
- * Displays the ticks
+ * Value of tick labels
  */
 export type Ticks = unknown[];
 /**

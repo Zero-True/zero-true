@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="dialog" max-width="600px">
+  <v-dialog v-model="dialog" max-width="600px" @afterEnter="loadValues()" @afterLeave="cleanUp()">
     <template v-slot:activator="{ props }">
       <v-btn
         v-bind="props"
@@ -17,33 +17,44 @@
       <v-card-title>
         <span class="text-h5">Publish Notebook</span>
       </v-card-title>
+      <v-alert v-if="successMessage" type="success" class="mb-4">
+        {{ successMessage }}
+      </v-alert>
       <v-alert v-if="errorMessage" type="error" class="mb-4">
         {{ errorMessage }}
+      </v-alert>
+      <v-alert v-if="warningMessage" type="warning" class="mb-4">
+        {{ warningMessage }}
       </v-alert>
       <v-card-text>
         <v-form ref="form" v-model="valid" @submit.prevent="submitShareRequest">
           <v-text-field
-            label="User Name"
             v-model="shareRequest.userName"
+            label="User Name"
             :rules="[rules.required]"
             required
           ></v-text-field>
           <v-text-field
-            label="Project Name"
             v-model="shareRequest.projectName"
+            label="Project Name"
             :rules="[rules.required]"
             required
           ></v-text-field>
           <v-text-field
-            label="API Key"
             v-model="shareRequest.apiKey"
+            label="API Key"
             :rules="[rules.required]"
             required
           ></v-text-field>
           <v-text-field
-            label="Team Name (Optional)"
             v-model="shareRequest.teamName"
+            label="Team Name (Optional)"
           ></v-text-field>
+          <v-autocomplete
+            v-model="shareRequest.computeProfile"
+            :items="computeProfiles"
+            label="Compute Profile"
+          />
           <span
             >Need an API Key? Create an account
             <a href="https://www.zero-true.com/contact" target="_blank"
@@ -53,9 +64,9 @@
           <br /><br />
           <v-row justify="space-between">
             <v-col cols="auto">
-              <v-btn v-if="!isLoading" type="submit" color="primary"
-                >Publish</v-btn
-              >
+              <v-btn v-if="!isLoading" type="submit" color="primary">{{
+                confirmationRequired ? "Confirm" : "Publish"
+              }}</v-btn>
               <div class="d-flex justify-center">
                 <v-progress-circular
                   v-if="isLoading"
@@ -76,10 +87,24 @@
 
 <script setup lang="ts">
 import { ref, Ref } from "vue";
-import axios from "axios";
-// If ztAliases is used within the template, ensure it's imported correctly. Otherwise, remove it if not needed.
+import axios, { AxiosError } from "axios";
 import { ztAliases } from "@/iconsets/ztIcon";
 import { ShareRequest } from "@/types/share_request";
+
+const props = defineProps({
+  userName: {
+    type: String,
+    required: true,
+  },
+  projectName: {
+    type: String,
+    required: true,
+  },
+  teamName: {
+    type: String,
+    required: true,
+  },
+});
 
 const dialog: Ref<boolean> = ref(false);
 const shareRequest: Ref<ShareRequest> = ref({
@@ -87,36 +112,86 @@ const shareRequest: Ref<ShareRequest> = ref({
   projectName: "",
   apiKey: "",
   teamName: "",
+  computeProfile: "X-Small (0.5 CPU, 2GB RAM)",
 });
 const valid: Ref<boolean> = ref(false);
 const rules = {
   required: (value: string) => !!value || "Required.",
 };
 
+const computeProfiles = ref([
+  "X-Small (0.5 CPU, 2GB RAM)",
+  "Small (1 CPU, 4GB RAM)",
+  "Medium (1.5 CPU, 8GB RAM)",
+  "Large (2 CPU, 16GB RAM)",
+  "X-Large (4 CPU, 32GB RAM)",
+]);
+
+const successMessage = ref("");
 const errorMessage = ref("");
+const warningMessage = ref("");
+const confirmationRequired = ref(false);
 const isLoading = ref(false);
 
 const submitShareRequest = async () => {
   if (valid.value) {
+    errorMessage.value = "";
+    warningMessage.value = "";
     isLoading.value = true;
-    try {
-      const response = await axios.post(
-        import.meta.env.VITE_BACKEND_URL + "api/share_notebook",
-        shareRequest.value
-      );
-      if (response.data?.Error){
-        errorMessage.value = response.data.Error;
-        console.error("Error submitting share request:", response.data.Error);
+    if (confirmationRequired.value) {
+      try {
+        await axios.post(
+          import.meta.env.VITE_BACKEND_URL + "api/confirm_share", shareRequest.value
+        );
+        successMessage.value = "Project published successfully";
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          errorMessage.value =
+            error.response?.data?.detail || "Error submitting share request";
+        } else {
+          errorMessage.value = "Error submitting share request";
+        }
+        console.error("Error submitting share request:", error);
       }
-      else{
-        errorMessage.value = "";
-        dialog.value = false;
+    } else {
+      try {
+        const response = await axios.post(
+          import.meta.env.VITE_BACKEND_URL + "api/share_notebook",
+          shareRequest.value
+        );
+        if (response.data?.warning) {
+          warningMessage.value = response.data.warning;
+          confirmationRequired.value = true;
+        } else {
+          successMessage.value = "Project published successfully";
+          errorMessage.value = "";
+          warningMessage.value = "";
+        }
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          errorMessage.value =
+            error.response?.data?.detail || "Error submitting share request";
+        } else {
+          errorMessage.value = "Error submitting share request";
+        }
+        console.error("Error submitting share request:", error);
       }
-    } catch (error) {
-      errorMessage.value = "Error submitting share request";
-      console.error("Error submitting share request:", error);
     }
     isLoading.value = false;
   }
 };
+
+function loadValues() {
+  shareRequest.value.userName = props.userName;
+  shareRequest.value.projectName = props.projectName;
+  shareRequest.value.teamName = props.teamName;
+}
+
+function cleanUp() {
+  errorMessage.value = "";
+  successMessage.value = "";
+  warningMessage.value = "";
+  confirmationRequired.value = false;
+  isLoading.value = false;
+}
 </script>

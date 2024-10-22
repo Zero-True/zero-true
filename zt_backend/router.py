@@ -9,6 +9,7 @@ from fastapi import (
     File,
     Form,
     HTTPException,
+    status,
 )
 from zt_backend.models import notebook
 from zt_backend.models.api import request
@@ -30,6 +31,7 @@ from zt_backend.models.managers.connection_manager import ConnectionManager
 from zt_backend.models.managers.k_thread import KThread
 from zt_backend.models.state.user_state import UserState
 from zt_backend.models.state.app_state import AppState
+from zt_backend.models.state.notebook_state import UploadState
 from fastapi.responses import HTMLResponse
 from pathlib import Path
 import logging
@@ -41,12 +43,12 @@ import asyncio
 import pkg_resources
 import requests
 import re
-import tarfile
 
 router = APIRouter()
 manager = ConnectionManager()
 current_path = os.path.dirname(os.path.abspath(__file__))
 app_state = AppState()
+upload_state = UploadState(None)
 
 logger = logging.getLogger("__name__")
 
@@ -66,13 +68,20 @@ def health():
 
 @router.get("/env_data")
 def env_data():
-    return {
+    environment_data = {
         "ws_url": settings.ws_url,
         "python_version": f"{sys.version_info.major}.{sys.version_info.minor}",
         "zt_version": pkg_resources.get_distribution("zero-true").version,
         "comments_enabled": settings.comments_enabled,
         "show_create_button": settings.show_create_button,
     }
+    if settings.user_name:
+        environment_data["user_name"] = settings.user_name
+    if settings.project_name:
+        environment_data["project_name"] = settings.project_name
+    if settings.team_name:
+        environment_data["team_name"] = settings.team_name
+    return environment_data
 
 
 @router.get("/base_path")
@@ -404,57 +413,139 @@ def share_notebook(shareRequest: request.ShareRequest):
             }
             user_name = shareRequest.userName.lower().strip()
             project_name = shareRequest.projectName.lower().strip()
-            python_version = (f"{sys.version_info.major}.{sys.version_info.minor}",)
-            zt_version = (pkg_resources.get_distribution("zero-true").version,)
+            compute_profile_long = shareRequest.computeProfile.strip()
+            python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+            zt_version = pkg_resources.get_distribution("zero-true").version
+            if compute_profile_long == "Small (1 CPU, 4GB RAM)":
+                compute_profile = "small"
+            elif compute_profile_long == "Medium (1.5 CPU, 8GB RAM)":
+                compute_profile = "medium"
+            elif compute_profile_long == "Large (2 CPU, 16GB RAM)":
+                compute_profile = "large"
+            elif compute_profile_long == "X-Large (4 CPU, 32GB RAM)":
+                compute_profile = "xlarge"
+            else:
+                compute_profile = "xsmall"
             if shareRequest.teamName:
                 team_name = re.sub(r"\s+", "-", shareRequest.teamName.lower().strip())
                 s3_key = team_name + "/" + project_name + "/" + project_name + ".tar.gz"
                 response = requests.post(
                     settings.publish_url + "team_project_upload",
-                    json={"s3_key": s3_key, "user_name": user_name, "private": True},
+                    json={
+                        "s3_key": s3_key,
+                        "user_name": user_name,
+                        "python_version": python_version,
+                        "zero_true_version": zt_version,
+                        "compute_profile": compute_profile,
+                        "private": True,
+                    },
                     headers=headers,
                 )
             else:
+                if compute_profile not in ["xsmall", "small", "medium"]:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Invalid compute profile for individual project",
+                    )
                 s3_key = user_name + "/" + project_name + "/" + project_name + ".tar.gz"
                 response = requests.post(
                     settings.publish_url + "project_upload",
-                    json={"s3_key": s3_key, "private": False},
+                    json={
+                        "s3_key": s3_key,
+                        "python_version": python_version,
+                        "zero_true_version": zt_version,
+                        "compute_profile": compute_profile,
+                        "private": False,
+                    },
                     headers=headers,
                 )
 
             if response.status_code != 200:
-                return {
-                    "Error": response.json().get(
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=response.json().get(
                         "message",
                         response.json().get("Message", "Failed to get signed URL"),
-                    )
-                }
+                    ),
+                )
 
-            signed_url = response.json().get("uploadURL")
+            response_json = response.json()
+            signed_url = response_json.get("uploadURL")
             if not signed_url:
-                return {"Error": "Failed to get signed URL"}
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Failed to get a signed URL",
+                )
 
-            output_filename = f"{project_name}"
-            project_source = os.path.normpath(os.getcwd())
-            logger.info(project_source)
-            shutil.make_archive(
-                base_name=output_filename, format="gztar", root_dir=project_source
-            )
+            python_warning = response_json.get("pythonWarning", None)
+            zt_warning = response_json.get("ztWarning", None)
+            warning_message = ""
+            if python_warning:
+                warning_message += python_warning
+                if zt_warning:
+                    warning_message += "\n" + zt_warning
+                warning_message += (
+                    "\nWe recommend upgrading your versions before continuing. If you would like to continue, select confirm."
+                )
+                upload_state.signed_url = signed_url
+                return {"warning": warning_message}
+            if zt_warning:
+                warning_message += zt_warning
+                warning_message += (
+                    "\nWe recommend upgrading your versions before continuing"
+                )
+                upload_state.signed_url = signed_url
+                return {"warning": warning_message}
 
-            upload_files = {"file": open(f"{output_filename}.tar.gz", "rb")}
-            upload_response = requests.post(
-                signed_url["url"], data=signed_url["fields"], files=upload_files
-            )
-            if upload_response.status_code != 204:
-                return {
-                    "Error": response.json().get(
-                        "message",
-                        response.json().get("Message", "Failed to get signed URL"),
-                    )
-                }
+            publish_files(project_name, signed_url)
 
+    except HTTPException as e:
+        raise e
     except Exception as e:
-        return {"Error": str(e)}
+        logger.error("Error submitting share request: %s", str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error submitting share request",
+        )
+
+
+@router.post("/api/confirm_share")
+def confirm_share(shareRequest: request.ShareRequest):
+    if app_state.run_mode == "dev":
+        if upload_state.signed_url:
+            try:
+                publish_files(shareRequest.projectName.lower().strip(), upload_state.signed_url)
+                upload_state.signed_url = None
+            except Exception as e:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Error submitting share request",
+                )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="No active signed URL"
+            )
+
+
+def publish_files(project_name, signed_url):
+    output_filename = f"{project_name}"
+    project_source = os.path.normpath(os.getcwd())
+    logger.info(project_source)
+    shutil.make_archive(
+        base_name=output_filename, format="gztar", root_dir=project_source
+    )
+
+    upload_files = {"file": open(f"{output_filename}.tar.gz", "rb")}
+    upload_response = requests.post(
+        signed_url["url"], data=signed_url["fields"], files=upload_files
+    )
+    if upload_response.status_code != 204:
+        return {
+            "Error": upload_response.json().get(
+                "message",
+                upload_response.json().get("Message", "Failed to upload files"),
+            )
+        }
 
 
 @router.post("/api/upload_file")
