@@ -168,3 +168,8 @@ class RenameItemRequest(BaseModel):
 class DeleteItemRequest(BaseModel):
     path: str
     name: str
+
+class DownloadRequest(BaseModel):
+    path: str
+    filename: str
+    isFolder: bool

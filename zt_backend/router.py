@@ -1,4 +1,3 @@
-import subprocess
 import shutil
 from fastapi import (
     APIRouter,
@@ -30,7 +29,8 @@ from zt_backend.models.managers.connection_manager import ConnectionManager
 from zt_backend.models.managers.k_thread import KThread
 from zt_backend.models.state.user_state import UserState
 from zt_backend.models.state.app_state import AppState
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.requests import Request
 from pathlib import Path
 import logging
 import uuid
@@ -41,7 +41,9 @@ import asyncio
 import pkg_resources
 import requests
 import re
-import tarfile
+import tempfile
+from zt_backend.utils.file_utils import *
+
 
 router = APIRouter()
 manager = ConnectionManager()
@@ -588,39 +590,70 @@ def delete_item(delete_request: request.DeleteItemRequest):
             status_code=500, detail=f"An unexpected error occurred: {str(e)}"
         )
 
+@router.get("/api/download")
+async def download_item(
+    request: Request,
+    path: str, 
+    filename: str,
+    isFolder: bool,
+    chunk_size: int = 8192
+):
+    """Stream download with range support and error handling for both files and folders."""
+    try:
+        file_path = Path(path)
+        validate_path(file_path, filename)
 
-def get_file_type(name):
-    extension = name.split(".")[-1]
-    if extension in ["html", "js", "json", "md", "pdf", "png", "txt", "xls"]:
-        return extension
-    return None
+        if isFolder:
+            # Create a temporary zip file
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.zip') as temp_zip:
+                temp_zip_path = temp_zip.name
 
+            # Create a zip file containing the folder contents
+            await create_zip_file(file_path, temp_zip_path)
+            file_path = Path(temp_zip_path)
+            filename = f"{filename}.zip"
+        elif not file_path.is_file():
+            raise HTTPException(status_code=400, detail=f"The path specified is not a file: {filename}")
 
-def list_dir(path):
-    items = []
-    for item in path.iterdir():
-        if item.is_dir():
-            items.append(
-                {
-                    "title": item.name,
-                    "file": "folder",
-                    "id": item.as_posix(),
-                    "children": [],
-                }
-            )
-        else:
-            file_type = get_file_type(item.name)
-            if file_type:
-                items.append(
-                    {"title": item.name, "file": file_type, "id": item.as_posix()}
-                )
-            else:
-                items.append(
-                    {"title": item.name, "file": "file", "id": item.as_posix()}
-                )
-    return items
+        file_size = file_path.stat().st_size
+        start, end = await parse_range_header(
+            request.headers.get('range'),
+            file_size
+        )
 
+        # Create response with proper headers
+        response = StreamingResponse(
+            stream_file_range(str(file_path), start, end, chunk_size),
+            status_code=206 if request.headers.get('range') else 200,
+            media_type=get_mime_type(filename)
+        )
 
+        # Set headers
+        response.headers.update({
+            "Content-Range": f"bytes {start}-{end}/{file_size}",
+            "Content-Length": str(end - start + 1),
+            "Content-Disposition": f"attachment; filename={filename}",
+            "Accept-Ranges": "bytes",
+            "Cache-Control": "no-cache",
+            "Content-Encoding": "identity"
+        })
+
+        if isFolder:
+            # Clean up the temporary zip file after streaming
+            async def cleanup_temp_file():
+                yield
+                os.unlink(temp_zip_path)
+
+            response.background = cleanup_temp_file()
+
+        return response
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Download failed: {str(e)}"
+        )
+    
 @router.get("/api/get_files")
 def list_files():
     path = Path(".")
