@@ -1,5 +1,4 @@
 <template>
-    <div>
       <v-dialog v-model="dialogVisible" max-width="500px" persistent>
         <v-card>
           <v-card-title>Confirm Download</v-card-title>
@@ -27,7 +26,6 @@
           </v-btn>
         </template>
       </v-snackbar>
-    </div>
   </template>
   <script lang="ts">
   import { defineComponent, ref } from 'vue';
