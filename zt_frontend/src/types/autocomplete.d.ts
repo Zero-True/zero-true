@@ -62,7 +62,7 @@ export interface Autocomplete {
   id: Id;
   variable_name?: VariableName;
   component?: Component;
-  items: Items;
+  items?: Items;
   value?: Value;
   label?: Label;
   multiple?: Multiple;

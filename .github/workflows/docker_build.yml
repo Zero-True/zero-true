@@ -5,6 +5,9 @@ on:
     types: [opened, synchronize]
   release:
     types: [created]
+  push:
+    branches:
+      - main
 
 permissions:
   id-token: write
@@ -58,5 +61,21 @@ jobs:
         --reproducible --cleanup --cache=true \
         --cache-repo ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}-cache \
         --destination=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:zero-true-${GITHUB_REF_NAME}-python${{ matrix.python-version }} \
+        --context dir:///workspace/ \
+        --build-arg PYTHON_VERSION=${{ matrix.python-version }}
+
+    - name: "Build and push image via Kaniko"
+      if: github.ref == 'refs/heads/main'
+      run: |
+        docker run \
+        -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
+        -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
+        -e AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN} \
+        -v ${{ github.workspace }}:/workspace \
+        gcr.io/kaniko-project/executor:latest \
+        --dockerfile Dockerfile \
+        --reproducible --cleanup --cache=true \
+        --cache-repo ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}-cache \
+        --destination=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:main-${{ github.sha }}-dev-python${{ matrix.python-version }} \
         --context dir:///workspace/ \
         --build-arg PYTHON_VERSION=${{ matrix.python-version }}

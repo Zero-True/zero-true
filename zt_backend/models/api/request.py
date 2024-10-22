@@ -4,7 +4,6 @@ from zt_backend.models.notebook import Dependencies
 from typing import Literal
 
 
-
 class CodeRequest(BaseModel):
     id: str
     code: str
@@ -108,6 +107,7 @@ class ShareRequest(BaseModel):
     userName: str
     projectName: str
     apiKey: str
+    computeProfile: Optional[str] = "xsmall"
     teamName: Optional[str] = ""
 
 
@@ -155,15 +155,18 @@ class EditReplyRequest(BaseModel):
     commentId: str
     comment: str
 
+
 class CreateItemRequest(BaseModel):
     path: str
     name: str
     type: Literal["file", "folder"]
 
+
 class RenameItemRequest(BaseModel):
     path: str
     oldName: str
     newName: str
+
 
 class DeleteItemRequest(BaseModel):
     path: str

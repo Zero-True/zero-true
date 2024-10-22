@@ -39,10 +39,6 @@ export type Density2 = "default" | "comfortable" | "compact";
  * Width of the card
  */
 export type Width = number | string | null;
-/**
- * Location of the card within the parent component. Can be center, start, end, left, right, top, bottom, or a logical combination of two locations (e.g. left top)
- */
-export type Location = string | null;
 
 /**
  * A card is a container for components that should be displayed together.
@@ -57,6 +53,5 @@ export interface Card {
   elevation?: Elevation;
   density?: Density;
   width?: Width;
-  location?: Location;
   [k: string]: unknown;
 }

@@ -8,12 +8,14 @@
 export type Username = string;
 export type Projectname = string;
 export type Apikey = string;
+export type Computeprofile = string | null;
 export type Teamname = string | null;
 
 export interface ShareRequest {
   userName: Username;
   projectName: Projectname;
   apiKey: Apikey;
+  computeProfile?: Computeprofile;
   teamName?: Teamname;
   [k: string]: unknown;
 }
