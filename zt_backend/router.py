@@ -546,6 +546,7 @@ def publish_files(project_name, signed_url):
                 upload_response.json().get("Message", "Failed to upload files"),
             )
         }
+    os.remove(f"{output_filename}.tar.gz")
 
 
 @router.post("/api/upload_file")
