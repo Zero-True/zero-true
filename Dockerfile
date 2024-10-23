@@ -27,7 +27,7 @@ RUN rm -rf /app/*
 # Create a non-root user
 RUN groupadd -r -g 1001 appuser && \
     useradd -r -u 1001 -g appuser -d /appuser appuser && \
-    chown -R appuser:appuser /app /venv
+    chown -R appuser:appuser /app /appuser /venv
 
 USER appuser
 
