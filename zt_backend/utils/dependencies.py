@@ -6,13 +6,14 @@ import logging
 import traceback
 import pkg_resources
 import re
+from zt_backend.config import settings
 
 logger = logging.getLogger("__name__")
 
 
 def parse_dependencies():
     dependencies = []
-    with open("requirements.txt", "r", encoding="utf-8") as file:
+    with open(f'{settings.zt_path}/requirements.txt', "r", encoding="utf-8") as file:
         for line in file:
             line = re.sub(r"#.*", "", line).strip()
             if not line:
@@ -42,7 +43,7 @@ def check_env(dependencies: notebook.Dependencies):
 
 
 def write_dependencies(dependencies: notebook.Dependencies):
-    with open("requirements.txt", "w", encoding="utf-8") as file:
+    with open(f'{settings.zt_path}/requirements.txt', "w", encoding="utf-8") as file:
         file.seek(0)
         file.write(
             f"zero-true=={pkg_resources.get_distribution('zero-true').version}\n"

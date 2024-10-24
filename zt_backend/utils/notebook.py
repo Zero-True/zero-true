@@ -35,7 +35,7 @@ def get_notebook(id=""):
     try:
         logger.debug("Notebook id is empty")
         # If it doesn't exist in the database, load it from the TOML file
-        with open("notebook.ztnb", "r", encoding="utf-8") as project_file:
+        with open(f'{settings.zt_path}/notebook.ztnb', "r", encoding="utf-8") as project_file:
             toml_data = rtoml.loads(project_file.read().replace("\\", "\\\\"))
 
         try:
@@ -315,7 +315,7 @@ def save_notebook():
 
 
 def write_notebook():
-    tmp_uuid_file = f"notebook_{uuid.uuid4()}.ztnb"
+    tmp_uuid_file = f"{settings.zt_path}/notebook_{uuid.uuid4()}.ztnb"
     logger.debug("Saving toml for notebook %s", notebook_state.zt_notebook.notebookId)
     try:
         with open(tmp_uuid_file, "w", encoding="utf-8") as project_file:

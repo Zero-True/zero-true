@@ -74,6 +74,7 @@ def env_data():
         "zt_version": pkg_resources.get_distribution("zero-true").version,
         "comments_enabled": settings.comments_enabled,
         "show_create_button": settings.show_create_button,
+        "zt_path": settings.zt_path,
     }
     if settings.user_name:
         environment_data["user_name"] = settings.user_name
@@ -528,26 +529,53 @@ def confirm_share(shareRequest: request.ShareRequest):
 
 
 def publish_files(project_name, signed_url):
-    output_filename = f"{project_name}"
-    project_source = os.path.normpath(os.getcwd())
-    logger.info(project_source)
-    shutil.make_archive(
-        base_name=output_filename, format="gztar", root_dir=project_source
-    )
+    try:
+        output_filename = f"{project_name}"
+        project_source = settings.zt_path
+        logger.info(project_source)
+        
+        # Create the archive
+        shutil.make_archive(
+            base_name=output_filename, 
+            format="gztar", 
+            root_dir=project_source
+        )
 
-    upload_files = {"file": open(f"{output_filename}.tar.gz", "rb")}
-    upload_response = requests.post(
-        signed_url["url"], data=signed_url["fields"], files=upload_files
-    )
-    if upload_response.status_code != 204:
-        return {
-            "Error": upload_response.json().get(
-                "message",
-                upload_response.json().get("Message", "Failed to upload files"),
+        # Use context manager to ensure file is properly closed
+        with open(f"{output_filename}.tar.gz", "rb") as file:
+            upload_files = {"file": file}
+            upload_response = requests.post(
+                signed_url["url"], 
+                data=signed_url["fields"], 
+                files=upload_files
             )
-        }
-    os.remove(f"{output_filename}.tar.gz")
-
+            
+        if upload_response.status_code != 204:
+            return {
+                "Error": upload_response.json().get(
+                    "message",
+                    upload_response.json().get("Message", "Failed to upload files"),
+                )
+            }
+            
+        # Add error handling for file removal
+        try:
+            os.remove(f"{output_filename}.tar.gz")
+        except OSError as e:
+            logger.warning(f"Failed to remove temporary file: {e}")
+            try:
+                os.remove(f"{output_filename}.tar.gz")
+            except OSError as e:
+                logger.error(f"Failed to remove temporary file after retry: {e}")
+                
+    except Exception as e:
+        # Clean up the file if it exists and we encounter an error
+        try:
+            if os.path.exists(f"{output_filename}.tar.gz"):
+                os.remove(f"{output_filename}.tar.gz")
+        except OSError:
+            pass
+        raise e 
 
 @router.post("/api/upload_file")
 async def upload_file(

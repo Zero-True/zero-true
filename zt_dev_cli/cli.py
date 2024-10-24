@@ -13,6 +13,12 @@ import pkg_resources
 cli_app = typer.Typer()
 
 
+# Set ZT_PATH environment variable to the current working directory
+def set_zt_path():
+    if "ZT_PATH" not in os.environ:
+        os.environ["ZT_PATH"] = os.getcwd()
+
+
 def print_ascii_logo():
     ascii_logo = """
 _____________________ ________  _______________   ____
@@ -28,6 +34,7 @@ _____________________ ________  _______________   ____
 
 @cli_app.command()
 def pyd2ts():
+    set_zt_path()
     os.mkdir("zt_schema")
     generate_schema()
     os.chdir("zt_frontend")
@@ -40,6 +47,7 @@ def pyd2ts():
 @cli_app.command()
 def build():
     try:
+        set_zt_path()
         shutil.rmtree("zt_backend/dist_dev")
         shutil.rmtree("zt_backend/dist_app")
     except Exception as e:
@@ -59,7 +67,7 @@ def build():
 def app(
     port: Annotated[Optional[int], typer.Option(help="Port number to bind to.")] = 5173
 ):
-
+    set_zt_path()
     print_ascii_logo()
 
     log_path = os.path.normpath(
@@ -90,7 +98,7 @@ def app(
 def notebook(
     port: Annotated[Optional[int], typer.Option(help="Port number to bind to.")] = 5173
 ):
-
+    set_zt_path()
     print_ascii_logo()
 
     log_path = os.path.normpath(

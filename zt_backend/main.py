@@ -40,12 +40,12 @@ app.add_middleware(
 def open_project():
     try:
         matplotlib.use("Agg")
-        if not os.path.exists("notebook.ztnb"):
+        if not os.path.exists(f'{settings.zt_path}/notebook.ztnb'):
             logger.info("No notebook file found, creating with empty notebook")
             write_notebook()
-        if not os.path.exists("requirements.txt"):
+        if not os.path.exists(f"{settings.zt_path}/requirements.txt"):
             logger.info("No requirements file found, creating with base dependency")
-            with open("requirements.txt", "w") as file:
+            with open(f"{settings.zt_path}/requirements.txt", "w") as file:
                 file.write(
                     f"zero-true=={pkg_resources.get_distribution('zero-true').version}"
                 )
