@@ -18,10 +18,7 @@ import re
 cli_app = typer.Typer()
 
 
-# Set ZT_PATH environment variable to the current working directory
-def set_zt_path():
-    if "ZT_PATH" not in os.environ:
-        os.environ["ZT_PATH"] = os.getcwd()
+
 
 def print_ascii_logo():
     ascii_logo = """
@@ -178,7 +175,7 @@ def app(
     """
     Start the Zero-True application.
     """
-    set_zt_path()
+    os.environ["ZT_PATH"] = os.path.normpath(os.getcwd())
     print_ascii_logo()
     os.environ["RUN_MODE"] = "app"
     log_path = os.path.normpath(
@@ -210,7 +207,7 @@ def notebook(
     """
     Start the Zero-True application.
     """
-    set_zt_path
+    os.environ["ZT_PATH"] = os.path.normpath(os.getcwd())
     print_ascii_logo()
     os.environ["RUN_MODE"] = "dev"
     log_path = os.path.normpath(
