@@ -477,20 +477,19 @@ def share_notebook(shareRequest: request.ShareRequest):
                     detail="Failed to get a signed URL",
                 )
 
-            python_warning = response_json.get("pythonWarning", None)
-            zt_warning = response_json.get("ztWarning", None)
+            python_warning = response_json.get("pythonWarning", "")
+            zt_warning = response_json.get("ztWarning", "")
+            project_warning = response_json.get("projectWarning", "")
             warning_message = ""
             if python_warning:
-                warning_message += python_warning
-                if zt_warning:
-                    warning_message += "\n" + zt_warning
-                warning_message += "\nWe recommend upgrading your versions before continuing. If you would like to continue, select confirm."
-                upload_state.signed_url = signed_url
-                return {"warning": warning_message}
+                warning_message += f"\n{python_warning}"
             if zt_warning:
-                warning_message += zt_warning
+                warning_message += f"\n{zt_warning}"
+            if project_warning:
+                warning_message += f"\n{project_warning}"
+            if warning_message:
                 warning_message += (
-                    "\nWe recommend upgrading your versions before continuing"
+                    "\nSelect confirm if you would like to proceed"
                 )
                 upload_state.signed_url = signed_url
                 return {"warning": warning_message}

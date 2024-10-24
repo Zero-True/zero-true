@@ -137,6 +137,7 @@ const submitShareRequest = async () => {
   if (valid.value) {
     errorMessage.value = "";
     warningMessage.value = "";
+    successMessage.value = "";
     isLoading.value = true;
     if (confirmationRequired.value) {
       try {
@@ -153,6 +154,7 @@ const submitShareRequest = async () => {
         }
         console.error("Error submitting share request:", error);
       }
+      confirmationRequired.value = false;
     } else {
       try {
         const response = await axios.post(
