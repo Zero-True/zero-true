@@ -59,7 +59,6 @@ def build():
 def app(
     port: Annotated[Optional[int], typer.Option(help="Port number to bind to.")] = 5173
 ):
-
     print_ascii_logo()
 
     log_path = os.path.normpath(
@@ -90,7 +89,6 @@ def app(
 def notebook(
     port: Annotated[Optional[int], typer.Option(help="Port number to bind to.")] = 5173
 ):
-
     print_ascii_logo()
 
     log_path = os.path.normpath(

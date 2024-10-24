@@ -18,8 +18,6 @@ import re
 cli_app = typer.Typer()
 
 
-
-
 def print_ascii_logo():
     ascii_logo = """
 
