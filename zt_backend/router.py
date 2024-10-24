@@ -484,9 +484,7 @@ def share_notebook(shareRequest: request.ShareRequest):
                 warning_message += python_warning
                 if zt_warning:
                     warning_message += "\n" + zt_warning
-                warning_message += (
-                    "\nWe recommend upgrading your versions before continuing. If you would like to continue, select confirm."
-                )
+                warning_message += "\nWe recommend upgrading your versions before continuing. If you would like to continue, select confirm."
                 upload_state.signed_url = signed_url
                 return {"warning": warning_message}
             if zt_warning:
@@ -514,7 +512,9 @@ def confirm_share(shareRequest: request.ShareRequest):
     if app_state.run_mode == "dev":
         if upload_state.signed_url:
             try:
-                publish_files(shareRequest.projectName.lower().strip(), upload_state.signed_url)
+                publish_files(
+                    shareRequest.projectName.lower().strip(), upload_state.signed_url
+                )
                 upload_state.signed_url = None
             except Exception as e:
                 raise HTTPException(
@@ -528,25 +528,44 @@ def confirm_share(shareRequest: request.ShareRequest):
 
 
 def publish_files(project_name, signed_url):
-    output_filename = f"{project_name}"
-    project_source = os.path.normpath(os.getcwd())
-    logger.info(project_source)
-    shutil.make_archive(
-        base_name=output_filename, format="gztar", root_dir=project_source
-    )
+    try:
+        output_filename = Path(settings.zt_path) / f"{project_name}.tar.gz"
+        tar_base = str(Path(settings.zt_path) / project_name)
 
-    upload_files = {"file": open(f"{output_filename}.tar.gz", "rb")}
-    upload_response = requests.post(
-        signed_url["url"], data=signed_url["fields"], files=upload_files
-    )
-    if upload_response.status_code != 204:
-        return {
-            "Error": upload_response.json().get(
-                "message",
-                upload_response.json().get("Message", "Failed to upload files"),
+        shutil.make_archive(
+            base_name=tar_base, format="gztar", root_dir=settings.zt_path
+        )
+
+        with output_filename.open("rb") as file:
+            upload_files = {"file": file}
+            upload_response = requests.post(
+                signed_url["url"], data=signed_url["fields"], files=upload_files
             )
-        }
-    os.remove(f"{output_filename}.tar.gz")
+
+        if upload_response.status_code != 204:
+            return {
+                "Error": upload_response.json().get(
+                    "message",
+                    upload_response.json().get("Message", "Failed to upload files"),
+                )
+            }
+        
+        try:
+            output_filename.unlink()
+        except OSError as e:
+            logger.warning(f"Failed to remove temporary file: {e}")
+            try:
+                output_filename.unlink()
+            except OSError as e:
+                logger.error(f"Failed to remove temporary file after retry: {e}")
+
+    except Exception as e:
+        try:
+            if output_filename.exists():
+                output_filename.unlink()
+        except OSError:
+            pass
+        raise e
 
 
 @router.post("/api/upload_file")
