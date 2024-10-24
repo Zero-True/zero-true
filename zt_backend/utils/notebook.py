@@ -5,6 +5,7 @@ from zt_backend.models.api import request, response
 from zt_backend.models import notebook
 from zt_backend.utils.debounce import debounce
 from zt_backend.config import settings
+from pathlib import Path
 import logging
 import duckdb
 import uuid
@@ -35,7 +36,9 @@ def get_notebook(id=""):
     try:
         logger.debug("Notebook id is empty")
         # If it doesn't exist in the database, load it from the TOML file
-        with open(f'{settings.zt_path}/notebook.ztnb', "r", encoding="utf-8") as project_file:
+        logger.info(f'{settings.zt_path}/notebook.ztnb')
+        notebook_path = Path(settings.zt_path) / "notebook.ztnb"
+        with notebook_path.open("r", encoding="utf-8") as project_file:
             toml_data = rtoml.loads(project_file.read().replace("\\", "\\\\"))
 
         try:
@@ -315,10 +318,11 @@ def save_notebook():
 
 
 def write_notebook():
-    tmp_uuid_file = f"{settings.zt_path}/notebook_{uuid.uuid4()}.ztnb"
+    tmp_uuid_file = Path(settings.zt_path) / f"notebook_{uuid.uuid4()}.ztnb"
+    notebook_path = Path(settings.zt_path) / "notebook.ztnb"
     logger.debug("Saving toml for notebook %s", notebook_state.zt_notebook.notebookId)
     try:
-        with open(tmp_uuid_file, "w", encoding="utf-8") as project_file:
+        with tmp_uuid_file.open("w", encoding="utf-8") as project_file:
             # Write notebookId
             project_file.write(
                 f'notebookId = "{notebook_state.zt_notebook.notebookId}"\nnotebookName = "{notebook_state.zt_notebook.notebookName}"\n\n'
@@ -358,7 +362,7 @@ def write_notebook():
 
                 project_file.write("\n")
 
-        os.replace(tmp_uuid_file, "notebook.ztnb")
+        tmp_uuid_file.replace(notebook_path)
     except Exception as e:
         logger.error(
             "Error saving notebook %s toml file: %s",
@@ -368,7 +372,7 @@ def write_notebook():
 
     finally:
         try:
-            os.remove(tmp_uuid_file)
+            tmp_uuid_file.unlink()
         except Exception as e:
             logger.debug(
                 "Error while deleting temporary toml file for notebook %s: %s",

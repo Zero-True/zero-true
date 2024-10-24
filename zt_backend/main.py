@@ -6,11 +6,11 @@ from zt_backend.utils.notebook import get_notebook, write_notebook
 from zt_backend.utils.dependencies import parse_dependencies, write_dependencies
 from copilot.copilot import copilot_app
 import zt_backend.router as router
+from pathlib import Path
 import os
 import webbrowser
 import logging
 import traceback
-import pkg_resources
 import matplotlib
 
 app = FastAPI()
@@ -40,15 +40,14 @@ app.add_middleware(
 def open_project():
     try:
         matplotlib.use("Agg")
-        if not os.path.exists(f'{settings.zt_path}/notebook.ztnb'):
+        notebook_path = Path(settings.zt_path) / "notebook.ztnb"
+        if not notebook_path.exists():
             logger.info("No notebook file found, creating with empty notebook")
             write_notebook()
-        if not os.path.exists(f"{settings.zt_path}/requirements.txt"):
-            logger.info("No requirements file found, creating with base dependency")
-            with open(f"{settings.zt_path}/requirements.txt", "w") as file:
-                file.write(
-                    f"zero-true=={pkg_resources.get_distribution('zero-true').version}"
-                )
+        requirements_path = Path(settings.zt_path) / "requirements.txt"
+        if not requirements_path.exists():
+            logger.info("No requirements file found, creating empty file")
+            requirements_path.touch()
         else:
             write_dependencies(parse_dependencies())
         get_notebook()

@@ -6,6 +6,7 @@ from typing_extensions import Annotated
 import uvicorn
 from typing import Optional
 from rich import print
+from pathlib import Path
 import shutil
 import requests
 import pkg_resources
@@ -173,7 +174,7 @@ def app(
     """
     Start the Zero-True application.
     """
-    os.environ["ZT_PATH"] = os.path.normpath(os.getcwd())
+    os.environ["ZT_PATH"] = str(Path.cwd())
     print_ascii_logo()
     os.environ["RUN_MODE"] = "app"
     log_path = os.path.normpath(
@@ -205,7 +206,7 @@ def notebook(
     """
     Start the Zero-True application.
     """
-    os.environ["ZT_PATH"] = os.path.normpath(os.getcwd())
+    os.environ["ZT_PATH"] = str(Path.cwd())
     print_ascii_logo()
     os.environ["RUN_MODE"] = "dev"
     log_path = os.path.normpath(

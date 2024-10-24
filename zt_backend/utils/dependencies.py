@@ -6,6 +6,7 @@ import logging
 import traceback
 import pkg_resources
 import re
+from pathlib import Path
 from zt_backend.config import settings
 
 logger = logging.getLogger("__name__")
@@ -13,7 +14,8 @@ logger = logging.getLogger("__name__")
 
 def parse_dependencies():
     dependencies = []
-    with open(f'{settings.zt_path}/requirements.txt', "r", encoding="utf-8") as file:
+    requirements_path = Path(settings.zt_path) / "requirements.txt"
+    with requirements_path.open("r", encoding="utf-8") as file:
         for line in file:
             line = re.sub(r"#.*", "", line).strip()
             if not line:
@@ -43,15 +45,11 @@ def check_env(dependencies: notebook.Dependencies):
 
 
 def write_dependencies(dependencies: notebook.Dependencies):
-    with open(f'{settings.zt_path}/requirements.txt', "w", encoding="utf-8") as file:
-        file.seek(0)
-        file.write(
-            f"zero-true=={pkg_resources.get_distribution('zero-true').version}\n"
-        )
+    requirements_path = Path(settings.zt_path) / "requirements.txt"
+    with requirements_path.open("w", encoding="utf-8") as file:
         for dependency in dependencies.dependencies:
             if dependency.package:
                 file.write(f"{dependency.package}{dependency.version}\n")
-        file.truncate()
 
 
 async def dependency_update(
@@ -59,7 +57,8 @@ async def dependency_update(
 ):
     try:
         write_dependencies(dependency_request.dependencies)
-        command = ["pip", "install", "-r", "requirements.txt"]
+        requirements_path = Path(settings.zt_path) / "requirements.txt"
+        command = ["pip", "install", "-r", str(requirements_path)]
         with subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
         ) as process:

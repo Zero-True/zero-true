@@ -4,6 +4,7 @@ import subprocess
 import os
 import shutil
 import typer
+from pathlib import Path
 from zt_backend.models.generate_schema import generate_schema
 from typing_extensions import Annotated
 from typing import Optional
@@ -59,6 +60,7 @@ def build():
 def app(
     port: Annotated[Optional[int], typer.Option(help="Port number to bind to.")] = 5173
 ):
+    os.environ["ZT_PATH"] = str(Path.cwd())
     print_ascii_logo()
 
     log_path = os.path.normpath(
@@ -89,6 +91,7 @@ def app(
 def notebook(
     port: Annotated[Optional[int], typer.Option(help="Port number to bind to.")] = 5173
 ):
+    os.environ["ZT_PATH"] = str(Path.cwd())
     print_ascii_logo()
 
     log_path = os.path.normpath(
