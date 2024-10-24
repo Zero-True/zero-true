@@ -133,13 +133,15 @@ def publish(
     
     python_warning = response_json.get("pythonWarning", None)
     zt_warning = response_json.get("ztWarning", None)
+    project_warning = response_json.get("projectWarning", None)
     if python_warning:
         typer.echo(python_warning)
     if zt_warning:
         typer.echo(zt_warning)
+    if project_warning:
+        typer.echo(project_warning)
     
-    if python_warning or zt_warning:
-        typer.echo("We recommend upgrading your versions before continuing")
+    if python_warning or zt_warning or project_warning:
         if typer.confirm("Do you want to continue anyway?"):
             pass
         else:
