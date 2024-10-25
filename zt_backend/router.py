@@ -10,6 +10,7 @@ from fastapi import (
     Form,
     HTTPException,
     status,
+    BackgroundTasks,
 )
 from zt_backend.models import notebook
 from zt_backend.models.api import request
@@ -43,7 +44,7 @@ import asyncio
 import pkg_resources
 import requests
 import re
-
+from zt_backend.utils.file_utils import upload_queue, process_upload
 router = APIRouter()
 manager = ConnectionManager()
 current_path = os.path.dirname(os.path.abspath(__file__))
@@ -566,33 +567,26 @@ def publish_files(project_name, signed_url):
             pass
         raise e
 
-
 @router.post("/api/upload_file")
 async def upload_file(
+    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     chunk_index: int = Form(...),
     total_chunks: int = Form(...),
     path: str = Form(...),
-    file_name: str = Form(...),
+    file_name: str = Form(...)
 ):
-    if app_state.run_mode == "dev":
-        logger.debug("File upload request started")
-
-        # Ensure the path exists
-        os.makedirs(path, exist_ok=True)
-
-        file_path = os.path.join(path, "temp_upload_file")
-        with open(file_path, "ab") as buffer:
-            buffer.write(await file.read())
-
-        final_path = os.path.join(path, file_name)
-        if chunk_index == total_chunks - 1:
-            os.rename(file_path, final_path)
-
-        logger.debug(f"File upload request completed. File saved to: {final_path}")
-        return {"filename": file_name, "path": final_path}
-
-
+    try:
+        # Put the upload request into the queue
+        await upload_queue.put((background_tasks, file, chunk_index, total_chunks, path, file_name))
+        
+        # Process the queue
+        result = await process_upload(background_tasks, file, chunk_index, total_chunks, path, file_name)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+    
+    
 @router.post("/api/create_item")
 def create_item(item: request.CreateItemRequest):
     if app_state.run_mode == "dev":
