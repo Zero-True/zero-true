@@ -112,7 +112,7 @@ const shareRequest: Ref<ShareRequest> = ref({
   projectName: "",
   apiKey: "",
   teamName: "",
-  computeProfile: "X-Small (0.5 CPU, 2GB RAM)",
+  computeProfile: "X-Small (1 CPU, 2GB RAM)",
 });
 const valid: Ref<boolean> = ref(false);
 const rules = {
@@ -120,7 +120,7 @@ const rules = {
 };
 
 const computeProfiles = ref([
-  "X-Small (0.5 CPU, 2GB RAM)",
+  "X-Small (1 CPU, 2GB RAM)",
   "Small (1 CPU, 4GB RAM)",
   "Medium (1.5 CPU, 8GB RAM)",
   "Large (2 CPU, 16GB RAM)",
@@ -184,9 +184,13 @@ const submitShareRequest = async () => {
 };
 
 function loadValues() {
-  shareRequest.value.userName = props.userName;
+  if (props.teamName !== "") {
+    shareRequest.value.teamName = props.teamName;
+  }
+  else {
+    shareRequest.value.userName = props.userName;
+  }
   shareRequest.value.projectName = props.projectName;
-  shareRequest.value.teamName = props.teamName;
 }
 
 function cleanUp() {
