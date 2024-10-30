@@ -11,7 +11,13 @@
         v-else-if="component.component === 'zt-html'"
         v-html="component.v_html"
       />
-
+      <component
+      v-else-if="component.component === 'v-file-input'"
+      :is="component.component"
+      v-bind="componentBind(component)"
+      :model-value="component.value"  
+      v-on="getEventBindings(component)"
+    />
       <component
         v-else
         :is="component.component"
@@ -43,6 +49,7 @@ import {
   VSlider,
   VRating,
   VTextField,
+  VFileInput,
   VTextarea,
   VRangeSlider,
   VSelect,
@@ -61,6 +68,7 @@ export default {
     "v-slider": VSlider,
     "v-rating": VRating,
     "v-text-field": VTextField,
+    "v-file-input": VFileInput,
     "v-textarea": VTextarea,
     "v-range-slider": VRangeSlider,
     "v-select": VSelect,

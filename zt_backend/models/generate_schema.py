@@ -26,6 +26,7 @@ from .api.response import Response
 from .notebook import Notebook, NotebookResponse, Dependencies, Dependency, Comment
 from .components.slider import Slider
 from .components.rating import Rating
+from .components.file_input import FileInput
 from .components.text_input import TextInput
 from .components.text_area_input import TextArea
 from .components.range_slider import RangeSlider
@@ -86,6 +87,7 @@ def generate_schema():
     generate_json(iFrame, "iframe")
     generate_json(HTML, "html")
     generate_json(Rating, "rating")
+    generate_json(FileInput, "file_input")
     generate_json(Comment, "comment")
     generate_json(AddCommentRequest, "add_comment_request")
     generate_json(DeleteCommentRequest, "delete_comment_request")
