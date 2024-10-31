@@ -12,12 +12,18 @@
         v-html="component.v_html"
       />
       <component
-      v-else-if="component.component === 'v-file-input'"
-      :is="component.component"
-      v-bind="componentBind(component)"
-      :model-value="component.value"  
-      v-on="getEventBindings(component)"
-    />
+        v-else-if="component.component === 'v-file-input'"
+        :is="component.component"
+        v-bind="componentBind(component)"
+        @update:model-value="
+          (newValue: any) => {
+            const files = Array.isArray(newValue)
+              ? newValue
+              : [newValue].filter(Boolean);
+            uploadFiles(files);
+          }
+        "
+      />
       <component
         v-else
         :is="component.component"
@@ -62,6 +68,7 @@ import {
 import { VDataTable } from "vuetify/components/VDataTable";
 import TextComponent from "@/components/TextComponent.vue";
 import PlotlyPlot from "@/components/PlotlyComponent.vue";
+import axios from "axios";
 
 export default {
   components: {
@@ -152,6 +159,40 @@ export default {
         this.allComponents[componentId].value = true;
       }
       this.$emit("runCode", fromComponent, componentId, componentValue);
+    },
+
+    async uploadFile(file: File) {
+      if (file) {
+        try {
+          const chunkSize = 1024 * 512;
+          const totalChunks = Math.ceil(file.size / chunkSize);
+          for (let i = 0; i < totalChunks; i++) {
+            const start = i * chunkSize;
+            const end = Math.min(file.size, start + chunkSize);
+            const chunk = file.slice(start, end);
+            const formData = new FormData();
+            formData.append("file", chunk);
+            formData.append("chunk_index", String(i));
+            formData.append("total_chunks", String(totalChunks));
+            formData.append("path", ".");
+            formData.append("file_name", file.name);
+            await axios.post(
+              import.meta.env.VITE_BACKEND_URL + "api/upload_file",
+              formData
+            );
+          }
+        } catch (error) {
+          console.error("Error processing file:", error);
+        }
+      } else {
+        console.error("No file to submit");
+      }
+    },
+
+    async uploadFiles(files: Array<File>) {
+      for (const file of files) {
+        await this.uploadFile(file);
+      }
     },
   },
 };
