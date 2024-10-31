@@ -108,7 +108,6 @@ export default {
             formData.append("total_chunks", String(totalChunks));
             formData.append("path", this.currentPath);
             formData.append("file_name", this.file.name);
-            console.log(formData)
             await axios.post(
               import.meta.env.VITE_BACKEND_URL + "api/upload_file",
               formData,

@@ -201,6 +201,7 @@ if __name__ == "__main__":
     generate_mdx(zero_true.Button, os.path.join(output_dir, "Button.mdx"))
     generate_mdx(zero_true.Rating, os.path.join(output_dir, "Rating.mdx"))
     generate_mdx(zero_true.TextInput, os.path.join(output_dir, "TextInput.mdx"))
+    generate_mdx(zero_true.FileInput, os.path.join(output_dir, "FileInput.mdx"))
     generate_mdx(zero_true.TextArea, os.path.join(output_dir, "TextArea.mdx"))
     generate_mdx(zero_true.RangeSlider, os.path.join(output_dir, "RangeSlider.mdx"))
     generate_mdx(zero_true.SelectBox, os.path.join(output_dir, "SelectBox.mdx"))

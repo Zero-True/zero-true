@@ -1,6 +1,7 @@
 from zt_backend.models.components.zt_component import ZTComponent
 from zt_backend.models.components.slider import Slider
 from zt_backend.models.components.rating import Rating
+from zt_backend.models.components.file_input import FileInput
 from zt_backend.models.components.text_input import TextInput
 from zt_backend.models.components.text_area_input import TextArea
 from zt_backend.models.components.range_slider import RangeSlider
