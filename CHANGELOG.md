@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.4.8](https://github.com/Zero-True/zero-true/compare/v0.4.7...v0.4.8) (2024-10-31)
+
+
+### Bug Fixes
+
+* Bump xsmall CPU and fix preload ([#359](https://github.com/Zero-True/zero-true/issues/359)) ([551f6d2](https://github.com/Zero-True/zero-true/commit/551f6d2e122e1b9af855eb26cb0eee43633c8492))
+* File Uploader component ([#361](https://github.com/Zero-True/zero-true/issues/361)) ([65950a2](https://github.com/Zero-True/zero-true/commit/65950a249ee4ec59b0de075c085e9a73d7d972d2))
+* Home user ownership ([#353](https://github.com/Zero-True/zero-true/issues/353)) ([fcb9e70](https://github.com/Zero-True/zero-true/commit/fcb9e705786c51cb95d2225b74aafa3c217275a6))
+* Home user ownership ([#354](https://github.com/Zero-True/zero-true/issues/354)) ([56b4efa](https://github.com/Zero-True/zero-true/commit/56b4efa5421e6fafccaaa8b539d23e91c7ca1624))
+* Mkdir ([56b4efa](https://github.com/Zero-True/zero-true/commit/56b4efa5421e6fafccaaa8b539d23e91c7ca1624))
+* Remove tar after publish ([#352](https://github.com/Zero-True/zero-true/issues/352)) ([da0b4b8](https://github.com/Zero-True/zero-true/commit/da0b4b8c0bb8816add4c4676e561a3b06deeb7bd))
+* Upgraded publish flow ([#350](https://github.com/Zero-True/zero-true/issues/350)) ([2506246](https://github.com/Zero-True/zero-true/commit/2506246dc74e7f3b6056042cf0aaa7be778e17a3))
+* Use original working dir for all paths except file uploads ([#356](https://github.com/Zero-True/zero-true/issues/356)) ([6399f34](https://github.com/Zero-True/zero-true/commit/6399f34a2df01df64a934c5b1042445f153e6fe7))
+* Warning messages ([#357](https://github.com/Zero-True/zero-true/issues/357)) ([792bbff](https://github.com/Zero-True/zero-true/commit/792bbff465ab86ab89a85ff86811b36829fba2fe))
+
 ## [0.4.7](https://github.com/Zero-True/zero-true/compare/v0.4.6...v0.4.7) (2024-10-18)
 
 
