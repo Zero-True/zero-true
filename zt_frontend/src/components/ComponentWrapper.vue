@@ -15,14 +15,20 @@
         v-else-if="component.component === 'v-file-input'"
         :is="component.component"
         v-bind="componentBind(component)"
+        :model-value="selectedFiles[component.id]"
         @update:model-value="
-          (newValue: any) => {
-            const files = Array.isArray(newValue)
-              ? newValue
-              : [newValue].filter(Boolean);
-            uploadFiles(files);
-          }
-        "
+          (newValue: any) => handleFileSelection(newValue, component.id, component.accept)"
+        :error="!!uploadErrors[component.id]"
+        :error-messages="uploadErrors[component.id]"
+        :loading="uploadLoading[component.id]"
+        :append-icon="selectedFiles[component.id] && !uploadLoading[component.id] ? 'mdi-upload' : ''"
+        :messages="uploadSuccess[component.id] ? 'File uploaded successfully!' : uploadMessages[component.id]"
+        class="file-input-component"
+        @click:append="handleUpload(component.id)"
+        :disabled="uploadLoading[component.id]"
+        :readonly="uploadLoading[component.id]"
+
+
       />
       <component
         v-else
@@ -88,6 +94,15 @@ export default {
     "v-text": TextComponent,
     "plotly-plot": PlotlyPlot,
   },
+  data() {
+  return {
+    selectedFiles: {} as Record<string, any>,
+    uploadErrors: {} as Record<string, string>,
+    uploadMessages: {} as Record<string, string>,
+    uploadLoading: {} as Record<string, boolean>,
+    uploadSuccess: {} as Record<string, boolean>,
+  }
+},
   emits: ["runCode"],
   props: {
     renderComponents: {
@@ -160,40 +175,143 @@ export default {
       }
       this.$emit("runCode", fromComponent, componentId, componentValue);
     },
-
-    async uploadFile(file: File) {
-      if (file) {
-        try {
-          const chunkSize = 1024 * 512;
-          const totalChunks = Math.ceil(file.size / chunkSize);
-          for (let i = 0; i < totalChunks; i++) {
-            const start = i * chunkSize;
-            const end = Math.min(file.size, start + chunkSize);
-            const chunk = file.slice(start, end);
-            const formData = new FormData();
-            formData.append("file", chunk);
-            formData.append("chunk_index", String(i));
-            formData.append("total_chunks", String(totalChunks));
-            formData.append("path", ".");
-            formData.append("file_name", file.name);
-            await axios.post(
-              import.meta.env.VITE_BACKEND_URL + "api/upload_file",
-              formData
-            );
-          }
-        } catch (error) {
-          console.error("Error processing file:", error);
-        }
-      } else {
-        console.error("No file to submit");
+    handleFileSelection(newValue: any, componentId: string, accept: string) {
+      // Clear previous states
+      this.uploadErrors[componentId] = '';
+      this.uploadSuccess[componentId] = false;
+      this.uploadMessages[componentId] = '';
+      
+      if (!newValue) {
+        this.selectedFiles[componentId] = null;
+        return;
       }
-    },
 
-    async uploadFiles(files: Array<File>) {
+      const files = Array.isArray(newValue) ? newValue : [newValue];
+      
       for (const file of files) {
-        await this.uploadFile(file);
+        if (!this.validateFileType(file, accept)) {
+          this.uploadErrors[componentId] = `Invalid file type. Accepted types: ${accept}`;
+          this.selectedFiles[componentId] = null;
+          return;
+        }
+      }
+
+      this.selectedFiles[componentId] = newValue;
+    },
+
+    async handleUpload(componentId: string) {
+      // Double check to prevent multiple uploads
+      if (this.uploadLoading[componentId]) {
+        return;
+      }
+
+      if (!this.selectedFiles[componentId]) {
+        this.uploadErrors[componentId] = 'Please select a file to upload';
+        return;
+      }
+
+      // Set loading state immediately
+      this.uploadLoading[componentId] = true;
+      this.uploadErrors[componentId] = '';
+      this.uploadSuccess[componentId] = false;
+
+      try {
+        const files = Array.isArray(this.selectedFiles[componentId])
+          ? this.selectedFiles[componentId]
+          : [this.selectedFiles[componentId]].filter(Boolean);
+        
+        await this.uploadFiles(files, componentId);
+        
+        // Show success state
+        this.uploadSuccess[componentId] = true;
+        
+        // Clear file input and success state after delay
+        setTimeout(() => {
+          this.selectedFiles[componentId] = null;
+          this.uploadSuccess[componentId] = false;
+        }, 300);
+        
+      } catch (error: any) {
+        console.error('Upload error:', error);
+        
+        // Improved error handling
+        if (error.response?.data?.message) {
+          // Use the exact error message from the backend
+          this.uploadErrors[componentId] = error.response.data.message;
+        } else if (error.message) {
+          // Use the error message from the Error object
+          this.uploadErrors[componentId] = error.message;
+        } else {
+          // Fallback error message
+          this.uploadErrors[componentId] = 'Upload failed. Please try again.';
+        }
+        
+        this.uploadSuccess[componentId] = false;
+      } finally {
+        this.uploadLoading[componentId] = false;
       }
     },
+
+    async uploadFile(file: File, componentId: string) {
+      const chunkSize = 1024 * 512; // 512KB chunks
+      const totalChunks = Math.ceil(file.size / chunkSize);
+      
+      try {
+        for (let i = 0; i < totalChunks; i++) {
+          const start = i * chunkSize;
+          const end = Math.min(file.size, start + chunkSize);
+          const chunk = file.slice(start, end);
+          
+          const formData = new FormData();
+          formData.append("file", chunk);
+          formData.append("chunk_index", String(i));
+          formData.append("total_chunks", String(totalChunks));
+          formData.append("path", ".");
+          formData.append("file_name", file.name);
+          
+          const response = await axios.post(
+            `${import.meta.env.VITE_BACKEND_URL}api/upload_file`,
+            formData
+          );
+
+          if (response.data?.error) {
+            throw new Error(response.data.error);
+          }
+        }
+      } catch (error: any) {
+        this.uploadErrors[componentId] = error.message;
+      }
+    },
+    validateFileType(file: File, accept: string): boolean {
+      if (!accept || accept === '*') return true;
+      
+      const acceptedTypes = accept.split(',').map(type => {
+        type = type.trim().toLowerCase();
+        return type.startsWith('.') 
+          ? file.name.toLowerCase().endsWith(type)
+          : file.type.toLowerCase().includes(type.replace('*', ''));
+      });
+      
+      return acceptedTypes.some(isValid => isValid);
+    },
+
+    async uploadFiles(files: Array<File>, componentId: string) {
+      for (const file of files) {
+        await this.uploadFile(file, componentId);
+      }
+    },
+    
   },
 };
 </script>
+
+
+<style scoped>
+.file-input-component {
+  position: relative;
+}
+
+.file-input-component :deep(.v-input__append) {
+  padding-inline-start: 0;
+}
+</style>
