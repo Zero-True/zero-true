@@ -54,6 +54,9 @@
               </v-btn>
             </template>
             <v-list>
+              <v-list-item v-if="item.file !== 'folder'" @click="openFileEditor(item)">
+                <v-list-item-title>Edit</v-list-item-title>
+              </v-list-item>
               <v-list-item>
                 <FileFolderDownloadDialog
                   :current-path="currentPath"
@@ -92,6 +95,11 @@
     </template>
   </v-snackbar>
 
+  <FileEditorDialog
+  ref="fileEditorDialog"
+  @file-saved="refreshFiles"
+  />
+
 
   <RenameDialog
       ref="renameDialog"
@@ -117,6 +125,7 @@ import FileUploader from "@/components/FileUploader.vue";
 import FileFolderCreator from "@/components/FileFolderCreator.vue";
 import RenameDialog from "@/components/FileFolderRenameDialog.vue";
 import DeleteDialog from "@/components/FileFolderDeleteDialog.vue";
+import FileEditorDialog from '@/components/FileEditorDialog.vue'
 import FileFolderDownloadDialog from "@/components/FileFolderDownloadDialog.vue";
 
 
@@ -128,6 +137,7 @@ export default defineComponent({
     FileFolderCreator,
     RenameDialog,
     DeleteDialog,
+    FileEditorDialog,
     FileFolderDownloadDialog
   },
   props: {
@@ -158,8 +168,14 @@ export default defineComponent({
       return protectedFiles.value.includes(filename);
     };
 
+    const fileEditorDialog = ref<InstanceType<typeof FileEditorDialog> | null>(null)
     const renameDialog = ref<InstanceType<typeof RenameDialog> | null>(null);
     const deleteDialog = ref<InstanceType<typeof DeleteDialog> | null>(null);
+      const openFileEditor = (item: any) => {
+      if (item.file !== 'folder') {
+        fileEditorDialog.value?.openDialog(item)
+      }
+    }
  
     const openRenameDialog = (item: any) => {
       renameDialog.value?.openDialog(item);
@@ -260,6 +276,8 @@ export default defineComponent({
       fileIcon,
       newItemName,
       itemTypes,
+      fileEditorDialog,
+      openFileEditor,
       renameDialog,
       openRenameDialog,
       openDeleteDialog,

@@ -172,6 +172,10 @@ class DeleteItemRequest(BaseModel):
     path: str
     name: str
 
+class FileWrite(BaseModel):
+    path: str
+    content: str
+    
 class DownloadRequest(BaseModel):
     path: str
     filename: str

@@ -687,6 +687,55 @@ def delete_item(delete_request: request.DeleteItemRequest):
             status_code=500, detail=f"An unexpected error occurred: {str(e)}"
         )
 
+@router.get("/api/read_file")
+def read_file(path: str):
+    try:
+        with open(path, 'r', encoding='utf-8') as file:
+            content = file.read()
+        return {"content": content}
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="File not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/api/write_file")
+def write_file(file_data: request.FileWrite):
+    try:
+        # Convert to Path object and normalize
+        file_path = Path(file_data.path).resolve()
+        
+        # Get the base directory where files should be stored
+        base_dir = Path.cwd()
+        
+        # Ensure the file path is within the base directory (prevent path traversal)
+        if not str(file_path).startswith(str(base_dir)):
+            raise HTTPException(status_code=400, detail="Invalid path: path must be within base directory")
+            
+        # Get directory name using pathlib
+        dir_path = file_path.parent
+        
+        # Create directories only if necessary
+        if dir_path != base_dir:
+            try:
+                dir_path.mkdir(parents=True, exist_ok=True)
+            except OSError as e:
+                raise HTTPException(status_code=500, detail=f"Failed to create directory: {str(e)}")
+        
+        # Write the file
+        try:
+            file_path.write_text(file_data.content, encoding='utf-8')
+        except IOError as e:
+            raise HTTPException(status_code=500, detail=f"Failed to write file: {str(e)}")
+            
+        return {
+            "message": "File saved successfully",
+            "path": str(file_path.relative_to(base_dir))
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.get("/api/download")
 async def download_item(
     request: Request,  # For headers
