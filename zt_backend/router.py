@@ -45,6 +45,7 @@ import pkg_resources
 import requests
 import re
 from zt_backend.utils.file_utils import upload_queue, process_upload
+
 router = APIRouter()
 manager = ConnectionManager()
 current_path = os.path.dirname(os.path.abspath(__file__))
@@ -489,9 +490,7 @@ def share_notebook(shareRequest: request.ShareRequest):
             if project_warning:
                 warning_message += f"\n{project_warning}"
             if warning_message:
-                warning_message += (
-                    "\nSelect confirm if you would like to proceed"
-                )
+                warning_message += "\nSelect confirm if you would like to proceed"
                 upload_state.signed_url = signed_url
                 return {"warning": warning_message}
 
@@ -549,7 +548,7 @@ def publish_files(project_name, signed_url):
                     upload_response.json().get("Message", "Failed to upload files"),
                 )
             }
-        
+
         try:
             output_filename.unlink()
         except OSError as e:
@@ -567,6 +566,7 @@ def publish_files(project_name, signed_url):
             pass
         raise e
 
+
 @router.post("/api/upload_file")
 async def upload_file(
     background_tasks: BackgroundTasks,
@@ -574,19 +574,23 @@ async def upload_file(
     chunk_index: int = Form(...),
     total_chunks: int = Form(...),
     path: str = Form(...),
-    file_name: str = Form(...)
+    file_name: str = Form(...),
 ):
     try:
         # Put the upload request into the queue
-        await upload_queue.put((background_tasks, file, chunk_index, total_chunks, path, file_name))
-        
+        await upload_queue.put(
+            (background_tasks, file, chunk_index, total_chunks, path, file_name)
+        )
+
         # Process the queue
-        result = await process_upload(background_tasks, file, chunk_index, total_chunks, path, file_name)
+        result = await process_upload(
+            background_tasks, file, chunk_index, total_chunks, path, file_name
+        )
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
-    
-    
+
+
 @router.post("/api/create_item")
 def create_item(item: request.CreateItemRequest):
     if app_state.run_mode == "dev":

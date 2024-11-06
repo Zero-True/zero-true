@@ -165,6 +165,9 @@ export default defineComponent({
     );
     watch(localDrawer, (newValue) => {
       emit("update:drawer", newValue);
+      if (newValue) {
+        refreshFiles();
+      }
     });
 
     const displayError = (message: string) => {

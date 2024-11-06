@@ -16,11 +16,9 @@
         :is="component.component"
         v-bind="componentBind(component)"
         @update:model-value="
-          (newValue: any) => {
-            const files = Array.isArray(newValue)
-              ? newValue
-              : [newValue].filter(Boolean);
-            uploadFiles(files);
+          async (newValue: File[]) => {
+            component.value = await createFormData(newValue);
+            runCode(true, component.id, component.value);
           }
         "
       />
@@ -68,7 +66,6 @@ import {
 import { VDataTable } from "vuetify/components/VDataTable";
 import TextComponent from "@/components/TextComponent.vue";
 import PlotlyPlot from "@/components/PlotlyComponent.vue";
-import axios from "axios";
 
 export default {
   components: {
@@ -101,7 +98,11 @@ export default {
   },
   methods: {
     componentBind(component: any) {
-      if (component.component && component.component === "v-autocomplete") {
+      if (
+        component.component &&
+        (component.component === "v-autocomplete" ||
+          component.component === "v-file-input")
+      ) {
         const { value, ...rest } = component;
         return this.convertUnderscoresToHyphens(rest);
       }
@@ -161,38 +162,28 @@ export default {
       this.$emit("runCode", fromComponent, componentId, componentValue);
     },
 
-    async uploadFile(file: File) {
-      if (file) {
-        try {
-          const chunkSize = 1024 * 512;
-          const totalChunks = Math.ceil(file.size / chunkSize);
-          for (let i = 0; i < totalChunks; i++) {
-            const start = i * chunkSize;
-            const end = Math.min(file.size, start + chunkSize);
-            const chunk = file.slice(start, end);
-            const formData = new FormData();
-            formData.append("file", chunk);
-            formData.append("chunk_index", String(i));
-            formData.append("total_chunks", String(totalChunks));
-            formData.append("path", ".");
-            formData.append("file_name", file.name);
-            await axios.post(
-              import.meta.env.VITE_BACKEND_URL + "api/upload_file",
-              formData
-            );
-          }
-        } catch (error) {
-          console.error("Error processing file:", error);
-        }
-      } else {
-        console.error("No file to submit");
-      }
+    async fileToBase64(file: File) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      return new Promise((resolve) => {
+        reader.onload = () => {
+          let base64String = (reader.result as string).split(",")[1];
+          base64String = base64String.padEnd(
+            base64String.length + ((4 - (base64String.length % 4)) % 4),
+            "="
+          );
+          resolve(base64String);
+        };
+      });
     },
 
-    async uploadFiles(files: Array<File>) {
+    async createFormData(files: Array<File>) {
+      const fileList: { [key: string]: any } = {};
       for (const file of files) {
-        await this.uploadFile(file);
+        const fileb64 = await this.fileToBase64(file);
+        fileList[file.name] = fileb64;
       }
+      return fileList;
     },
   },
 };
