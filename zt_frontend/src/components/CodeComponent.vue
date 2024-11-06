@@ -121,6 +121,8 @@ import { useRoute } from 'vue-router'
 import Cell from '@/components/Cell.vue'
 import { inlineSuggestion } from 'codemirror-extension-inline-suggestion'
 import ComponentWrapper from "@/components/ComponentWrapper.vue";
+import { linter, lintGutter, Diagnostic } from '@codemirror/lint'
+
 
 
 export default {
@@ -152,6 +154,10 @@ export default {
     },
     completions: {
       type: Object as PropType<any[]>,
+      required: true
+    },
+    lintResults: {
+      type: Array as PropType<any[]>,
       required: true
     },
      currentlyExecutingCell: {
@@ -282,10 +288,40 @@ export default {
           }))
         };
       };
+
+      const customLinter = linter((view) => {
+        console.log("Lint results:", this.lintResults);
+        const diagnostics: Diagnostic[] = [];
+
+        if (Array.isArray(this.lintResults)) {
+          this.lintResults.forEach((result: any) => {
+            const fromPos = view.state.doc.line(result.from.line + 1).from + result.from.ch;
+            const toPos = view.state.doc.line(result.to.line + 1).from + result.to.ch;
+
+            if (fromPos >= 0 && toPos >= fromPos && toPos <= view.state.doc.length) {
+              diagnostics.push({
+                from: fromPos,
+                to: toPos,
+                severity: result.severity,
+                message: result.message
+              });
+            } else {
+              console.warn("Invalid lint result positions:", result);
+            }
+          });
+        } else {
+          console.warn("No lint results for cell:", this.cellData.id);
+        }
+
+        console.log("Diagnostics:", diagnostics);
+        return diagnostics;
+      });
+
+
       if (this.$devMode && !this.isAppRoute){
-        return [Prec.highest(keyMap), python(), indentUnit.of("    "), oneDark, inlineSuggestion({fetchFn: fetchSuggestion, delay: 400}), autocompletion({ override: [customCompletionSource] })]
+        return [Prec.highest(keyMap), python(), indentUnit.of("    "), oneDark, inlineSuggestion({fetchFn: fetchSuggestion, delay: 400}), autocompletion({ override: [customCompletionSource]}),customLinter]
       }
-      return [EditorState.readOnly.of(true), Prec.highest(keyMap), python(), oneDark, autocompletion({ override: [customCompletionSource] })]
+      return [EditorState.readOnly.of(true), Prec.highest(keyMap), python(), oneDark]
     },
 
     unplacedComponents() {

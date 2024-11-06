@@ -2,6 +2,7 @@
   <code-cell-manager
     :notebook="notebook"
     :completions="completions"
+    :lintResults="lintResults"
     :runCode="runCode"
     :saveCell="saveCell"
     :componentValueChange="componentValueChange"
@@ -29,6 +30,10 @@ export default {
       required: true,
     },
     completions: {
+      type: Object as PropType<{ [key: string]: string[] }>,
+      required: true,
+    },
+    lintResults: {
       type: Object as PropType<{ [key: string]: string[] }>,
       required: true,
     },
