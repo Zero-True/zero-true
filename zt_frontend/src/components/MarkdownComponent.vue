@@ -16,7 +16,7 @@
         :style="{ height: '400px' }"
         :autofocus="true"
         :indent-with-tab="true"
-        :tab-size="2"
+        :tab-size="4"
         :viewportMargin="Infinity"
         :extensions="extensions"
         @keyup="saveCell"
@@ -105,7 +105,7 @@ export default {
   
 
   /* Headings */
-  .markdown-content   h1, h2, h3, h4, h5, h6 {
+  .markdown-content :deep(h1),.markdown-content :deep(h2), .markdown-content :deep(h3), .markdown-content :deep(h4), .markdown-content :deep(h5), .markdown-content :deep(h6) {
     margin-top: 1.5em;
     margin-bottom: 0.5em;
     font-weight: bold;
@@ -113,48 +113,69 @@ export default {
   }
 
   /* Paragraphs */
-  .markdown-content p {
+  .markdown-content :deep(p) {
     margin-top: 0;
     margin-bottom: 1em;
   }
 
   /* Lists */
-  .markdown-content ul, ol {
-    padding-left: 20px;
+  .markdown-content :deep(ul), 
+  .markdown-content :deep(ol) {
     margin-top: 0.5em;
     margin-bottom: 0.5em;
   }
 
-  .markdown-content ul {
+  .markdown-content :deep(ul) {
     list-style-type: disc;
+    margin-left: 5px;
   }
 
-  .markdown-content ol {
+  .markdown-content :deep(ol) {
     list-style-type: decimal;
+    margin-left: 20px;
   }
 
-  .markdown-content li {
+  .markdown-content :deep(li) {
     margin-bottom: 0.25em;
   }
 
+  /* Handle all levels of nested lists */
+.markdown-content :deep(li > ul),
+.markdown-content :deep(li > ol) {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+  margin-left: 20px;
+
+}
+
+/* Unordered list styles */
+.markdown-content :deep(ul) {
+  list-style-type: disc
+}
+/* Ordered list styles */
+.markdown-content :deep(ol) {
+  list-style-type: decimal;
+}
+
   /* Links */
-  .markdown-content a {
+  .markdown-content :deep(a) {
     color: #007bff;
     text-decoration: none;
   }
-  .markdown-content a:hover {
+  .markdown-content :deep(a:hover) {
     text-decoration: underline;
   }
+  
 
   /* Images */
-  .markdown-content img {
+  .markdown-content :deep(img) {
     max-width: 100%;
     height: auto;
   }
 
   
   /* Blockquotes */
-  .markdown-content blockquote {
+  .markdown-content :deep(blockquote) {
     margin: 0;
     padding-left: 1em;
     color: #6a737d;
