@@ -17,7 +17,7 @@ class Request(BaseModel):
     originId: str
     reactiveMode: bool = Field(True)
     cells: List[CodeRequest]
-    components: Dict[str, Union[str, bool, int, float, List, None]]
+    components: Dict[str, Union[str, bool, int, float, List, Dict, None]]
 
 
 class Cell(BaseModel):
@@ -39,7 +39,7 @@ class CodeDict(BaseModel):
 
 class ComponentRequest(BaseModel):
     originId: str
-    components: Dict[str, Union[str, bool, float, int, List, None]]
+    components: Dict[str, Union[str, bool, float, int, List, Dict, None]]
     userId: str
 
 

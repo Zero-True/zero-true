@@ -176,6 +176,8 @@ def execute_request(request: request.Request, state: UserState):
             for component in execution_state.current_cell_components:
                 if component.component == "v-btn" or component.component == "v-timer":
                     component.value = False
+                # elif component.component == "v-file-input":
+                #     component.value = {}
 
             cell_response = response.CellResponse(
                 id=code_cell_id,
