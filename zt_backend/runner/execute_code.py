@@ -142,7 +142,7 @@ def execute_request(request: request.Request, state: UserState):
             code_cell = dependency_graph.cells[code_cell_id]
             if code_cell_id != request.originId and code_cell.nonReactive:
                 continue
-            if code_cell_id != "initial_cell":
+            if code_cell_id != "initial_cell" and execution_state.websocket:
                 if dependency_graph.exceptions.get(code_cell_id, None):
                     execution_state.message_queue.put_nowait(
                         {
@@ -176,8 +176,6 @@ def execute_request(request: request.Request, state: UserState):
             for component in execution_state.current_cell_components:
                 if component.component == "v-btn" or component.component == "v-timer":
                     component.value = False
-                # elif component.component == "v-file-input":
-                #     component.value = {}
 
             cell_response = response.CellResponse(
                 id=code_cell_id,
@@ -186,7 +184,7 @@ def execute_request(request: request.Request, state: UserState):
                 output=execution_state.io_output.getvalue(),
             )
             cell_outputs.append(cell_response)
-            if code_cell_id != "initial_cell":
+            if code_cell_id != "initial_cell" and execution_state.websocket:
                 execution_state.message_queue.put_nowait(
                     cell_response.model_dump_json()
                 )
@@ -197,7 +195,7 @@ def execute_request(request: request.Request, state: UserState):
         execution_state.created_components.clear()
         execution_state.context_globals["exec_mode"] = False
         execution_response = response.Response(cells=cell_outputs)
-        if code_cell_id != "initial_cell":
+        if code_cell_id != "initial_cell" and execution_state.websocket:
             execution_state.message_queue.put_nowait({"cell_executing": ""})
             execution_state.message_queue.put_nowait({"complete": True})
         if settings.run_mode == "dev":
@@ -216,9 +214,10 @@ def execute_cell(
             user_state = UserContext.get_state()
             if user_state:
                 user_state.io_output.write(message)
-                user_state.message_queue.put_nowait(
-                    {"cell_id": code_cell_id, "output": message}
-                )
+                if user_state.websocket:
+                    user_state.message_queue.put_nowait(
+                        {"cell_id": code_cell_id, "output": message}
+                    )
 
         def flush(self):
             pass
