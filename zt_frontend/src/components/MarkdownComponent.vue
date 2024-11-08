@@ -106,8 +106,7 @@ export default {
 
   /* Headings */
   .markdown-content :deep(h1),.markdown-content :deep(h2), .markdown-content :deep(h3), .markdown-content :deep(h4), .markdown-content :deep(h5), .markdown-content :deep(h6) {
-    margin-top: 1.5em;
-    margin-bottom: 0.5em;
+    margin-bottom: 0.2em;
     font-weight: bold;
     line-height: 1.3;
   }
@@ -115,7 +114,7 @@ export default {
   /* Paragraphs */
   .markdown-content :deep(p) {
     margin-top: 0;
-    margin-bottom: 1em;
+    margin-bottom: 0.2em;
   }
 
   /* Lists */
