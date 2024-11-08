@@ -163,6 +163,15 @@ async def component_run(websocket: WebSocket):
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
+@router.post("/api/run_all")
+def run_all():
+    if app_state.run_mode == "app":
+        run_thread = KThread(
+            target=execute_request,
+            args=(get_request_base(""), UserState(str(uuid.uuid4()))),
+        )
+        run_thread.start()
+
 
 @router.post("/api/create_cell")
 def create_cell(cellRequest: request.CreateRequest):
