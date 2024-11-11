@@ -71,7 +71,7 @@ def app(
     backend_cmd = [
         "uvicorn",
         "zt_backend.main:app",
-        "--ws-max-size=52428800",
+        "--ws-max-size=209715200",
         "--reload",
         f"--log-config={log_path}",
     ]
@@ -103,7 +103,7 @@ def notebook(
     backend_cmd = [
         "uvicorn",
         "zt_backend.main:app",
-        "--ws-max-size=52428800",
+        "--ws-max-size=209715200",
         "--reload",
         f"--log-config={log_path}",
     ]

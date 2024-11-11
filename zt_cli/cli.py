@@ -192,7 +192,7 @@ def app(
         os.environ["WS_URL"] = f"ws://{host}:{port}/"
         os.environ["LOCAL_URL"] = f"http://{host}:{port}/"
 
-    uvicorn.run("zt_backend.main:app", host=host, port=port, ws_max_size=52428800, log_config=log_config_dict)
+    uvicorn.run("zt_backend.main:app", host=host, port=port, ws_max_size=209715200, log_config=log_config_dict)
 
 
 @cli_app.command()
@@ -226,7 +226,7 @@ def notebook(
         os.environ["WS_URL"] = f"ws://{host}:{port}/"
         os.environ["LOCAL_URL"] = f"http://{host}:{port}/"
 
-    uvicorn.run("zt_backend.main:app", host=host, port=port, ws_max_size=52428800, log_config=log_config_dict)
+    uvicorn.run("zt_backend.main:app", host=host, port=port, ws_max_size=209715200, log_config=log_config_dict)
 
 
 @cli_app.command()

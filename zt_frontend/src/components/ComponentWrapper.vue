@@ -15,9 +15,24 @@
         v-else-if="component.component === 'v-file-input'"
         :is="component.component"
         v-bind="componentBind(component)"
+        :error="errors[component.id]?.hasError"
+        :error-messages="errors[component.id]?.message"
+        :key="`${component.id}-${Date.now()}`"
         @update:model-value="
-          async (newValue: File[]) => {
-            component.value = await createFormData(newValue);
+          async (newValue: any) => {
+            if (!newValue) return;
+            const files = Array.isArray(newValue) ? newValue : [newValue];
+            const totalSize = files.reduce((acc, file) => acc + file.size, 0);
+            const maxSize = 50 * 1024 * 1024; // 50 MB in bytes
+
+            if (totalSize > maxSize) {
+              setError(component.id, 'Total file size must not exceed 50 MB');
+              return;
+            }
+            // Clear any existing error
+            clearError(component.id);
+            
+            component.value = await createFormData(files);
             runCode(true, component.id, component.value);
           }
         "
@@ -66,6 +81,7 @@ import {
 import { VDataTable } from "vuetify/components/VDataTable";
 import TextComponent from "@/components/TextComponent.vue";
 import PlotlyPlot from "@/components/PlotlyComponent.vue";
+import { Console } from "console";
 
 export default {
   components: {
@@ -95,6 +111,36 @@ export default {
       type: Object as PropType<Record<string, ZTComponent>>,
       required: true,
     },
+  },
+  setup() {
+    const errors = ref<Record<string, { hasError: boolean; message: string }>>({});
+
+    const setError = (componentId: string, message: string) => {
+      errors.value[componentId] = {
+        hasError: true,
+        message: message
+      };
+      return {
+      errors,
+      setError,
+      clearError,
+    };
+    };
+
+    const clearError = (componentId: string) => {
+      if (errors.value[componentId]) {
+        errors.value[componentId] = {
+          hasError: false,
+          message: ''
+        };
+      }
+    };
+
+    return {
+      errors,
+      setError,
+      clearError
+    };
   },
   methods: {
     componentBind(component: any) {
@@ -180,9 +226,11 @@ export default {
     async createFormData(files: Array<File>) {
       const fileList: { [key: string]: any } = {};
       for (const file of files) {
+        if (file) {
         const fileb64 = await this.fileToBase64(file);
         fileList[file.name] = fileb64;
       }
+    }
       return fileList;
     },
   },

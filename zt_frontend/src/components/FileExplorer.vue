@@ -17,6 +17,11 @@
       <FileFolderCreator :current-path="currentPath" @item-created="refreshFiles" />
       <FileUploader :current-path="currentPath" @file-uploaded="refreshFiles" />
       <v-btn
+          color="bluegrey-darken-4"
+          icon="mdi-refresh"
+          @click="refreshFiles"
+        />
+      <v-btn
         color="bluegrey-darken-4"
         icon="mdi-close"
         @click="localDrawer = false"
@@ -135,7 +140,7 @@ export default defineComponent({
     const errorMessage = ref("");
     const showError = ref(false);
     // Define the list of protected files
-    const protectedFiles = ref(["requirements.txt", "notebook.ztnb"]);
+    const protectedFiles = ref(["requirements.txt", "notebook.ztnb","zt_db.db","zt_db.db.wal"]);
 
     // Function to check if a file is protected
     const isProtectedFile = (filename: string) => {

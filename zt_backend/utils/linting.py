@@ -7,7 +7,13 @@ import subprocess
 
 # Constants
 DEBOUNCE_TIME = 0.5  # seconds
-RUFF_COMMAND = ['ruff', 'check', '--output-format=json', '-']
+RUFF_COMMAND = [
+    'ruff', 
+    'check', 
+    '--output-format=json',
+    '--extend-ignore=E402',  # Ignore import position errors
+    '-'
+]
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -42,6 +48,13 @@ def get_severity(code: str) -> str:
     if not code:
         return 'error'  # Treat empty codes as syntax errors
     
+    if code == 'F401':
+        return 'warning'
+    
+    # Special handling for F8 series, excluding F82
+    if code.startswith('F8') and not code.startswith('F82'):
+        return 'warning'
+    
     severity_map = {
         'E': 'error',
         'F': 'error',
@@ -54,11 +67,6 @@ def get_severity(code: str) -> str:
         'R': 'info',  # Refactoring suggestions
         'S': 'warning',  # Security issues
     }
-    
-    # Special handling for F8 series, excluding F82
-    if code.startswith('F8') and not code.startswith('F82'):
-        return 'warning'
-
     return severity_map.get(code[0], 'warning')
 
 def transform_ruff_results(lint_errors: List[Dict], cell_line_count: int) -> List[Dict]:
@@ -95,9 +103,32 @@ def transform_ruff_results(lint_errors: List[Dict], cell_line_count: int) -> Lis
 
 async def queued_get_cell_linting(cell_id: str, text: str, code_w_context: str) -> Dict[str, List[Dict]]:
     try:
-        context_lines = code_w_context.split('\n')
-        cell_lines = text.split('\n')
-        cell_start_line = context_lines.index(cell_lines[0])
+        context_lines = code_w_context.strip().split('\n')
+        cell_lines = text.strip().split('\n')
+        
+        # More robust way to find the cell start line
+        cell_first_line = cell_lines[0].strip()
+        cell_start_line = -1
+        
+        # Look for the first line of the cell in the context, ignoring whitespace
+        for i, line in enumerate(context_lines):
+            if line.strip() == cell_first_line:
+                # Verify this is actually the start of our cell by checking subsequent lines
+                matches = True
+                for j, cell_line in enumerate(cell_lines):
+                    if i + j >= len(context_lines) or context_lines[i + j].strip() != cell_line.strip():
+                        matches = False
+                        break
+                if matches:
+                    cell_start_line = i
+                    break
+        
+        if cell_start_line == -1:
+            # If we can't find the cell in context, just lint the cell directly
+            logger.warning(f"Could not find cell content in context for cell {cell_id}, linting cell directly")
+            lint_errors = await run_ruff_linting(text)
+            transformed_messages = transform_ruff_results(lint_errors, len(cell_lines))
+            return {cell_id: transformed_messages}
 
         # Prepare context-aware cell text
         preceding_context = '\n'.join(context_lines[:cell_start_line])

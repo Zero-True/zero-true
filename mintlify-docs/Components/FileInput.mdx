@@ -1,0 +1,72 @@
+---
+icon: "rectangle-code"
+iconType: "solid"
+---
+
+
+
+<Info>Below are the various attributes you can assign to the component. Utilizing them can allow for modifications to the pre-created object.</Info>
+
+<ResponseField name="zero_true.FileInput" type="Zero True Component">
+  <Expandable title="properties">
+   <AccordionGroup>
+    <Accordion title="id">
+      **id (string):** Unique identifier for the file input component
+    </Accordion>
+    <Accordion title="accept">
+      **accept (string):** Accepted file types (e.g., '.png, .jpg, .pdf'). Default: "*"
+    </Accordion>
+    <Accordion title="placeholder">
+      **placeholder (string):** Placeholder text shown before file selection. Default: "Select file(s)"
+    </Accordion>
+    <Accordion title="label">
+      **label (string):** Label text for the file input
+    </Accordion>
+    <Accordion title="multiple">
+      **multiple (boolean):** If true, allows multiple file uploads. Default: False
+    </Accordion>
+    <Accordion title="show_size">
+      **show_size (boolean):** If true, displays the file size. Default: True
+    </Accordion>
+    <Accordion title="readonly">
+      **readonly (boolean):** If true, the input is read-only. Default: False
+    </Accordion>
+    <Accordion title="disabled">
+      **disabled (boolean):** If true, the input is disabled. Default: False
+    </Accordion>
+    <Accordion title="clearable">
+      **clearable (boolean):** If true, allows clearing of selected files. Default: True
+    </Accordion>
+    <Accordion title="counter">
+      **counter (boolean):** If true, shows a file count indicator. Default: False
+    </Accordion>
+   </AccordionGroup>
+</ResponseField>
+
+<Card title="Example Usage" icon="code">
+  ```python
+  import zero_true as zt
+
+  sample_fileinput = zt.FileInput(
+      id='sample_fileinput',  # Unique identifier for the component
+      accept='.pdf, .docx, .txt',  # Accepted file types
+      placeholder='Drop files here',  # Placeholder text
+      label='Document Upload',  # Label for the file input
+      multiple=True,  # Allow multiple file uploads
+      show_size=True,  # Show file sizes
+      readonly=False,  # Not read-only
+      disabled=False,  # Not disabled
+      clearable=True,  # Allow clearing of selection
+      counter=True,  # Show file count
+  )
+
+  # Accessing uploaded files
+  if sample_fileinput.value:
+      # Get list of file names
+      file_names = sample_fileinput.get_file_names()
+      
+      # Get a specific file
+      pdf_file = sample_fileinput.get_file("document.pdf")
+      
+```
+</Card>
