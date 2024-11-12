@@ -19,3 +19,46 @@ zero-true app
 ```
 
 In app mode, you can see the dashboard you have created and test out all functionality before sharing with your users and stakeholders.
+
+## Converting Jupyter Notebooks to Zero-True Notebooks
+
+Zero-True provides a CLI command to convert Jupyter notebooks (.ipynb) to Zero-True notebooks (.ztnb). This guide explains the conversion process, available options, and important considerations for ensuring successful conversion.
+
+The basic syntax for converting a notebook is:
+
+```bash
+zt jupyter-convert <input_notebook.ipynb> [output_path.ztnb]
+```
+#### Command Arguments
+
+    ###### input-notebook.ipynb: Required
+           The path to your Jupyter notebook file.
+
+    ###### output-path.ztnb: Optional
+           The destination path for the converted Zero-True notebook. If not specified, defaults to notebook.ztnb in the current directory.
+
+#### Important Conversion Notes
+
+When converting Jupyter notebooks to Zero-True notebooks, please be aware of the following:
+
+  ##### 1. Visualizations: 
+       Jupyter visualization libraries (matplotlib, plotly, etc.) need to be manually 
+       converted to use Zero-True's visualization components. 
+
+    Replace the components in Jupyter with equivalent Zero-True components for optimal 
+    performance.
+
+ ##### 2.  Magic Commands: 
+        Jupyter magic commands (%%time, %matplotlib, etc.) are not supported in Zero- 
+        True. You'll need to replace these with standard Python code or Zero-True alternatives.
+
+##### 3.  Dependencies: 
+
+        Zero-True manages dependencies differently from Jupyter. Make sure to:
+
+             1. Update import statements to use Zero-True's component library where applicable.
+
+             2. Review any external library usage and ensure compatibility.
+            
+
+After conversion, review your notebook to ensure all visualizations and interactive elements are properly adapted to the Zero-True compatible components to ensure seamless functionality within the Zero-True environment.
