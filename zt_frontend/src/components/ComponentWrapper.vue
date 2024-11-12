@@ -15,9 +15,8 @@
         v-else-if="component.component === 'v-file-input'"
         :is="component.component"
         v-bind="componentBind(component)"
-        :error="errors[component.id]?.hasError"
-        :error-messages="errors[component.id]?.message"
-        :key="`${component.id}-${Date.now()}`"
+        :error="errors[component.id]?.hasError || false"
+        :error-messages="errors[component.id]?.message || ''"
         @update:model-value="
           async (newValue: any) => {
             if (!newValue) return;
