@@ -31,7 +31,7 @@
             }
             // Clear any existing error
             clearError(component.id);
-            
+
             component.value = await createFormData(files);
             runCode(true, component.id, component.value);
           }
@@ -81,7 +81,6 @@ import {
 import { VDataTable } from "vuetify/components/VDataTable";
 import TextComponent from "@/components/TextComponent.vue";
 import PlotlyPlot from "@/components/PlotlyComponent.vue";
-import { Console } from "console";
 
 export default {
   components: {
@@ -112,34 +111,9 @@ export default {
       required: true,
     },
   },
-  setup() {
-    const errors = ref<Record<string, { hasError: boolean; message: string }>>({});
-
-    const setError = (componentId: string, message: string) => {
-      errors.value[componentId] = {
-        hasError: true,
-        message: message
-      };
-      return {
-      errors,
-      setError,
-      clearError,
-    };
-    };
-
-    const clearError = (componentId: string) => {
-      if (errors.value[componentId]) {
-        errors.value[componentId] = {
-          hasError: false,
-          message: ''
-        };
-      }
-    };
-
+  data() {
     return {
-      errors,
-      setError,
-      clearError
+      errors: {} as Record<string, { hasError: boolean; message: string }>,
     };
   },
   methods: {
@@ -208,6 +182,22 @@ export default {
       this.$emit("runCode", fromComponent, componentId, componentValue);
     },
 
+    setError(componentId: string, message: string) {
+      this.errors[componentId] = {
+        hasError: true,
+        message: message,
+      };
+    },
+
+    clearError(componentId: string) {
+      if (this.errors[componentId]) {
+        this.errors[componentId] = {
+          hasError: false,
+          message: "",
+        };
+      }
+    },
+
     async fileToBase64(file: File) {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -227,10 +217,10 @@ export default {
       const fileList: { [key: string]: any } = {};
       for (const file of files) {
         if (file) {
-        const fileb64 = await this.fileToBase64(file);
-        fileList[file.name] = fileb64;
+          const fileb64 = await this.fileToBase64(file);
+          fileList[file.name] = fileb64;
+        }
       }
-    }
       return fileList;
     },
   },
