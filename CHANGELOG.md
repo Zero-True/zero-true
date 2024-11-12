@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.4.9](https://github.com/Zero-True/zero-true/compare/v0.4.8...v0.4.9) (2024-11-12)
+
+
+### Bug Fixes
+
+* **bug-solve:** fix the minor issues in functionalities ([#366](https://github.com/Zero-True/zero-true/issues/366)) ([196c752](https://github.com/Zero-True/zero-true/commit/196c752647ddeeb900ee0de59c677ae9b6fac233))
+* **code-linting:** implement linting process for CodeMirror code cells ([#329](https://github.com/Zero-True/zero-true/issues/329)) ([70755d9](https://github.com/Zero-True/zero-true/commit/70755d961ee10aab6cac70d09a8978ba20f0936b))
+* Expose endpoint for cronjobs ([#367](https://github.com/Zero-True/zero-true/issues/367)) ([9adb51d](https://github.com/Zero-True/zero-true/commit/9adb51d91692e372c3f649b97797091015a1dcc6))
+* **markdown-list-ui:** resolve list display issue in markdown cells ([#341](https://github.com/Zero-True/zero-true/issues/341)) ([22d6684](https://github.com/Zero-True/zero-true/commit/22d6684c47c8964dde3b9b523fc557026a199eed))
+* Memory error fix on file inputs ([#368](https://github.com/Zero-True/zero-true/issues/368)) ([8659ca6](https://github.com/Zero-True/zero-true/commit/8659ca6e33908b80712f99159f8f32a1cd8c4637))
+* Memory issue part 2 ([#369](https://github.com/Zero-True/zero-true/issues/369)) ([f040f0e](https://github.com/Zero-True/zero-true/commit/f040f0eb043328fa47a94c86d738b9e4eb370fbb))
+* Programmatic file uploader ([#364](https://github.com/Zero-True/zero-true/issues/364)) ([7677c39](https://github.com/Zero-True/zero-true/commit/7677c39a6f07cd96522a4c0b497ac9d68aa50de4))
+
 ## [0.4.8](https://github.com/Zero-True/zero-true/compare/v0.4.7...v0.4.8) (2024-10-31)
 
 
