@@ -1,100 +1,259 @@
 <template>
-    <div>
-      <v-dialog v-model="dialogVisible" max-width="500px">
-        <v-card>
-          <v-card-title>Confirm Deletion</v-card-title>
-          <v-card-text>
-            Are you sure you want to delete "{{ itemToDelete?.title }}"?
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer />
-            <v-btn color="blue-darken-1" @click="closeDialog">Cancel</v-btn>
-            <v-btn color="error" @click="deleteItem">Delete</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-  
-      <v-snackbar v-model="showError" color="error" :timeout="5000">
-        {{ errorMessage }}
-        <template v-slot:actions>
-          <v-btn color="white" variant="text" @click="showError = false">
-            Close
+    <v-list-item-title 
+      @click="handleOpen"
+      class="d-flex align-center cursor-pointer hover-delete pa-2 rounded"
+    >
+      <v-icon size="small" class="mr-2">mdi-delete</v-icon>
+      Delete
+    </v-list-item-title>
+
+    <v-dialog
+      v-model="dialog"
+      max-width="450px"
+      persistent
+      @click:outside="handleClose"
+      transition="dialog-bottom-transition"
+    >
+      <v-card class="delete-dialog">
+        <!-- Dark themed header -->
+        <v-card-title class="d-flex justify-space-between align-center pa-4 bg-dark">
+          <div class="d-flex align-center">
+            <v-icon size="small" class="mr-2">mdi-alert-circle</v-icon>
+            <span class="text-h6">Confirm Deletion</span>
+          </div>
+          <v-btn
+            icon="mdi-close"
+            variant="text"
+            @click="handleClose"
+            class="ml-2"
+            color="grey-lighten-2"
+          />
+        </v-card-title>
+
+        <!-- Item details -->
+        <v-card-text class="pa-4 pb-0 bg-dark">
+          <div class="mb-4 text-grey-lighten-2">
+            <div class="d-flex align-center mb-3">
+              <v-icon 
+                size="large" 
+                class="mr-3" 
+                :color="isFolder ? 'warning' : 'grey'"
+              >mdi-file-document-outline</v-icon>
+              <div>
+                <div class="text-h6">{{ fileName }}</div>
+                <div class="text-caption">{{ getItemType }}</div>
+              </div>
+            </div>
+            
+            <div class="text-body-1 mb-4">
+              Are you sure you want to delete this {{ isFolder ? 'folder' : 'file' }}? 
+              This action cannot be undone.
+            </div>
+
+            <!-- Extra warning for folders -->
+            <v-alert
+              v-if="isFolder"
+              type="warning"
+              variant="tonal"
+              class="mb-4"
+              color="warning"
+            >
+              <template v-slot:prepend>
+                <v-icon>mdi-folder-alert</v-icon>
+              </template>
+              <div>
+                <strong>Warning: Folder Must Be Empty</strong>
+                <div class="text-caption">
+                  Only empty folders can be deleted. Please remove all contents before deleting the folder.
+                </div>
+              </div>
+            </v-alert>
+          </div>
+        </v-card-text>
+
+        <!-- Dark themed action buttons -->
+        <v-card-actions class="pa-4 bg-dark">
+          <v-spacer />
+          <v-btn
+            color="grey"
+            variant="text"
+            @click="handleClose"
+            :disabled="deleting"
+            class="mr-2"
+          >
+            Cancel
           </v-btn>
-        </template>
-      </v-snackbar>
-    </div>
-  </template>
-  
-  <script lang="ts">
-  import { defineComponent, ref } from 'vue';
-  import axios from 'axios';
-  
-  export default defineComponent({
-    name: 'DeleteItem',
-    props: {
-      currentPath: {
-        type: String,
-        required: true
-      },
-      isProtectedFile: {
-        type: Function,
-        required: true,
-      },
+          <v-btn
+            variant="elevated"
+            @click="deleteItem"
+            :loading="deleting"
+            class="px-6"
+            color="primary"
+          >
+            <v-icon left class="mr-2">mdi-delete</v-icon>
+            Delete {{ isFolder ? 'Folder' : 'File' }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Enhanced error snackbar -->
+    <v-snackbar
+      v-model="showError"
+      :color="snackbarColor"
+      :timeout="5000"
+      location="top"
+    >
+      <div class="d-flex align-center">
+        <v-icon size="small" class="mr-2">mdi-alert-circle</v-icon>
+        {{ errorMessage }}
+      </div>
+      <template v-slot:actions>
+        <v-btn
+          color="white"
+          variant="text"
+          @click="showError = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
+</template>
+
+<script lang="ts">
+import { defineComponent, ref, computed } from 'vue'
+import axios from 'axios'
+
+export default defineComponent({
+  name: 'DeleteDialog',
+  props: {
+    fileName: {
+      type: String,
+      required: true
     },
-    emits: ['itemDeleted'],
-    setup(props, { emit }) {
-      const dialogVisible = ref(false);
-      const itemToDelete = ref<any>(null);
-      const errorMessage = ref('');
-      const showError = ref(false);
-  
-      const openDialog = (item: any) => {
-        if (!props.isProtectedFile(item.title)) {
-          itemToDelete.value = item;
-          dialogVisible.value = true;
-        }
-      };
-  
-      const closeDialog = () => {
-        dialogVisible.value = false;
-        itemToDelete.value = null;
-      };
-  
-      const displayError = (message: string) => {
-        errorMessage.value = message;
-        showError.value = true;
-      };
-  
-      const deleteItem = async () => {
-        try {
-          const response = await axios.post(
-            `${import.meta.env.VITE_BACKEND_URL}api/delete_item`,
-            {
-              path: props.currentPath,
-              name: itemToDelete.value.title,
-            }
-          );
-          if (response.data.success) {
-            emit('itemDeleted');
-            closeDialog();
-          } else {
-            displayError(`Failed to delete item: ${response.data.message}`);
-          }
-        } catch (error) {
-          displayError("Error connecting to the server. Please try again.");
-          console.error('Error deleting item:', error);
-        }
-      };
-  
-      return {
-        dialogVisible,
-        itemToDelete,
-        openDialog,
-        closeDialog,
-        deleteItem,
-        errorMessage,
-        showError,
-      };
+    filePath: {
+      type: String,
+      required: true
+    },
+    isProtectedFile: {
+      type: Function,
+      required: true
     }
-  });
-  </script>
+  },
+  emits: ['item-deleted'],
+
+  setup(props, { emit }) {
+    const dialog = ref(false)
+    const deleting = ref(false)
+    const errorMessage = ref('')
+    const showError = ref(false)
+    const snackbarColor = ref('error')
+
+    const isFolder = computed(() => !props.fileName.includes('.'))
+    
+    const getItemType = computed(() => isFolder.value ? 'Folder' : 'File')
+
+    const displayError = (message: string, isWarning = false) => {
+      errorMessage.value = message
+      snackbarColor.value = isWarning ? 'warning' : 'error'
+      showError.value = true
+    }
+
+    const handleOpen = () => {
+      if (!props.isProtectedFile(props.fileName)) {
+        dialog.value = true
+        // Reset previous state
+        deleting.value = false
+        errorMessage.value = ''
+        showError.value = false
+      }
+    }
+
+    const handleClose = () => {
+      dialog.value = false
+    }
+
+    const deleteItem = async () => {
+      deleting.value = true
+      try {
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}api/delete_item`, {
+          path: props.filePath,
+          name: props.fileName
+        })
+        if (response.data.success) {
+          emit('item-deleted')
+          handleClose()
+        } else {
+          displayError(response.data.message || 'Failed to delete item')
+        }
+      } catch (error: any) {
+        const status = error.response?.status
+        const errorMsg = error.response?.data?.detail || 'Error connecting to the server'
+        console.error('Error deleting item:', error)
+
+        switch (status) {
+          case 400:
+            displayError(errorMsg, true)
+            break
+          case 403:
+            displayError('Permission denied. Unable to delete the item.')
+            break
+          case 404:
+            displayError('Item not found. It may have been already deleted.')
+            break
+          case 500:
+            displayError(`Server error: ${errorMsg}`)
+            break
+          default:
+            displayError(errorMsg)
+        }
+      } finally {
+        deleting.value = false
+      }
+    }
+
+    return {
+      dialog,
+      deleting,
+      errorMessage,
+      showError,
+      snackbarColor,
+      isFolder,
+      getItemType,
+      handleOpen,
+      handleClose,
+      deleteItem
+    }
+  }
+})
+</script>
+
+
+<style scoped>
+.hover-delete:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.delete-dialog {
+  background-color: #282c34 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bg-dark {
+  background-color: #282c34 !important;
+}
+
+/* Dark theme overrides */
+:deep(.v-card) {
+  background-color: #282c34;
+  color: #abb2bf;
+}
+
+:deep(.v-alert) {
+  background-color: rgba(255, 171, 0, 0.1) !important;
+}
+</style>

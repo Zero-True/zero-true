@@ -610,52 +610,42 @@ def create_item(item: request.CreateItemRequest):
 
 
 @router.post("/api/rename_item")
-def rename_item(rename_request: request.RenameItemRequest):
-    if app_state.run_mode == "dev":
-        try:
-            old_path = Path(rename_request.path) / rename_request.oldName
-            new_path = Path(rename_request.path) / rename_request.newName.strip()
+async def rename_item(request: request.RenameItemRequest):
+    try:
+        old_path = Path(request.path).resolve()
+        if old_path.is_file():
+            old_path = old_path.parent / request.oldName
+        else:
+            old_path /= request.oldName
+        
+        new_path = old_path.parent / request.newName
+        # Perform renaming
+        if not old_path.exists():
+            raise FileNotFoundError(f"The file {old_path} does not exist.")
+        
+        old_path.rename(new_path)
 
-            if not old_path.exists():
-                raise HTTPException(status_code=404, detail="Item not found")
-
-            if old_path == new_path:
-                return {
-                    "success": True,
-                    "message": f"Item renamed successfully (no change in name)",
-                    "oldPath": str(old_path),
-                    "newPath": str(new_path),
-                }
-
-            if new_path.exists():
-                raise HTTPException(
-                    status_code=400, detail="An item with the new name already exists"
-                )
-
-            os.rename(old_path, new_path)
-
-            return {
-                "success": True,
-                "message": f"Item renamed successfully from {rename_request.oldName} to {rename_request.newName}",
-                "oldPath": str(old_path),
-                "newPath": str(new_path),
-            }
-        except PermissionError:
-            raise HTTPException(
-                status_code=403, detail="Permission denied. Unable to rename the item."
-            )
-        except OSError as e:
-            raise HTTPException(status_code=500, detail=f"System error: {str(e)}")
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"An unexpected error occurred: {str(e)}"
-            )
-
+        return {"success": True, "message": "File renamed successfully"}
+    except Exception as e:
+        logging.error(f"Error renaming file: {e}")
+        raise HTTPException(status_code=500, detail=f"Error renaming file: {e}")
+    
 
 @router.post("/api/delete_item")
 def delete_item(delete_request: request.DeleteItemRequest):
     try:
-        item_path = Path(delete_request.path) / delete_request.name
+        # Handle the path formation more carefully
+        path = delete_request.path
+        name = delete_request.name
+
+        logging.debug(f"Delete request - Path: {path}, Name: {name}")
+
+        # If path is just a filename (same as name), treat it as if it's in current directory
+        if path == name:
+            path = "."
+        
+        item_path = Path(path) / name
+        logging.debug(f"Resolved path: {item_path}")
 
         if not item_path.exists():
             raise HTTPException(status_code=404, detail="Item not found")
@@ -673,7 +663,7 @@ def delete_item(delete_request: request.DeleteItemRequest):
 
         return {
             "success": True,
-            "message": f"Item '{delete_request.name}' deleted successfully",
+            "message": f"Item '{name}' deleted successfully",
             "deletedPath": str(item_path),
         }
     except PermissionError:
@@ -684,9 +674,8 @@ def delete_item(delete_request: request.DeleteItemRequest):
         raise HTTPException(status_code=500, detail=f"System error: {str(e)}")
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"An unexpected error occurred: {str(e)}"
-        )
-
+            status_code=500, detail=f"An unexpected error occurred: {str(e)}")
+    
 @router.get("/api/read_file")
 def read_file(path: str):
     try:
