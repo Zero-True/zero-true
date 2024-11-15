@@ -41,7 +41,7 @@
         <v-list-item-title @click="handleItemClick(item)" :class="{'clickable-item': item.file === 'folder'}">{{ item.title }}</v-list-item-title>
         
         <template v-slot:append>
-          <v-menu>
+          <v-menu v-if="!isProtectedFile(item.title)" :close-on-content-click="false">
             <template v-slot:activator="{ props }">
               <v-btn
                 icon
@@ -54,13 +54,13 @@
               </v-btn>
             </template>
             <v-list>
-              <v-list-item 
-                @click="openDownloadDialog(item)"
-              >
-                <v-list-item-title>
-                  <v-icon size="small" class="mr-2">mdi-download</v-icon>
-                  Download
-                </v-list-item-title>
+              <v-list-item>
+                <FileFolderDownloadDialog
+                  :current-path="currentPath"
+                  :title="item.title"
+                  :file="item.file"
+                  @file-downloaded="refreshFiles"
+                />
               </v-list-item>
               <v-list-item v-if="!isProtectedFile(item.title)" @click="openRenameDialog(item)">
                 <v-list-item-title>Rename</v-list-item-title>
@@ -92,11 +92,6 @@
     </template>
   </v-snackbar>
 
-  <FileFolderDownloadDialog
-      ref="downloadDialog"
-      :current-path="currentPath"
-      @file-downloaded="refreshFiles"
-    />
 
   <RenameDialog
       ref="renameDialog"
@@ -163,14 +158,9 @@ export default defineComponent({
       return protectedFiles.value.includes(filename);
     };
 
-    const downloadDialog = ref<InstanceType<typeof FileFolderDownloadDialog> | null>(null);
     const renameDialog = ref<InstanceType<typeof RenameDialog> | null>(null);
     const deleteDialog = ref<InstanceType<typeof DeleteDialog> | null>(null);
-
-    const openDownloadDialog = (item: any) => {
-      downloadDialog.value?.openDialog(item);
-    };
-       
+ 
     const openRenameDialog = (item: any) => {
       renameDialog.value?.openDialog(item);
     };
@@ -270,8 +260,6 @@ export default defineComponent({
       fileIcon,
       newItemName,
       itemTypes,
-      downloadDialog,
-      openDownloadDialog,
       renameDialog,
       openRenameDialog,
       openDeleteDialog,

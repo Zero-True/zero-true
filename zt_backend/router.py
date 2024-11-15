@@ -1,6 +1,7 @@
 import shutil
 from fastapi import (
     APIRouter,
+    Depends,
     WebSocket,
     WebSocketDisconnect,
     Query,
@@ -688,28 +689,24 @@ def delete_item(delete_request: request.DeleteItemRequest):
 
 @router.get("/api/download")
 async def download_item(
-    request: Request,
-    path: str, 
-    filename: str,
-    isFolder: bool,
-    chunk_size: int = 8192
+    request: Request,  # For headers
+    download_req: request.DownloadRequest = Depends()  # This is the key change
 ):
-    """Stream download with range support and error handling for both files and folders."""
+    """Stream download with range support for files and folders."""
     try:
-        file_path = Path(path)
-        validate_path(file_path, filename)
+        chunk_size: int = 8192
+        file_path = Path(download_req.path).resolve()
+        
+        if not file_path.exists():
+            raise HTTPException(status_code=404, detail="Path not found")
 
-        if isFolder:
-            # Create a temporary zip file
+        if download_req.isFolder:
             with tempfile.NamedTemporaryFile(delete=False, suffix='.zip') as temp_zip:
                 temp_zip_path = temp_zip.name
-
-            # Create a zip file containing the folder contents
+            
             await create_zip_file(file_path, temp_zip_path)
             file_path = Path(temp_zip_path)
-            filename = f"{filename}.zip"
-        elif not file_path.is_file():
-            raise HTTPException(status_code=400, detail=f"The path specified is not a file: {filename}")
+            download_req.filename = f"{download_req.filename}.zip"
 
         file_size = file_path.stat().st_size
         start, end = await parse_range_header(
@@ -717,29 +714,23 @@ async def download_item(
             file_size
         )
 
-        # Create response with proper headers
         response = StreamingResponse(
             stream_file_range(str(file_path), start, end, chunk_size),
             status_code=206 if request.headers.get('range') else 200,
-            media_type=get_mime_type(filename)
+            media_type=get_mime_type(download_req.filename)
         )
 
-        # Set headers
         response.headers.update({
             "Content-Range": f"bytes {start}-{end}/{file_size}",
             "Content-Length": str(end - start + 1),
-            "Content-Disposition": f"attachment; filename={filename}",
-            "Accept-Ranges": "bytes",
-            "Cache-Control": "no-cache",
-            "Content-Encoding": "identity"
+            "Content-Disposition": f"attachment; filename={download_req.filename}",
+            "Accept-Ranges": "bytes"
         })
 
-        if isFolder:
-            # Clean up the temporary zip file after streaming
+        if download_req.isFolder:
             async def cleanup_temp_file():
                 yield
                 os.unlink(temp_zip_path)
-
             response.background = cleanup_temp_file()
 
         return response
@@ -747,9 +738,10 @@ async def download_item(
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Download failed: {str(e)}"
+            detail=str(e)
         )
-    
+
+
 @router.get("/api/get_files")
 def list_files():
     path = Path(".")
