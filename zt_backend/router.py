@@ -46,7 +46,8 @@ import asyncio
 import pkg_resources
 import requests
 import re
-from zt_backend.utils.file_utils import upload_queue, process_upload
+from zt_backend.utils.file_utils import upload_queue
+from typing import Optional
 import mimetypes
 from typing import Dict, Tuple, Optional
 import aiofiles
@@ -558,6 +559,9 @@ def share_notebook(shareRequest: request.ShareRequest):
         raise e
 
 
+from pathlib import Path
+from fastapi import HTTPException
+
 @router.post("/api/upload_file")
 async def upload_file(
     background_tasks: BackgroundTasks,
@@ -566,18 +570,40 @@ async def upload_file(
     total_chunks: int = Form(...),
     path: str = Form(...),
     file_name: str = Form(...),
+    is_folder: bool = Form(False),
+    relative_path: Optional[str] = Form(None)
 ):
+    """
+    Handle file upload with queuing mechanism and existence validation
+    """
     try:
-        # Put the upload request into the queue
-        await upload_queue.put(
-            (background_tasks, file, chunk_index, total_chunks, path, file_name)
-        )
+        final_path = relative_path if relative_path else file_name
+        full_path = Path(path) / final_path
 
-        # Process the queue
-        result = await process_upload(
-            background_tasks, file, chunk_index, total_chunks, path, file_name
+        # Check for existing file/folder on first chunk
+        if chunk_index == 0:
+            if full_path.exists():
+                raise HTTPException(
+                    status_code=409,  # Conflict status code
+                    detail=f"{'Folder' if is_folder else 'File'} already exists: {final_path}"
+                )
+
+            can_queue = await upload_queue.add_to_queue(final_path, total_chunks)
+            if not can_queue:
+                raise HTTPException(
+                    status_code=503,
+                    detail="Server busy: Maximum queue size reached"
+                )
+
+        # Process chunk
+        chunk_data = await file.read()
+        result = await upload_queue.process_chunk(
+            final_path, chunk_index, chunk_data, path
         )
         return result
+
+    except HTTPException as he:
+        raise he
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
@@ -629,53 +655,60 @@ async def rename_item(request: request.RenameItemRequest):
     except Exception as e:
         logging.error(f"Error renaming file: {e}")
         raise HTTPException(status_code=500, detail=f"Error renaming file: {e}")
-    
 
 @router.post("/api/delete_item")
 def delete_item(delete_request: request.DeleteItemRequest):
     try:
-        # Handle the path formation more carefully
-        path = delete_request.path
-        name = delete_request.name
-
-        logging.debug(f"Delete request - Path: {path}, Name: {name}")
-
-        # If path is just a filename (same as name), treat it as if it's in current directory
-        if path == name:
-            path = "."
+        # Clean the input path
+        file_path = delete_request.path.strip("/")
         
-        item_path = Path(path) / name
-        logging.debug(f"Resolved path: {item_path}")
+        
+        # Get base path and construct full path
+        base_path = Path(".").resolve()
+        item_path = (base_path / file_path).resolve()
+             
+        # Security check
+        try:
+            item_path.relative_to(base_path)
+        except ValueError:
+            raise HTTPException(
+                status_code=403,
+                detail="Access denied: Cannot delete items outside base directory"
+            )
 
         if not item_path.exists():
-            raise HTTPException(status_code=404, detail="Item not found")
+            raise HTTPException(
+                status_code=404,
+                detail=f"Item not found: {file_path}"
+            )
 
         if item_path.is_file():
             os.remove(item_path)
         elif item_path.is_dir():
-            if any(item_path.iterdir()):
-                raise HTTPException(
-                    status_code=400, detail="Cannot delete non-empty directory"
-                )
-            os.rmdir(item_path)
+            shutil.rmtree(item_path)
         else:
             raise HTTPException(status_code=400, detail="Invalid item type")
 
         return {
             "success": True,
-            "message": f"Item '{name}' deleted successfully",
-            "deletedPath": str(item_path),
+            "message": "Item deleted successfully",
+            "deletedPath": str(item_path.relative_to(base_path))
         }
     except PermissionError:
         raise HTTPException(
-            status_code=403, detail="Permission denied. Unable to delete the item."
+            status_code=403,
+            detail="Permission denied. Unable to delete the item."
         )
     except OSError as e:
         raise HTTPException(status_code=500, detail=f"System error: {str(e)}")
     except Exception as e:
+        logging.exception("Unexpected error in delete_item")
         raise HTTPException(
-            status_code=500, detail=f"An unexpected error occurred: {str(e)}")
-    
+            status_code=500,
+            detail=f"An unexpected error occurred: {str(e)}"
+        )
+
+
 @router.get("/api/read_file")
 def read_file(path: str):
     try:

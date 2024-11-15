@@ -170,7 +170,6 @@ class RenameItemRequest(BaseModel):
 
 class DeleteItemRequest(BaseModel):
     path: str
-    name: str
 
 class FileWrite(BaseModel):
     path: str

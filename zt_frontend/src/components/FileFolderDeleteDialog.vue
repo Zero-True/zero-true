@@ -62,9 +62,9 @@
                 <v-icon>mdi-folder-alert</v-icon>
               </template>
               <div>
-                <strong>Warning: Folder Must Be Empty</strong>
+                <strong>Warning: Folder Will Be Deleted</strong>
                 <div class="text-caption">
-                  Only empty folders can be deleted. Please remove all contents before deleting the folder.
+                  This folder and its contents will be permanently deleted. Please confirm before proceeding.
                 </div>
               </div>
             </v-alert>
@@ -178,7 +178,6 @@ export default defineComponent({
       try {
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}api/delete_item`, {
           path: props.filePath,
-          name: props.fileName
         })
         if (response.data.success) {
           emit('item-deleted')

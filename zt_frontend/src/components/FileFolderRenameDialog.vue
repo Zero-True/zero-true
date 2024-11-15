@@ -71,6 +71,15 @@
         <v-card-actions class="pa-4 bg-dark">
           <v-spacer />
           <v-btn
+            color="grey"
+            variant="text"
+            @click="handleClose"
+            :disabled="saving"
+            class="mr-2"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
             color="primary"
             variant="elevated"
             @click="saveChanges"
@@ -80,15 +89,6 @@
           >
             <v-icon left class="mr-2">mdi-check</v-icon>
             Rename
-          </v-btn>
-          <v-btn
-            color="grey"
-            variant="text"
-            @click="handleClose"
-            :disabled="saving"
-            class="ml-2"
-          >
-            Cancel
           </v-btn>
         </v-card-actions>
       </v-card>

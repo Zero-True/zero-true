@@ -70,24 +70,23 @@
       <v-card-actions class="pa-3 bg-dark">
         <v-spacer />
         <v-btn
+          color="grey"
+          variant="text"
+          @click="handleClose"
+          :disabled="saving"
+          class="mr-2"
+        >
+          Cancel
+        </v-btn>
+        <v-btn
           color="primary"
           variant="elevated"
           @click="saveChanges"
           :loading="saving"
           :disabled="!isValid"
-          size="small"
+          class="px-6"
         >
           Create
-        </v-btn>
-        <v-btn
-          color="grey"
-          variant="text"
-          @click="handleClose"
-          :disabled="saving"
-          size="small"
-          class="ml-2"
-        >
-          Cancel
         </v-btn>
       </v-card-actions>
     </v-card>
