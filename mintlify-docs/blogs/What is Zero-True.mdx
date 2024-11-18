@@ -1,0 +1,60 @@
+---
+title: 'What is zero-true?'
+---
+
+Zero-True is an open source python+sql notebook that was built to help individuals and teams collaborate on applications ranging from data visualization to building complex ML models. This project was started based on our own extensive experience with the current notebook ecosystem and frustration with existing solutions. Converting code and outputs from notebooks into snackable and remixable formats for other developers and non-technical audiences has never been as important as it is today. Data products require fast iteration with subject matter experts, a process that often starts in data notebooks but then requires an expensive translation process into dashboards and frontends. This should not be as complicated as it is today. We’ve been building zero-true to simplify sharing notebooks for almost 18 months now responding closely to feedback from teams actually working on ML products. 
+
+To this end we have our own reactive notebook that will automatically parse your code to rerun cells based on changes in parent cells upstream (similar to Observable). This approach ensures your notebook stays consistent and solves some of the known issues with current iPython notebook based workflows. Zero-true includes an integrated UI library and streamlined deployment to help you share your work as a full fledged application. This means you can take what were previously ad-hoc workflows and transform them into deployable scripts with an integrated frontend. We are also working on features to help deploy your notebook as a part of ETL pipelines like chronjobs etc.
+
+If you’re just starting out with zero-true, this blog has some useful things to know.
+
+## Cells run top to bottom
+
+One of the first things you should know about zero-true is that your notebook runs top to bottom. You will not be able to reference variables that are defined below the cell you are currently in. This makes your code more readable to others you’re working with, as they don’t have to deal with non-linear code flows and can even help you reorient yourself faster when you come back to your own notebooks.
+
+![](/blogs/gifs/top_to_bottom.gif)
+
+## No hidden state
+
+Zero-True has no hidden state. This means rerunning code multiple times will give you consistent results each time. Take the example below:
+
+Cell 1:
+
+```py
+my_list = []
+```
+
+Cell 2:
+
+```py
+my_list.append(1)
+print(my_list)
+```
+
+If you want to know what the output will be in zero-true the answer is easy: It’s ‘\[1\]’ every time. You can see in the gif below that in zero-true, no matter how many times I rerun cell 2, I get the same answer.
+
+![](/blogs/gifs/no_hidden_state.gif)
+
+In current Ipython notebooks on the other hand you get a different answer each time (Google colab pictured below). Every time you rerun cell 2 you append to the same list and get a different answer.
+
+![](/blogs/gifs/jupyter_hidden_state.gif)
+
+## Related Cells Rerun Reactively
+
+We parse what cells are related in your notebook and automatically rerun downstream cells so that your notebook stays consistent. This helps you catch errors before they happen and provides an interactive coding experience. 
+
+![](/blogs/gifs/reactive updates.gif)
+
+## Integrated UI library
+
+Our notebook includes an integrated UI library. Intuitive low code syntax allows you to add user inputs to your work and transform your experimentation into an actual application. This means that with one line of code, you can add buttons, sliders and text input components that integrate natively with our application. You can read more about that in a dedicated blogpost about our UI components.
+
+![](/blogs/gifs/iris_gif.gif)
+
+## Transforms Into an App
+
+You can preview what your work would look like deployed as an application directly from your notebook. For users that have been moved off of our waitlist, you can also publish to a live URL directly from your notebook. When you publish an app users can interact with UI components and optionally view the code you’ve written. If you’re interested in doing that contact us here\! 
+
+![](/blogs/gifs/notebook_to_app.gif)
+
+We hope that this was a helpful introduction to zero-true\! We are working on improving the product so if you’re interested and have any suggestions please feel free to reach out\! 

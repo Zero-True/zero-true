@@ -54,6 +54,14 @@
       "group": "Get Started",
       "pages": [
         "quickstart",
+        "blogs/What is Zero-True",
+        "blogs/Buttons in zero-true",
+        "blogs/Sliders in zero-true",
+        "blogs/Range Sliders in zero-true",
+        "blogs/Text Inputs in zero-true",
+        "blogs/Text Areas in zero-true",
+        "blogs/Displaying a Matplotlib Plot in zero-true",
+        "blogs/Displaying a Plotly Plot in zero-true",
         "CLI",
         "app-bar",
         "toolbar",
@@ -65,7 +73,7 @@
       ]
     },
     {
-        "group": "Components",
+        "group": "API reference",
         "pages": [
         "Components/Introduction",
         "Components/Slider",
