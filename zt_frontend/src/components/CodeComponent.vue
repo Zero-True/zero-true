@@ -7,6 +7,7 @@
     :expand-code="(cellData.expandCode as boolean)"
     :non-reactive="(cellData.nonReactive as boolean)"
     :cell-name="(cellData.cellName as string)"
+    :cell-has-output="hasCellContent"
     :currentlyExecutingCell="currentlyExecutingCell"
     :isCodeRunning="isCodeRunning"
     :is-dev-mode="$devMode && !isAppRoute && !isMobile"
@@ -71,11 +72,6 @@
         :code="cellData.code"
         :id="'codeMirrorDev' + cellData.id"
       />
-      <div v-if="$devMode && !isAppRoute && !isMobile">
-        <p class="text-caption text-disabled text-right">
-          {{ shortcutText }} to run
-        </p>
-      </div>
     </template>
     <template v-slot:outcome>
       <div :id="'outputContainer_' + cellData.id">
@@ -235,9 +231,14 @@ export default {
       return route.path === "/app";
     },
     isMobile() {
-      return this.$vuetify.display.mobile;
+      return this.$vuetify.display.mobile
     },
-    extensions() {
+    hasCellContent() {
+    const hasOutput = Boolean(this.cellData.output?.trim());
+    const hasComponents = Boolean(this.cellData.components?.length > 0);
+    return hasOutput || hasComponents;
+  },
+    extensions(){
       const handleCtrlEnter = () => {
         this.runCode(false, "", "");
       };
@@ -443,11 +444,6 @@ export default {
       return this.cellData.components.filter(
         (comp) => !placedComponentIds.includes(comp.id)
       );
-    },
-    shortcutText() {
-      return navigator.userAgent.indexOf("Mac") !== -1
-        ? "CTRL+Return"
-        : "CTRL+Enter";
     },
   },
 

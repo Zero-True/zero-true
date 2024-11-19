@@ -243,7 +243,7 @@
       </div>
       <div
         :class="['outcome', { 'outcome--dev': isDevMode }]"
-        v-if="!(isDevMode && !isAppRoute && cellType === 'text')"
+        v-if="!(isDevMode && !isAppRoute && cellType === 'text') && cellHasOutput"
       >
         <slot name="outcome"></slot>
       </div>
@@ -264,6 +264,7 @@
     v-if="isDevMode"
     :cell-id="cellId"
     @createCodeCell="(e) => $emit('addCell', e)"
+    
   />
 </template>
 <script setup lang="ts">
@@ -331,6 +332,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  cellHasOutput:{
+    type: Boolean,
+    default:false
+  }
 });
 const emits = defineEmits<{
   (e: "delete"): void;
@@ -453,11 +458,11 @@ const saveCellName = async () => {
 
 <style lang="scss" scoped>
 .cell {
-  padding: 18px;
+  padding: 5px;
   display: flex;
   margin-bottom: 2px;
   &--dev {
-    margin-bottom: 16px;
+    margin-bottom: 6px;
   }
 }
 .message-btn {
@@ -489,7 +494,7 @@ const saveCellName = async () => {
 .header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 2px;
 }
 
 .code,
@@ -497,13 +502,13 @@ const saveCellName = async () => {
   padding: 0px;
   &--dev {
     border: 1px solid rgba(var(--v-theme-bluegrey));
-    border-radius: 4px;
-    padding: 12px;
+    border-radius: 3px;
+    padding: 6px;
   }
 }
 
 .code {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .click-edit {

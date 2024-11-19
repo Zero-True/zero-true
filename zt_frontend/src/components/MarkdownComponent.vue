@@ -5,6 +5,7 @@
     :is-dev-mode="$devMode && !isAppRoute && !isMobile"
     :hide-cell="(cellData.hideCell as boolean)"
     :cell-name="(cellData.cellName as string)"
+    :cell-has-output=hasCellContent
     @delete="deleteCell"
     @save="saveCell"
     @addCell="e => createCell(e)"
@@ -47,6 +48,10 @@ export default {
     "codemirror": Codemirror,
   },
   computed: {
+    hasCellContent() {
+    const hasOutput = Boolean(this.cellData.code?.trim());
+    return hasOutput
+  },
     extensions() {return [markdown(), oneDark, autocompletion({ override: [] })]},
 
     compiledMarkdown() {

@@ -1,11 +1,13 @@
 <template>
   <v-menu transition="scale-transition" minWidth="0" target="cursor">
     <template v-slot:activator="{ props }">
-      <div v-bind="cellId ? { ...props, id: 'addCell' + cellId } : props" class="activator-area">
-        <div class="divider">
-          <v-divider class="divider__divider-line" color="bluegrey-darken-2"></v-divider>
-          <v-btn :prepend-icon="`ztIcon:${ztAliases.circleAdd}`" variant="plain" density="compact" :ripple="false"
-            class="divider__btn bg-background">Add cell</v-btn>
+      <div v-bind="cellId ? { ...props, id: 'addCell' + cellId } : props" class="activator-area-push">
+        <div class="divider-container">
+          <div class="divider">
+            <v-divider class="divider__divider-line" color="bluegrey-darken-2"></v-divider>
+            <v-btn :prepend-icon="`ztIcon:${ztAliases.circleAdd}`" variant="plain" density="compact" :ripple="false"
+              class="divider__btn bg-background">Add cell</v-btn>
+          </div>
         </div>
       </div>
     </template>
@@ -20,6 +22,7 @@
     </v-list>
   </v-menu>
 </template>
+
 <script setup lang="ts">
 import { ref } from 'vue'
 import { ztAliases } from '@/iconsets/ztIcon'
@@ -45,10 +48,32 @@ const addCellItems = ref<{
   { title: 'Text', cellType: 'text', icon: `ztIcon:${ztAliases.text}` },
 ])
 </script>
+
 <style lang="scss" scoped>
+.activator-area-push {
+  margin: 0;
+  padding: 0;
+  height: 2px; // Small detection area
+  transition: height 0.2s ease;
+
+  &:hover {
+    height: 24px; // Expand to full height on hover
+  }
+}
+
+.divider-container {
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+
+  .activator-area-push:hover & {
+    opacity: 1;
+  }
+}
+
 .divider {
   position: relative;
-  height: 24px;
+  height: 100%;
 
   &__divider-line {
     position: absolute;
@@ -62,19 +87,17 @@ const addCellItems = ref<{
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    opacity: 1;
   }
 }
 
+// Hover effects
 .divider:hover {
-  cursor: pointer;
-}
+  .divider__divider-line {
+    background-color: white;
+  }
 
-.divider:hover .divider__divider-line {
-  background-color: white;
-}
-
-.divider:hover .divider__btn {
-  color: white !important;
+  .divider__btn {
+    color: white !important;
+  }
 }
 </style>
