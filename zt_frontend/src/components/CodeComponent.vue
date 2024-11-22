@@ -70,6 +70,8 @@
         @keyup="saveCell"
         :code="cellData.code"
         :id="'codeMirrorDev' + cellData.id"
+        @focus="handleFocus"
+        @blur="handleBlur"
       />
       <div v-if="$devMode && !isAppRoute && !isMobile">
         <p class="text-caption text-disabled text-right">
@@ -348,6 +350,9 @@ export default {
 
       const customLinter = linter(
         (view) => {
+          if (!this.isFocused) {
+            return [];
+          }
           if (!this.runLint) return this.currentLint;
           const diagnostics: Diagnostic[] = [];
 
@@ -513,6 +518,20 @@ export default {
     renameCell(e: String) {
       this.cellData.cellName = e as string;
     },
+    handleFocus() {
+    this.isFocused = true;
+    this.runLint = true;
+    if (this.view) {
+      this.view.dispatch({}); // Force the linter to re-run
+    }
+  },
+  handleBlur() {
+    this.isFocused = false;
+    this.runLint = true;
+    if (this.view) {
+      this.view.dispatch({}); // Force the linter to re-run
+    }
+  },
   },
 };
 </script>
