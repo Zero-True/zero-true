@@ -1,6 +1,6 @@
 <template>
   <cell
-    :cell-id="cellData.id" 
+    :cell-id="cellData.id"
     cell-type="code"
     :hide-cell="(cellData.hideCell as boolean)"
     :hide-code="(cellData.hideCode as boolean)"
@@ -10,21 +10,34 @@
     :currentlyExecutingCell="currentlyExecutingCell"
     :isCodeRunning="isCodeRunning"
     :is-dev-mode="$devMode && !isAppRoute && !isMobile"
-    @play="runCode(false, '', '')" 
+    @play="runCode(false, '', '')"
     @delete="deleteCell"
-    @expandCodeUpdate="e => expandCodeUpdate(e)"
-    @hideCode="e => hideCode(e)"
-    @renameCell="e => renameCell(e)"
-    @updateReactivity="e => updateReactivity(e)"
-    @addCell="e => createCell(e)"
+    @expandCodeUpdate="(e) => expandCodeUpdate(e)"
+    @hideCode="(e) => hideCode(e)"
+    @renameCell="(e) => renameCell(e)"
+    @updateReactivity="(e) => updateReactivity(e)"
+    @addCell="(e) => createCell(e)"
   >
     <template v-slot:header-title>
-      <div v-if="!$devMode || isAppRoute || isMobile" style="display: flex; width: 100%;">
-        <h4 v-if="cellData.hideCode" class="text-bluegrey-darken-1 text-ellipsis app-static-name" >{{ cellData.cellName }} </h4>
+      <div
+        v-if="!$devMode || isAppRoute || isMobile"
+        style="display: flex; width: 100%"
+      >
+        <h4
+          v-if="cellData.hideCode"
+          class="text-bluegrey-darken-1 text-ellipsis app-static-name"
+        >
+          {{ cellData.cellName }}
+        </h4>
         <v-expansion-panels v-else v-model="expanded">
           <v-expansion-panel v-model="expanded" bg-color="bluegrey-darken-3">
-            <v-expansion-panel-title class="text-bluegrey-darken-1" :id = "'codeMirrorAppTitle'+cellData.id">
-              <h4 class="text-ellipsis app-static-name" > {{ cellData.cellName }} </h4>
+            <v-expansion-panel-title
+              class="text-bluegrey-darken-1"
+              :id="'codeMirrorAppTitle' + cellData.id"
+            >
+              <h4 class="text-ellipsis app-static-name">
+                {{ cellData.cellName }}
+              </h4>
             </v-expansion-panel-title>
             <v-expansion-panel-text>
               <codemirror
@@ -36,7 +49,7 @@
                 :viewportMargin="Infinity"
                 :extensions="extensions"
                 :code="cellData.code"
-                :id = "'codeMirrorApp'+cellData.id"
+                :id="'codeMirrorApp' + cellData.id"
               />
             </v-expansion-panel-text>
           </v-expansion-panel>
@@ -56,17 +69,18 @@
         @ready="handleReady"
         @keyup="saveCell"
         :code="cellData.code"
-        :id = "'codeMirrorDev'+cellData.id"
+        :id="'codeMirrorDev' + cellData.id"
       />
       <div v-if="$devMode && !isAppRoute && !isMobile">
         <p class="text-caption text-disabled text-right">
-          {{ shortcutText }} to run</p>
+          {{ shortcutText }} to run
+        </p>
       </div>
     </template>
     <template v-slot:outcome>
-      <div :id = "'outputContainer_'+cellData.id">
+      <div :id="'outputContainer_' + cellData.id">
         <layout-component
-          v-if="cellData.layout?.rows?.length"  
+          v-if="cellData.layout?.rows?.length"
           v-for="(row, rowIndex) in cellData.layout?.rows"
           :key="rowIndex"
           :row-data="row"
@@ -74,13 +88,19 @@
           @runCode="runCode"
         />
         <!-- Render unplaced components at the bottom -->
-        <div v-if="unplacedComponents.length" :id = "'unplacedComponents'+cellData.id">
-          <component-wrapper 
-            :renderComponents="unplacedComponents" 
+        <div
+          v-if="unplacedComponents.length"
+          :id="'unplacedComponents' + cellData.id"
+        >
+          <component-wrapper
+            :renderComponents="unplacedComponents"
             :allComponents="compDict"
-            @runCode="runCode"/>
+            @runCode="runCode"
+          />
         </div>
-        <pre class="code-output" :id = "'cellOutput'+cellData.id">{{ cellData.output }}</pre>
+        <pre class="code-output" :id="'cellOutput' + cellData.id">{{
+          cellData.output
+        }}</pre>
       </div>
     </template>
   </cell>
@@ -91,13 +111,18 @@ import type { PropType, ShallowRef } from "vue";
 import { shallowRef } from "vue";
 import axios from "axios";
 import PlotlyPlot from "@/components/PlotlyComponent.vue";
-import { Codemirror } from 'vue-codemirror'
-import { python } from '@codemirror/lang-python'
-import { indentUnit } from '@codemirror/language'
-import { oneDark } from '@codemirror/theme-one-dark'
-import { EditorView, keymap } from '@codemirror/view'
+import { Codemirror } from "vue-codemirror";
+import { python } from "@codemirror/lang-python";
+import { indentUnit } from "@codemirror/language";
+import { oneDark } from "@codemirror/theme-one-dark";
+import { EditorView, keymap } from "@codemirror/view";
 import { Prec, EditorState } from "@codemirror/state";
-import { autocompletion, acceptCompletion, CompletionResult, CompletionContext } from '@codemirror/autocomplete'
+import {
+  autocompletion,
+  acceptCompletion,
+  CompletionResult,
+  CompletionContext,
+} from "@codemirror/autocomplete";
 import {
   VSlider,
   VRating,
@@ -110,25 +135,23 @@ import {
   VBtn,
   VImg,
   VAutocomplete,
-  VCard
+  VCard,
 } from "vuetify/lib/components/index.mjs";
 import { VDataTable } from "vuetify/components/VDataTable";
 import { CodeCell, Layout, ZTComponent } from "@/types/notebook";
 import LayoutComponent from "@/components/LayoutComponent.vue";
-import TextComponent from "@/components/TextComponent.vue"
-import { globalState } from "@/global_vars"
-import { useRoute } from 'vue-router'
-import Cell from '@/components/Cell.vue'
-import { inlineSuggestion } from 'codemirror-extension-inline-suggestion'
+import TextComponent from "@/components/TextComponent.vue";
+import { globalState } from "@/global_vars";
+import { useRoute } from "vue-router";
+import Cell from "@/components/Cell.vue";
+import { inlineSuggestion } from "codemirror-extension-inline-suggestion";
 import ComponentWrapper from "@/components/ComponentWrapper.vue";
-import { linter, lintGutter, Diagnostic } from '@codemirror/lint'
-
-
+import { linter, Diagnostic } from "@codemirror/lint";
 
 export default {
   components: {
-    "cell": Cell,
-    "codemirror": Codemirror,
+    cell: Cell,
+    codemirror: Codemirror,
     "v-slider": VSlider,
     "v-rating": VRating,
     "v-text-field": VTextField,
@@ -154,120 +177,139 @@ export default {
     },
     completions: {
       type: Object as PropType<any[]>,
-      required: true
+      required: true,
     },
     lintResults: {
       type: Array as PropType<any[]>,
-      required: true
+      required: true,
     },
-     currentlyExecutingCell: {
+    currentlyExecutingCell: {
       type: String,
-      default: null
+      default: null,
     },
-     isCodeRunning:{
+    isCodeRunning: {
       type: Boolean,
-      default: false
+      default: false,
     },
   },
   inheritAttrs: false,
-  emits: ['componentValueChange','runCode','deleteCell', 'createCell', 'saveCell', 'copilotCompletion', 'updateTimers'],
+  emits: [
+    "componentValueChange",
+    "runCode",
+    "deleteCell",
+    "createCell",
+    "saveCell",
+    "copilotCompletion",
+    "updateTimers",
+  ],
   data() {
     return {
       isFocused: false, // add this line to keep track of the focus state
-      copilotSuggestion: '',
+      copilotSuggestion: "",
       copilotAccepted: false,
       expanded: this.cellData.expandCode ? [0] : [],
       items: [
-        { title: 'Code' },
-        { title: 'SQL' },
-        { title: 'Markdown' },
-        { title: 'Text' },
+        { title: "Code" },
+        { title: "SQL" },
+        { title: "Markdown" },
+        { title: "Text" },
       ],
-      compDict: {} as {[key: string]: ZTComponent}
+      compDict: {} as { [key: string]: ZTComponent },
+      runLint: false,
+      currentLint: [] as Diagnostic[],
     };
   },
 
-  setup() {    
-    const view: ShallowRef<EditorView|null>=shallowRef(null);
-    const handleReady = (payload:any) => {view.value = payload.view};
+  setup() {
+    const view: ShallowRef<EditorView | null> = shallowRef(null);
+    const handleReady = (payload: any) => {
+      view.value = payload.view;
+    };
 
     return { view, handleReady };
   },
 
   computed: {
     isAppRoute() {
-      const route = useRoute()
-      return route.path === '/app'
+      const route = useRoute();
+      return route.path === "/app";
     },
     isMobile() {
-      return this.$vuetify.display.mobile
+      return this.$vuetify.display.mobile;
     },
-    extensions(){
+    extensions() {
       const handleCtrlEnter = () => {
-        this.runCode(false,'','')
-      }
+        this.runCode(false, "", "");
+      };
       const keyMap = keymap.of([
-        { 
-          key: "Ctrl-Enter", 
+        {
+          key: "Ctrl-Enter",
           run: () => {
-            if (this.$devMode){
-            handleCtrlEnter()};
+            if (this.$devMode) {
+              handleCtrlEnter();
+            }
             return true;
-          }
+          },
         },
-        { 
-          key: "Tab", 
+        {
+          key: "Tab",
           run: () => {
-            if (this.copilotSuggestion){
-              this.copilotAccepted=true
+            if (this.copilotSuggestion) {
+              this.copilotAccepted = true;
             }
             return false;
-          }
-        }
+          },
+        },
       ]);
 
       const fetchSuggestion = async (state: any) => {
-        if(globalState.copilot_active){
-          if (this.copilotSuggestion){
-            if (this.copilotAccepted){
-              await axios.post(import.meta.env.VITE_BACKEND_URL + "copilot/accept_completion",
+        if (globalState.copilot_active) {
+          if (this.copilotSuggestion) {
+            if (this.copilotAccepted) {
+              await axios.post(
+                import.meta.env.VITE_BACKEND_URL + "copilot/accept_completion",
                 {
-                  uuid: this.copilotSuggestion
+                  uuid: this.copilotSuggestion,
                 }
               );
-              this.copilotAccepted=false
-            }
-            else{
-              await axios.post(import.meta.env.VITE_BACKEND_URL + "copilot/reject_completion",
+              this.copilotAccepted = false;
+            } else {
+              await axios.post(
+                import.meta.env.VITE_BACKEND_URL + "copilot/reject_completion",
                 {
-                  uuid: this.copilotSuggestion
+                  uuid: this.copilotSuggestion,
                 }
               );
             }
-            this.copilotSuggestion = ''
+            this.copilotSuggestion = "";
           }
           const position = state.selection.main.head;
           const line = state.doc.lineAt(position).number;
           const column = position - state.doc.line(line).from;
           const promise = new Promise((resolve, reject) => {
-            this.$emit("copilotCompletion", this.cellData.id, line, column, (response: any) => {
-              resolve(response);
-            });
+            this.$emit(
+              "copilotCompletion",
+              this.cellData.id,
+              line,
+              column,
+              (response: any) => {
+                resolve(response);
+              }
+            );
           });
-          try{
-            const response: any = await promise
+          try {
+            const response: any = await promise;
             if (response.status === 200) {
-              if (response.data.completions.length > 0){
-                this.copilotSuggestion = response.data.completions[0].uuid
-                return response.data.completions[0].displayText
+              if (response.data.completions.length > 0) {
+                this.copilotSuggestion = response.data.completions[0].uuid;
+                return response.data.completions[0].displayText;
               }
             }
-          }
-          catch (error){
-            console.log("Error fetching suggestion:", error)
+          } catch (error) {
+            console.log("Error fetching suggestion:", error);
           }
         }
-        return ''
+        return "";
       };
 
       const customCompletionSource = async (context: CompletionContext) => {
@@ -276,52 +318,90 @@ export default {
 
         return {
           from: from,
-          options: (this.completions as unknown as { label: string; type: string }[]).map(c => ({
+          options: (
+            this.completions as unknown as { label: string; type: string }[]
+          ).map((c) => ({
             label: c.label,
             type: c.type,
-            apply: (view: { dispatch: (arg0: { changes: { from: any; to: any; insert: any } }) => void }, completion: { label: any }, from: any, to: any) => {
+            apply: (
+              view: {
+                dispatch: (arg0: {
+                  changes: { from: any; to: any; insert: any };
+                }) => void;
+              },
+              completion: { label: any },
+              from: any,
+              to: any
+            ) => {
               const insertText = completion.label;
               view.dispatch({
-                changes: { from: from, to: to ?? context.pos, insert: insertText }
+                changes: {
+                  from: from,
+                  to: to ?? context.pos,
+                  insert: insertText,
+                },
               });
-            }
-          }))
+            },
+          })),
         };
       };
 
-      const customLinter = linter((view) => {
-        console.log("Lint results:", this.lintResults);
-        const diagnostics: Diagnostic[] = [];
+      const customLinter = linter(
+        (view) => {
+          if (!this.runLint) return this.currentLint;
+          const diagnostics: Diagnostic[] = [];
 
-        if (Array.isArray(this.lintResults)) {
-          this.lintResults.forEach((result: any) => {
-            const fromPos = view.state.doc.line(result.from.line + 1).from + result.from.ch;
-            const toPos = view.state.doc.line(result.to.line + 1).from + result.to.ch;
+          if (Array.isArray(this.lintResults)) {
+            this.lintResults.forEach((result: any) => {
+              const fromPos =
+                view.state.doc.line(result.from.line + 1).from + result.from.ch;
+              const toPos =
+                view.state.doc.line(result.to.line + 1).from + result.to.ch;
 
-            if (fromPos >= 0 && toPos >= fromPos && toPos <= view.state.doc.length) {
-              diagnostics.push({
-                from: fromPos,
-                to: toPos,
-                severity: result.severity,
-                message: result.message
-              });
-            } else {
-              console.warn("Invalid lint result positions:", result);
-            }
-          });
-        } else {
-          console.warn("No lint results for cell:", this.cellData.id);
+              if (
+                fromPos >= 0 &&
+                toPos >= fromPos &&
+                toPos <= view.state.doc.length
+              ) {
+                diagnostics.push({
+                  from: fromPos,
+                  to: toPos,
+                  severity: result.severity,
+                  message: result.message,
+                });
+              } else {
+                console.warn("Invalid lint result positions:", result);
+              }
+            });
+          } else {
+            console.warn("No lint results for cell:", this.cellData.id);
+          }
+          this.runLint = false;
+          this.currentLint = diagnostics;
+          return diagnostics;
+        },
+        {
+          needsRefresh: () => this.runLint,
         }
+      );
 
-        console.log("Diagnostics:", diagnostics);
-        return diagnostics;
-      });
-
-
-      if (this.$devMode && !this.isAppRoute){
-        return [Prec.highest(keyMap), python(), indentUnit.of("    "), oneDark, inlineSuggestion({fetchFn: fetchSuggestion, delay: 400}), autocompletion({ override: [customCompletionSource]}),customLinter]
+      if (this.$devMode && !this.isAppRoute) {
+        return [
+          Prec.highest(keyMap),
+          python(),
+          indentUnit.of("    "),
+          oneDark,
+          inlineSuggestion({ fetchFn: fetchSuggestion, delay: 400 }),
+          autocompletion({ override: [customCompletionSource] }),
+          customLinter,
+        ];
       }
-      return [EditorState.readOnly.of(true), Prec.highest(keyMap), python(), oneDark]
+      return [
+        EditorState.readOnly.of(true),
+        Prec.highest(keyMap),
+        python(),
+        oneDark,
+      ];
     },
 
     unplacedComponents() {
@@ -345,16 +425,15 @@ export default {
         let ids: string[] = [];
         let timers: ZTComponent[] = [];
         for (const comp of items) {
-          this.compDict[comp.id] = comp
+          this.compDict[comp.id] = comp;
           if (comp.childComponents) {
             ids.push.apply(ids, Object.values(comp.childComponents));
-          }
-          else if (comp.component === 'v-timer') {
-            timers.push(comp)
+          } else if (comp.component === "v-timer") {
+            timers.push(comp);
             ids.push(comp.id);
           }
         }
-        this.$emit('updateTimers', this.cellData.id, timers)
+        this.$emit("updateTimers", this.cellData.id, timers);
         return ids;
       };
 
@@ -367,14 +446,20 @@ export default {
     },
     shortcutText() {
       return navigator.userAgent.indexOf("Mac") !== -1
-        ? 'CTRL+Return'
-        : 'CTRL+Enter';
+        ? "CTRL+Return"
+        : "CTRL+Enter";
     },
   },
 
   mounted() {
+    this.$watch(
+      () => this.lintResults,
+      () => {
+        this.runLint = true;
+      }
+    );
     if (this.cellData.hideCell) {
-      this.unplacedComponents
+      this.unplacedComponents;
     }
   },
 
@@ -388,43 +473,53 @@ export default {
           componentValue,
           this.cellData.nonReactive
         );
-      } 
-      else {
-        this.$emit("runCode", this.cellData.id, this.cellData.nonReactive, componentId);
+      } else {
+        this.$emit(
+          "runCode",
+          this.cellData.id,
+          this.cellData.nonReactive,
+          componentId
+        );
       }
     },
     deleteCell() {
       this.$emit("deleteCell", this.cellData.id);
     },
-    createCell(cellType: string){
+    createCell(cellType: string) {
       this.$emit("createCell", this.cellData.id, cellType);
     },
     saveCell() {
-      if (!this.$devMode || !this.view?.hasFocus) return
+      if (!this.$devMode || !this.view?.hasFocus) return;
       const position = this.view?.state.selection.main.head;
       const line = this.view?.state.doc.lineAt(position).number;
       const column = position - this.view?.state.doc.line(line).from;
-      this.$emit("saveCell", this.cellData.id, this.cellData.code, line, column);
+      this.$emit(
+        "saveCell",
+        this.cellData.id,
+        this.cellData.code,
+        line,
+        column
+      );
     },
-    expandCodeUpdate(e: Boolean){
-      this.expanded = e ? [0] : []
+    expandCodeUpdate(e: Boolean) {
+      this.expanded = e ? [0] : [];
     },
-    updateReactivity(e: Boolean){
-      this.cellData.nonReactive = e as boolean
+    updateReactivity(e: Boolean) {
+      this.cellData.nonReactive = e as boolean;
     },
-    hideCode(e: Boolean){
-      this.cellData.hideCode = e as boolean
+    hideCode(e: Boolean) {
+      this.cellData.hideCode = e as boolean;
     },
-    renameCell(e: String){
-      this.cellData.cellName = e as string
-    }
+    renameCell(e: String) {
+      this.cellData.cellName = e as string;
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
 .app-static-name {
-  cursor: text; 
+  cursor: text;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
