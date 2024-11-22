@@ -7,7 +7,7 @@ from pathlib import Path
 import aiofiles
 import os
 from pathlib import Path
-from typing import Dict, Set
+from typing import Dict, Set, AsyncGenerator
 from fastapi import HTTPException
 from dataclasses import dataclass
 from collections import deque
@@ -146,3 +146,89 @@ class UploadQueue:
                     pass
 
 upload_queue = UploadQueue()
+
+
+def initialize_mime_types():
+    """Initialize and customize MIME types."""
+    mimetypes.init()
+    custom_mime_types: Dict[str, str] = {
+        '.md': 'text/markdown',
+        '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        '.7z': 'application/x-7z-compressed',
+        '.rar': 'application/vnd.rar',
+        '.webp': 'image/webp',
+        # Add more custom MIME types here as needed
+    }
+    for ext, mime_type in custom_mime_types.items():
+        mimetypes.add_type(mime_type, ext)
+
+def get_mime_type(filename: str) -> str:
+    """Determine the MIME type of a file based on its filename."""
+    initialize_mime_types()
+    return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+
+async def create_zip_file(folder_path: Path, temp_zip_path: str):
+    """Create a zip file from a folder."""
+    with zipfile.ZipFile(temp_zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        for root, _, files in os.walk(folder_path):
+            for file in files:
+                file_path = os.path.join(root, file)
+                arcname = os.path.relpath(file_path, start=str(folder_path))
+                zipf.write(file_path, arcname)
+
+async def parse_range_header(range_header: Optional[str], file_size: int) -> Tuple[int, int]:
+    """Parse Range header and return start and end bytes."""
+    if not range_header:
+        return 0, file_size - 1
+    try:
+        range_str = range_header.replace('bytes=', '')
+        start_str, end_str = range_str.split('-')
+        start = int(start_str)
+        end = int(end_str) if end_str else file_size - 1
+        return start, min(end, file_size - 1)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid range header")
+    
+async def stream_file_range(file_path: str, start: int, end: int, chunk_size: int) -> AsyncGenerator[bytes, None]:
+    with open(file_path, 'rb') as file:
+        file.seek(start)
+        remaining = end - start + 1
+        while remaining > 0:
+            chunk_size = min(chunk_size, remaining)
+            data = file.read(chunk_size)
+            if not data:
+                break
+            remaining -= len(data)
+            yield data
+
+def get_file_type(name):
+    extension = name.split(".")[-1]
+    if extension in ["html", "js", "json", "md", "pdf", "png", "txt", "xls"]:
+        return extension
+    return None
+
+def list_dir(path):
+    items = []
+    for item in path.iterdir():
+        if item.is_dir():
+            items.append(
+                {
+                    "title": item.name,
+                    "file": "folder",
+                    "id": item.as_posix(),
+                    "children": [],
+                }
+            )
+        else:
+            file_type = get_file_type(item.name)
+            if file_type:
+                items.append(
+                    {"title": item.name, "file": file_type, "id": item.as_posix()}
+                )
+            else:
+                items.append(
+                    {"title": item.name, "file": "file", "id": item.as_posix()}
+                )
+    return items

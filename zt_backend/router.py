@@ -638,24 +638,37 @@ def create_item(item: request.CreateItemRequest):
 @router.post("/api/rename_item")
 async def rename_item(request: request.RenameItemRequest):
     try:
-        old_path = Path(request.path).resolve()
-        if old_path.is_file():
-            old_path = old_path.parent / request.oldName
+        # Convert to Path object and resolve to absolute path
+        base_path = Path(request.path).resolve()
+        
+        # Construct the full old path
+        # Don't append oldName if it's already part of the path
+        if base_path.name != request.oldName:
+            old_path = base_path / request.oldName
         else:
-            old_path /= request.oldName
-        
+            old_path = base_path
+            
+        # Construct the new path in the same directory
         new_path = old_path.parent / request.newName
-        # Perform renaming
-        if not old_path.exists():
-            raise FileNotFoundError(f"The file {old_path} does not exist.")
         
+        # Validate paths
+        if not old_path.exists():
+            raise FileNotFoundError(f"The file {old_path} does not exist")
+            
+        if new_path.exists():
+            raise FileExistsError(f"The destination {new_path} already exists")
+            
+        # Perform renaming
         old_path.rename(new_path)
-
+        
+        logging.info(f"Successfully renamed {old_path} to {new_path}")
         return {"success": True, "message": "File renamed successfully"}
+        
     except Exception as e:
-        logging.error(f"Error renaming file: {e}")
-        raise HTTPException(status_code=500, detail=f"Error renaming file: {e}")
-
+        error_msg = f"Error renaming file: {str(e)}"
+        logging.error(error_msg)
+        raise HTTPException(status_code=500, detail=error_msg)
+    
 @router.post("/api/delete_item")
 def delete_item(delete_request: request.DeleteItemRequest):
     try:
@@ -724,8 +737,8 @@ def read_file(path: str):
 def write_file(file_data: request.FileWrite):
     try:
         # Convert to Path object and normalize
-        file_path = Path(file_data.path).resolve()
-        
+        file_path = Path(file_data.path).resolve()\
+                
         # Get the base directory where files should be stored
         base_dir = Path.cwd()
         
@@ -760,10 +773,13 @@ def write_file(file_data: request.FileWrite):
 
 @router.get("/api/download")
 async def download_item(
-    request: Request,  # For headers
-    download_req: request.DownloadRequest = Depends()  # This is the key change
+    request: Request,
+    background_tasks: BackgroundTasks,  # Add this parameter
+    download_req: request.DownloadRequest = Depends()
 ):
     """Stream download with range support for files and folders."""
+    temp_zip_path = None  # Define this outside try block to use in cleanup
+    
     try:
         chunk_size: int = 8192
         file_path = Path(download_req.path).resolve()
@@ -772,8 +788,10 @@ async def download_item(
             raise HTTPException(status_code=404, detail="Path not found")
 
         if download_req.isFolder:
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.zip') as temp_zip:
-                temp_zip_path = temp_zip.name
+            # Create temporary zip file
+            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.zip')
+            temp_zip_path = temp_file.name
+            temp_file.close()  # Close the file handle
             
             await create_zip_file(file_path, temp_zip_path)
             file_path = Path(temp_zip_path)
@@ -784,6 +802,18 @@ async def download_item(
             request.headers.get('range'),
             file_size
         )
+
+        # Define cleanup function
+        def cleanup_temp_file():
+            if temp_zip_path and os.path.exists(temp_zip_path):
+                try:
+                    os.unlink(temp_zip_path)
+                except Exception as e:
+                    print(f"Error cleaning up temp file: {e}")
+
+        # Add cleanup to background tasks if we created a zip
+        if download_req.isFolder:
+            background_tasks.add_task(cleanup_temp_file)
 
         response = StreamingResponse(
             stream_file_range(str(file_path), start, end, chunk_size),
@@ -798,20 +828,19 @@ async def download_item(
             "Accept-Ranges": "bytes"
         })
 
-        if download_req.isFolder:
-            async def cleanup_temp_file():
-                yield
-                os.unlink(temp_zip_path)
-            response.background = cleanup_temp_file()
-
         return response
 
     except Exception as e:
+        # Cleanup temp file if something goes wrong
+        if temp_zip_path and os.path.exists(temp_zip_path):
+            try:
+                os.unlink(temp_zip_path)
+            except Exception:
+                pass  # If cleanup fails during error handling, just continue
         raise HTTPException(
             status_code=500,
             detail=str(e)
         )
-
 
 @router.get("/api/get_files")
 def list_files():

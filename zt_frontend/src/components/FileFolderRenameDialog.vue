@@ -135,6 +135,10 @@ export default defineComponent({
     isProtectedFile: {
       type: Function,
       required: true
+    },
+    isFolder:{
+      type: Boolean,
+      required: true
     }
   },
   emits: ['item-renamed'],
@@ -158,9 +162,11 @@ export default defineComponent({
     })
 
     const hasExtensionChanged = computed(() => {
+      if(!props.isFolder){
       const oldExt = props.fileName.split('.').pop()
       const newExt = newName.value.split('.').pop()
       return oldExt !== newExt && oldExt && newExt
+      }
     })
 
     const displayError = (message: string) => {

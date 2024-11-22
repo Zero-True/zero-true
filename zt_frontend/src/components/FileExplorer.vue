@@ -53,7 +53,7 @@
                 </v-btn>
               </template>
               <v-list>
-                <v-list-item>
+                 <v-list-item>
                 <FileFolderDownloadDialog
                   :current-path="currentPath"
                   :title="item.title"
@@ -61,7 +61,7 @@
                   @file-downloaded="refreshFiles"
                 />
               </v-list-item>
-                <v-list-item v-if="item.file !== 'folder'">
+                <v-list-item v-if="item.file !== 'folder' && isEditable(item.title)">
                   <FileEditorDialog 
                     :file-path="item.id"
                     :file-name="item.title"
@@ -73,6 +73,7 @@
                     :file-path="item.id"
                     :file-name="item.title"
                     :is-protected-file="isProtectedFile"
+                    :is-folder="item.file === 'folder'"
                     @item-renamed="refreshFiles"
                   />
                 </v-list-item>
@@ -228,7 +229,19 @@ export default defineComponent({
       }
     };
 
+    const editableExtensions = [
+      "py", "js", "mjs", "ts", "html", "htm", "css", "scss", "sass", "php", "rb",
+      "java", "c", "cpp", "h", "hpp", "sh", "bash", "sql", "md", "mdx", "json",
+      "yaml", "yml", "ini", "toml", "gitignore", "gitattributes", "gitconfig",
+      "env", "env.example", "txt", "rst", "csv", "xml", "tsv", "Makefile",
+      "makefile", "Dockerfile", "dockerignore", "conf"
+    ]
 
+    // Check if a file is editable
+    const isEditable = (fileName: string): boolean => {
+      const ext = fileName.split('.').pop()?.toLowerCase() || ''
+      return editableExtensions.includes(ext) || editableExtensions.includes(fileName)
+    }
 
     return {
       localDrawer,
@@ -244,6 +257,7 @@ export default defineComponent({
       errorMessage,
       showError,
       isProtectedFile,
+      isEditable
     };
   },
 });
