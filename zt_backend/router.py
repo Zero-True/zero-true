@@ -163,6 +163,7 @@ async def component_run(websocket: WebSocket):
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
+
 @router.post("/api/run_all")
 def run_all():
     if app_state.run_mode == "app":
@@ -297,27 +298,31 @@ async def save_text(websocket: WebSocket):
                                 data.get("line"),
                                 data.get("column"),
                             )
-                            
-                            linting_results = await queued_get_cell_linting(
+
+                            await queued_get_cell_linting(
                                 cell_id,
                                 data.get("text"),
-                                data.get("code_w_context")
+                                data.get("code_w_context"),
+                                websocket,
                             )
-                            
+
                             combined_results = {
                                 "cell_id": cell_id,
                                 "completions": completions.get("completions", []),
-                                "lint_results": linting_results.get(cell_id, [])
                             }
 
                             await websocket.send_json(combined_results)
 
                         except Exception as e:
-                            logger.error(f"Error processing code cell {cell_id}: {str(e)}")
-                            await websocket.send_json({
-                                "cell_id": cell_id,
-                                "error": "An error occurred while processing the code cell"
-                            })
+                            logger.error(
+                                f"Error processing code cell {cell_id}: {str(e)}"
+                            )
+                            await websocket.send_json(
+                                {
+                                    "cell_id": cell_id,
+                                    "error": "An error occurred while processing the code cell",
+                                }
+                            )
         except WebSocketDisconnect:
             manager.disconnect(websocket)
         finally:
