@@ -1,7 +1,7 @@
-import subprocess
 import shutil
 from fastapi import (
     APIRouter,
+    Depends,
     WebSocket,
     WebSocketDisconnect,
     Query,
@@ -34,7 +34,8 @@ from zt_backend.models.managers.k_thread import KThread
 from zt_backend.models.state.user_state import UserState
 from zt_backend.models.state.app_state import AppState
 from zt_backend.models.state.notebook_state import UploadState
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.requests import Request
 from pathlib import Path
 import logging
 import uuid
@@ -46,6 +47,12 @@ import pkg_resources
 import requests
 import re
 from zt_backend.utils.file_utils import upload_queue, process_upload
+import mimetypes
+from typing import Dict, Tuple, Optional
+import aiofiles
+import tempfile
+from zt_backend.utils.file_utils import *
+
 
 router = APIRouter()
 manager = ConnectionManager()
@@ -510,66 +517,14 @@ def share_notebook(shareRequest: request.ShareRequest):
             response_json = response.json()
             signed_url = response_json.get("uploadURL")
             if not signed_url:
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail="Failed to get a signed URL",
-                )
+                return {"Error": "Failed to get signed URL"}
 
-            python_warning = response_json.get("pythonWarning", "")
-            zt_warning = response_json.get("ztWarning", "")
-            project_warning = response_json.get("projectWarning", "")
-            warning_message = ""
-            if python_warning:
-                warning_message += f"\n{python_warning}"
-            if zt_warning:
-                warning_message += f"\n{zt_warning}"
-            if project_warning:
-                warning_message += f"\n{project_warning}"
-            if warning_message:
-                warning_message += "\nSelect confirm if you would like to proceed"
-                upload_state.signed_url = signed_url
-                return {"warning": warning_message}
-
-            publish_files(project_name, signed_url)
-
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        logger.error("Error submitting share request: %s", str(e))
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error submitting share request",
-        )
-
-
-@router.post("/api/confirm_share")
-def confirm_share(shareRequest: request.ShareRequest):
-    if app_state.run_mode == "dev":
-        if upload_state.signed_url:
-            try:
-                publish_files(
-                    shareRequest.projectName.lower().strip(), upload_state.signed_url
-                )
-                upload_state.signed_url = None
-            except Exception as e:
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail="Error submitting share request",
-                )
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="No active signed URL"
+            output_filename = f"{project_name}"
+            project_source = os.path.normpath(os.getcwd())
+            logger.info(project_source)
+            shutil.make_archive(
+                base_name=output_filename, format="gztar", root_dir=project_source
             )
-
-
-def publish_files(project_name, signed_url):
-    try:
-        output_filename = Path(settings.zt_path) / f"{project_name}.tar.gz"
-        tar_base = str(Path(settings.zt_path) / project_name)
-
-        shutil.make_archive(
-            base_name=tar_base, format="gztar", root_dir=settings.zt_path
-        )
 
         with output_filename.open("rb") as file:
             upload_files = {"file": file}
@@ -732,37 +687,59 @@ def delete_item(delete_request: request.DeleteItemRequest):
             status_code=500, detail=f"An unexpected error occurred: {str(e)}"
         )
 
+@router.get("/api/download")
+async def download_item(
+    request: Request,  # For headers
+    download_req: request.DownloadRequest = Depends()  # This is the key change
+):
+    """Stream download with range support for files and folders."""
+    try:
+        chunk_size: int = 8192
+        file_path = Path(download_req.path).resolve()
+        
+        if not file_path.exists():
+            raise HTTPException(status_code=404, detail="Path not found")
 
-def get_file_type(name):
-    extension = name.split(".")[-1]
-    if extension in ["html", "js", "json", "md", "pdf", "png", "txt", "xls"]:
-        return extension
-    return None
+        if download_req.isFolder:
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.zip') as temp_zip:
+                temp_zip_path = temp_zip.name
+            
+            await create_zip_file(file_path, temp_zip_path)
+            file_path = Path(temp_zip_path)
+            download_req.filename = f"{download_req.filename}.zip"
 
+        file_size = file_path.stat().st_size
+        start, end = await parse_range_header(
+            request.headers.get('range'),
+            file_size
+        )
 
-def list_dir(path):
-    items = []
-    for item in path.iterdir():
-        if item.is_dir():
-            items.append(
-                {
-                    "title": item.name,
-                    "file": "folder",
-                    "id": item.as_posix(),
-                    "children": [],
-                }
-            )
-        else:
-            file_type = get_file_type(item.name)
-            if file_type:
-                items.append(
-                    {"title": item.name, "file": file_type, "id": item.as_posix()}
-                )
-            else:
-                items.append(
-                    {"title": item.name, "file": "file", "id": item.as_posix()}
-                )
-    return items
+        response = StreamingResponse(
+            stream_file_range(str(file_path), start, end, chunk_size),
+            status_code=206 if request.headers.get('range') else 200,
+            media_type=get_mime_type(download_req.filename)
+        )
+
+        response.headers.update({
+            "Content-Range": f"bytes {start}-{end}/{file_size}",
+            "Content-Length": str(end - start + 1),
+            "Content-Disposition": f"attachment; filename={download_req.filename}",
+            "Accept-Ranges": "bytes"
+        })
+
+        if download_req.isFolder:
+            async def cleanup_temp_file():
+                yield
+                os.unlink(temp_zip_path)
+            response.background = cleanup_temp_file()
+
+        return response
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
 
 
 @router.get("/api/get_files")
