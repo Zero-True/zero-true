@@ -40,7 +40,7 @@
           <v-list-item-title @click="handleItemClick(item)">{{ item.title }}</v-list-item-title>
           
           <template v-slot:append>
-            <v-menu v-if="!isProtectedFile(item.title)" :close-on-content-click="false">
+            <v-menu :close-on-content-click="false">
               <template v-slot:activator="{ props }">
                 <v-btn
                   icon
@@ -61,14 +61,14 @@
                   @file-downloaded="refreshFiles"
                 />
               </v-list-item>
-                <v-list-item v-if="item.file !== 'folder' && isEditable(item.title)">
+                <v-list-item v-if="item.file !== 'folder' && isEditable(item.title) && !isProtectedFile(item.title)">
                   <FileEditorDialog 
                     :file-path="item.id"
                     :file-name="item.title"
                     @file-saved="refreshFiles"
                   />
                 </v-list-item>
-                <v-list-item>
+                <v-list-item v-if="!isProtectedFile(item.title)">
                   <RenameDialog
                     :file-path="item.id"
                     :file-name="item.title"
@@ -77,7 +77,7 @@
                     @item-renamed="refreshFiles"
                   />
                 </v-list-item>
-                <v-list-item>
+                <v-list-item v-if="!isProtectedFile(item.title)">
                   <DeleteDialog
                     :file-path="item.id"
                     :file-name="item.title"
