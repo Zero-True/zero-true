@@ -54,7 +54,10 @@
       "group": "Get Started",
       "pages": [
         "quickstart",
-        "blogs/What is Zero-True",
+        "blogs/What is zero-true",
+        "blogs/UI Components in zero-true",
+        "blogs/State in zero-true",
+        "blogs/User State in zero-true",
         "blogs/Buttons in zero-true",
         "blogs/Sliders in zero-true",
         "blogs/Range Sliders in zero-true",
@@ -67,7 +70,6 @@
         "toolbar",
         "cell-types",
         "cells",
-        "state",
         "layout",
         "publishing"
       ]
