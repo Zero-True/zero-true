@@ -5,6 +5,7 @@
     :is-dev-mode="$devMode && !isAppRoute && !isMobile"
     :hide-cell="(cellData.hideCell as boolean)"
     :cell-name="(cellData.cellName as string)"
+    :cell-has-output="true"
     @save="saveCell"
     @delete="deleteCell"
     @addCell="(e) => createCell(e)"

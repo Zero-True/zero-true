@@ -69,6 +69,8 @@
         :extensions="extensions"
         @ready="handleReady"
         @keyup="saveCell"
+        @focus="handleFocus"
+        @blur="handleBlur"
         :code="cellData.code"
         :id="'codeMirrorDev' + cellData.id"
       />
@@ -200,7 +202,7 @@ export default {
   ],
   data() {
     return {
-      isFocused: false, // add this line to keep track of the focus state
+      isFocused: false,
       copilotSuggestion: "",
       copilotAccepted: false,
       expanded: this.cellData.expandCode ? [0] : [],
@@ -231,14 +233,14 @@ export default {
       return route.path === "/app";
     },
     isMobile() {
-      return this.$vuetify.display.mobile
+      return this.$vuetify.display.mobile;
     },
     hasCellContent() {
-    const hasOutput = Boolean(this.cellData.output?.trim());
-    const hasComponents = Boolean(this.cellData.components?.length > 0);
-    return hasOutput || hasComponents;
-  },
-    extensions(){
+      const hasOutput = Boolean(this.cellData.output?.trim());
+      const hasComponents = Boolean(this.cellData.components?.length > 0);
+      return hasOutput || hasComponents;
+    },
+    extensions() {
       const handleCtrlEnter = () => {
         this.runCode(false, "", "");
       };
@@ -349,6 +351,9 @@ export default {
 
       const customLinter = linter(
         (view) => {
+          if (!this.isFocused) {
+            return [];
+          }
           if (!this.runLint) return this.currentLint;
           const diagnostics: Diagnostic[] = [];
 
@@ -508,6 +513,20 @@ export default {
     },
     renameCell(e: String) {
       this.cellData.cellName = e as string;
+    },
+    handleFocus() {
+      this.isFocused = true;
+      this.runLint = true;
+      if (this.view) {
+        this.view.dispatch({});
+      }
+    },
+    handleBlur() {
+      this.isFocused = false;
+      this.runLint = true;
+      if (this.view) {
+        this.view.dispatch({});
+      }
     },
   },
 };
