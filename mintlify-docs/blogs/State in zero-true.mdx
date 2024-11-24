@@ -1,0 +1,31 @@
+---
+title: 'State in zero-true'
+---
+
+
+No hidden state
+
+One of the main features in zero-true is the fact that our notebook has no hidden state. This means that generally speaking if you rerun a cell in zero-true multiple times you get the same answer each time. The same is not true in most IPython notebooks. Consider the example illustrated below:
+
+Cell 1:
+
+```py
+my_list = []
+```
+
+Cell 2:
+
+```py
+my_list.append(1)
+print(my_list)
+```
+
+If you want to know what the output will be in zero-true the answer is easy: It’s ‘\[1\]’ every time. You can see in the gif below that in zero-true, no matter how many times I rerun cell 2, I get the same answer.
+
+![](/blogs/gifs/no_hidden_state.gif)
+
+In current Ipython notebooks on the other hand you get a different answer each time (Google colab pictured below). Every time you rerun cell 2 you append to the same list and get a different answer.
+
+![](/blogs/gifs/jupyter_hidden_state.gif)
+
+There are cases where running the same cell in zero-true multiple times may not give you the same answer, like if you have a random number generator in your cell or you are writing and reading to external files and databases (essentially storing state outside of your notebook). However zero-true has explicit user state and global state objects you can reference.   

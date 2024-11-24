@@ -1,0 +1,58 @@
+---
+title: 'User State in zero-true'
+---
+
+
+
+Our user state is a dictionary that you can instantiate in your notebook by just typing zt.state(). Variables in the state in zero-true allow you to reproduce some of the default behavior that you would get with an IPython notebook. Each user that connects to your notebook in “app” mode gets their own instance of this. To see more about how it works check out the following example: 
+
+Cell 1:
+
+```py
+import zero_true as zt
+#instantiate state in zero-true
+state = zt.state()
+#add a list to the state
+state['list'] = []
+```
+
+The code above instantiates a list. The code below appends to this list in our user state. 
+
+Cell 2:
+
+```py
+#append 1 to list
+state['list'].append(1)
+print(state['list'])
+```
+
+You can see this behavior in the gif below.  
+![](/blogs/gifs/state_in_zero_true.gif)
+
+This means you can use zero-true’s state object to create more rich and persistent interactions for the end user. For example, with the following code you can create a cell with a button that increments each time it is clicked.
+
+Cell 1:
+
+```py
+import zero_true as zt
+
+#instantiate state in zero-true
+state = zt.state()
+
+#if there is no counter object set it to 0
+if 'counter' not in state.keys():
+	state['counter']=0
+
+#create a butoon
+button = zt.Button(id='btn')
+
+#if the button is pressed
+if button.value:
+	#add to the button
+	state['counter']=state['counter']+1
+
+#print the counter value
+print(state['counter'])
+```
+
+![](/blogs/gifs/counter_button.gif)
