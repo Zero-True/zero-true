@@ -183,6 +183,7 @@ def test_initial_code_execution_and_output(driver):
     run_icon = cell_info["elements"]["run_icon"]
     run_icon.click()
     wait_for_coderun(driver)
+    cell_info = extract_code_cell_info(code_cells[0],driver)
     assert cell_info["elements"]["output_container"].find_element(By.ID, "slide"), "Element with id 'slide' not found in output."
     assert cell_info["elements"]["output_container"].find_element(By.ID, "text"), "Element with id 'text' not found in output."
 
@@ -217,6 +218,7 @@ print(slider.value)"""
     new_run_icon = new_cell_info["elements"]["run_icon"]
     new_run_icon.click()
     wait_for_coderun(driver)
+    new_cell_info =  extract_code_cell_info(code_cells[1],driver)
     new_cell_output = new_cell_info["elements"]["cell_output"]
     assert new_cell_output.text == slider_value, "Output of new cell does not match slider value"
 
@@ -236,6 +238,7 @@ def test_slider_interaction(driver):
     ActionChains(driver).drag_and_drop_by_offset(slider,offset, 0).release().perform()
     wait_for_coderun(driver)
     #get new output from parent cell 
+    new_cell_info = extract_code_cell_info(code_cells[1],driver)
     new_cell_output = new_cell_info["elements"]["cell_output"]
 
     slider_value = slider.get_attribute("aria-valuenow")
