@@ -8,6 +8,7 @@
     :non-reactive="(cellData.nonReactive as boolean)"
     :showTable="(cellData.showTable as boolean)"
     :cell-name="(cellData.cellName as string)"
+    :cell-has-output="hasCellContent"
     :currentlyExecutingCell="currentlyExecutingCell"
     :isCodeRunning="isCodeRunning"
     :is-dev-mode="$devMode && !isAppRoute && !isMobile"
@@ -62,10 +63,6 @@
         :extensions="extensions"
         @keyup="saveCell"
       />
-
-      <div v-if="$devMode && !isAppRoute && !isMobile">
-        <p class="text-caption text-disabled text-right">{{ shortcutText }} to run</p>
-      </div>
     </template>
     <template v-slot:outcome>
       <v-container
@@ -118,6 +115,11 @@ export default {
     isMobile() {
       return this.$vuetify.display.mobile
     },
+    hasCellContent() {
+    const hasOutput = Boolean(this.cellData.output?.trim());
+    const hasComponents = Boolean(this.cellData.components?.length > 0);
+    return hasOutput || hasComponents;
+  },
     extensions() {
       const handleCtrlEnter = () => {
         this.runCode();
@@ -148,11 +150,6 @@ export default {
         oneDark,
         autocompletion({ override: [] }),
       ];
-    },
-    shortcutText() {
-      return navigator.userAgent.indexOf("Mac") !== -1
-        ? 'CTRL+Return'
-        : 'CTRL+Enter';
     },
   },
   inheritAttrs: false,

@@ -7,6 +7,7 @@
     :expand-code="(cellData.expandCode as boolean)"
     :non-reactive="(cellData.nonReactive as boolean)"
     :cell-name="(cellData.cellName as string)"
+    :cell-has-output="hasCellContent"
     :currentlyExecutingCell="currentlyExecutingCell"
     :isCodeRunning="isCodeRunning"
     :is-dev-mode="$devMode && !isAppRoute && !isMobile"
@@ -68,14 +69,11 @@
         :extensions="extensions"
         @ready="handleReady"
         @keyup="saveCell"
+        @focus="handleFocus"
+        @blur="handleBlur"
         :code="cellData.code"
         :id="'codeMirrorDev' + cellData.id"
       />
-      <div v-if="$devMode && !isAppRoute && !isMobile">
-        <p class="text-caption text-disabled text-right">
-          {{ shortcutText }} to run
-        </p>
-      </div>
     </template>
     <template v-slot:outcome>
       <div :id="'outputContainer_' + cellData.id">
@@ -204,7 +202,7 @@ export default {
   ],
   data() {
     return {
-      isFocused: false, // add this line to keep track of the focus state
+      isFocused: false,
       copilotSuggestion: "",
       copilotAccepted: false,
       expanded: this.cellData.expandCode ? [0] : [],
@@ -236,6 +234,11 @@ export default {
     },
     isMobile() {
       return this.$vuetify.display.mobile;
+    },
+    hasCellContent() {
+      const hasOutput = Boolean(this.cellData.output?.trim());
+      const hasComponents = Boolean(this.cellData.components?.length > 0);
+      return hasOutput || hasComponents;
     },
     extensions() {
       const handleCtrlEnter = () => {
@@ -348,6 +351,9 @@ export default {
 
       const customLinter = linter(
         (view) => {
+          if (!this.isFocused) {
+            return [];
+          }
           if (!this.runLint) return this.currentLint;
           const diagnostics: Diagnostic[] = [];
 
@@ -444,11 +450,6 @@ export default {
         (comp) => !placedComponentIds.includes(comp.id)
       );
     },
-    shortcutText() {
-      return navigator.userAgent.indexOf("Mac") !== -1
-        ? "CTRL+Return"
-        : "CTRL+Enter";
-    },
   },
 
   mounted() {
@@ -512,6 +513,20 @@ export default {
     },
     renameCell(e: String) {
       this.cellData.cellName = e as string;
+    },
+    handleFocus() {
+      this.isFocused = true;
+      this.runLint = true;
+      if (this.view) {
+        this.view.dispatch({});
+      }
+    },
+    handleBlur() {
+      this.isFocused = false;
+      this.runLint = true;
+      if (this.view) {
+        this.view.dispatch({});
+      }
     },
   },
 };

@@ -1082,14 +1082,14 @@ export default {
 <style lang="scss" scoped>
 @import "@/styles/mixins.scss";
 .zt-app-bar {
-  padding-top: 6px;
-  padding-bottom: 6px;
+  padding-top: 3px;
+  padding-bottom: 3px;
 }
 
 .logo-btn {
   & :deep(.v-icon) {
-    width: 1.5em;
-    height: 1.5em;
+    width: 1.2em;
+    height: 1.2em;
   }
 }
 
