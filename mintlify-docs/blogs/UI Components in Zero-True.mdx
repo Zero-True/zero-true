@@ -1,0 +1,61 @@
+---
+title: 'UI Components in zero-true'
+---
+
+In zero-true we have a builtin UI library that directly ties into the notebook’s runtime. This means that you can add interactivity to your notebook without needing to define callbacks or adding any boilerplate. You can create a wide range of interactive components with one line of code that end users of your notebook interact with. We automatically parse where your component is referenced on the backend so that inputs below update automatically. 
+
+## “Static” Components
+
+Some components in zero-true are static, they can be used to display information but are not interactive. Some components like this are:
+
+* zt.Image  
+* zt.Text  
+* zt.Matplotlib  
+  zt.Plotly  
+* zt.DataFrame  
+* zt.Layout  
+* zt.Row  
+* zt.Column
+
+You can display information with these components but they do not allow for any interactivity on the users part. 
+
+## “Interactive” Components
+
+Interactive components allow users to submit values to your notebook. Some of these components include:
+
+* zt.Slider \-\> Returns int or float  
+* zt.Button \-\> Returns bool  
+* zt.RangeSlider \-\> Returns a list of ints or floats  
+* zt.TextInput \-\> Returns a string   
+* zt.TextArea \-\> Returns a string  
+* zt.NumberInput \-\> Returns an int or float
+
+When you publish your notebook as an app, end users interact with these components. You can reference these component values in your notebook easily, allowing you to create reactive and interactive experiences for your users. 
+
+## Creating UI Components
+
+In general, creating a UI component in zero-true is as simple as importing zero-true into your notebook and writing one line of code. For a slider for example: 
+
+```py
+import zero_true as zt
+zt.Slider(id='slider')
+```
+
+![](/blogs/gifs/solo_slider.gif)
+
+As of today, every zero-true UI component requires a unique ID. Most components render with sensible defaults with just an id provided but are highly customizable. Not all UI components in zero-true are the same so we encourage you to reference our documentation if anything isn’t working as expected\!
+
+## Accessing Component Values
+
+Accessing component values for interactive components is very simple. Just use the “value” attribute on each of the components. For example:
+
+```py
+import zero_true as zt
+slider = zt.Slider(id='slider')
+print(slider.value)
+```
+
+The code above will produce the output recorded in the gif below:  
+![](/blogs/gifs/slider_value.gif)
+
+Feel free to reference the detailed component attribute implementation we have in our docs if you want to know more about the exact types of values that are returned by each of our UI components.  

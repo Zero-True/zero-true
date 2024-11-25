@@ -2,11 +2,15 @@
 title: 'What is zero-true?'
 ---
 
-Zero-True is an open source python+sql notebook that was built to help individuals and teams collaborate on applications ranging from data visualization to building complex ML models. This project was started based on our own extensive experience with the current notebook ecosystem and frustration with existing solutions. Converting code and outputs from notebooks into snackable and remixable formats for other developers and non-technical audiences has never been as important as it is today. Data products require fast iteration with subject matter experts, a process that often starts in data notebooks but then requires an expensive translation process into dashboards and frontends. This should not be as complicated as it is today. We’ve been building zero-true to simplify sharing notebooks for almost 18 months now responding closely to feedback from teams actually working on ML products. 
+Zero-True is an open source python+sql notebook that was built to help individuals and teams collaborate on applications ranging from data visualization to building complex ML models.
+This project was started to solve a problem we faced ourselves: data products often start in notebooks but then require an expensive translation process into dashboards and frontends.
+We’ve been building zero-true to simplify sharing notebooks, responding closely to feedback from teams actually working on ML products.
 
-To this end we have our own reactive notebook that will automatically parse your code to rerun cells based on changes in parent cells upstream (similar to Observable). This approach ensures your notebook stays consistent and solves some of the known issues with current iPython notebook based workflows. Zero-true includes an integrated UI library and streamlined deployment to help you share your work as a full fledged application. This means you can take what were previously ad-hoc workflows and transform them into deployable scripts with an integrated frontend. We are also working on features to help deploy your notebook as a part of ETL pipelines like chronjobs etc.
+![](/logo/logo-full.svg)
 
-If you’re just starting out with zero-true, this blog has some useful things to know.
+To this end we have built our own reactive notebook (similar to Observable, pluto, etc) that is not based on IPython. 
+With our notebook you can take what were previously ad-hoc single use explorations and transform them into deployable scripts with an integrated frontend.
+This allows you to convert code and outputs from zero-true into snackable and remixable formats for other developers and non-technical audiences. If you’re just starting out with zero-true, this blog has some useful things to know.
 
 ## Cells run top to bottom
 
@@ -43,7 +47,7 @@ In current Ipython notebooks on the other hand you get a different answer each t
 
 We parse what cells are related in your notebook and automatically rerun downstream cells so that your notebook stays consistent. This helps you catch errors before they happen and provides an interactive coding experience. 
 
-![](/blogs/gifs/reactive updates.gif)
+![](/blogs/gifs/reactive_updates.gif)
 
 ## Integrated UI library
 
