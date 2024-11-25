@@ -17,10 +17,10 @@
       <FileFolderCreator :current-path="currentPath" @item-created="refreshFiles" />
       <FileUploader :current-path="currentPath" @file-uploaded="refreshFiles" />
       <v-btn
-          color="bluegrey-darken-4"
-          icon="mdi-refresh"
-          @click="refreshFiles"
-        />
+        color="bluegrey-darken-4"
+        icon="mdi-refresh"
+        @click="refreshFiles"
+      />
       <v-btn
         color="bluegrey-darken-4"
         icon="mdi-close"
@@ -29,32 +29,31 @@
     </div>
 
     <v-list>
-      <v-list-item
-        v-for="item in localItems"
-        :key="item.id"
-      >
-        <template v-slot:prepend>
-          <v-icon v-if="item.file === 'folder'">{{ "mdi-folder" }}</v-icon>
-          <v-icon v-else>{{ fileIcon(item.file) }}</v-icon>
-        </template>
-        
-        <v-list-item-title @click="handleItemClick(item)" :class="{'clickable-item': item.file === 'folder'}">{{ item.title }}</v-list-item-title>
-        
-        <template v-slot:append>
-          <v-menu v-if="!isProtectedFile(item.title)" :close-on-content-click="false">
-            <template v-slot:activator="{ props }">
-              <v-btn
-                icon
-                variant="text"
-                density="compact"
-                class="mr-2"
-                v-bind="props"
-              >
-                <v-icon size="small">mdi-dots-vertical</v-icon>
-              </v-btn>
-            </template>
-            <v-list>
-              <v-list-item>
+      <template v-for="item in localItems" :key="item.id">
+        <!-- Main item -->
+        <v-list-item>
+          <template v-slot:prepend>
+            <v-icon v-if="item.file === 'folder'">{{ "mdi-folder" }}</v-icon>
+            <v-icon v-else>{{ fileIcon(item.file) }}</v-icon>
+          </template>
+          
+          <v-list-item-title @click="handleItemClick(item)">{{ item.title }}</v-list-item-title>
+          
+          <template v-slot:append>
+            <v-menu :close-on-content-click="false">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  icon
+                  variant="text"
+                  density="compact"
+                  class="mr-2"
+                  v-bind="props"
+                >
+                  <v-icon size="small">mdi-dots-vertical</v-icon>
+                </v-btn>
+              </template>
+              <v-list>
+                 <v-list-item>
                 <FileFolderDownloadDialog
                   :current-path="currentPath"
                   :title="item.title"
@@ -62,51 +61,53 @@
                   @file-downloaded="refreshFiles"
                 />
               </v-list-item>
-              <v-list-item v-if="!isProtectedFile(item.title)" @click="openRenameDialog(item)">
-                <v-list-item-title>Rename</v-list-item-title>
-              </v-list-item>
-              <v-list-item v-if="!isProtectedFile(item.title)" @click="openDeleteDialog(item)">
-                <v-list-item-title>Delete</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </template>
-      </v-list-item>
+                <v-list-item v-if="item.file !== 'folder' && !isProtectedFile(item.title)">
+                  <FileEditorDialog 
+                    :file-path="item.id"
+                    :file-name="item.title"
+                    @file-saved="refreshFiles"
+                  />
+                </v-list-item>
+                <v-list-item v-if="!isProtectedFile(item.title)">
+                  <RenameDialog
+                    :file-path="item.id"
+                    :file-name="item.title"
+                    :is-protected-file="isProtectedFile"
+                    :is-folder="item.file === 'folder'"
+                    @item-renamed="refreshFiles"
+                  />
+                </v-list-item>
+                <v-list-item v-if="!isProtectedFile(item.title)">
+                  <DeleteDialog
+                    :file-path="item.id"
+                    :file-name="item.title"
+                    :is-protected-file="isProtectedFile"
+                    @item-deleted="refreshFiles"
+                  />
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </template>
+        </v-list-item>
+      </template>
     </v-list>
 
     <v-snackbar
-    v-model="showError"
-    color="error"
-    :timeout="5000"
-  >
-    {{ errorMessage }}
-
-    <template v-slot:actions>
-      <v-btn
-        color="white"
-        variant="text"
-        @click="showError = false"
-      >
-        Close
-      </v-btn>
-    </template>
-  </v-snackbar>
-
-
-  <RenameDialog
-      ref="renameDialog"
-      :current-path="currentPath"
-      :is-protected-file="isProtectedFile"
-      @item-renamed="refreshFiles"
-    />
-
-    <DeleteDialog
-      ref="deleteDialog"
-      :current-path="currentPath"
-      :is-protected-file="isProtectedFile"
-      @item-deleted="refreshFiles"
-    />
-
+      v-model="showError"
+      color="error"
+      :timeout="5000"
+    >
+      {{ errorMessage }}
+      <template v-slot:actions>
+        <v-btn
+          color="white"
+          variant="text"
+          @click="showError = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-navigation-drawer>
 </template>
 
@@ -117,6 +118,7 @@ import FileUploader from "@/components/FileUploader.vue";
 import FileFolderCreator from "@/components/FileFolderCreator.vue";
 import RenameDialog from "@/components/FileFolderRenameDialog.vue";
 import DeleteDialog from "@/components/FileFolderDeleteDialog.vue";
+import FileEditorDialog from '@/components/FileEditorDialog.vue'
 import FileFolderDownloadDialog from "@/components/FileFolderDownloadDialog.vue";
 
 
@@ -128,6 +130,7 @@ export default defineComponent({
     FileFolderCreator,
     RenameDialog,
     DeleteDialog,
+    FileEditorDialog,
     FileFolderDownloadDialog
   },
   props: {
@@ -157,21 +160,6 @@ export default defineComponent({
     const isProtectedFile = (filename: string) => {
       return protectedFiles.value.includes(filename);
     };
-
-    const renameDialog = ref<InstanceType<typeof RenameDialog> | null>(null);
-    const deleteDialog = ref<InstanceType<typeof DeleteDialog> | null>(null);
- 
-    const openRenameDialog = (item: any) => {
-      renameDialog.value?.openDialog(item);
-    };
-
-   
-    const openDeleteDialog = (item: any) => {
-      deleteDialog.value?.openDialog(item);
-    };
-
-
-
     watch(
       () => props.drawer,
       (newValue) => {
@@ -184,12 +172,6 @@ export default defineComponent({
         refreshFiles();
       }
     });
-
-    const displayError = (message: string) => {
-      errorMessage.value = message;
-      showError.value = true;
-    };
-
     const loadFiles = async (path: string) => {
       try {
         const response = await axios.get(
@@ -247,8 +229,6 @@ export default defineComponent({
       }
     };
 
-
-
     return {
       localDrawer,
       localItems,
@@ -260,10 +240,6 @@ export default defineComponent({
       fileIcon,
       newItemName,
       itemTypes,
-      renameDialog,
-      openRenameDialog,
-      openDeleteDialog,
-      deleteDialog,
       errorMessage,
       showError,
       isProtectedFile,

@@ -46,7 +46,8 @@ import asyncio
 import pkg_resources
 import requests
 import re
-from zt_backend.utils.file_utils import upload_queue, process_upload
+from zt_backend.utils.file_utils import upload_queue
+from typing import Optional
 import mimetypes
 from typing import Dict, Tuple, Optional
 import aiofiles
@@ -557,7 +558,6 @@ def share_notebook(shareRequest: request.ShareRequest):
             pass
         raise e
 
-
 @router.post("/api/upload_file")
 async def upload_file(
     background_tasks: BackgroundTasks,
@@ -566,20 +566,43 @@ async def upload_file(
     total_chunks: int = Form(...),
     path: str = Form(...),
     file_name: str = Form(...),
+    is_folder: bool = Form(False),
+    relative_path: Optional[str] = Form(None)
 ):
-    try:
-        # Put the upload request into the queue
-        await upload_queue.put(
-            (background_tasks, file, chunk_index, total_chunks, path, file_name)
-        )
+    if app_state.run_mode == "dev":
+        """
+        Handle file upload with queuing mechanism and existence validation
+        """
+        try:
+            final_path = relative_path if relative_path else file_name
+            full_path = Path(path) / final_path
 
-        # Process the queue
-        result = await process_upload(
-            background_tasks, file, chunk_index, total_chunks, path, file_name
-        )
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+            # Check for existing file/folder on first chunk
+            if chunk_index == 0:
+                if full_path.exists():
+                    raise HTTPException(
+                        status_code=409,  # Conflict status code
+                        detail=f"{'Folder' if is_folder else 'File'} already exists: {final_path}"
+                    )
+
+                can_queue = await upload_queue.add_to_queue(final_path, total_chunks)
+                if not can_queue:
+                    raise HTTPException(
+                        status_code=503,
+                        detail="Server busy: Maximum queue size reached"
+                    )
+
+            # Process chunk
+            chunk_data = await file.read()
+            result = await upload_queue.process_chunk(
+                final_path, chunk_index, chunk_data, path
+            )
+            return result
+
+        except HTTPException as he:
+            raise he
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
 
 @router.post("/api/create_item")
@@ -610,137 +633,222 @@ def create_item(item: request.CreateItemRequest):
 
 
 @router.post("/api/rename_item")
-def rename_item(rename_request: request.RenameItemRequest):
+async def rename_item(request: request.RenameItemRequest):
     if app_state.run_mode == "dev":
         try:
-            old_path = Path(rename_request.path) / rename_request.oldName
-            new_path = Path(rename_request.path) / rename_request.newName.strip()
-
+            # Convert to Path object and resolve to absolute path
+            base_path = Path(request.path).resolve()
+            
+            # Construct the full old path
+            # Don't append oldName if it's already part of the path
+            if base_path.name != request.oldName:
+                old_path = base_path / request.oldName
+            else:
+                old_path = base_path
+                
+            # Construct the new path in the same directory
+            new_path = old_path.parent / request.newName
+            
+            # Validate paths
             if not old_path.exists():
-                raise HTTPException(status_code=404, detail="Item not found")
-
-            if old_path == new_path:
-                return {
-                    "success": True,
-                    "message": f"Item renamed successfully (no change in name)",
-                    "oldPath": str(old_path),
-                    "newPath": str(new_path),
-                }
-
+                raise FileNotFoundError(f"The file {old_path} does not exist")
+                
             if new_path.exists():
+                raise FileExistsError(f"The destination {new_path} already exists")
+                
+            # Perform renaming
+            old_path.rename(new_path)
+            
+            logging.info(f"Successfully renamed {old_path} to {new_path}")
+            return {"success": True, "message": "File renamed successfully"}
+            
+        except Exception as e:
+            error_msg = f"Error renaming file: {str(e)}"
+            logging.error(error_msg)
+            raise HTTPException(status_code=500, detail=error_msg)
+    
+@router.post("/api/delete_item")
+def delete_item(delete_request: request.DeleteItemRequest):
+    if app_state.run_mode == "dev":
+        try:
+            # Clean the input path
+            file_path = delete_request.path.strip("/")
+            
+            
+            # Get base path and construct full path
+            base_path = Path(".").resolve()
+            item_path = (base_path / file_path).resolve()
+                
+            # Security check
+            try:
+                item_path.relative_to(base_path)
+            except ValueError:
                 raise HTTPException(
-                    status_code=400, detail="An item with the new name already exists"
+                    status_code=403,
+                    detail="Access denied: Cannot delete items outside base directory"
                 )
 
-            os.rename(old_path, new_path)
+            if not item_path.exists():
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Item not found: {file_path}"
+                )
+
+            if item_path.is_file():
+                os.remove(item_path)
+            elif item_path.is_dir():
+                shutil.rmtree(item_path)
+            else:
+                raise HTTPException(status_code=400, detail="Invalid item type")
 
             return {
                 "success": True,
-                "message": f"Item renamed successfully from {rename_request.oldName} to {rename_request.newName}",
-                "oldPath": str(old_path),
-                "newPath": str(new_path),
+                "message": "Item deleted successfully",
+                "deletedPath": str(item_path.relative_to(base_path))
             }
         except PermissionError:
             raise HTTPException(
-                status_code=403, detail="Permission denied. Unable to rename the item."
+                status_code=403,
+                detail="Permission denied. Unable to delete the item."
             )
         except OSError as e:
             raise HTTPException(status_code=500, detail=f"System error: {str(e)}")
         except Exception as e:
+            logging.exception("Unexpected error in delete_item")
             raise HTTPException(
-                status_code=500, detail=f"An unexpected error occurred: {str(e)}"
+                status_code=500,
+                detail=f"An unexpected error occurred: {str(e)}"
             )
 
 
-@router.post("/api/delete_item")
-def delete_item(delete_request: request.DeleteItemRequest):
-    try:
-        item_path = Path(delete_request.path) / delete_request.name
+@router.get("/api/read_file")
+def read_file(path: str):
+    if app_state.run_mode == "dev":
+        try:
+            with open(path, 'r', encoding='utf-8') as file:
+                content = file.read()
+            return {"content": content}
+        
+        except UnicodeDecodeError:
+            raise HTTPException(
+                status_code=400,
+                detail="The type of file you are trying to edit cannot be edited. Please ensure you edit a compatible file."
+            )
+        except FileNotFoundError:
+            raise HTTPException(status_code=404, detail="File not found")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
 
-        if not item_path.exists():
-            raise HTTPException(status_code=404, detail="Item not found")
-
-        if item_path.is_file():
-            os.remove(item_path)
-        elif item_path.is_dir():
-            if any(item_path.iterdir()):
-                raise HTTPException(
-                    status_code=400, detail="Cannot delete non-empty directory"
-                )
-            os.rmdir(item_path)
-        else:
-            raise HTTPException(status_code=400, detail="Invalid item type")
-
-        return {
-            "success": True,
-            "message": f"Item '{delete_request.name}' deleted successfully",
-            "deletedPath": str(item_path),
-        }
-    except PermissionError:
-        raise HTTPException(
-            status_code=403, detail="Permission denied. Unable to delete the item."
-        )
-    except OSError as e:
-        raise HTTPException(status_code=500, detail=f"System error: {str(e)}")
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"An unexpected error occurred: {str(e)}"
-        )
+@router.post("/api/write_file")
+def write_file(file_data: request.FileWrite):
+    if app_state.run_mode == "dev":
+        try:
+            # Convert to Path object and normalize
+            file_path = Path(file_data.path).resolve()\
+                    
+            # Get the base directory where files should be stored
+            base_dir = Path.cwd()
+            
+            # Ensure the file path is within the base directory (prevent path traversal)
+            if not str(file_path).startswith(str(base_dir)):
+                raise HTTPException(status_code=400, detail="Invalid path: path must be within base directory")
+                
+            # Get directory name using pathlib
+            dir_path = file_path.parent
+            
+            # Create directories only if necessary
+            if dir_path != base_dir:
+                try:
+                    dir_path.mkdir(parents=True, exist_ok=True)
+                except OSError as e:
+                    raise HTTPException(status_code=500, detail=f"Failed to create directory: {str(e)}")
+            
+            # Write the file
+            try:
+                file_path.write_text(file_data.content, encoding='utf-8')
+            except IOError as e:
+                raise HTTPException(status_code=500, detail=f"Failed to write file: {str(e)}")
+                
+            return {
+                "message": "File saved successfully",
+                "path": str(file_path.relative_to(base_dir))
+            }
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/api/download")
 async def download_item(
-    request: Request,  # For headers
-    download_req: request.DownloadRequest = Depends()  # This is the key change
+    request: Request,
+    background_tasks: BackgroundTasks,  # Add this parameter
+    download_req: request.DownloadRequest = Depends()
 ):
-    """Stream download with range support for files and folders."""
-    try:
-        chunk_size: int = 8192
-        file_path = Path(download_req.path).resolve()
+    if app_state.run_mode == "dev":
+        """Stream download with range support for files and folders."""
+        temp_zip_path = None  # Define this outside try block to use in cleanup
         
-        if not file_path.exists():
-            raise HTTPException(status_code=404, detail="Path not found")
-
-        if download_req.isFolder:
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.zip') as temp_zip:
-                temp_zip_path = temp_zip.name
+        try:
+            chunk_size: int = 8192
+            file_path = Path(download_req.path).resolve()
             
-            await create_zip_file(file_path, temp_zip_path)
-            file_path = Path(temp_zip_path)
-            download_req.filename = f"{download_req.filename}.zip"
+            if not file_path.exists():
+                raise HTTPException(status_code=404, detail="Path not found")
 
-        file_size = file_path.stat().st_size
-        start, end = await parse_range_header(
-            request.headers.get('range'),
-            file_size
-        )
+            if download_req.isFolder:
+                # Create temporary zip file
+                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.zip')
+                temp_zip_path = temp_file.name
+                temp_file.close()  # Close the file handle
+                
+                await create_zip_file(file_path, temp_zip_path)
+                file_path = Path(temp_zip_path)
+                download_req.filename = f"{download_req.filename}.zip"
 
-        response = StreamingResponse(
-            stream_file_range(str(file_path), start, end, chunk_size),
-            status_code=206 if request.headers.get('range') else 200,
-            media_type=get_mime_type(download_req.filename)
-        )
+            file_size = file_path.stat().st_size
+            start, end = await parse_range_header(
+                request.headers.get('range'),
+                file_size
+            )
 
-        response.headers.update({
-            "Content-Range": f"bytes {start}-{end}/{file_size}",
-            "Content-Length": str(end - start + 1),
-            "Content-Disposition": f"attachment; filename={download_req.filename}",
-            "Accept-Ranges": "bytes"
-        })
+            # Define cleanup function
+            def cleanup_temp_file():
+                if temp_zip_path and os.path.exists(temp_zip_path):
+                    try:
+                        os.unlink(temp_zip_path)
+                    except Exception as e:
+                        print(f"Error cleaning up temp file: {e}")
 
-        if download_req.isFolder:
-            async def cleanup_temp_file():
-                yield
-                os.unlink(temp_zip_path)
-            response.background = cleanup_temp_file()
+            # Add cleanup to background tasks if we created a zip
+            if download_req.isFolder:
+                background_tasks.add_task(cleanup_temp_file)
 
-        return response
+            response = StreamingResponse(
+                stream_file_range(str(file_path), start, end, chunk_size),
+                status_code=206 if request.headers.get('range') else 200,
+                media_type=get_mime_type(download_req.filename)
+            )
 
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=str(e)
-        )
+            response.headers.update({
+                "Content-Range": f"bytes {start}-{end}/{file_size}",
+                "Content-Length": str(end - start + 1),
+                "Content-Disposition": f"attachment; filename={download_req.filename}",
+                "Accept-Ranges": "bytes"
+            })
 
+            return response
+
+        except Exception as e:
+            # Cleanup temp file if something goes wrong
+            if temp_zip_path and os.path.exists(temp_zip_path):
+                try:
+                    os.unlink(temp_zip_path)
+                except Exception:
+                    pass  # If cleanup fails during error handling, just continue
+            raise HTTPException(
+                status_code=500,
+                detail=str(e)
+            )
 
 @router.get("/api/get_files")
 def list_files():
