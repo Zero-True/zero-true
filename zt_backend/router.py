@@ -728,6 +728,12 @@ def read_file(path: str):
             with open(path, 'r', encoding='utf-8') as file:
                 content = file.read()
             return {"content": content}
+        
+        except UnicodeDecodeError:
+            raise HTTPException(
+                status_code=400,
+                detail="The type of file you are trying to edit cannot be edited. Please ensure you edit a compatible file."
+            )
         except FileNotFoundError:
             raise HTTPException(status_code=404, detail="File not found")
         except Exception as e:

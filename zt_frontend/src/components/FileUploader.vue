@@ -83,7 +83,7 @@
             <v-btn
               color="primary"
               variant="outlined"
-              @click="$refs.fileInput.click()"
+              @click="triggerFileInput"
               :disabled="isUploading"
               prepend-icon="mdi-file-multiple"
               class="mr-2"
@@ -104,7 +104,7 @@
             <v-btn
               color="primary"
               variant="outlined"
-              @click="$refs.folderInput.click()"
+              @click="triggerFolderInput"
               :disabled="isUploading"
               prepend-icon="mdi-folder"
             >
@@ -220,6 +220,14 @@ export default defineComponent({
   },
 
   methods: {
+
+    triggerFileInput() {
+    (this.$refs.fileInput as HTMLInputElement).click();
+  },
+  triggerFolderInput() {
+    (this.$refs.folderInput as HTMLInputElement).click();
+  },
+
     openDialog() {
       this.uploadingDialog = true;
     },
