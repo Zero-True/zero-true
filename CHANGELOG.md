@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.5.0](https://github.com/Zero-True/zero-true/compare/v0.4.9...v0.5.0) (2024-11-25)
+
+
+### Features
+
+* **file-manage:** add option to edit files from the file directory and enabled folder uploader along with folder delete features ([#363](https://github.com/Zero-True/zero-true/issues/363)) ([c2b7536](https://github.com/Zero-True/zero-true/commit/c2b753672f13bcd5e0c4c729a99b26432db94dc4))
+
+
+### Bug Fixes
+
+* Enable large file saving and no content files ([#378](https://github.com/Zero-True/zero-true/issues/378)) ([23b8908](https://github.com/Zero-True/zero-true/commit/23b8908c7b5f88ca25cef12ee9f84371a8af50a6))
+* Lint improvements, update on actual lint change and new debounce ([#373](https://github.com/Zero-True/zero-true/issues/373)) ([f4832ed](https://github.com/Zero-True/zero-true/commit/f4832eda18f8ed0eef3ff6489ac8719cd6590bce))
+* Reduce vertical space and add linter focus changes ([#377](https://github.com/Zero-True/zero-true/issues/377)) ([86a0e5d](https://github.com/Zero-True/zero-true/commit/86a0e5d67e25e021a20216fbbeb27e5223f04ce9))
+* Updated Docs ([#376](https://github.com/Zero-True/zero-true/issues/376)) ([f3eec1f](https://github.com/Zero-True/zero-true/commit/f3eec1f0186b1b52e8df957b7cda35de21a56560))
+
 ## [0.4.9](https://github.com/Zero-True/zero-true/compare/v0.4.8...v0.4.9) (2024-11-12)
 
 
