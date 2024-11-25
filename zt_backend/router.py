@@ -765,7 +765,9 @@ def write_file(file_data: request.FileWrite):
             
             # Write the file
             try:
-                file_path.write_text(file_data.content, encoding='utf-8')
+                mode = "a" if file_data.chunk_index > 0 else "w"
+                with open(file_path, mode, encoding="utf-8") as f:
+                    f.write(file_data.content)
             except IOError as e:
                 raise HTTPException(status_code=500, detail=f"Failed to write file: {str(e)}")
                 
