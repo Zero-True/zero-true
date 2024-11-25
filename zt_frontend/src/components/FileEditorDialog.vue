@@ -63,7 +63,7 @@
       </v-card-actions>
     </template>
       <!-- Editor State -->
-    <template v-else-if="fileContent">
+    <template v-else>
       <v-card-title class="d-flex justify-space-between align-center pa-4 bg-dark">
         <div class="d-flex align-center">
           <v-icon size="small" class="mr-2" color="grey-lighten-2">mdi-file-document-outline</v-icon>
@@ -83,7 +83,7 @@
         <v-divider vertical class="mx-2" color="grey-darken-3" />
         <span class="text-caption text-grey-lighten-2">{{ getFileSize }}</span>
       </v-card-subtitle>
-      <v-card-text class="pa-0 bg-dark">
+      <v-card-text class="pa-0 bg-dark" style="overflow-y: auto;">
         <div class="editor-container">
           <codemirror
             v-model="fileContent"
@@ -243,11 +243,19 @@ setup(props, { emit }) {
 
   const saveChanges = async () => {
     saving.value = true
+    const chunkSize = 1024 * 512;
+    const totalChunks = Math.ceil(fileContent.value.length / chunkSize);
     try {
-      await axios.post(`${import.meta.env.VITE_BACKEND_URL}api/write_file`, {
-        path: props.filePath,
-        content: fileContent.value
-      })
+      for (let i = 0; i < totalChunks; i++) {
+        const chunk = fileContent.value.slice(i * chunkSize, (i + 1) * chunkSize);
+
+        await axios.post(`${import.meta.env.VITE_BACKEND_URL}api/write_file`, {
+          path: props.filePath,
+          content: chunk,
+          chunk_index: i,
+          total_chunks: totalChunks,
+        });
+      }
       emit('file-saved')
       closeDialog()
     }catch (err: any) {
@@ -326,6 +334,7 @@ height: 100%;
 
 :deep(.cm-scroller) {
 font-family: 'Fira Code', monospace;
+overflow: auto;
 }
 
 /* Dark theme overrides */

@@ -174,6 +174,8 @@ class DeleteItemRequest(BaseModel):
 class FileWrite(BaseModel):
     path: str
     content: str
+    chunk_index: int
+    total_chunks: int
     
 class DownloadRequest(BaseModel):
     path: str
