@@ -47,7 +47,7 @@ def get_defined_names(module) -> List[str]:
         for func in module.nodes_of_class(astroid.FunctionDef)
         for arg in func.args.args
     ]
-    return list(set(defined_names) - set(func_def_names))
+    return list((set(defined_names) & set(func_def_names)) | (set(defined_names) - set(func_def_names)))
 
 
 def get_loaded_modules(module, all_imports) -> List[str]:
