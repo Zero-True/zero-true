@@ -90,25 +90,6 @@
                 </v-btn>
               </template>
             </v-tooltip>
-            <v-menu
-              v-if="$devMode && !isAppRoute"
-              :close-on-content-click="false"
-            >
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  :icon="`ztIcon:${ztAliases.settings}`"
-                  v-bind="props"
-                ></v-btn>
-              </template>
-              <v-list bg-color="bluegrey-darken-4">
-                <v-list-item>
-                  <template v-slot:prepend>
-                    <v-switch v-model="reactiveMode"></v-switch>
-                  </template>
-                  <v-list-item-title>Reactive Mode</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
             <!-- <v-btn
               v-if="$devMode && !isAppRoute"
               :icon="`ztIcon:${ztAliases.message}`"
@@ -136,17 +117,19 @@
       color="bluegrey-darken-4"
       style="padding-top: 12px; padding-bottom: 12px"
     >
-      <template #append>
-        <v-list-item>
-          <CopilotComponent v-if="$devMode && !isAppRoute" />
-        </v-list-item>
+ 
         <v-list-item>
           <v-btn
             color="bluegrey-darken-4"
-            icon="mdi-folder-multiple"
-            @click="drawer = true"
+            icon="mdi-folder-multiple-outline"
+            @click="drawer = !drawer"
             class="text-bluegrey"
-          />
+          >
+          <v-icon :color="drawer ? 'primary' : 'white'">mdi-folder-multiple-outline</v-icon>
+          </v-btn>
+        </v-list-item>
+        <v-list-item>
+          <CopilotComponent v-if="$devMode && !isAppRoute" />
         </v-list-item>
         <v-list-item>
           <PackageComponent
@@ -156,7 +139,31 @@
             @updateDependencies="updateDependencies"
           />
         </v-list-item>
-      </template>
+
+        <template #append>
+        <v-menu
+              v-if="$devMode && !isAppRoute"
+              :close-on-content-click="false"
+            >
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  icon
+                  v-bind="props"
+                  color="bluegrey-darken-4"
+                >
+                  <v-icon color="white">mdi-cog</v-icon>
+                </v-btn>
+              </template>
+              <v-list bg-color="bluegrey-darken-4">
+                <v-list-item>
+                  <template v-slot:prepend>
+                    <v-switch v-model="reactiveMode"></v-switch>
+                  </template>
+                  <v-list-item-title>Reactive Mode</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+        </template>
     </v-navigation-drawer>
     <SidebarComponent
       :drawer="drawer"
@@ -168,6 +175,7 @@
       @update:drawer="updateDrawer"
       @update:items="updateItems"
       @handleFileChange="handleFileChange"
+      @close="drawer = false"
       style="padding-top: 12px; padding-bottom: 12px"
     />
     <v-main :scrollable="false" class="w-100 mx-auto">
@@ -295,6 +303,7 @@
     </v-footer>
   </v-app>
 </template>
+
 
 <script lang="ts">
 import axios from "axios";

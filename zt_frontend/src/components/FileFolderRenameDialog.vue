@@ -48,8 +48,6 @@
             @keyup.enter="saveChanges"
             autofocus
             variant="outlined"
-            color="primary"
-            bg-color="grey-darken-4"
             class="rename-input"
             persistent-placeholder
             :error-messages="errorMessage"
@@ -244,39 +242,10 @@ export default defineComponent({
 .hover-bg:hover {
   background-color: rgba(var(--v-theme-primary), 0.1);
 }
-
 .cursor-pointer {
   cursor: pointer;
 }
-
-.rename-dialog {
-  background-color: #282c34 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.bg-dark {
-  background-color: #282c34 !important;
-}
-
 .border-subtle {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Dark theme overrides */
-:deep(.v-card) {
-  background-color: #282c34;
-  color: #abb2bf;
-}
-
-:deep(.rename-input .v-field__input) {
-  color: #fff !important;
-}
-
-:deep(.v-text-field .v-field--variant-outlined) {
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-:deep(.v-text-field .v-label) {
-  color: rgba(255, 255, 255, 0.7);
 }
 </style>

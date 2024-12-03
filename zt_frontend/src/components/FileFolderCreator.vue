@@ -1,8 +1,10 @@
 <template>
   <v-btn
     color="bluegrey-darken-4"
-    icon="mdi-plus"
+    icon="mdi-folder-plus"
     @click="handleOpen"
+    size="small"
+    class="action-btn"
   />
 
   <v-dialog
@@ -37,8 +39,6 @@
           density="compact"
           class="mb-3"
           variant="outlined"
-          color="primary"
-          bg-color="grey-darken-4"
           theme="dark"
         >
           <template v-slot:prepend-inner>
@@ -56,8 +56,6 @@
           @keyup.enter="saveChanges"
           density="compact"
           variant="outlined"
-          color="primary"
-          bg-color="grey-darken-4"
           :error-messages="errorMessage"
           theme="dark"
         >
@@ -227,29 +225,9 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.creator-dialog {
-  background-color: #282c34 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.bg-dark {
-  background-color: #282c34 !important;
-}
-
-/* Dark theme overrides */
-:deep(.v-card) {
-  background-color: #282c34;
-  color: #abb2bf;
-}
-
 :deep(.v-text-field .v-field__input) {
   color: #fff !important;
 }
-
-:deep(.v-text-field .v-field--variant-outlined) {
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
 :deep(.v-text-field .v-label) {
   color: rgba(255, 255, 255, 0.7);
 }

@@ -921,8 +921,19 @@ def list_children(path: str = Query(...)):
         return {"error": "Path is not a directory"}
 
     items = list_dir(dir_path)
-    return {"files": items}
-
+    
+    # Split into folders and files
+    folders = [item for item in items if item['file'] == 'folder']
+    files = [item for item in items if item['file'] != 'folder']
+    
+    # Sort each group by title
+    folders.sort(key=lambda x: x['title'].lower())
+    files.sort(key=lambda x: x['title'].lower())
+    
+    # Combine with folders first
+    sorted_items = folders + files
+    
+    return {"files": sorted_items}
 
 @router.post("/api/add_comment")
 def add_comment(comment: request.AddCommentRequest):
