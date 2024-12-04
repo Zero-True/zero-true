@@ -67,6 +67,47 @@
           </v-btn>
         </div>
 
+        <!-- Unauthorized State -->
+        <div v-else-if="isUnauthorized" class="d-flex flex-column align-center text-center pt-2">
+          <v-icon
+            :icon="`ztIcon:${ztAliases.copilot}`"
+            color="error"
+            class="mb-4 dialog-icon"
+          ></v-icon>
+          
+          <h3 class="text-h5 mb-3 font-weight-bold text-white">
+            Unauthorized Access
+          </h3>
+          
+          <p class="text-body-2 mb-4 text-gray-400">
+            {{ signInData?.user ? `${signInData.user}, you don't have an active GitHub Copilot subscription.` : 'You don\'t have an active GitHub Copilot subscription.' }}
+          </p>
+          
+          <p class="text-body-2 mb-6 text-gray-400">
+            Please visit GitHub to manage your subscription.
+          </p>
+
+          <v-btn
+            color="primary"
+            size="large"
+            width="100%"
+            href="https://github.com/settings/copilot"
+            target="_blank"
+            class="rounded-lg text-capitalize font-weight-bold"
+          >
+            Manage Subscription
+          </v-btn>
+          
+          <v-btn
+            color="error"
+            variant="text"
+            class="mt-4"
+            @click="signOut"
+          >
+            Sign Out
+          </v-btn>
+        </div>
+
         <!-- Sign In State -->
         <div v-else-if="serverStarted && !isSignedIn" class="text-center">
           <div v-if="signInData?.verificationUri && signInData?.userCode">
@@ -178,6 +219,7 @@ const isSignedIn = ref(false);
 const isLoading = ref(false);
 const showError = ref(false);
 const errorMessage = ref('');
+const isUnauthorized = ref(false);
 const signInData = ref<{
   verificationUri?: string;
   userCode?: string;
@@ -213,9 +255,15 @@ const handleSignInResponse = (data: any) => {
   signInData.value = data;
   if (data.status === "OK" || data.status === "AlreadySignedIn") {
     isSignedIn.value = true;
+    isUnauthorized.value = false;
     globalState.copilot_active = true;
   } else if (data.status === "NotSignedIn") {
     isSignedIn.value = false;
+    isUnauthorized.value = false;
+  } else if (data.status === "NotAuthorized") {
+    isSignedIn.value = false;
+    isUnauthorized.value = true;
+    globalState.copilot_active = false;
   }
 };
 
@@ -243,8 +291,8 @@ const handleInitialStart = async () => {
   serverStarted.value = true;
   handleSignInResponse(statusResult.data);
   
-  // If not already signed in, initiate sign in
-  if (!isSignedIn.value) {
+  // If not already signed in and not unauthorized, initiate sign in
+  if (!isSignedIn.value && !isUnauthorized.value) {
     await signInInitiate();
   }
   
@@ -290,6 +338,7 @@ const signOut = async () => {
   
   if (result.success) {
     isSignedIn.value = false;
+    isUnauthorized.value = false;
     serverStarted.value = false;
     signInData.value = null;
     globalState.copilot_active = false;
