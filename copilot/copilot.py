@@ -12,10 +12,13 @@ import os
 from pathlib import Path
 import asyncio
 import traceback
+from copilot.context_extractor import MdxComponentParser
+from zt_backend.config import settings
+
 
 copilot_app = FastAPI()
 
-copilot_app.add_middleware(
+copilot_app.add_middleware( 
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=False,
@@ -27,6 +30,8 @@ copilot_app.add_middleware(
 copilot_enabled = False
 copilot_doc_open = False
 version = 0
+MDX_DIRECTORY = os.path.join(settings.zt_path, 'mintlify-docs', 'Components')
+mdx_parser = MdxComponentParser(MDX_DIRECTORY)
 
 def is_docker():
     cgroup = Path('/proc/self/cgroup')
@@ -111,12 +116,43 @@ async def sign_in_confirm(req: BlankRequest):
         return response.json()
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
 async def text_document_did_open(params: DidOpenTextDocumentParams):
     global copilot_enabled
     if copilot_enabled:
         try:
-            response = requests.post(f"{NODE_SERVER_URL}/sendNotification", json={"method": "textDocument/didOpen", "params": params.dict()})
+            # Get list of valid components
+            valid_components = set(os.path.splitext(f)[0] 
+                                for f in os.listdir(MDX_DIRECTORY) 
+                                if f.endswith('.mdx'))
+            
+            # Add strict guidelines
+            strict_guidelines = """
+            # IMPORTANT GUIDELINES FOR CODE GENERATION:
+            # 1. DO NOT create or suggest components that are not in the following list:
+            #    {}
+            # 2. Only use components exactly as shown in the examples below
+            # 3. Do not invent new component properties or behaviors
+            # 4. If a requested component is not in the list, suggest using only available components
+            """.format(', '.join(valid_components))
+            
+            # Get component context
+            component_context = mdx_parser.get_components_context()
+            
+            # Combine guidelines and context
+            full_context = strict_guidelines + "\n" + component_context
+            
+            # Prepend context to the document text
+            params.textDocument.text = full_context + "\n" + params.textDocument.text
+
+            payload = {
+                "method": "textDocument/didOpen",
+                "params": params.dict()
+            }
+            response = requests.post(
+                f"{NODE_SERVER_URL}/sendNotification",
+                json=payload
+            )
             response.raise_for_status()
             return {"message": "Notification sent successfully"}
         except requests.RequestException as e:
@@ -130,8 +166,9 @@ async def text_document_did_change(params):
     if copilot_enabled:
         try:
             params = DidChangeTextDocumentParams(**params)
+            content_change = params.contentChanges[0]
             if not copilot_doc_open:
-                open_document = TextDocumentItem(uri=params.textDocument.uri, languageId="python", version=version, text=params.contentChanges[0].text)
+                open_document = TextDocumentItem(uri=params.textDocument.uri, languageId="python", version=version, text=content_change.text)
                 open_request = DidOpenTextDocumentParams(textDocument=open_document)
                 response = await text_document_did_open(open_request)
                 copilot_doc_open = True
