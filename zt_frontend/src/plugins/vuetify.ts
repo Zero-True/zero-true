@@ -31,7 +31,9 @@ export default createVuetify({
       }
     },
     VCard: {
-      color: "bluegrey-darken-4"
+      color: "bluegrey-darken-4",
+      class: "scroll"
+      
     },
     VDivider: {
       class: 'border-opacity-100'
