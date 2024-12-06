@@ -21,6 +21,7 @@
         :viewportMargin="Infinity"
         :extensions="extensions"
         @keyup="saveCell"
+        @ready="handleReady"
       />
     </template>
     <template v-slot:outcome>
@@ -30,7 +31,7 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from "vue";
+import type { PropType, ShallowRef } from "vue";
 import { marked } from 'marked';
 import { Codemirror } from 'vue-codemirror'
 import { markdown } from '@codemirror/lang-markdown'
@@ -40,6 +41,9 @@ import { CodeCell } from "@/types/notebook";
 import AddCell from '@/components/AddCell.vue'
 import { useRoute } from 'vue-router'
 import Cell from '@/components/Cell.vue'
+import {EditorView, keymap} from "@codemirror/view";
+import {Prec} from "@codemirror/state";
+
 
 export default {
   components: {
@@ -47,12 +51,47 @@ export default {
     "cell": Cell,
     "codemirror": Codemirror,
   },
+
+  setup() {
+    const view: ShallowRef<EditorView | null> = shallowRef(null);
+    const handleReady = (payload: any) => {
+      view.value = payload.view;
+    };
+
+    return { view, handleReady };
+  },
   computed: {
     hasCellContent() {
     const hasOutput = Boolean(this.cellData.code?.trim());
     return hasOutput
   },
-    extensions() {return [markdown(), oneDark, autocompletion({ override: [] })]},
+    extensions() {
+      const keyMap = keymap.of([
+        {
+          key: 'ArrowUp',
+          run: (view) => {
+            if (view.state.selection.main.from === 0) {
+              this.$emit('navigateToCell', this.cellData.id, 'up');
+              return true;
+            }
+            return false;
+          },
+        },
+        {
+          key: 'ArrowDown',
+          run: (view) => {
+            if (view.state.selection.main.to === view.state.doc.length) {
+              this.$emit('navigateToCell', this.cellData.id, 'down');
+              return true;
+            }
+            return false;
+          },
+        }
+      ]);
+      
+    return [Prec.highest(keyMap),markdown(), oneDark, autocompletion({ override: [] })]
+    
+    },
 
     compiledMarkdown() {
       const pasrsed_markdown = marked.parse(this.cellData.code,)
@@ -78,7 +117,7 @@ export default {
     };
   },
   inheritAttrs: false,
-  emits: ['saveCell', 'deleteCell', 'createCell'],
+  emits: ['saveCell', 'deleteCell', 'createCell','navigateToCell'],
   props: {
     cellData: {
       type: Object as PropType<CodeCell>,
@@ -95,7 +134,10 @@ export default {
     },
     createCell(cellType: string){
       this.$emit("createCell", this.cellData.id, cellType);
-    }
+    },
+    getEditorView() {
+      return this.view || null;
+    },
   },
 };
 </script>

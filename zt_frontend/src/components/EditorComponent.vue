@@ -14,7 +14,7 @@
       <tiny-editor
         v-if="$devMode && !isAppRoute && !isMobile"
         v-model="cellData.code"
-        :init="init"
+        :init="editorConfig"
         @keyUp="saveCell"
       />
     </template>
@@ -55,7 +55,7 @@ export default {
     },
   },
   inheritAttrs: false,
-  emits: ["saveCell", "deleteCell", "createCell"],
+  emits: ["saveCell", "deleteCell", "createCell", 'navigateToCell'],
   data() {
     return {
       init: {
@@ -97,6 +97,7 @@ export default {
         { title: "Markdown" },
         { title: "Text" },
       ],
+      editor: null,
     };
   },
   computed: {
@@ -107,8 +108,37 @@ export default {
     isMobile() {
       return this.$vuetify.display.mobile;
     },
+    editorConfig() {
+      return {
+        ...this.init,
+        setup: (editor: any) => {
+          // Store editor reference on setup
+          this.editor = editor;
+          editor.on('init', () => {
+            this.handleEditorInit(editor);
+          });
+
+          editor.on('keydown', (e: any) => {
+            if (e.keyCode === 38) { // Up arrow
+              const isAtStart = this.isCursorAtStart(editor);
+              if (isAtStart) {
+                e.preventDefault();
+                this.$emit('navigateToCell', this.cellData.id, 'up');
+              }
+            }
+
+            if (e.keyCode === 40) { // Down arrow
+              const isAtEnd = this.isCursorAtEnd(editor);
+              if (isAtEnd) {
+                e.preventDefault();
+                this.$emit('navigateToCell', this.cellData.id, 'down');
+              }
+            }
+          });
+        }
+      };
+    }
   },
-  mounted() {},
   methods: {
     saveCell() {
       if (!this.$devMode) return;
@@ -120,9 +150,29 @@ export default {
     createCell(cellType: string) {
       this.$emit("createCell", this.cellData.id, cellType);
     },
+    handleEditorInit(editor: any) {
+      this.editor = editor;
+    },
+    isCursorAtStart(editor: any): boolean {
+      const selection = editor.selection;
+      const rng = selection.getRng(true);
+      return rng.startOffset === 0 && rng.startContainer.parentNode === editor.getBody().firstChild;
+    },
+    isCursorAtEnd(editor: any): boolean {
+    const selection = editor.selection;
+    const rng = selection.getRng(true);
+    const isAtEnd = rng.startOffset === rng.endContainer.length;
+    // Additionally check if the cursor is in the last node
+    const lastNode = editor.getBody().lastChild;
+    return isAtEnd && rng.endContainer.parentNode === lastNode;
   },
+      getEditorView() {
+        return this.editor;
+      },
+    },
 };
 </script>
+
 <style>
 .tox .tox-toolbar,
 .tox .tox-toolbar__primary,
