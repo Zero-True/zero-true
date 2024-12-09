@@ -20,6 +20,7 @@ class TextArea(ZTComponent):
     disabled: Optional[bool] = Field(
         False, description="If true, the input is disabled"
     )
+    style: Optional[str] = Field("", description="CSS style to apply to the component")
     triggerEvent: str = Field(
         None, description="Trigger event to send code to the backend"
     )

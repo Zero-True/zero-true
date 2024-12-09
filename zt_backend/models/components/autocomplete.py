@@ -35,6 +35,7 @@ class Autocomplete(ZTComponent):
         pre=True,
         description="Color of the autocomplete component. Can be custom or standard Material color",
     )
+    style: Optional[str] = Field("", description="CSS style to apply to the component")
     triggerEvent: str = Field(
         "update:modelValue",
         description="Trigger event for when to run based on the selected value",
