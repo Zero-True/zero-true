@@ -23,22 +23,43 @@ notebook_state = NotebookState()
 
 import textwrap
 def parse_function(code_str):
-    lines = code_str.strip().split('\n')
+    lines = code_str.strip('\n').split('\n')
+    
+    # Find the definition lines (def line may span multiple lines until we hit a closing ')')
+    def_lines = []
+    found_def = False
+    for line in lines:
+        if not found_def and line.strip().startswith('def '):
+            found_def = True
+        if found_def:
+            def_lines.append(line)
+            if ')' in line:
+                break
+    
+    # Combine definition lines and find first '(' and last ')'
+    combined = ' '.join(def_lines)
+    start = combined.find('(')
+    end = combined.rfind(')')
+    
+    # Extract and parse arguments
+    arg_str = combined[start+1:end].strip()
+    args_dict = {}
+    if arg_str:
+        for arg in arg_str.split(','):
+            name, val = arg.strip().split('=')
+            args_dict[name.strip()] = val.strip()
+    
+    # Find where definition ended and body begins
+    def_end_line = 0
     for i, line in enumerate(lines):
-        line = line.strip()
-        if line.startswith('def '):
-            # Extract args substring between '(' and ')'
-            arg_str = line[line.index('(')+1 : line.index(')')].strip()
-            args_dict = {}
-            if arg_str:
-                for arg in arg_str.split(','):
-                    name, val = arg.strip().split('=')
-                    args_dict[name.strip()] = val.strip()
-            
-            # Dedent the body lines
-            body = textwrap.dedent('\n'.join(lines[i+1:]))
-            return args_dict, body
-    return {}, ""
+        if line in def_lines and ')' in line:
+            def_end_line = i + 1
+            break
+    
+    # Dedent the body
+    body = textwrap.dedent('\n'.join(lines[def_end_line:]))
+
+    return args_dict, body
 
 def parse_notebook_file(notebook_path):
     """
