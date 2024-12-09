@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.2](https://github.com/Zero-True/zero-true/compare/v0.5.1...v0.5.2) (2024-12-09)
+
+
+### Bug Fixes
+
+* Restore deleted publish code ([#387](https://github.com/Zero-True/zero-true/issues/387)) ([24f371d](https://github.com/Zero-True/zero-true/commit/24f371de547b5866352f22725682888138e6d63c))
+
 ## [0.5.1](https://github.com/Zero-True/zero-true/compare/v0.5.0...v0.5.1) (2024-12-09)
 
 
