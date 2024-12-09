@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/Zero-True/zero-true/compare/v0.5.0...v0.5.1) (2024-12-09)
+
+
+### Bug Fixes
+
+* Add style attribute to all relevant components ([#384](https://github.com/Zero-True/zero-true/issues/384)) ([68f42f7](https://github.com/Zero-True/zero-true/commit/68f42f7eb76ef58b9e1263e793b2490a58fd4f9e))
+
 ## [0.5.0](https://github.com/Zero-True/zero-true/compare/v0.4.9...v0.5.0) (2024-11-25)
 
 
