@@ -25,3 +25,4 @@ class Card(ZTComponent):
         description="Density of the component",
     )
     width: Optional[Union[int, str]] = Field("100%", description="Width of the card")
+    style: Optional[str] = Field("", description="CSS style to apply to the component")

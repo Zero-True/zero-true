@@ -10,6 +10,7 @@ class Image(ZTComponent):
     component: str = Field("v-img", description="Vue component name")
     src: str = Field(..., description="Source URL or Path of the image")
     alt: str = Field("", description="Alternative text for the image")
+    style: str = Field("", description="CSS style to apply to the component")
     width: Union[int, str] = Field("100%", description="Width of the image")
     height: Union[int, str] = Field("100%", description="Height of the image")
 

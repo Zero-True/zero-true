@@ -37,6 +37,7 @@ class SelectBox(ZTComponent):
         pre=True,
         description="Color of the range slider. Can be custom or standard Material color",
     )
+    style: Optional[str] = Field("", description="CSS style to apply to the component")
     triggerEvent: str = Field(
         "update:modelValue", description="Trigger event for when to trigger a run"
     )

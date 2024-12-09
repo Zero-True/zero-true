@@ -42,6 +42,7 @@ class Rating(ZTComponent):
         None, description="Array of labels to display next to each item"
     )
     ripple: bool = Field(False, description="Applies the v-ripple directive")
+    style: Optional[str] = Field("", description="CSS style to apply to the component")
     triggerEvent: str = Field(
         "update:modelValue", description="Trigger event for when to run the rating"
     )

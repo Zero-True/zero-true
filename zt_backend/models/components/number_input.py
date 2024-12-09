@@ -25,6 +25,7 @@ class NumberInput(ZTComponent):
     step: Optional[Union[int, float]] = Field(
         1, description="The number to increment or decrement by"
     )
+    style: Optional[str] = Field("", description="CSS style to apply to the component")
     triggerEvent: str = Field(
         None, description="Trigger event to send code to the backend"
     )
