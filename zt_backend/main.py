@@ -45,6 +45,7 @@ def open_project():
         except Exception as e:
             logger.error("Unexpected error with matplotlib configuration: %s", e)
         notebook_path = Path(settings.zt_path) / "notebook.ztnb"
+        notebook_path = Path(settings.zt_path) / "notebook.py"
         if not notebook_path.exists():
             logger.info("No notebook file found, creating with empty notebook")
             write_notebook()
