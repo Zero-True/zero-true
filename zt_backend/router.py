@@ -518,14 +518,69 @@ def share_notebook(shareRequest: request.ShareRequest):
             response_json = response.json()
             signed_url = response_json.get("uploadURL")
             if not signed_url:
-                return {"Error": "Failed to get signed URL"}
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Failed to get a signed URL",
+                )
 
-            output_filename = f"{project_name}"
-            project_source = os.path.normpath(os.getcwd())
-            logger.info(project_source)
-            shutil.make_archive(
-                base_name=output_filename, format="gztar", root_dir=project_source
+            python_warning = response_json.get("pythonWarning", None)
+            zt_warning = response_json.get("ztWarning", None)
+            warning_message = ""
+            if python_warning:
+                warning_message += python_warning
+                if zt_warning:
+                    warning_message += "\n" + zt_warning
+                warning_message += "\nWe recommend upgrading your versions before continuing. If you would like to continue, select confirm."
+                upload_state.signed_url = signed_url
+                return {"warning": warning_message}
+            if zt_warning:
+                warning_message += zt_warning
+                warning_message += (
+                    "\nWe recommend upgrading your versions before continuing"
+                )
+                upload_state.signed_url = signed_url
+                return {"warning": warning_message}
+
+            publish_files(project_name, signed_url)
+
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logger.error("Error submitting share request: %s", str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error submitting share request",
+        )
+
+
+@router.post("/api/confirm_share")
+def confirm_share(shareRequest: request.ShareRequest):
+    if app_state.run_mode == "dev":
+        if upload_state.signed_url:
+            try:
+                publish_files(
+                    shareRequest.projectName.lower().strip(), upload_state.signed_url
+                )
+                upload_state.signed_url = None
+            except Exception as e:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Error submitting share request",
+                )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="No active signed URL"
             )
+
+
+def publish_files(project_name, signed_url):
+    try:
+        output_filename = Path(settings.zt_path) / f"{project_name}.tar.gz"
+        tar_base = str(Path(settings.zt_path) / project_name)
+
+        shutil.make_archive(
+            base_name=tar_base, format="gztar", root_dir=settings.zt_path
+        )
 
         with output_filename.open("rb") as file:
             upload_files = {"file": file}
@@ -540,7 +595,7 @@ def share_notebook(shareRequest: request.ShareRequest):
                     upload_response.json().get("Message", "Failed to upload files"),
                 )
             }
-
+        
         try:
             output_filename.unlink()
         except OSError as e:
