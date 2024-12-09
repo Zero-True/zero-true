@@ -1,3 +1,4 @@
+
 <template>
   <div class="file-tree-node">
     <div 
@@ -11,7 +12,7 @@
       @click.stop="handleClick"
     >
       <div class="node-content">
-        <v-icon v-if="item.file === 'folder'" class="folder-toggle-icon" @click.stop="toggleExpand">
+        <v-icon v-if="item.file === 'folder'" class="folder-toggle-icon">
           {{ isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right' }}
         </v-icon>
         <v-icon class="file-icon">
@@ -119,6 +120,9 @@ export default defineComponent({
     const handleClick = () => {
       isActive.value = true;
       emit('item-click', props.item);
+      if (props.item.file === 'folder') {
+        toggleExpand();
+      }
     };
 
     const handleChildClick = (childItem: any) => {
@@ -158,7 +162,6 @@ export default defineComponent({
   }
 });
 </script>
-
 
 <style scoped>
 .file-tree-node {
@@ -206,7 +209,7 @@ export default defineComponent({
 
 .file-name {
   font-family: 'Pathway Extreme', sans-serif;
-  font-size: 12px;
+  font-size: 12.5px;
   color: #B0BEC5;
   white-space: nowrap;
   overflow: hidden;
