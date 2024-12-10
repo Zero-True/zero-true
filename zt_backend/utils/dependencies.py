@@ -51,7 +51,7 @@ def write_dependencies(dependencies: notebook.Dependencies):
         for dependency in dependencies.dependencies:
             if dependency.package and dependency.version:
                 file.write(f"{dependency.package}{dependency.version}\n")
-            else:
+            elif dependency.package:
                 try:
                     version = pkg_resources.get_distribution(dependency.package).version
                     file.write(f"{dependency.package}=={version}\n")
