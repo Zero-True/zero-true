@@ -8,6 +8,7 @@ import pkg_resources
 import re
 from pathlib import Path
 from zt_backend.config import settings
+import sys
 
 logger = logging.getLogger("__name__")
 
@@ -48,8 +49,14 @@ def write_dependencies(dependencies: notebook.Dependencies):
     requirements_path = Path(settings.zt_path) / "requirements.txt"
     with requirements_path.open("w", encoding="utf-8") as file:
         for dependency in dependencies.dependencies:
-            if dependency.package:
+            if dependency.package and dependency.version:
                 file.write(f"{dependency.package}{dependency.version}\n")
+            elif dependency.package:
+                try:
+                    version = pkg_resources.get_distribution(dependency.package).version
+                    file.write(f"{dependency.package}=={version}\n")
+                except pkg_resources.DistributionNotFound:
+                    file.write(f"{dependency.package}\n")
 
 
 async def dependency_update(
@@ -58,13 +65,14 @@ async def dependency_update(
     try:
         write_dependencies(dependency_request.dependencies)
         requirements_path = Path(settings.zt_path) / "requirements.txt"
-        command = ["pip", "install", "-r", str(requirements_path)]
+        command = [sys.executable, "-m", "pip", "install", "-r", str(requirements_path)]
         with subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
         ) as process:
             for line in process.stdout:
                 await websocket.send_json({"output": line})
             process.stdout.close()
+        write_dependencies(dependency_request.dependencies)
         return parse_dependencies()
     except Exception as e:
         logger.error("Error updating dependencies: %s", traceback.format_exc())
