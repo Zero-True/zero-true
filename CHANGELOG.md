@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.3](https://github.com/Zero-True/zero-true/compare/v0.5.2...v0.5.3) (2024-12-10)
+
+
+### Bug Fixes
+
+* Free versions and proper environment installs ([#389](https://github.com/Zero-True/zero-true/issues/389)) ([6729dd2](https://github.com/Zero-True/zero-true/commit/6729dd2a6e2109bd40d3ac8464622f1c95b44889))
+
 ## [0.5.2](https://github.com/Zero-True/zero-true/compare/v0.5.1...v0.5.2) (2024-12-09)
 
 
