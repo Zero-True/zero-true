@@ -40,7 +40,7 @@ app.add_middleware(
 def open_project():
     try:
         matplotlib.use("Agg")
-        notebook_path = Path(settings.zt_path) / "notebook.py"
+        notebook_path = Path(settings.zt_path) / "notebook.ztnb"
         if not notebook_path.exists():
             logger.info("No notebook file found, creating with empty notebook")
             write_notebook()
