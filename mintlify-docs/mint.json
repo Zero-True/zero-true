@@ -21,21 +21,10 @@
     "name": "Home",
     "url": "https://zero-true.mintlify.app/introduction"
   },
-  "tabs": [
-    {
-      "name": "Components",
-      "url": "Components"
-    }
-  ],
   "anchors": [
     {
       "name": "Website",
       "icon": "globe",
-      "url": "https://www.zero-true-cloud.com"
-    },
-    {
-      "name": "Dashboard",
-      "icon": "browser",
       "url": "https://www.zero-true-cloud.com"
     },
     {
@@ -53,9 +42,14 @@
     {
       "group": "Get Started",
       "pages": [
+        "introduction",
+        "installation",
         "quickstart",
-        "blogs/What is zero-true",
-        "blogs/UI Components in zero-true",
+        "execution_model",
+        "ui_components",
+        "app_mode"]},
+      {"group": "UI Examples/Tutorials",
+        "pages":["blogs/What is zero-true",
         "blogs/State in zero-true",
         "blogs/User State in zero-true",
         "blogs/Buttons in zero-true",
@@ -72,12 +66,12 @@
         "cells",
         "layout",
         "publishing"
-      ]
-    },
-    {
+      ]}
+    ,
+    {"group": "API Reference", 
+    "pages": [{
         "group": "API reference",
         "pages": [
-        "Components/Introduction",
         "Components/Slider",
         "Components/Rating",
         "Components/Image",
@@ -97,7 +91,7 @@
         "Components/iFrame",
         "Components/HTML"
       ]
-    }
+    }]}
   ],
   "footerSocials": {
     "github": "https://github.com/Zero-True/zero-true",
