@@ -27,13 +27,13 @@
     </div>  
 
     <div class="section-header d-flex align-center px-4">
-      <div class="section-title">Files</div>
+      <div class="section-title">File Explorer</div>
       <v-spacer></v-spacer>
       <div class="section-actions">
         <FileFolderCreator :current-path="currentPath" @item-created="refreshFiles" />
         <FileUploader :current-path="currentPath" @file-uploaded="refreshFiles" />
         <v-btn
-          color="bluegrey-darken-4"
+          color="transparent"
           icon="mdi-refresh"
           @click="refreshFiles"
           size="small"
@@ -144,26 +144,33 @@ export default defineComponent({
       });
     });
 
-    const loadFiles = async (path: string) => {
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}api/get_children`,
-          { params: { path } }
-        );
+    const loadRootFolder = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}api/get_files`
+      );
+      if (response.data.files && response.data.files[0]) {
+        // Set root folder structure
         localItems.value = response.data.files;
-        emit("update:items", response.data.files);
-      } catch (error) {
-        console.error("Failed to load files:", error);
+        if (localItems.value[0].file === 'folder') {
+        localItems.value[0].isExpanded = true;
       }
-    };
+      }
+      emit("update:items", localItems.value);
+    } catch (error) {
+      console.error("Failed to load root folder:", error);
+      errorMessage.value = "Failed to load files";
+      showError.value = true;
+    }
+  };
 
-    onMounted(() => {
-      loadFiles(currentPath.value);
-    });
+  onMounted(() => {
+    loadRootFolder(); // Load root folder structure initially
+  });
 
-    const refreshFiles = () => {
-      loadFiles(currentPath.value);
-    };
+  const refreshFiles = () => {
+    loadRootFolder(); // Refresh from root
+  };
 
     return {
       localDrawer,

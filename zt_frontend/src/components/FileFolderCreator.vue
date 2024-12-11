@@ -1,11 +1,22 @@
 <template>
-  <v-btn
-    color="bluegrey-darken-4"
-    icon="mdi-folder-plus"
+  <v-btn 
+    v-if="variant === 'icon'"
+    icon="mdi-folder-plus-outline"
     @click="handleOpen"
     size="small"
     class="action-btn"
+    color="transparent"
   />
+
+  <v-list-item-title
+    v-else
+    @click="handleOpen"
+    class="d-flex align-center cursor-pointer hover-bg pa-2 rounded"
+  >
+    <v-icon size="small" class="mr-2">mdi-folder-plus-outline</v-icon>
+    Add Item
+  </v-list-item-title>
+
 
   <v-dialog
     v-model="dialog"
@@ -122,7 +133,12 @@ export default defineComponent({
     currentPath: {
       type: String,
       required: true
-    }
+    },
+    variant: {
+    type: String,
+    default: 'icon',
+    validator: (value: string) => ['icon', 'text'].includes(value)
+  }
   },
   emits: ['item-created'],
 

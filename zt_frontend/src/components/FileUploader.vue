@@ -11,7 +11,7 @@
       <v-btn
         v-bind="props"
         icon="mdi-tray-arrow-up"
-        color="bluegrey-darken-4"
+        color="transparent"
         @click="openDialog"
         size="small"
         class="action-btn"
