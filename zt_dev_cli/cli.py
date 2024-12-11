@@ -73,6 +73,7 @@ def app(
         "zt_backend.main:app",
         "--ws-max-size=209715200",
         "--reload",
+        "--reload-exclude notebook.py",
         f"--log-config={log_path}",
     ]
     if os.name == "nt":
