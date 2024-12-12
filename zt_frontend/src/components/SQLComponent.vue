@@ -163,7 +163,6 @@ export default {
         return [
           Prec.highest(keyMap),
           sql(),
-          oneDark,
           autocompletion({ override: [] }),
         ];
       }
@@ -171,7 +170,6 @@ export default {
         EditorState.readOnly.of(true),
         Prec.highest(keyMap),
         sql(),
-        oneDark,
         autocompletion({ override: [] }),
       ];
     },

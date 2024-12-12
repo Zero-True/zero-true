@@ -418,7 +418,6 @@ export default {
           Prec.highest(keyMap),
           python(),
           indentUnit.of("    "),
-          oneDark,
           inlineSuggestion({ fetchFn: fetchSuggestion, delay: 400 }),
           autocompletion({ override: [customCompletionSource] }),
           customLinter,
@@ -428,7 +427,6 @@ export default {
         EditorState.readOnly.of(true),
         Prec.highest(keyMap),
         python(),
-        oneDark,
       ];
     },
 

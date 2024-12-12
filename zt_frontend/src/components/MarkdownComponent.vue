@@ -92,7 +92,7 @@ export default {
         }
       ]);
       
-    return [Prec.highest(keyMap),markdown(), oneDark, autocompletion({ override: [] })]
+    return [Prec.highest(keyMap),markdown(), autocompletion({ override: [] })]
     
     },
 
