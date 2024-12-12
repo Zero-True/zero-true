@@ -57,35 +57,16 @@ export default createVuetify({
     }
   },
   theme: {
-    defaultTheme: "dark",
+    defaultTheme: "light",
     themes: {
       dark: {
         dark: true,
         colors: {
           background: '#0d1316',
-          primary: "#ae9ee8",
-          secondary: "#424242",
+          primary: '#ae9ee8',
+          secondary: '#424242',
           surface: '#1B2F3C', 
-          bluegrey: "#5F7F93",
-          'bluegrey-darken-1': '#3A586B',
-          'bluegrey-darken-2': '#294455',
-          'bluegrey-darken-3': '#1B2F3C', 
-          'bluegrey-darken-4': '#0E1B23',
-          accent: "#FFDCA7",
-          error: "#FF6F6F",
-          info: "#4CBCFC",
-          success: "#16B48E",
-          warning: "#F49E6E",
-          white: '#E7E8E9'
-        },
-      },
-      light: {
-        colors: {
-          background: '#E7E8E9',
-          primary: '#AE9FE8',
-          secondary: '#5F7F93',
-          surface: '#FFFFFF',
-          bluegrey: "#5F7F93",
+          bluegrey: '#5F7F93',
           'bluegrey-darken-1': '#3A586B',
           'bluegrey-darken-2': '#294455',
           'bluegrey-darken-3': '#1B2F3C', 
@@ -96,6 +77,29 @@ export default createVuetify({
           success: '#16B48E',
           warning: '#F49E6E',
           white: '#E7E8E9'
+        },
+      },
+      light: {
+        dark: false,
+        colors: {
+          background: '#F5F5F5',
+          primary: '#7E57C2',
+          secondary: '#607D8B',
+          surface: '#FFFFFF',
+
+          // Updated neutrals (previously bluegrey):
+          bluegrey: '#ECECEC',
+          'bluegrey-darken-1': '#FFFFFF',
+          'bluegrey-darken-2': '#FFFFFF',
+          'bluegrey-darken-3': '#FFFFFF',
+          'bluegrey-darken-4': '#FFFFFF',
+
+          accent: '#FFDCA7',
+          error: '#FF5252',
+          info: '#2196F3',
+          success: '#4CAF50',
+          warning: '#FB8C00',
+          white: '#FFFFFF'
         }
       }
     },

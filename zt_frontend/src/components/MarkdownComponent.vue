@@ -52,7 +52,7 @@ export default {
     const hasOutput = Boolean(this.cellData.code?.trim());
     return hasOutput
   },
-    extensions() {return [markdown(), oneDark, autocompletion({ override: [] })]},
+    extensions() {return [markdown(), autocompletion({ override: [] })]},
 
     compiledMarkdown() {
       const pasrsed_markdown = marked.parse(this.cellData.code,)

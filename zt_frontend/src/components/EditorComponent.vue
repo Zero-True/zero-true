@@ -70,7 +70,7 @@ export default {
         font_formats:
           "Roboto=Roboto, sans-serif;Arial=arial,helvetica,sans-serif;Courier New=courier new,courier,monospace;",
         content_style:
-          "body { background-color: #1B2F3C; color: #FFFFFF; font-family: 'Roboto', sans-serif; }",
+          "body { background-color: #FFFFFF; color: #1B2F3C; font-family: 'Roboto', sans-serif; }",
         autoresize_bottom_margin: 10,
         min_height: 100,
         license_key: "gpl",
@@ -86,7 +86,7 @@ export default {
         font_formats:
           "Roboto=Roboto, sans-serif;Arial=arial,helvetica,sans-serif;Courier New=courier new,courier,monospace;",
         content_style:
-          "body { background-color: #0E1B23; color: #FFFFFF; font-family: 'Roboto', sans-serif; }",
+          "body { background-color: #FFFFFF; color: #1B2F3C; font-family: 'Roboto', sans-serif; }",
         min_height: 0,
         autoresize_bottom_margin: 0,
         license_key: "gpl",
@@ -127,7 +127,7 @@ export default {
 .tox .tox-toolbar,
 .tox .tox-toolbar__primary,
 .tox .tox-toolbar__overflow {
-  background-color: #0e1b23 !important;
+  background-color: #FFFFFF !important;
 }
 .tox-tinymce {
   border: none !important;

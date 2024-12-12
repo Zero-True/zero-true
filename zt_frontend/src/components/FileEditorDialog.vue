@@ -273,7 +273,6 @@ setup(props, { emit }) {
   const extensions = computed(() => [
     getLanguageExtension(props.fileName),
     indentUnit.of("    "),
-    oneDark,
     EditorView.theme({
       "&": {
         fontSize: "14px",
