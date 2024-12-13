@@ -154,17 +154,25 @@ export default {
       this.editor = editor;
     },
     isCursorAtStart(editor: any): boolean {
-      const selection = editor.selection;
-      const rng = selection.getRng(true);
-      return rng.startOffset === 0 && rng.startContainer.parentNode === editor.getBody().firstChild;
-    },
-    isCursorAtEnd(editor: any): boolean {
     const selection = editor.selection;
     const rng = selection.getRng(true);
-    const isAtEnd = rng.startOffset === rng.endContainer.length;
-    // Additionally check if the cursor is in the last node
+    const isAtStart = rng.startOffset === 0 && rng.startContainer === editor.getBody().firstChild;
+    return isAtStart;
+  },
+  isCursorAtEnd(editor: any): boolean {
+    const selection = editor.selection;
+    const rng = selection.getRng(true);
     const lastNode = editor.getBody().lastChild;
-    return isAtEnd && rng.endContainer.parentNode === lastNode;
+    let isAtEnd = false;
+
+    if (rng.endContainer.nodeType === Node.TEXT_NODE) {
+      isAtEnd = rng.startOffset === rng.endContainer.length;
+    } else {
+      isAtEnd = rng.endContainer === lastNode && rng.startOffset === 0;
+    }
+
+    const isCursorAtEnd = isAtEnd && rng.endContainer === lastNode;
+    return isCursorAtEnd;
   },
       getEditorView() {
         return this.editor;
