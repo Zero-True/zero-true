@@ -241,18 +241,35 @@ export default defineComponent({
 };
    
 const scrollOnDrag = (event: DragEvent) => {
-      const scrollMargin = 50; // Margin in pixels to start scrolling
-      const scrollSpeed = 20; // Speed of scrolling
+  const scrollMargin = 50; // Margin to start scrolling
+  const scrollSpeed = 10; // Pixels per scroll step
 
-      const { clientY } = event;
-      const { innerHeight } = window;
+  // Detect the scrollable container (or default to window)
+  const container = document.querySelector('.scrollable-container') || window;
 
-      if (clientY < scrollMargin) {
-        window.scrollBy(0, -scrollSpeed);
-      } else if (clientY > innerHeight - scrollMargin) {
-        window.scrollBy(0, scrollSpeed);
-      }
-    };
+  if (container === window) {
+    const { clientY } = event;
+    const { innerHeight } = window;
+
+    // Scroll window
+    if (clientY < scrollMargin) {
+      window.scrollBy(0, -scrollSpeed);
+    } else if (clientY > innerHeight - scrollMargin) {
+      window.scrollBy(0, scrollSpeed);
+    }
+  } else if (container instanceof HTMLElement) {
+    const { top, bottom } = container.getBoundingClientRect();
+    const { clientY } = event;
+
+    // Scroll the container
+    if (clientY < top + scrollMargin) {
+      container.scrollTop -= scrollSpeed;
+    } else if (clientY > bottom - scrollMargin) {
+      container.scrollTop += scrollSpeed;
+    }
+  }
+};
+
 
     const handleDragOver = (event: DragEvent) => {
   event.preventDefault();
@@ -268,6 +285,7 @@ const handleDrop = async (event: DragEvent) => {
   event.preventDefault();
   event.stopPropagation();
   isDragOver.value = false;
+  isExpanded.value = true;
 
   try {
     const dragData = JSON.parse(event.dataTransfer?.getData('text/plain') || '{}');
@@ -326,8 +344,9 @@ const handleDrop = async (event: DragEvent) => {
       }
     };
 
-    const handleDragLeave = () => {
+    const handleDragLeave = (event: DragEvent) => {
       isDragOver.value = false;
+      scrollOnDrag(event);
     };
 
     const handleDragEnd = () => {
@@ -514,13 +533,13 @@ const handleDrop = async (event: DragEvent) => {
 .node-item.dragging {
   opacity: 0.5;
 }
-
-.node-item.drag-over {
-  background-color: rgba(98, 114, 164, 0.2);
-  border: 1px dashed #FFFFFF;
-}
-
 .node-item.drag-target {
   background-color: rgba(98, 114, 164, 0.1);
 }
+.scrollable-container {
+  overflow-y: auto;
+  max-height: 100vh; /* Adjust based on your layout */
+  position: relative;
+}
+
 </style>

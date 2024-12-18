@@ -38,7 +38,7 @@
             class="click-edit__edit-field"
             @keydown.enter="saveProjectName"
             @update:focused="
-              (focused) => {
+              (focused:any) => {
                 if (!focused) saveProjectName();
               }
             "

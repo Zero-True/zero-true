@@ -52,7 +52,7 @@
               class="click-edit__edit-field"
               @keydown.enter="saveCellName"
               @update:focused="
-                (focused) => {
+                (focused:any) => {
                   if (!focused) saveCellName();
                 }
               "
