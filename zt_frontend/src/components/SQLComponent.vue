@@ -148,6 +148,16 @@ export default {
         return false;
       },
     },
+    {
+          key: 'ArrowDown',
+          run: (view) => {
+            if (view.state.selection.main.to === view.state.doc.length) {
+              this.$emit('navigateToCell', this.cellData.id, 'down');
+              return true;
+            }
+            return false;
+          },
+        }
       ]);
       if (this.$devMode && !this.isAppRoute) {
         return [
