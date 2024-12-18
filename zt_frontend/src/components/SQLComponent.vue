@@ -12,6 +12,7 @@
     :currentlyExecutingCell="currentlyExecutingCell"
     :isCodeRunning="isCodeRunning"
     :is-dev-mode="$devMode && !isAppRoute && !isMobile"
+    :is-focused="isFocused"
     @play="runCode" 
     @delete="deleteCell"
     @expandCodeUpdate="e => expandCodeUpdate(e)"
@@ -63,6 +64,8 @@
         :extensions="extensions"
         @keyup="saveCell"
         @ready="handleReady"
+        @focus="onEditorFocus"
+        @blur="onEditorBlur"
       />
     </template>
     <template v-slot:outcome>
@@ -140,16 +143,6 @@ export default {
       run: (view) => {
         if (view.state.selection.main.from === 0) {
           this.$emit('navigateToCell', this.cellData.id, 'up');
-          return true;
-        }
-        return false;
-      },
-    },
-    {
-      key: 'ArrowDown', 
-      run: (view) => {
-        if (view.state.selection.main.to === view.state.doc.length) {
-          this.$emit('navigateToCell', this.cellData.id, 'down');
           return true;
         }
         return false;
@@ -243,6 +236,12 @@ export default {
     getEditorView() {
       return this.view || null;
     },
+    onEditorFocus() {
+    this.isFocused = true;
+  },
+  onEditorBlur() {
+    this.isFocused = false;
+  },
   },
 };
 </script>

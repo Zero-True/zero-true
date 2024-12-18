@@ -6,16 +6,18 @@
     :hide-cell="(cellData.hideCell as boolean)"
     :cell-name="(cellData.cellName as string)"
     :cell-has-output="true"
+    :is-focused="isFocused"
     @save="saveCell"
     @delete="deleteCell"
-    @addCell="(e) => createCell(e)"
-  >
+    @addCell="(e) => createCell(e)"  >
     <template v-slot:code>
       <tiny-editor
         v-if="$devMode && !isAppRoute && !isMobile"
         v-model="cellData.code"
         :init="editorConfig"
         @keyUp="saveCell"
+        @focus="onEditorFocus"
+        @blur="onEditorBlur"
       />
     </template>
     <template v-slot:outcome v-if="($devMode && isAppRoute) || !$devMode">
@@ -98,6 +100,7 @@ export default {
         { title: "Text" },
       ],
       editor: null,
+      isFocused: false,
     };
   },
   computed: {
@@ -264,6 +267,18 @@ isCursorAtEnd(editor: any): boolean {
       }
     });
   },
+  handleFocus(focus: boolean) {
+      console.log('EditorComponent handleFocus:', focus);
+      this.isFocused = focus;
+    },
+    onEditorFocus() {
+      console.log('TinyMCE editor focused');
+      this.handleFocus(true);
+    },
+    onEditorBlur() {
+      console.log('TinyMCE editor blurred');
+      this.handleFocus(false);
+    }
     },
 };
 </script>

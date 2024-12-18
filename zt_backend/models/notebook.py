@@ -78,6 +78,7 @@ class Notebook(BaseModel):
     notebookId: str = Field(default=str(uuid4()))  # Added notebook UUID
     cells: OrderedDict[str, CodeCell]
     userId: str
+    wideMode: bool = Field(False)
 
 
 class Dependency(BaseModel):

@@ -78,7 +78,6 @@ def app(
     if os.name == "nt":
         backend_cmd = ["start"] + backend_cmd
 
-    os.environ["LOCAL_URL"] = f"http://localhost:{port}"
 
     backend_process = subprocess.Popen(backend_cmd, shell=(os.name == "nt"))
     os.chdir("zt_frontend")
@@ -110,7 +109,6 @@ def notebook(
     if os.name == "nt":
         backend_cmd = ["start"] + backend_cmd
 
-    os.environ["LOCAL_URL"] = f"http://localhost:{port}"
 
     backend_process = subprocess.Popen(backend_cmd, shell=(os.name == "nt"))
     os.chdir("zt_frontend")

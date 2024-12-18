@@ -11,7 +11,6 @@ class NumberInput(ZTComponent):
     hint: Optional[str] = Field(
         "Press Enter to Submit", description="Hint text for the number input"
     )
-    value: Union[int, float, None] = Field(0, description="The input number value")
     label: Optional[str] = Field("", description="Label for the number input")
     readonly: Optional[bool] = Field(
         False, description="If true, the input is read-only"
@@ -26,6 +25,7 @@ class NumberInput(ZTComponent):
         1, description="The number to increment or decrement by"
     )
     style: Optional[str] = Field("", description="CSS style to apply to the component")
+    value: Union[int, float, None] = Field(0, description="The input number value")
     triggerEvent: str = Field(
         None, description="Trigger event to send code to the backend"
     )
@@ -40,9 +40,12 @@ class NumberInput(ZTComponent):
             if (
                 execution_state and id and id in execution_state.component_values
             ):  # Check if id exists in global_state
-                return execution_state.component_values[
-                    id
-                ]  # Return the value associated with id in global_state
+                stored_value = execution_state.component_values[id]
+                if isinstance(stored_value, str):
+                    if '.' in stored_value:
+                        return float(stored_value)
+                    else:
+                        return int(stored_value)
         except Exception as e:
             e
         return value  # If id doesn't exist in global_state, return the original value

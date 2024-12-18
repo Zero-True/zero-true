@@ -13,7 +13,7 @@
       :thickness="4"
     ></v-divider>
     <div class="content">
-      <header class="header">
+      <header v-if="isFocused" class="header">
         <div class="click-edit" v-if="isDevMode && keepCodeInAppModel">
           <div class="click-edit__show-text" v-if="!editingCellName">
             <div class="loading-wrapper">
@@ -336,7 +336,11 @@ const props = defineProps({
   cellHasOutput:{
     type: Boolean,
     default:false
-  }
+  },
+  isFocused: {
+    type: Boolean,
+    default: false,
+  },
 });
 const emits = defineEmits<{
   (e: "delete"): void;

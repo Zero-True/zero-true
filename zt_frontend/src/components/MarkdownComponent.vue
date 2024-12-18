@@ -6,6 +6,7 @@
     :hide-cell="(cellData.hideCell as boolean)"
     :cell-name="(cellData.cellName as string)"
     :cell-has-output=hasCellContent
+    :is-focused="isFocused"
     @delete="deleteCell"
     @save="saveCell"
     @addCell="e => createCell(e)"
@@ -22,6 +23,8 @@
         :extensions="extensions"
         @keyup="saveCell"
         @ready="handleReady"
+        @focus="onEditorFocus"
+        @blur="onEditorBlur"
       />
     </template>
     <template v-slot:outcome>
@@ -138,6 +141,13 @@ export default {
     getEditorView() {
       return this.view || null;
     },
+
+  onEditorFocus() {
+    this.isFocused = true;
+  },
+  onEditorBlur() {
+    this.isFocused = false;
+  },
   },
 };
 </script>
