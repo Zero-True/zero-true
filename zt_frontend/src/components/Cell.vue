@@ -5,6 +5,8 @@
     :class="['cell', { 'cell--dev': isDevMode }]"
     color="bluegrey-darken-4"
     width="100%"
+    @mouseenter="showHeader = true"
+    @mouseleave="showHeader = false"
   >
     <v-divider
       class="indicator"
@@ -13,7 +15,7 @@
       :thickness="4"
     ></v-divider>
     <div class="content">
-      <header v-if="isFocused" class="header">
+      <header v-if=" isFocused || isMenuOpen || showHeader" class="header">
         <div class="click-edit" v-if="isDevMode && keepCodeInAppModel">
           <div class="click-edit__show-text" v-if="!editingCellName">
             <div class="loading-wrapper">
@@ -135,7 +137,8 @@
                 }}</span>
               </template>
             </v-btn>
-            <v-menu v-if="isDevMode" :close-on-content-click="false">
+            <v-menu v-if="isDevMode" :close-on-content-click="false" v-model="isMenuOpen"
+            >
               <template v-slot:activator="{ props }">
                 <v-btn
                   :icon="`ztIcon:${ztAliases.more}`"
@@ -368,6 +371,15 @@ const cellNameValue = ref(props.cellName || props.cellType);
 const cellNameEditValue = ref("");
 const cellNameField = ref(null);
 const editingCellName = ref(false);
+const showHeader = ref(false);
+const isMenuOpen = ref(false);
+
+watch(() => props.isFocused, (newValue) => {
+  if (!newValue) {
+    showHeader.value = false;
+  }
+}, { immediate: true });
+
 const showPlayBtn = computed(
   () => props.cellType === "code" || props.cellType === "sql"
 );

@@ -272,11 +272,9 @@ isCursorAtEnd(editor: any): boolean {
       this.isFocused = focus;
     },
     onEditorFocus() {
-      console.log('TinyMCE editor focused');
       this.handleFocus(true);
     },
     onEditorBlur() {
-      console.log('TinyMCE editor blurred');
       this.handleFocus(false);
     }
     },
