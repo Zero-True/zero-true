@@ -22,3 +22,13 @@ from zt_backend.models.components.html import HTML, pygwalker
 from zt_backend.models.state.state import state
 from zt_backend.models.state.state import global_state
 from zt_backend.models.components.chat_ui import chat_ui
+from zt_backend.utils.pyfile_parser import cell,notebook
+
+def sql(var_name,sql_string):
+    return(var_name,sql_string)
+
+def md(md_string):
+    return(md_string)
+
+def text(txt_string):
+    return(txt_string)

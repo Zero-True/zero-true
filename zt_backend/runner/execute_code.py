@@ -21,6 +21,33 @@ import contextlib
 now = datetime.now()
 logger = logging.getLogger("__name__")
 
+def better_exec(code_, globals_=None, locals_=None, /, *, closure=None):
+    import ast
+    import linecache
+
+    if not hasattr(better_exec, "saved_sources"):
+        old_getlines = linecache.getlines
+        better_exec.saved_sources = []
+
+        def patched_getlines(filename, module_globals=None):
+            if "<exec#" in filename:
+                index = int(filename.split("#")[1].split(">")[0])
+                return better_exec.saved_sources[index].splitlines(True)
+            else:
+                return old_getlines(filename, module_globals)
+
+        linecache.getlines = patched_getlines
+    better_exec.saved_sources.append(code_)
+    exec(
+        compile(
+            ast.parse(code_),
+            filename=f"<exec#{len(better_exec.saved_sources) - 1}>",
+            mode="exec",
+        ),
+        globals_
+    )
+
+
 initial_cell = request.CodeRequest(
     id="initial_cell",
     code="""
@@ -236,7 +263,7 @@ def execute_cell(
                     component_values=execution_state.component_values,
                 )
             execution_state.context_globals["exec_mode"] = True
-            exec(code_cell.code, temp_globals)
+            better_exec(code_cell.code,temp_globals)
 
         except Exception:
             logger.debug("Error during code execution")

@@ -71,7 +71,27 @@ def parse_function(code_str):
 
     return args_dict, body
 
+def import_variable_from_file(filepath: str, variable_name: str):
+    """
+    Imports a specific variable from a Python file.
 
+    Args:
+        filepath (str): Path to the Python script file.
+        variable_name (str): The variable to import.
+
+    Returns:
+        The value of the variable, or raises an AttributeError if not found.
+    """
+    spec = importlib.util.spec_from_file_location("module.name", filepath)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return getattr(module, variable_name)
+
+
+def parse_notebook_file_new(notebook_path):
+    #run file and get returned notebook object?
+    nb = import_variable_from_file(notebook_path,'nb').model_dump()
+    return(nb)
 
 def parse_notebook_file(notebook_path):
     """
@@ -94,9 +114,10 @@ def parse_notebook_file(notebook_path):
 
             cells = {}
 
-            for block in cell_blocks:
+            for nbr,block in enumerate(cell_blocks):
                 print(block)
-                args,body=parse_function("def cell(id="+block)
+                print(nbr)
+                args,body=parse_function(f"def cell_{str(nbr)}(id="+block)
                 cell_id=args.get('id').replace('"','').replace("'",'')
                 # Construct the cell object
                 cells[cell_id] = {
@@ -126,7 +147,12 @@ def parse_notebook_file(notebook_path):
     else:
         return(None)
 
+from zt_backend.utils.pyfile_parser import update_notebook_file
 
+def write_notebook_to_python_new(notebook_state):
+    notebook_path = Path(settings.zt_path) / "notebook.py"
+    update_notebook_file(notebook_path,notebook_state.zt_notebook)
+    return
 
 def write_notebook_to_python(notebook_state):
     tmp_uuid_file = Path(settings.zt_path) / f"notebook_{uuid.uuid4()}.py"
