@@ -65,7 +65,8 @@ async def start_node_server_route():
         await start_node_server()
         return {"message": 'Node server started successfully'}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"An error occurred while starting server: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(traceback.format_exc()))
 
 @copilot_app.post("/check_status",response_model=Union[CopilotPayloadSignInConfirm,CopilotPayloadSignOut])
 async def check_status(req: BlankRequest):
@@ -121,30 +122,19 @@ async def text_document_did_open(params: DidOpenTextDocumentParams):
     global copilot_enabled
     if copilot_enabled:
         try:
-            # Get list of valid components
-            valid_components = set(os.path.splitext(f)[0] 
-                                for f in os.listdir(MDX_DIRECTORY) 
-                                if f.endswith('.mdx'))
-            
-            # Add strict guidelines
-            strict_guidelines = """
-            # IMPORTANT GUIDELINES FOR CODE GENERATION:
-            # 1. DO NOT create or suggest components that are not in the following list:
-            #    {}
-            # 2. Only use components exactly as shown in the examples below
-            # 3. Do not invent new component properties or behaviors
-            # 4. If a requested component is not in the list, suggest using only available components
-            """.format(', '.join(valid_components))
-            
-            # Get component context
             component_context = mdx_parser.get_components_context()
+            completion_hints = mdx_parser.get_completion_hints()
             
-            # Combine guidelines and context
-            full_context = strict_guidelines + "\n" + component_context
+            # Add completion hints as special markers
+            hint_context = "\n".join([
+                f"COMPLETION_HINT: {key} -> {value}"
+                for key, value in completion_hints.items()
+            ])
             
-            # Prepend context to the document text
-            params.textDocument.text = full_context + "\n" + params.textDocument.text
-
+            # Combine all context
+            full_context = f"/*\n{component_context}\n{hint_context}\n*/\n"
+            
+            params.textDocument.text = full_context + params.textDocument.text
             payload = {
                 "method": "textDocument/didOpen",
                 "params": params.dict()
