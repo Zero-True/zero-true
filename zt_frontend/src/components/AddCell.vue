@@ -4,16 +4,24 @@
       <div v-bind="cellId ? { ...props, id: 'addCell' + cellId } : props" class="activator-area-push">
         <div class="divider-container">
           <div class="divider">
-            <v-divider class="divider__divider-line" color="bluegrey-darken-2"></v-divider>
-            <v-btn :prepend-icon="`ztIcon:${ztAliases.circleAdd}`" variant="plain" density="compact" :ripple="false"
+            <v-divider class="divider__line" color="bluegrey-darken-2"></v-divider>
+            <span class="divider__text">
+              <v-btn :prepend-icon="`ztIcon:${ztAliases.circleAdd}`" variant="plain" density="compact" :ripple="false"
               class="divider__btn bg-background">Add cell</v-btn>
+            </span>
+            <v-divider class="divider__line" color="bluegrey-darken-2"></v-divider>
           </div>
         </div>
       </div>
     </template>
     <v-list bg-color="bluegrey-darken-4">
-      <v-list-item v-for="(item, i) in addCellItems" :key="i" class="add-cell-item"
-        v-bind="cellId ? { id: 'addCell_' + item.title + '_' + cellId } : {}" @click="$emit('createCodeCell', item.cellType)">
+      <v-list-item
+        v-for="(item, i) in addCellItems"
+        :key="i"
+        class="add-cell-item"
+        v-bind="cellId ? { id: 'addCell_' + item.title + '_' + cellId } : {}"
+        @click="$emit('createCodeCell', item.cellType)"
+      >
         <template v-slot:prepend>
           <v-icon :icon="item.icon"></v-icon>
         </template>
@@ -53,11 +61,11 @@ const addCellItems = ref<{
 .activator-area-push {
   margin: 0;
   padding: 0;
-  height: 2px; // Small detection area
+  height: 2px;
   transition: height 0.2s ease;
 
   &:hover {
-    height: 24px; // Expand to full height on hover
+    height: 24px;
   }
 }
 
@@ -72,30 +80,29 @@ const addCellItems = ref<{
 }
 
 .divider {
-  position: relative;
-  height: 100%;
+  display: flex;
+  align-items: center;
 
-  &__divider-line {
-    position: absolute;
-    top: 50%;
-    width: 100%;
-    transform: translateY(-50%);
+  &__line {
+    flex: 1;
+    background-color: bluegrey-darken-2;
+    transition: background-color 0.2s ease;
   }
 
-  &__btn {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
+  &__text {
+    display: flex;
+    align-items: center;
+    margin: 0 8px;
+    color: bluegrey-darken-2;
+    transition: color 0.2s ease;
+  }
+
+  &__icon {
+    margin-right: 4px;
   }
 }
 
-// Hover effects
 .divider:hover {
-  .divider__divider-line {
-    background-color: white;
-  }
-
   .divider__btn {
     color: white !important;
   }

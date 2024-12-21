@@ -4,9 +4,12 @@
       <v-btn
         color="bluegrey-darken-4"
         v-bind="props"
-        icon="mdi-package"
-        class="text-bluegrey"
-      ></v-btn>
+        icon
+      >
+      <v-icon :color="updatingDependencies ? 'primary' : 'white'">
+        mdi-list-box-outline
+        </v-icon>
+    </v-btn>
     </template>
     <v-card>
       <v-card-title>

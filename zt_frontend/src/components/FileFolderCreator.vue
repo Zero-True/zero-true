@@ -1,9 +1,22 @@
 <template>
-  <v-btn
-    color="bluegrey-darken-4"
-    icon="mdi-plus"
+  <v-btn 
+    v-if="variant === 'icon'"
+    icon="mdi-folder-plus-outline"
     @click="handleOpen"
+    size="small"
+    class="action-btn"
+    color="transparent"
   />
+
+  <v-list-item-title
+    v-else
+    @click="handleOpen"
+    class="d-flex align-center cursor-pointer hover-bg pa-2 rounded"
+  >
+    <v-icon size="small" class="mr-2">mdi-folder-plus-outline</v-icon>
+    Add Item
+  </v-list-item-title>
+
 
   <v-dialog
     v-model="dialog"
@@ -37,8 +50,6 @@
           density="compact"
           class="mb-3"
           variant="outlined"
-          color="primary"
-          bg-color="grey-darken-4"
           theme="dark"
         >
           <template v-slot:prepend-inner>
@@ -56,8 +67,6 @@
           @keyup.enter="saveChanges"
           density="compact"
           variant="outlined"
-          color="primary"
-          bg-color="grey-darken-4"
           :error-messages="errorMessage"
           theme="dark"
         >
@@ -124,7 +133,12 @@ export default defineComponent({
     currentPath: {
       type: String,
       required: true
-    }
+    },
+    variant: {
+    type: String,
+    default: 'icon',
+    validator: (value: string) => ['icon', 'text'].includes(value)
+  }
   },
   emits: ['item-created'],
 
@@ -227,29 +241,9 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.creator-dialog {
-  background-color: #282c34 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.bg-dark {
-  background-color: #282c34 !important;
-}
-
-/* Dark theme overrides */
-:deep(.v-card) {
-  background-color: #282c34;
-  color: #abb2bf;
-}
-
 :deep(.v-text-field .v-field__input) {
   color: #fff !important;
 }
-
-:deep(.v-text-field .v-field--variant-outlined) {
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
 :deep(.v-text-field .v-label) {
   color: rgba(255, 255, 255, 0.7);
 }

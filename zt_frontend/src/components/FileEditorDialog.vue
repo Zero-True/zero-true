@@ -303,25 +303,9 @@ setup(props, { emit }) {
 </script>
 
 <style scoped>
-.hover-bg:hover {
-background-color: rgba(var(--v-theme-primary), 0.1);
-}
 
 .cursor-pointer {
 cursor: pointer;
-}
-
-.editor-dialog {
-background-color: #282c34 !important;
-border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.editor-container {
-border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.bg-dark {
-background-color: #282c34 !important;
 }
 
 .border-subtle {
@@ -336,17 +320,6 @@ height: 100%;
 font-family: 'Fira Code', monospace;
 overflow: auto;
 }
-
-/* Dark theme overrides */
-:deep(.v-card) {
-background-color: #282c34;
-color: #abb2bf;
-}
-
-:deep(.v-overlay__content) {
-background-color: #282c34;
-}
-
 :deep(.v-alert) {
 background-color: rgba(var(--v-theme-error), 0.1) !important;
 }

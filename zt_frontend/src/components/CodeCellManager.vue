@@ -257,6 +257,7 @@ export default {
 
 <style lang="scss">
 .cell-container {
+  width: 100%;
   padding-top: 0;
   &--app {
     padding-bottom: 0;
