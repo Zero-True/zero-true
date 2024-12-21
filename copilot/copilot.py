@@ -14,6 +14,7 @@ import asyncio
 import traceback
 from copilot.context_extractor import MdxComponentParser
 from zt_backend.config import settings
+import importlib.resources
 
 
 copilot_app = FastAPI()
@@ -30,7 +31,7 @@ copilot_app.add_middleware(
 copilot_enabled = False
 copilot_doc_open = False
 version = 0
-MDX_DIRECTORY = os.path.join(settings.zt_path, 'mintlify-docs', 'Components')
+MDX_DIRECTORY = importlib.resources.files("mintlify-docs") / "Components" 
 mdx_parser = MdxComponentParser(MDX_DIRECTORY)
 
 def is_docker():
