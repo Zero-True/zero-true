@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from zt_backend.config import settings
-from zt_backend.utils.notebook import get_notebook, write_notebook_to_python
+from zt_backend.utils.notebook import get_notebook, write_notebook_to_python, write_notebook
 from zt_backend.utils.dependencies import parse_dependencies, write_dependencies
 from copilot.copilot import copilot_app
 import zt_backend.router as router
@@ -46,9 +46,11 @@ def open_project():
             logger.error("Unexpected error with matplotlib configuration: %s", e)
         notebook_path = Path(settings.zt_path) / "notebook.ztnb"
         notebook_path = Path(settings.zt_path) / "notebook.py"
-        if not notebook_path.exists():
+        ztnb_path= Path(settings.zt_path) / "notebook.ztnb"
+        if not notebook_path.exists() and not ztnb_path.exists():
             logger.info("No notebook file found, creating with empty notebook")
             write_notebook_to_python()
+            write_notebook()
         requirements_path = Path(settings.zt_path) / "requirements.txt"
         if not requirements_path.exists():
             logger.info("No requirements file found, creating empty file")
