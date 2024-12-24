@@ -181,3 +181,9 @@ class DownloadRequest(BaseModel):
     path: str
     filename: str
     isFolder: bool
+
+class MoveItemRequest(BaseModel):
+    sourcePath: str
+    targetId: str
+    sourceId: str
+    targetPath: str

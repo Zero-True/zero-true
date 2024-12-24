@@ -12,8 +12,9 @@ DEBOUNCE_TIME = 0.5  # seconds
 RUFF_COMMAND = [
     "ruff",
     "check",
+    "--preview",
     "--output-format=json",
-    "--extend-ignore=E402",  # Ignore import position errors
+    "--extend-ignore=E,W",  # Ignore unwanted errors
     "-",
 ]
 
@@ -37,13 +38,13 @@ async def run_ruff_linting(text: str) -> List[Dict]:
     stdout, stderr = process.communicate(input=text)
 
     if stderr:
-        logger.error(f"Error running Ruff: {stderr.decode()}")
+        logger.error(f"Error running Ruff: {stderr}")
         return []
 
     try:
         return json.loads(stdout)
     except json.JSONDecodeError:
-        logger.error(f"Error decoding Ruff output: {stdout.decode()}")
+        logger.error(f"Error decoding Ruff output: {stdout}")
         return []
 
 

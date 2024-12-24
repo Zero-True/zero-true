@@ -13,7 +13,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: release-please-action
-              uses: google-github-actions/release-please-action@v4.1.0
+              uses: google-github-actions/release-please-action@v4.1.1
               with:
                   token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
                   release-type: python

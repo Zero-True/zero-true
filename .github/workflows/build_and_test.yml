@@ -11,7 +11,7 @@ jobs:
     outputs:
       any_changed: ${{ steps.check-changes.outputs.any_changed }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 2
       - name: Check for changes in zt_frontend/
@@ -35,7 +35,7 @@ jobs:
           cp -r dist/ ../zt_backend/dist_app/
       - name: Upload Frontend Artifacts
         if: steps.check-changes.outputs.any_changed == 'true'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: frontend-files
           path: |
@@ -52,9 +52,9 @@ jobs:
         python-version: ['3.9', '3.10', '3.11','3.12']
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Remove Existing Frontend Files (Windows)
@@ -72,7 +72,7 @@ jobs:
           rm -rf zt_backend/dist_app
       - name: Download Frontend Files
         if: needs.build-frontend.outputs.any_changed == 'true'
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: frontend-files
           path: zt_backend/

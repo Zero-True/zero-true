@@ -12,10 +12,14 @@ import os
 from pathlib import Path
 import asyncio
 import traceback
+from copilot.context_extractor import MdxComponentParser
+from zt_backend.config import settings
+import importlib.resources
+
 
 copilot_app = FastAPI()
 
-copilot_app.add_middleware(
+copilot_app.add_middleware( 
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=False,
@@ -27,6 +31,8 @@ copilot_app.add_middleware(
 copilot_enabled = False
 copilot_doc_open = False
 version = 0
+MDX_DIRECTORY = importlib.resources.files("mintlify-docs") / "Components" 
+mdx_parser = MdxComponentParser(MDX_DIRECTORY)
 
 def is_docker():
     cgroup = Path('/proc/self/cgroup')
@@ -60,7 +66,8 @@ async def start_node_server_route():
         await start_node_server()
         return {"message": 'Node server started successfully'}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"An error occurred while starting server: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(traceback.format_exc()))
 
 @copilot_app.post("/check_status",response_model=Union[CopilotPayloadSignInConfirm,CopilotPayloadSignOut])
 async def check_status(req: BlankRequest):
@@ -111,12 +118,32 @@ async def sign_in_confirm(req: BlankRequest):
         return response.json()
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
 async def text_document_did_open(params: DidOpenTextDocumentParams):
     global copilot_enabled
     if copilot_enabled:
         try:
-            response = requests.post(f"{NODE_SERVER_URL}/sendNotification", json={"method": "textDocument/didOpen", "params": params.dict()})
+            component_context = mdx_parser.get_components_context()
+            completion_hints = mdx_parser.get_completion_hints()
+            
+            # Add completion hints as special markers
+            hint_context = "\n".join([
+                f"COMPLETION_HINT: {key} -> {value}"
+                for key, value in completion_hints.items()
+            ])
+            
+            # Combine all context
+            full_context = f"/*\n{component_context}\n{hint_context}\n*/\n"
+            
+            params.textDocument.text = full_context + params.textDocument.text
+            payload = {
+                "method": "textDocument/didOpen",
+                "params": params.dict()
+            }
+            response = requests.post(
+                f"{NODE_SERVER_URL}/sendNotification",
+                json=payload
+            )
             response.raise_for_status()
             return {"message": "Notification sent successfully"}
         except requests.RequestException as e:
@@ -130,8 +157,9 @@ async def text_document_did_change(params):
     if copilot_enabled:
         try:
             params = DidChangeTextDocumentParams(**params)
+            content_change = params.contentChanges[0]
             if not copilot_doc_open:
-                open_document = TextDocumentItem(uri=params.textDocument.uri, languageId="python", version=version, text=params.contentChanges[0].text)
+                open_document = TextDocumentItem(uri=params.textDocument.uri, languageId="python", version=version, text=content_change.text)
                 open_request = DidOpenTextDocumentParams(textDocument=open_document)
                 response = await text_document_did_open(open_request)
                 copilot_doc_open = True

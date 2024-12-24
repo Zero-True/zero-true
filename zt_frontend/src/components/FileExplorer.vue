@@ -6,90 +6,51 @@
     class="sidebar"
     color="bluegrey-darken-4"
   >
-    <div class="d-flex">
-      <v-btn
-        v-if="pathStack.length > 0"
-        @click="goBack"
-        color="bluegrey-darken-4"
-        icon="mdi-arrow-left"
-      />
-      <v-spacer />
-      <FileFolderCreator :current-path="currentPath" @item-created="refreshFiles" />
-      <FileUploader :current-path="currentPath" @file-uploaded="refreshFiles" />
-      <v-btn
-        color="bluegrey-darken-4"
-        icon="mdi-refresh"
-        @click="refreshFiles"
-      />
-      <v-btn
-        color="bluegrey-darken-4"
-        icon="mdi-close"
-        @click="localDrawer = false"
-      />
+    <div class="search-field-container">
+      <v-text-field
+  v-model="searchTerm"
+  placeholder="Search"
+  variant="outlined"
+  density="compact"
+  hide-details
+  class="search-field"
+  clearable
+>
+  <template v-slot:prepend-inner>
+    <v-icon
+      icon="mdi-magnify"
+      size="small"
+      class="search-icon"
+    />
+  </template>
+</v-text-field>
+    </div>  
+
+    <div class="section-header d-flex align-center px-4">
+      <div class="section-title">File Explorer</div>
+      <v-spacer></v-spacer>
+      <div class="section-actions">
+        <FileFolderCreator :current-path="currentPath" @item-created="refreshFiles" />
+        <FileUploader :current-path="currentPath" @file-uploaded="refreshFiles" />
+        <v-btn
+          color="transparent"
+          icon="mdi-refresh"
+          @click="refreshFiles"
+          size="small"
+          class="action-btn"
+        />
+      </div>
     </div>
 
-    <v-list>
-      <template v-for="item in localItems" :key="item.id">
-        <!-- Main item -->
-        <v-list-item>
-          <template v-slot:prepend>
-            <v-icon v-if="item.file === 'folder'">{{ "mdi-folder" }}</v-icon>
-            <v-icon v-else>{{ fileIcon(item.file) }}</v-icon>
-          </template>
-          
-          <v-list-item-title @click="handleItemClick(item)">{{ item.title }}</v-list-item-title>
-          
-          <template v-slot:append>
-            <v-menu :close-on-content-click="false">
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  icon
-                  variant="text"
-                  density="compact"
-                  class="mr-2"
-                  v-bind="props"
-                >
-                  <v-icon size="small">mdi-dots-vertical</v-icon>
-                </v-btn>
-              </template>
-              <v-list>
-                 <v-list-item>
-                <FileFolderDownloadDialog
-                  :current-path="currentPath"
-                  :title="item.title"
-                  :file="item.file"
-                  @file-downloaded="refreshFiles"
-                />
-              </v-list-item>
-                <v-list-item v-if="item.file !== 'folder' && !isProtectedFile(item.title)">
-                  <FileEditorDialog 
-                    :file-path="item.id"
-                    :file-name="item.title"
-                    @file-saved="refreshFiles"
-                  />
-                </v-list-item>
-                <v-list-item v-if="!isProtectedFile(item.title)">
-                  <RenameDialog
-                    :file-path="item.id"
-                    :file-name="item.title"
-                    :is-protected-file="isProtectedFile"
-                    :is-folder="item.file === 'folder'"
-                    @item-renamed="refreshFiles"
-                  />
-                </v-list-item>
-                <v-list-item v-if="!isProtectedFile(item.title)">
-                  <DeleteDialog
-                    :file-path="item.id"
-                    :file-name="item.title"
-                    :is-protected-file="isProtectedFile"
-                    @item-deleted="refreshFiles"
-                  />
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </template>
-        </v-list-item>
-      </template>
+    <v-list class="file-tree">
+      <FileTreeNode 
+        v-for="item in filteredItems" 
+        :key="item.id"
+        :item="item"
+        :depth="0"
+        :current-path="currentPath"
+        @refresh-files="refreshFiles"
+      />
     </v-list>
 
     <v-snackbar
@@ -112,16 +73,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, watch } from "vue";
+import { defineComponent, ref, onMounted, watch, computed } from "vue";
 import axios from "axios";
 import FileUploader from "@/components/FileUploader.vue";
 import FileFolderCreator from "@/components/FileFolderCreator.vue";
 import RenameDialog from "@/components/FileFolderRenameDialog.vue";
 import DeleteDialog from "@/components/FileFolderDeleteDialog.vue";
-import FileEditorDialog from '@/components/FileEditorDialog.vue'
+import FileEditorDialog from '@/components/FileEditorDialog.vue';
 import FileFolderDownloadDialog from "@/components/FileFolderDownloadDialog.vue";
-
-
+import FileTreeNode from "@/components/FileTreeNode.vue";
 
 export default defineComponent({
   name: "SidebarComponent",
@@ -131,7 +91,8 @@ export default defineComponent({
     RenameDialog,
     DeleteDialog,
     FileEditorDialog,
-    FileFolderDownloadDialog
+    FileFolderDownloadDialog,
+    FileTreeNode
   },
   props: {
     drawer: Boolean,
@@ -146,114 +107,172 @@ export default defineComponent({
     const localItems = ref(props.items || ([] as any[]));
     const currentPath = ref("." as string);
     const pathStack = ref([] as string[]);
-    const newItemName = ref("");
-    const itemTypes = [
-      { text: 'Folder', value: 'folder' },
-      { text: 'File', value: 'file' }
-    ];
+    const searchTerm = ref("");
     const errorMessage = ref("");
     const showError = ref(false);
-    // Define the list of protected files
     const protectedFiles = ref(["requirements.txt", "notebook.ztnb","zt_db.db","zt_db.db.wal"]);
 
-    // Function to check if a file is protected
     const isProtectedFile = (filename: string) => {
       return protectedFiles.value.includes(filename);
     };
+
     watch(
       () => props.drawer,
       (newValue) => {
         localDrawer.value = newValue;
       }
     );
+
     watch(localDrawer, (newValue) => {
       emit("update:drawer", newValue);
       if (newValue) {
         refreshFiles();
       }
     });
-    const loadFiles = async (path: string) => {
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}api/get_children`,
-          { params: { path } }
-        );
-        localItems.value = response.data.files;
-        emit("update:items", response.data.files);
-      } catch (error) {
-        console.error("Failed to load files:", error);
-      }
-    };
-    onMounted(() => {
-      loadFiles(currentPath.value);
-    });
-    const handleItemClick = (item: any) => {
-      if (item.file === "folder") {
-        pathStack.value.push(currentPath.value);
-        currentPath.value = item.id;
-        loadFiles(currentPath.value);
-      }
-    };
-    const goBack = () => {
-      if (pathStack.value.length > 0) {
-        currentPath.value = pathStack.value.pop() || ".";
-        loadFiles(currentPath.value);
-      }
-    };
-    const refreshFiles = () => {
-      loadFiles(currentPath.value);
-    };
 
-    const fileIcon = (extension: string) => {
-      switch (extension) {
-        case "html":
-          return "mdi:mdi-language-html5";
-        case "js":
-          return "mdi:mdi-nodejs";
-        case "json":
-          return "mdi:mdi-code-json";
-        case "md":
-          return "mdi:mdi-language-markdown";
-        case "pdf":
-          return "mdi:mdi-file-pdf-box";
-        case "png":
-          return "mdi:mdi-file-image";
-        case "txt":
-          return "mdi:mdi-file-document-outline";
-        case "xls":
-          return "mdi:mdi-file-excel";
-        case "folder":
-          return "mdi:mdi-folder";
-        default:
-          return "mdi:mdi-file";
+    const filteredItems = computed(() => {
+    if (!searchTerm.value) {
+      return localItems.value;
+    }
+
+    return localItems.value.filter(item => {   
+      if (item && item.title) {
+        return item.title.toLowerCase().includes(searchTerm.value.toLowerCase());
+      } else {
+        return false;
       }
-    };
+      });
+    });
+
+    const loadRootFolder = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}api/get_files`
+      );
+      if (response.data.files && response.data.files[0]) {
+        // Set root folder structure
+        localItems.value = response.data.files;
+        if (localItems.value[0].file === 'folder') {
+        localItems.value[0].isExpanded = true;
+      }
+      }
+      emit("update:items", localItems.value);
+    } catch (error) {
+      console.error("Failed to load root folder:", error);
+      errorMessage.value = "Failed to load files";
+      showError.value = true;
+    }
+  };
+
+  onMounted(() => {
+    loadRootFolder(); // Load root folder structure initially
+  });
+
+  const refreshFiles = () => {
+    loadRootFolder(); // Refresh from root
+  };
 
     return {
       localDrawer,
       localItems,
-      handleItemClick,
-      goBack,
       pathStack,
       currentPath,
       refreshFiles,
-      fileIcon,
-      newItemName,
-      itemTypes,
       errorMessage,
       showError,
       isProtectedFile,
+      searchTerm,
+      filteredItems,
     };
   },
 });
 </script>
 
 <style scoped>
-.clickable-item {
-  cursor: pointer;
+.search-field :deep(.v-field) {
+  margin: 4px 8px !important;
+  height: 33px;
+  border-radius: 8px;        /* Rounded corners */
+  border-bottom: none;
 }
-.clickable-item:hover {
-  opacity: 0.8;
-  text-decoration: underline;
+
+.search-field :deep(.v-field__input) {
+  color: #ecf0f1;            /* Light text color */
+  font-size: 11px;
+}
+
+/* Section Header */
+.section-header {
+  height: 32px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+}
+
+.section-title {
+  color: white;
+  font-family: 'Pathway Extreme', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.section-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Icons */
+:deep(.v-icon) {
+  font-size: 16px !important;
+  width: 16px;
+  height: 16px;
+}
+
+:deep(.action-btn.v-btn) {
+  width: 24px !important;
+  min-width: 24px !important;
+  height: 24px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  
+  .v-icon {
+    color: #3A586B !important;
+  }
+  
+  &:hover .v-icon {
+    color: #FFFFFF !important;
+  }
+}
+.sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(58, 88, 107, 0.5) transparent;
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 6px; /* Slightly wider to accommodate roundness */
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: rgba(58, 88, 107, 0.5);
+  border-radius: 50px; /* Significantly more rounded */
+  border: 2px solid transparent; /* Creates a softer, rounder appearance */
+  background-clip: content-box; /* Allows the border to create additional roundness */
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(58, 88, 107, 0.7);
+}
+
+/* Remove padding from file-tree to allow full content scrolling */
+.file-tree {
+  padding: 0 !important;
+  overflow: hidden; /* Let parent handle scrolling */
 }
 </style>

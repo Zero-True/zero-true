@@ -910,19 +910,143 @@ async def download_item(
 @router.get("/api/get_files")
 def list_files():
     path = Path(".")
-    files = list_dir(path)
-    return {"files": files}
+    root_name = Path.cwd().name  # Get current directory name
+    
+    # Get list of files/folders
+    items = list_dir(path)
+    
+    # Split and sort
+    folders = [item for item in items if item['file'] == 'folder']
+    files = [item for item in items if item['file'] != 'folder']
+    folders.sort(key=lambda x: x['title'].lower())
+    files.sort(key=lambda x: x['title'].lower())
+    
+    # Create root folder structure
+    root = {
+        "id": ".",
+        "title": root_name,
+        "file": "folder",
+        "children": folders + files
+    }
+    
+    return {"files": [root]}
 
 
 @router.get("/api/get_children")
 def list_children(path: str = Query(...)):
     dir_path = Path(path)
+
+    if str(dir_path) == '.':
+        dir_name = Path.cwd().name
+    else:
+        dir_name = dir_path.name
+    
+    print(f"Directory name: {dir_name}, Path: {dir_path}")
+
     if not dir_path.is_dir():
         return {"error": "Path is not a directory"}
+    
+    
 
     items = list_dir(dir_path)
-    return {"files": items}
+    
+    # Split into folders and files
+    folders = [item for item in items if item['file'] == 'folder']
+    files = [item for item in items if item['file'] != 'folder']
+    
+    # Sort each group by title
+    folders.sort(key=lambda x: x['title'].lower())
+    files.sort(key=lambda x: x['title'].lower())
+    
+    # Combine with folders first
+    sorted_items = folders + files
+    
+    return {"files": sorted_items}
 
+@router.post("/api/move_item")
+async def move_item(move_request: request.MoveItemRequest) -> Dict:
+    if app_state.run_mode == "dev":
+        try:
+            base_dir = Path.cwd()
+            
+            # Convert relative paths to absolute
+            source_path = (base_dir / move_request.sourcePath).resolve()
+            target_dir = (base_dir / move_request.targetId).resolve()
+
+            print(source_path, target_dir)
+            
+            # Security: Validate paths are within base directory
+            if not source_path.is_relative_to(base_dir) or \
+               not target_dir.is_relative_to(base_dir):
+                raise HTTPException(
+                    status_code=403, 
+                    detail="Paths must be within workspace directory"
+                )
+
+            # Validate source exists
+            if not source_path.exists():
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Source not found: {source_path.name}"
+                )
+
+            # Validate target is a directory
+            if not target_dir.is_dir():
+                raise HTTPException(
+                    status_code=400,
+                    detail="Target must be a directory"
+                )
+
+            # Prevent moving into self or subdirectory
+            if source_path == target_dir or target_dir.is_relative_to(source_path):
+                raise HTTPException(
+                    status_code=400,
+                    detail="Cannot move a folder into itself or its subdirectories"
+                )
+
+            # Construct destination path
+            dest_path = target_dir / source_path.name
+
+            # Check for name conflicts
+            if dest_path.exists():
+                raise HTTPException(
+                    status_code=409,
+                    detail=f"'{source_path.name}' already exists in destination"
+                )
+
+            # Protected files check
+            protected_files = ["requirements.txt", "notebook.ztnb", 
+                             "zt_db.db", "zt_db.db.wal"]
+            if source_path.name in protected_files:
+                raise HTTPException(
+                    status_code=403,
+                    detail="Cannot move protected system files"
+                )
+
+            # Perform move
+            try:
+                shutil.move(str(source_path), str(dest_path))
+            except (OSError, shutil.Error) as e:
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Move operation failed: {str(e)}"
+                )
+
+            # Return success response with relative paths
+            return {
+                "success": True,
+                "message": "Item moved successfully",
+                "source": str(source_path.relative_to(base_dir)),
+                "destination": str(dest_path.relative_to(base_dir))
+            }
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, 
+                detail=f"Unexpected error: {str(e)}"
+            )
 
 @router.post("/api/add_comment")
 def add_comment(comment: request.AddCommentRequest):

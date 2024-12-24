@@ -27,6 +27,8 @@
       @createCell="createCodeCell"
       @copilotCompletion="copilotCompletion"
       @updateTimers="updateTimers"
+      @navigateToCell="handleCellNavigation"
+      :ref="'cellComponent' + codeCell.id"
     />
     <component
       v-else
@@ -39,6 +41,8 @@
       @componentValueChange="componentValueChange"
       @deleteCell="deleteCell"
       @createCell="createCodeCell"
+      @navigateToCell="handleCellNavigation"
+      :ref="'cellComponent' + codeCell.id"
     />
   </v-container>
 </template>
@@ -149,13 +153,111 @@ export default {
     },
     updateTimers(cellId: string, value: boolean) {
       this.$emit("updateTimers", cellId, value);
-    },
+    }, 
+    scrollToCellView(cellId: string): void {
+  try {
+    const cell = document.getElementById(`codeCard${cellId}`);
+    if (!cell) {
+      return;
+    }
+
+    const viewport = {
+      top: window.scrollY,
+      bottom: window.scrollY + window.innerHeight
+    };
+
+    const cellPosition = {
+      top: cell.getBoundingClientRect().top + viewport.top,
+      bottom: cell.getBoundingClientRect().bottom + viewport.top
+    };
+
+    const isOutsideViewport = 
+      cellPosition.top < viewport.top || 
+      cellPosition.bottom > viewport.bottom;
+
+    if (isOutsideViewport) {
+      cell.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+    }
+  } catch (error) {
+    console.error('Failed to scroll to cell:', error);
+  }
+},
+    handleCellNavigation(currentCellId: string, direction: 'up' | 'down') {
+    const cellIds = Object.keys(this.notebook.cells);
+    const currentIndex = cellIds.indexOf(currentCellId);
+
+    if (currentIndex === -1) {
+      return;
+    }
+
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+
+    if (targetIndex < 0 || targetIndex >= cellIds.length) {
+      // No cell to navigate to in the given direction
+      return;
+    }
+
+    const targetCellId = cellIds[targetIndex];
+    const targetCell = this.notebook.cells[targetCellId];
+
+     //scroll to the target cell
+     this.scrollToCellView(targetCellId);
+    this.$nextTick(async () => {
+      const cellComponentRef = this.$refs['cellComponent' + targetCellId];
+
+      if (!cellComponentRef) {
+        return;
+      }
+
+      const cellComponent = Array.isArray(cellComponentRef)
+        ? cellComponentRef[0]
+        : cellComponentRef;
+
+      if (!cellComponent || typeof cellComponent.getEditorView !== 'function') {
+        return;
+      }
+
+      try {
+        const view = await cellComponent.getEditorView();
+        if (view) {
+          if (view.focus) {
+            view.focus();
+          }
+          if (targetCell.cellType === 'text') {
+            const contentLength = view.getContent({ format: 'text' }).length;
+            const pos = direction === 'up' ? contentLength : 0;
+            const body = view.getBody();
+            const lastNode = body.lastChild;
+            if (lastNode) {
+              const range = document.createRange();
+              view.selection.setRng(range);
+            }
+          } 
+          else {
+            // Handle CodeMirror editor
+            const pos = direction === 'up' ? view.state.doc.length : 0;
+            if (view.dispatch) {
+              view.dispatch({
+                selection: { anchor: pos },
+              });
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error accessing editor view:', error);
+      }
+    });
+  },
   },
 };
 </script>
 
 <style lang="scss">
 .cell-container {
+  width: 100%;
   padding-top: 0;
   &--app {
     padding-bottom: 0;

@@ -229,29 +229,9 @@ export default defineComponent({
 
 
 <style scoped>
-.hover-delete:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
 .cursor-pointer {
   cursor: pointer;
 }
-
-.delete-dialog {
-  background-color: #282c34 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.bg-dark {
-  background-color: #282c34 !important;
-}
-
-/* Dark theme overrides */
-:deep(.v-card) {
-  background-color: #282c34;
-  color: #abb2bf;
-}
-
 :deep(.v-alert) {
   background-color: rgba(255, 171, 0, 0.1) !important;
 }

@@ -62,6 +62,7 @@
         :viewportMargin="Infinity"
         :extensions="extensions"
         @keyup="saveCell"
+        @ready="handleReady"
       />
     </template>
     <template v-slot:outcome>
@@ -134,6 +135,26 @@ export default {
             return true;
           },
         },
+        {
+      key: 'ArrowUp',
+      run: (view) => {
+        if (view.state.selection.main.from === 0) {
+          this.$emit('navigateToCell', this.cellData.id, 'up');
+          return true;
+        }
+        return false;
+      },
+    },
+    {
+      key: 'ArrowDown', 
+      run: (view) => {
+        if (view.state.selection.main.to === view.state.doc.length) {
+          this.$emit('navigateToCell', this.cellData.id, 'down');
+          return true;
+        }
+        return false;
+      },
+    },
       ]);
       if (this.$devMode && !this.isAppRoute) {
         return [
@@ -151,7 +172,7 @@ export default {
     },
   },
   inheritAttrs: false,
-  emits: ['runCode', 'deleteCell', 'createCell', 'saveCell'],
+  emits: ['runCode', 'deleteCell', 'createCell', 'saveCell','navigateToCell'],
   data() {
     return {
       isFocused: false, // add this line to keep track of the focus state
@@ -178,7 +199,6 @@ export default {
       default: false
     },
   },
-
   setup() {
     const view: ShallowRef<EditorView | null> = shallowRef(null);
     const handleReady = (payload: any) => {
@@ -217,7 +237,10 @@ export default {
     },
     renameCell(e: String){
       this.cellData.cellName = e as string
-    }
+    },
+    getEditorView() {
+      return this.view || null;
+    },
   },
 };
 </script>
