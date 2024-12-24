@@ -68,6 +68,10 @@ export default {
     const hasOutput = Boolean(this.cellData.code?.trim());
     return hasOutput
   },
+  isDarkMode() {
+      // Adjust to your actual method of determining dark mode
+      return this.$vuetify.theme.current.dark;
+    },
     extensions() {
       const keyMap = keymap.of([
         {
@@ -92,8 +96,13 @@ export default {
         }
       ]);
       
-    return [Prec.highest(keyMap),markdown(), autocompletion({ override: [] })]
     
+      return [
+        Prec.highest(keyMap),
+        markdown(),
+        this.isDarkMode ? oneDark : undefined, // Add condition for dark mode
+        autocompletion({ override: [] }),
+      ].filter(Boolean); // Filter out undefined values
     },
 
     compiledMarkdown() {
@@ -158,7 +167,7 @@ export default {
   /* General text styling */
   font-family: Arial, sans-serif;
   line-height: 1.6;
-  color: #ffffff;}
+  color: bluegrey-darken-1;}
   
 
   /* Headings */

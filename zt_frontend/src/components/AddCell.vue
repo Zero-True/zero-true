@@ -9,7 +9,7 @@
               <v-btn :prepend-icon="`ztIcon:${ztAliases.circleAdd}`" variant="plain" density="compact" :ripple="false"
               class="divider__btn bg-background">Add cell</v-btn>
             </span>
-            <v-divider class="divider__line" color="bluegrey-darken-2"></v-divider>
+            <v-divider class="divider__line" color="bluegrey-darken-1"></v-divider>
           </div>
         </div>
       </div>
@@ -79,6 +79,11 @@ const addCellItems = ref<{
   }
 }
 
+
+.divider__btn {
+  color: black !important; /* Force black text for the button */
+}
+
 .divider {
   display: flex;
   align-items: center;
@@ -93,7 +98,7 @@ const addCellItems = ref<{
     display: flex;
     align-items: center;
     margin: 0 8px;
-    color: bluegrey-darken-2;
+    color: bluegrey-darken-1;
     transition: color 0.2s ease;
   }
 
@@ -104,7 +109,7 @@ const addCellItems = ref<{
 
 .divider:hover {
   .divider__btn {
-    color: white !important;
+    color: blugrey-darken-1 !important;
   }
 }
 </style>

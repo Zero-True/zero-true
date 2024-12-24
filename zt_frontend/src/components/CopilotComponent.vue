@@ -9,7 +9,7 @@
       >
         <v-icon 
           :icon="`ztIcon:${ztAliases.copilot}`" 
-          :color="dialog ? 'primary' : 'white'"
+          :color="dialog ? 'primary' : 'bluegrey-darken-1'"
         >
         </v-icon>
       </v-btn>
@@ -43,15 +43,14 @@
         <div v-if="!serverStarted && !isLoading" class="d-flex flex-column align-center text-center pt-2">
           <v-icon
             :icon="`ztIcon:${ztAliases.copilot}`"
-            color="white"
             class="mb-4 dialog-icon"
           ></v-icon>
 
-          <h3 class="text-h5 mb-3 font-weight-bold text-white">
+          <h3 class="text-h5 mb-3 font-weight-bold ">
             GitHub Copilot
           </h3>
 
-          <p class="text-body-2 mb-6 text-gray-400">
+          <p class="text-body-2 mb-6">
             Active GitHub Copilot subscription required
           </p>
 
@@ -75,15 +74,15 @@
             class="mb-4 dialog-icon"
           ></v-icon>
           
-          <h3 class="text-h5 mb-3 font-weight-bold text-white">
+          <h3 class="text-h5 mb-3 font-weight-bold ">
             Unauthorized Access
           </h3>
           
-          <p class="text-body-2 mb-4 text-gray-400">
+          <p class="text-body-2 mb-4">
             {{ signInData?.user ? `${signInData.user}, you don't have an active GitHub Copilot subscription.` : 'You don\'t have an active GitHub Copilot subscription.' }}
           </p>
           
-          <p class="text-body-2 mb-6 text-gray-400">
+          <p class="text-body-2 mb-6 ">
             Please visit GitHub to manage your subscription.
           </p>
 
@@ -113,11 +112,10 @@
           <div v-if="signInData?.verificationUri && signInData?.userCode">
             <v-icon
               :icon="`ztIcon:${ztAliases.copilot}`"
-              color="white"
               class="mb-4 dialog-icon"
             ></v-icon>
 
-            <div class="text-h6 mb-4 text-white font-weight-bold">
+            <div class="text-h6 mb-4  font-weight-bold">
               Complete Your Sign In
             </div>
             <v-alert
@@ -126,7 +124,7 @@
               density="compact"
               class="rounded-lg"
             >
-              <p class="text-body-2 mb-2 text-gray-300">
+              <p class="text-body-2 mb-2">
                 Visit this URL to sign in:
               </p>
               <a
@@ -161,7 +159,7 @@
                     </v-tooltip>
                   </v-btn>
                   </div>
-                  <div class="verification-code text-h6 text-white">
+                  <div class="verification-code text-h6">
                     {{ signInData.userCode }}
                   </div>
                 </div>
@@ -182,15 +180,14 @@
         <div v-else-if="isSignedIn" class="d-flex flex-column align-center text-center pt-2">
           <v-icon
             :icon="`ztIcon:${ztAliases.copilot}`"
-            color="white"
             class="mb-4 dialog-icon"
           ></v-icon>
           
-          <div class="text-h6 mb-2 text-white font-weight-bold">
+          <div class="text-h6 mb-2  font-weight-bold">
             GitHub Copilot
           </div>
-          <div class="text-body-2 mb-4 text-gray-400">
-            Signed in as <span class="text-white">{{ signInData?.user }}</span>
+          <div class="text-body-2 mb-4">
+            Signed in as <span class="">{{ signInData?.user }}</span>
           </div>
           <v-btn
             color="primary"
