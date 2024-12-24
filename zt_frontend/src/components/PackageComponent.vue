@@ -6,7 +6,7 @@
         v-bind="props"
         icon
       >
-      <v-icon :color="updatingDependencies ? 'primary' : 'white'">
+      <v-icon :color="updatingDependencies ? 'primary' : 'bluegrey-darken-1'">
         mdi-list-box-outline
         </v-icon>
     </v-btn>
@@ -55,15 +55,13 @@
           </v-row>
         </v-list-item>
         <v-list-item class="d-flex justify-center align-center">
-          <v-btn
-            icon="mdi-plus"
-            variant="text"
-            @click="
-              dependencies.dependencies?.push({ package: '', version: '' })
-            "
-            text="Add Dependency"
-            class="black--text"
-          />
+        <v-btn
+          icon
+          variant="text"
+          @click="dependencies.dependencies?.push({ package: '', version: '' })"
+        >
+          <v-icon color="bluegrey-darken-1">mdi-plus</v-icon>
+        </v-btn>
         </v-list-item>
         <v-list-item v-if="dependencyOutput.output">
           <codemirror
@@ -93,8 +91,8 @@
         </div>
         <v-spacer />
         <v-btn
-          color="error"
-          variant="text"
+          color="primary"
+          variant="flat"
           @click="updatingDependencies = false"
           text="Close"
         />

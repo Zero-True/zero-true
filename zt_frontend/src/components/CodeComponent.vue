@@ -26,12 +26,12 @@
       >
         <h4
           v-if="cellData.hideCode"
-          class="text-bluegrey-darken-1 text-ellipsis app-static-name"
+          class="text-bluegrey-darken-4 text-ellipsis app-static-name"
         >
           {{ cellData.cellName }}
         </h4>
         <v-expansion-panels v-else v-model="expanded">
-          <v-expansion-panel v-model="expanded" bg-color="bluegrey-darken-3">
+          <v-expansion-panel v-model="expanded" bg-color="bluegrey-darken-4">
             <v-expansion-panel-title
               class="text-bluegrey-darken-1"
               :id="'codeMirrorAppTitle' + cellData.id"
@@ -229,6 +229,10 @@ export default {
   },
 
   computed: {
+    isDarkMode() {
+      // Adjust to your actual method of determining dark mode
+      return this.$vuetify.theme.current.dark;
+    },
     isAppRoute() {
       const route = useRoute();
       return route.path === "/app";
@@ -416,17 +420,19 @@ export default {
         return [
           Prec.highest(keyMap),
           python(),
+          this.isDarkMode ? oneDark : undefined, // Add condition for dark mode
           indentUnit.of("    "),
           inlineSuggestion({ fetchFn: fetchSuggestion, delay: 400 }),
           autocompletion({ override: [customCompletionSource] }),
           customLinter,
-        ];
+        ].filter(Boolean);
       }
       return [
         EditorState.readOnly.of(true),
         Prec.highest(keyMap),
         python(),
-      ];
+        this.isDarkMode ? oneDark : undefined, // Add condition for dark mode
+      ].filter(Boolean);
     },
 
     unplacedComponents() {

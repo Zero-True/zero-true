@@ -33,7 +33,7 @@
         <FileFolderCreator :current-path="currentPath" @item-created="refreshFiles" />
         <FileUploader :current-path="currentPath" @file-uploaded="refreshFiles" />
         <v-btn
-          color="transparent"
+          color="bluegrey-darken-4"
           icon="mdi-refresh"
           @click="refreshFiles"
           size="small"
@@ -47,6 +47,7 @@
         v-for="item in filteredItems" 
         :key="item.id"
         :item="item"
+        :color="bluegrey-darken-1"
         :depth="0"
         :current-path="currentPath"
         @refresh-files="refreshFiles"
@@ -61,7 +62,7 @@
       {{ errorMessage }}
       <template v-slot:actions>
         <v-btn
-          color="white"
+          color="bluegrey-darken-1"
           variant="text"
           @click="showError = false"
         >
@@ -197,7 +198,7 @@ export default defineComponent({
 }
 
 .search-field :deep(.v-field__input) {
-  color: #ecf0f1;            /* Light text color */
+  color:rgb(0, 0, 0);            /* Light text color */
   font-size: 11px;
 }
 
@@ -210,7 +211,7 @@ export default defineComponent({
 }
 
 .section-title {
-  color: white;
+  color: black;
   font-family: 'Pathway Extreme', sans-serif;
   font-size: 13px;
   font-weight: 600;
@@ -229,6 +230,7 @@ export default defineComponent({
   font-size: 16px !important;
   width: 16px;
   height: 16px;
+  color: black;
 }
 
 :deep(.action-btn.v-btn) {
@@ -239,11 +241,11 @@ export default defineComponent({
   margin: 0 !important;
   
   .v-icon {
-    color: #3A586B !important;
+    color:rgb(0, 0, 0) !important;
   }
   
   &:hover .v-icon {
-    color: #FFFFFF !important;
+    color:rgb(2, 2, 2) !important;
   }
 }
 .sidebar {
@@ -260,14 +262,14 @@ export default defineComponent({
 }
 
 .sidebar::-webkit-scrollbar-thumb {
-  background-color: rgba(58, 88, 107, 0.5);
+  background-color: rgba(0, 0, 0, 0.5);
   border-radius: 50px; /* Significantly more rounded */
   border: 2px solid transparent; /* Creates a softer, rounder appearance */
   background-clip: content-box; /* Allows the border to create additional roundness */
 }
 
 .sidebar::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(58, 88, 107, 0.7);
+  background-color: rgba(0, 0, 0, 0.7);
 }
 
 /* Remove padding from file-tree to allow full content scrolling */
