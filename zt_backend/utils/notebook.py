@@ -5,7 +5,6 @@ from zt_backend.models.api import request, response
 from zt_backend.models import notebook
 from zt_backend.utils.debounce import debounce
 from zt_backend.config import settings
-from zt_backend.utils.nb_python import parse_notebook_file, write_notebook_to_python
 from pathlib import Path
 import logging
 import duckdb
@@ -16,19 +15,9 @@ import json
 import copy
 import rtoml
 import ast
-import re
-import importlib
 
 logger = logging.getLogger("__name__")
 notebook_state = NotebookState()
-
-
-
-def get_notebook_python():
-    # Load the Python notebook file dynamically
-    notebook_path = Path(settings.zt_path) / "notebook.py"
-    return(parse_notebook_file(notebook_path))
-
 
 
 def get_notebook(id=""):
@@ -45,73 +34,67 @@ def get_notebook(id=""):
             )
 
     try:
-        # logger.debug("Notebook id is empty")
-        # # If it doesn't exist in the database, load it from the TOML file
-        # logger.info(f'{settings.zt_path}/notebook.py')
-        # notebook_path = Path(settings.zt_path) / "notebook.ztnb"
+        logger.debug("Notebook id is empty")
+        # If it doesn't exist in the database, load it from the TOML file
+        logger.info(f'{settings.zt_path}/notebook.ztnb')
+        notebook_path = Path(settings.zt_path) / "notebook.ztnb"
+        with notebook_path.open("r", encoding="utf-8") as project_file:
+            toml_data = rtoml.loads(project_file.read().replace("\\", "\\\\"))
 
-        # with notebook_path.open("r", encoding="utf-8") as project_file:
-        #     toml_data = rtoml.loads(project_file.read().replace("\\", "\\\\"))
-
-        # try:
-        #     # get notebook from the database
-        #     notebook_state.zt_notebook = get_notebook_db(toml_data["notebookId"])
-        #     logger.debug(
-        #         "Notebook retrieved from db with id %s", toml_data["notebookId"]
-        #     )
-        #     notebook_state_init()
-        #     return
-        # except Exception as e:
-        #     logger.debug(
-        #         "Error loading notebook with id %s from db: %s",
-        #         toml_data["notebookId"],
-        #         traceback.format_exc(),
-        #     )
-        #     pass
-        # #Convert TOML data to a Notebook object
-        
-        # notebook_data = {
-        #     "notebookId": toml_data["notebookId"],
-        #     "notebookName": toml_data.get("notebookName", "Zero True"),
-        #     "userId": "",
-        #     "cells": {
-        #         cell_id: notebook.CodeCell(
-        #             id=cell_id,
-        #             **{
-        #                 cell_key: cell_value
-        #                 for cell_key, cell_value in cell_data.items()
-        #                 if cell_key != "comments"
-        #             },
-        #             output="",
-        #             comments={
-        #                 comment_id: notebook.Comment(
-        #                     id=comment_id,
-        #                     **{
-        #                         comment_key: comment_value
-        #                         for comment_key, comment_value in comment_data.items()
-        #                         if comment_key != "replies"
-        #                     },
-        #                     replies={
-        #                         reply_id: notebook.Comment(id=reply_id, **reply_data)
-        #                         for reply_id, reply_data in comment_data.get(
-        #                             "replies", {}
-        #                         ).items()
-        #                     },
-        #                 )
-        #                 for comment_id, comment_data in cell_data.get(
-        #                     "comments", {}
-        #                 ).items()
-        #             },
-        #         )
-        #         for cell_id, cell_data in toml_data["cells"].items()
-        #     },
-        # }
-        notebook_data=get_notebook_python()
-        if notebook_data != None:
-            notebook_state.zt_notebook = notebook.Notebook(**notebook_data)
-            new_notebook = notebook_state.zt_notebook.model_dump_json()
-            print(new_notebook)
-
+        try:
+            # get notebook from the database
+            notebook_state.zt_notebook = get_notebook_db(toml_data["notebookId"])
+            logger.debug(
+                "Notebook retrieved from db with id %s", toml_data["notebookId"]
+            )
+            notebook_state_init()
+            return
+        except Exception as e:
+            logger.debug(
+                "Error loading notebook with id %s from db: %s",
+                toml_data["notebookId"],
+                traceback.format_exc(),
+            )
+            pass
+        # Convert TOML data to a Notebook object
+        notebook_data = {
+            "notebookId": toml_data["notebookId"],
+            "notebookName": toml_data.get("notebookName", "Zero True"),
+            "userId": "",
+            "cells": {
+                cell_id: notebook.CodeCell(
+                    id=cell_id,
+                    **{
+                        cell_key: cell_value
+                        for cell_key, cell_value in cell_data.items()
+                        if cell_key != "comments"
+                    },
+                    output="",
+                    comments={
+                        comment_id: notebook.Comment(
+                            id=comment_id,
+                            **{
+                                comment_key: comment_value
+                                for comment_key, comment_value in comment_data.items()
+                                if comment_key != "replies"
+                            },
+                            replies={
+                                reply_id: notebook.Comment(id=reply_id, **reply_data)
+                                for reply_id, reply_data in comment_data.get(
+                                    "replies", {}
+                                ).items()
+                            },
+                        )
+                        for comment_id, comment_data in cell_data.get(
+                            "comments", {}
+                        ).items()
+                    },
+                )
+                for cell_id, cell_data in toml_data["cells"].items()
+            },
+        }
+        notebook_state.zt_notebook = notebook.Notebook(**notebook_data)
+        new_notebook = notebook_state.zt_notebook.model_dump_json()
         conn = duckdb.connect(notebook_state.notebook_db_path)
         create_table_query = f"CREATE TABLE IF NOT EXISTS '{notebook_state.zt_notebook.notebookId}' (id STRING PRIMARY KEY, notebook STRING)"
         conn.execute(create_table_query)
@@ -122,7 +105,7 @@ def get_notebook(id=""):
         conn.close()
         logger.debug(
             "Notebook with id %s loaded from toml and new db entry created",
-            notebook_data["notebookId"],
+            toml_data["notebookId"],
         )
         notebook_state_init()
     except Exception as e:
@@ -331,8 +314,7 @@ def save_notebook():
     insert_query = f"INSERT OR REPLACE INTO '{notebook_state.zt_notebook.notebookId}' (id, notebook) VALUES (?, ?)"
     conn.execute(insert_query, [notebook_state.zt_notebook.notebookId, new_notebook])
     conn.close()
-    #write_notebook()
-    write_notebook_to_python(notebook_state)
+    write_notebook()
 
 
 def write_notebook():
@@ -399,9 +381,6 @@ def write_notebook():
             )
             pass  # Handle error silently
     logger.debug("Toml saved for notebook %s", notebook_state.zt_notebook.notebookId)
-
-
-
 
 
 async def save_worker(save_queue):
