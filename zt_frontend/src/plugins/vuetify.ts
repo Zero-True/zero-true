@@ -63,15 +63,6 @@ const vuetify = createVuetify({
     VMenu: {
       contentClass: 'zt-menu' 
     },
-    VSwitch: {
-      baseColor: 'bluegrey-darken-3',
-      color: 'primary',
-      density:'compact',
-      hideDetails: true,
-    },
-    VTextarea: {
-      bgColor: 'bluegrey-darken-3'
-    }
   },
   theme: {
     defaultTheme: currentTheme.value, // Set the initial theme
