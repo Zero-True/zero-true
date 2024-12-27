@@ -17,6 +17,7 @@ from zt_backend.config import settings
 import importlib.resources
 
 
+
 copilot_app = FastAPI()
 
 copilot_app.add_middleware( 
@@ -123,18 +124,13 @@ async def text_document_did_open(params: DidOpenTextDocumentParams):
     global copilot_enabled
     if copilot_enabled:
         try:
-            component_context = mdx_parser.get_components_context()
-            completion_hints = mdx_parser.get_completion_hints()
+            component_context = mdx_parser.generate_completion_context()
             
-            # Add completion hints as special markers
-            hint_context = "\n".join([
-                f"COMPLETION_HINT: {key} -> {value}"
-                for key, value in completion_hints.items()
-            ])
             
             # Combine all context
-            full_context = f"/*\n{component_context}\n{hint_context}\n*/\n"
+            full_context = f"/*\n{component_context}/\n"
             
+            print(full_context)
             params.textDocument.text = full_context + params.textDocument.text
             payload = {
                 "method": "textDocument/didOpen",
@@ -149,7 +145,7 @@ async def text_document_did_open(params: DidOpenTextDocumentParams):
         except requests.RequestException as e:
             raise HTTPException(status_code=500, detail=str(e))
 
-@async_debounce(0.2)
+@async_debounce(0.5)
 async def text_document_did_change(params):
     global copilot_enabled
     global copilot_doc_open
@@ -178,15 +174,25 @@ async def get_completions(params: GetCompletionsParams):
     global copilot_enabled
     global copilot_doc_open
     global version
-    if copilot_enabled and copilot_doc_open:
-        try:
-            params.doc.version = version
-            response = requests.post(f"{NODE_SERVER_URL}/sendRequest", json={"method": "getCompletions", "params": params.dict()})
-            response.raise_for_status()
-            return response.json()
-        except requests.RequestException as e:
-            raise HTTPException(status_code=500, detail=str(e))
+    if not copilot_enabled or not copilot_doc_open:
+        return CopilotGetCompletionsResult(completions=[])  # Return empty result instead of None
         
+    try:
+        params.doc.version = version
+        response = requests.post(f"{NODE_SERVER_URL}/sendRequest", json={"method": "getCompletions", "params": params.dict()})
+        response.raise_for_status()
+        
+        result = response.json()
+        if result is None:
+            print("Warning: Node server returned None response")
+            return CopilotGetCompletionsResult(completions=[])
+            
+        return result
+        
+    except requests.RequestException as e:
+        print(f"Request error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+      
 @copilot_app.post("/accept_completion")
 async def check_status(req: AcceptRequest):
     try:

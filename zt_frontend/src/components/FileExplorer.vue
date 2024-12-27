@@ -8,13 +8,15 @@
   >
     <div class="search-field-container">
       <v-text-field
-  v-model="searchTerm"
+  v-model="searchQuery"
   placeholder="Search"
   variant="outlined"
   density="compact"
   hide-details
   class="search-field"
   clearable
+  :loading="isSearching"
+  @click:clear="handleSearchClear"
 >
   <template v-slot:prepend-inner>
     <v-icon
@@ -82,6 +84,7 @@ import DeleteDialog from "@/components/FileFolderDeleteDialog.vue";
 import FileEditorDialog from '@/components/FileEditorDialog.vue';
 import FileFolderDownloadDialog from "@/components/FileFolderDownloadDialog.vue";
 import FileTreeNode from "@/components/FileTreeNode.vue";
+import { debounce } from "lodash";
 
 export default defineComponent({
   name: "SidebarComponent",
@@ -107,14 +110,62 @@ export default defineComponent({
     const localItems = ref(props.items || ([] as any[]));
     const currentPath = ref("." as string);
     const pathStack = ref([] as string[]);
-    const searchTerm = ref("");
     const errorMessage = ref("");
     const showError = ref(false);
+    const searchQuery = ref("");
+    const searchResults = ref<any[]>([]);
+    const isSearching = ref(false);
+
     const protectedFiles = ref(["requirements.txt", "notebook.ztnb","zt_db.db","zt_db.db.wal"]);
 
     const isProtectedFile = (filename: string) => {
       return protectedFiles.value.includes(filename);
     };
+
+    const handleSearchClear = () => {
+      searchQuery.value = "";
+      searchResults.value = [];
+      isSearching.value = false;
+      refreshFiles();
+    };
+
+    const debouncedSearch = debounce(async (query: string) => {
+      if (!query || query.length < 3) {
+        searchResults.value = [];
+        isSearching.value = false;
+        return;
+      }
+
+      try {
+        isSearching.value = true;
+        const response = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}api/search_files`,
+          { params: { query } }
+        );
+        searchResults.value = response.data.files || [];
+      } catch (error) {
+        console.error("Search failed:", error);
+        errorMessage.value = "Failed to search files";
+        showError.value = true;
+        searchResults.value = [];
+      } finally {
+        isSearching.value = false;
+      }
+    }, 300);
+
+    watch(searchQuery, (newQuery) => {
+      if (!newQuery || newQuery.length === 0) {
+        handleSearchClear();
+        return;
+      }
+      if (newQuery.length >= 3) {
+        debouncedSearch(newQuery);
+      }
+    });
+
+    const filteredItems = computed(() => {
+      return searchQuery.value.length >= 3 ? (searchResults.value || []) : (localItems.value || []);
+    });
 
     watch(
       () => props.drawer,
@@ -128,20 +179,6 @@ export default defineComponent({
       if (newValue) {
         refreshFiles();
       }
-    });
-
-    const filteredItems = computed(() => {
-    if (!searchTerm.value) {
-      return localItems.value;
-    }
-
-    return localItems.value.filter(item => {   
-      if (item && item.title) {
-        return item.title.toLowerCase().includes(searchTerm.value.toLowerCase());
-      } else {
-        return false;
-      }
-      });
     });
 
     const loadRootFolder = async () => {
@@ -181,8 +218,10 @@ export default defineComponent({
       errorMessage,
       showError,
       isProtectedFile,
-      searchTerm,
       filteredItems,
+      searchQuery,
+      isSearching,
+      handleSearchClear,
     };
   },
 });

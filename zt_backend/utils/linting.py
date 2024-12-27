@@ -34,6 +34,7 @@ async def run_ruff_linting(text: str) -> List[Dict]:
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
+        encoding="utf-8",
     )
     stdout, stderr = process.communicate(input=text)
 
@@ -129,6 +130,9 @@ async def queued_get_cell_linting(
     cell_id: str, text: str, code_w_context: str, websocket: WebSocket
 ):
     try:
+        text = text.encode('utf-8', errors='replace').decode('utf-8')
+        code_w_context = code_w_context.encode('utf-8', errors='replace').decode('utf-8')
+        
         context_lines = code_w_context.strip().split("\n")
         cell_lines = text.strip().split("\n")
 

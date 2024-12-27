@@ -931,6 +931,50 @@ def list_files():
     
     return {"files": [root]}
 
+@router.get("/api/search_files")
+def search_files(query: str = Query(..., min_length=3)):
+    """Search for files and folders by name"""
+    if app_state.run_mode == "dev":
+        try:
+            base_path = Path(".")
+            results = []
+            
+            for root, dirs, files in os.walk(base_path):
+                # Skip hidden and system directories
+                dirs[:] = [d for d in dirs if not (is_hidden(d) or is_system_folder(d))]
+                
+                rel_root = Path(root).relative_to(base_path)
+                
+                # Search non-hidden directories
+                for dir_name in dirs:
+                    if query.lower() in dir_name.lower():
+                        full_path = Path(root) / dir_name
+                        rel_path = str(full_path.relative_to(base_path))
+                        results.append({
+                            "title": dir_name,
+                            "file": "folder",
+                            "id": rel_path
+                        })
+                
+                # Search non-hidden files
+                for file_name in files:
+                    if not (is_hidden(file_name) or is_system_folder(file_name)) and query.lower() in file_name.lower():
+                        full_path = Path(root) / file_name
+                        rel_path = str(full_path.relative_to(base_path))
+                        file_type = get_file_type(file_name)
+                        results.append({
+                            "title": file_name,
+                            "file": file_type or "file",
+                            "id": rel_path
+                        })
+            
+            return {"files": results}
+            
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Search failed: {str(e)}"
+            )
 
 @router.get("/api/get_children")
 def list_children(path: str = Query(...)):

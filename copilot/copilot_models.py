@@ -74,7 +74,7 @@ class Completion(BaseModel):
     displayText: str
 
 class CopilotGetCompletionsResult(BaseModel):
-    completions: List[Completion]
+    completions: List[Completion] = Field(default_factory=list)
 
 class AcceptRequest(BaseModel):
     uuid: str
