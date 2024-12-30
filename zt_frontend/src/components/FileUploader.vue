@@ -10,8 +10,8 @@
     <template v-slot:activator="{ props }">
       <v-btn
         v-bind="props"
+        color = "bluegrey-darken-1"
         icon="mdi-tray-arrow-up"
-        color="transparent"
         @click="openDialog"
         size="small"
         class="action-btn"
@@ -40,7 +40,6 @@
           @click="closeDialog"
           v-if="!isUploading"
           class="close-button"
-          variant="plain"
         >
           <v-icon size="20">mdi-close</v-icon>
         </v-btn>
@@ -87,7 +86,7 @@
               @click="triggerFileInput"
               :disabled="isUploading"
               prepend-icon="mdi-file-multiple"
-              class="mr-2"
+              class="cancel-btn"
             >
               Choose Files
             </v-btn>
@@ -108,6 +107,7 @@
               @click="triggerFolderInput"
               :disabled="isUploading"
               prepend-icon="mdi-folder"
+              class="cancel-btn"
             >
               Choose Folder
             </v-btn>
@@ -117,7 +117,7 @@
         <!-- Selected Files List -->
         <div v-if="uploadItems.length > 0" class="selected-files">
           <div class="text-subtitle-1 mb-2">Selected Items:</div>
-          <v-list density="compact" class="bg-grey-lighten-4 rounded">
+          <v-list density="compact" class="rounded">
             <v-list-item
               v-for="(item, index) in uploadItems"
               :key="index"
@@ -143,14 +143,12 @@
       </v-card-text>
 
   
-      <v-card-actions class="pa-3 bg-dark">
+      <v-card-actions class="pa-3">
         <v-spacer />
-        <v-btn
-          color="grey"
-          variant="text"
+        <v-btn 
           @click="closeDialog"
           :disabled="isUploading"
-          class="mr-2"
+          class="cancel-btn"
         >
           Cancel
         </v-btn>
@@ -177,7 +175,7 @@
           rounded
         >
           <template v-slot:default="{ value }">
-            <span class="white--text">{{ Math.ceil(value) }}%</span>
+            <span class="text">{{ Math.ceil(value) }}%</span>
           </template>
         </v-progress-linear>
       </div>
@@ -447,6 +445,7 @@ export default defineComponent({
   position: absolute;
   top: 8px;
   right: 8px;
+  color: var(--v-theme-on-surface) !important;
 }
 
 .upload-area {
@@ -455,9 +454,15 @@ export default defineComponent({
   transition: all 0.3s ease;
 }
 
+.cancel-btn {
+  /* Forces button text to use the current theme’s on-surface color */
+  color: var(--v-theme-on-surface) !important;
+}
+
 .upload-area.drag-over {
   background-color: rgba(var(--v-primary-base), 0.1);
   border-color: var(--v-primary-darken-1);
+  color: var(--v-theme-on-surface) !important;
 }
 
 .selected-files {

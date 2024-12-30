@@ -23,23 +23,22 @@
           <v-icon 
             size="small" 
             class="mr-2" 
-            color="grey-lighten-2"
           >{{ file === 'folder' ? 'mdi-folder-outline' : 'mdi-file-document-outline' }}</v-icon>
-          <span class="text-h6 text-grey-lighten-2">Download {{ file === 'folder' ? 'Folder' : 'File' }}</span>
+          <span class="text-h6">Download {{ file === 'folder' ? 'Folder' : 'File' }}</span>
         </div>
         <v-btn
-          icon="mdi-close"
-          variant="text"
+          icon
           @click="handleClose"
-          :disabled="isDownloading"
-          class="ml-2"
-          color="grey-lighten-2"
-        />
+          v-if="!isDownloading"
+          class="close-button"
+        >
+          <v-icon size="20">mdi-close</v-icon>
+        </v-btn>
       </v-card-title>
 
       <!-- Item details -->
       <v-card-subtitle class="pa-3 bg-dark border-subtle">
-        <div class="text-grey-lighten-2">
+        <div>
           <span class="text-caption">Selected item:</span>
           <span class="text-body-2 ml-2">{{ title }}</span>
         </div>
@@ -73,8 +72,8 @@
               class="mr-3"
             />
             <div>
-              <div class="text-grey-lighten-2 text-body-1">{{ title }}</div>
-              <div class="text-caption text-grey">
+              <div class="text-body-1">{{ title }}</div>
+              <div class="text-caption">
                 {{ file === 'folder' ? 'Will be downloaded as ZIP file' : 'Ready for download' }}
               </div>
             </div>
@@ -94,7 +93,7 @@
               <span class="text-caption">{{ Math.ceil(value) }}%</span>
             </template>
           </v-progress-linear>
-          <div class="text-caption text-grey-lighten-2 text-center">
+          <div class="text-caption text-center">
             Downloading... please wait
           </div>
         </div>
@@ -104,11 +103,10 @@
       <v-card-actions class="pa-4 bg-dark">
         <v-spacer />
         <v-btn
-          color="grey"
           variant="text"
           @click="handleClose"
           :disabled="isDownloading"
-          class="mr-2"
+          class="cancel-btn"
         >
           Cancel
         </v-btn>
@@ -131,8 +129,8 @@
       <v-card class="bg-dark">
         <v-card-text class="text-center pa-4">
           <v-icon color="success" size="48" class="mb-2">mdi-check-circle</v-icon>
-          <div class="text-h6 text-grey-lighten-2 mb-2">Download Complete!</div>
-          <div class="text-body-2 text-grey">
+          <div class="text-h6 mb-2">Download Complete!</div>
+          <div class="text-body-2">
             File downloaded successfully
           </div>
         </v-card-text>
@@ -280,6 +278,19 @@ export default defineComponent({
 .cursor-pointer {
   cursor: pointer;
 }
+
+.close-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: var(--v-theme-on-surface) !important;
+}
+
+.cancel-btn {
+  /* Forces button text to use the current theme’s on-surface color */
+  color: var(--v-theme-on-surface) !important;
+}
+
 
 :deep(.v-alert) {
   background-color: rgba(var(--v-theme-error), 0.1) !important;

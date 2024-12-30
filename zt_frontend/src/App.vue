@@ -47,11 +47,11 @@
       </div>
       <h5 v-else class="text-ellipsis text-h5">{{ notebookName }}</h5>
       <div class="toggle-group" v-if="$devMode && !isMobile">
-        <v-btn-toggle :multiple="false" variant="outlined" density="compact" mandatory>
+        <v-btn-toggle :multiple="false" density="compact" mandatory>
           <v-btn
             :color="!isAppRoute ? 'primary' : 'bluegrey-darken-1'"
             :variant="!isAppRoute ? 'flat' : 'text'"
-            :class="{ 'black': !isAppRoute }"
+            :class="{ 'text-bluegrey-darken-4': !isAppRoute }"
             :prepend-icon="`ztIcon:${ztAliases.notebook}`"
             to="/"
             id="notebookBtn"
@@ -61,7 +61,7 @@
           <v-btn
             :color="isAppRoute ? 'primary' : 'bluegrey-darken-1'"
             :variant="isAppRoute ? 'flat' : 'text'"
-            :class="{ 'black': isAppRoute }"
+            :class="{ 'text-bluegrey-darken-4': isAppRoute }"
             :prepend-icon="`ztIcon:${ztAliases.monitor}`"
             to="/app"
             id="appBtn"
@@ -1146,33 +1146,6 @@ export default {
 <style lang="scss" scoped>
 @import "@/styles/mixins.scss";
 
-.toggle-group {
-  .v-btn-toggle {
-    .v-btn {
-      /* Default (light mode) text and icon color */
-      color: #000 !important;
-      border-color: primary !important;
-
-      .v-icon {
-        color: #000 !important;
-      }
-
-      &.v-btn--selected,
-      &.v-btn--active,
-      &:hover {
-        /* Active/hovered uses primary background with white text/icons */
-        background-color: primary !important;
-        color: #fff !important;
-
-        .v-icon {
-          color: #fff !important;
-        }
-      }
-    }
-  }
-}
-
-
 .zt-app-bar {
   padding-top: 3px;
   padding-bottom: 3px;
@@ -1350,10 +1323,45 @@ export default {
 }
 
 .toggle-group {
+  .v-btn-toggle {
+    .v-btn {
+      /* Use Vuetify's text-on-surface color for unselected/normal state. */
+      color: var(--v-theme-on-surface) !important;
+      border-color: var(--v-theme-on-surface) !important;
+      
+      /* Icon color (normal/unselected). */
+      .v-icon {
+        color: var(--v-theme-on-surface) !important;
+      }
+
+      /* Active (selected), or hover state uses primary color scheme. */
+      &.v-btn--selected,
+      &.v-btn--active,
+      &:hover {
+        background-color: primary !important;
+        color: white !important;
+        
+        .v-icon {
+          color: var(--v-theme-on-primary) !important;
+        }
+      }
+    }
+  }
+}
+
+
+.v-tooltip--primary .v-tooltip-content {
+  background-color: var(--v-theme-primary) !important;
+  color: var(--v-theme-on-primary) !important;
+}
+
+
+.toggle-group {
   display: flex;
   justify-content: center;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
 }
+
 </style>

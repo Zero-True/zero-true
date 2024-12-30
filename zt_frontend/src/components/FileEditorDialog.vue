@@ -176,7 +176,10 @@ setup(props, { emit }) {
     const ext = props.fileName.split('.').pop()?.toLowerCase() || ''
     return ext ? `.${ext.toUpperCase()}` : 'Plain Text'
   })
-
+  
+  const isDarkMode = computed(() => {
+      return this.$vuetify.theme.current.dark;
+    })
 
 
   // Simulate file size for status bar
@@ -273,13 +276,14 @@ setup(props, { emit }) {
   const extensions = computed(() => [
     getLanguageExtension(props.fileName),
     indentUnit.of("    "),
+    oneDark,
     EditorView.theme({
       "&": {
         fontSize: "14px",
         height: "100%"
       }
     })
-  ])
+  ].filter(Boolean))
 
   return {
     dialog,
