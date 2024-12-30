@@ -33,7 +33,7 @@
         <FileFolderCreator :current-path="currentPath" @item-created="refreshFiles" />
         <FileUploader :current-path="currentPath" @file-uploaded="refreshFiles" />
         <v-btn
-          color="bluegrey-darken-4"
+          color="bluegrey-darken-1"
           icon="mdi-refresh"
           @click="refreshFiles"
           size="small"
@@ -47,7 +47,6 @@
         v-for="item in filteredItems" 
         :key="item.id"
         :item="item"
-        :color="bluegrey-darken-1"
         :depth="0"
         :current-path="currentPath"
         @refresh-files="refreshFiles"
@@ -198,7 +197,7 @@ export default defineComponent({
 }
 
 .search-field :deep(.v-field__input) {
-  color:rgb(0, 0, 0);            /* Light text color */
+  color: var(--v-theme-on-surface) !important;
   font-size: 11px;
 }
 
@@ -211,7 +210,7 @@ export default defineComponent({
 }
 
 .section-title {
-  color: black;
+  color: var(--v-theme-on-surface) !important;
   font-family: 'Pathway Extreme', sans-serif;
   font-size: 13px;
   font-weight: 600;
@@ -230,7 +229,8 @@ export default defineComponent({
   font-size: 16px !important;
   width: 16px;
   height: 16px;
-  color: black;
+  color: var(--v-theme-on-surface) !important;
+;
 }
 
 :deep(.action-btn.v-btn) {
@@ -241,11 +241,12 @@ export default defineComponent({
   margin: 0 !important;
   
   .v-icon {
-    color:rgb(0, 0, 0) !important;
+    color: var(--v-theme-on-surface) !important;
+
   }
   
   &:hover .v-icon {
-    color:rgb(2, 2, 2) !important;
+    color: var(--v-theme-on-surface) !important;
   }
 }
 .sidebar {

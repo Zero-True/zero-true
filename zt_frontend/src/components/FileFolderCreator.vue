@@ -5,7 +5,7 @@
     @click="handleOpen"
     size="small"
     class="action-btn"
-    color="transparent"
+    color="bluegrey-darken-1"
   />
 
   <v-list-item-title
@@ -25,23 +25,23 @@
     @click:outside="handleClose"
   >
     <v-card class="creator-dialog">
-      <v-card-title class="d-flex justify-space-between align-center pa-3 bg-dark">
+      <v-card-title class="d-flex justify-space-between align-center pa-3">
         <div class="d-flex align-center">
-          <v-icon size="small" class="mr-2" color="grey-lighten-2">
+          <v-icon size="small" class="mr-2">
             {{ getItemIcon }}
           </v-icon>
-          <span class="text-subtitle-1 text-grey-lighten-2">Create New {{ newItemType }}</span>
+          <span class="text-subtitle-1">Create New {{ newItemType }}</span>
         </div>
         <v-btn
-          icon="mdi-close"
-          variant="text"
-          size="small"
+          icon
           @click="handleClose"
-          color="grey-lighten-2"
-        />
+          class="close-button"
+        >
+          <v-icon size="20">mdi-close</v-icon>
+        </v-btn>
       </v-card-title>
 
-      <v-card-text class="pa-3 bg-dark">
+      <v-card-text class="pa-3">
         <v-select
           v-model="newItemType"
           :items="itemTypes"
@@ -50,10 +50,9 @@
           density="compact"
           class="mb-3"
           variant="outlined"
-          theme="dark"
         >
           <template v-slot:prepend-inner>
-            <v-icon size="small" color="grey-lighten-2">
+            <v-icon size="small">
               {{ newItemType === 'folder' ? 'mdi-folder-outline' : 'mdi-file-outline' }}
             </v-icon>
           </template>
@@ -61,29 +60,26 @@
 
         <v-text-field
           v-model="newItemName"
-          :label="`${newItemType} Name`"
+          :label="`${newItemType} name`"
           :rules="nameRules"
           required
           @keyup.enter="saveChanges"
           density="compact"
           variant="outlined"
           :error-messages="errorMessage"
-          theme="dark"
         >
           <template v-slot:prepend-inner>
-            <v-icon size="small" color="grey-lighten-2">mdi-form-textbox</v-icon>
+            <v-icon size="small">mdi-form-textbox</v-icon>
           </template>
         </v-text-field>
       </v-card-text>
 
-      <v-card-actions class="pa-3 bg-dark">
+      <v-card-actions class="pa-3">
         <v-spacer />
         <v-btn
-          color="grey"
-          variant="text"
           @click="handleClose"
           :disabled="saving"
-          class="mr-2"
+          class="cancel-btn"
         >
           Cancel
         </v-btn>
@@ -242,10 +238,21 @@ export default defineComponent({
 
 <style scoped>
 :deep(.v-text-field .v-field__input) {
-  color: #fff !important;
+  color: var(--v-theme-on-surface) !important;
 }
 :deep(.v-text-field .v-label) {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--v-theme-on-surface) !important;
+}
+.close-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: var(--v-theme-on-surface) !important;
+}
+
+.cancel-btn {
+  /* Forces button text to use the current theme’s on-surface color */
+  color: var(--v-theme-on-surface) !important;
 }
 
 :deep(.v-select .v-field--variant-outlined) {

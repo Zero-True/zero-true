@@ -4,7 +4,7 @@
       <div v-bind="cellId ? { ...props, id: 'addCell' + cellId } : props" class="activator-area-push">
         <div class="divider-container">
           <div class="divider">
-            <v-divider class="divider__line" color="bluegrey-darken-2"></v-divider>
+            <v-divider class="divider__line" color="bluegrey-darken-1"></v-divider>
             <span class="divider__text">
               <v-btn :prepend-icon="`ztIcon:${ztAliases.circleAdd}`" variant="plain" density="compact" :ripple="false"
               class="divider__btn bg-background">Add cell</v-btn>
@@ -79,10 +79,11 @@ const addCellItems = ref<{
   }
 }
 
-
 .divider__btn {
-  color: black !important; /* Force black text for the button */
+  // The Vuetify 3 variable for body text color:
+  color: var(--v-theme-on-surface) !important;
 }
+
 
 .divider {
   display: flex;

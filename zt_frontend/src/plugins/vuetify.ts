@@ -6,7 +6,7 @@ import { ref, watch } from "vue";
 import { computed } from "vue";
 
 // Define the reactive theme variable
-const currentTheme = ref("dark");
+export const currentTheme = ref("dark");
 
 // Function to toggle between themes
 export const toggleTheme = () => {
@@ -47,6 +47,12 @@ const vuetify = createVuetify({
         style: [{ borderRadius: 'inherit' }],
         class: buttonTextColor.value,
       }
+    },
+    VSwitch: {
+      baseColor: 'bluegrey-darken-3',
+      color: 'primary',
+      density:'compact',
+      hideDetails: true,
     },
     VCard: {
       color: "bluegrey-darken-4",

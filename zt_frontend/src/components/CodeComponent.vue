@@ -230,7 +230,6 @@ export default {
 
   computed: {
     isDarkMode() {
-      // Adjust to your actual method of determining dark mode
       return this.$vuetify.theme.current.dark;
     },
     isAppRoute() {

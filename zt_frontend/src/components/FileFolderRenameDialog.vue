@@ -16,30 +16,30 @@
     >
       <v-card class="rename-dialog">
         <!-- Dark themed header -->
-        <v-card-title class="d-flex justify-space-between align-center pa-4 bg-dark">
+        <v-card-title class="d-flex justify-space-between align-center">
           <div class="d-flex align-center">
-            <v-icon size="small" class="mr-2" color="grey-lighten-2">mdi-file-document-outline</v-icon>
-            <span class="text-h6 text-grey-lighten-2">Rename Item</span>
+            <v-icon size="small" class="mr-2">mdi-file-document-outline</v-icon>
+            <span class="text-h6">Rename Item</span>
           </div>
-          <v-btn
-            icon="mdi-close"
-            variant="text"
-            @click="handleClose"
-            class="ml-2"
-            color="grey-lighten-2"
-          />
+         <v-btn
+          icon
+          @click="handleClose"
+          class="close-button"
+        >
+          <v-icon size="20">mdi-close</v-icon>
+        </v-btn>
         </v-card-title>
 
         <!-- Current filename display -->
-        <v-card-subtitle class="pa-3 bg-dark border-subtle">
-          <div class="text-grey-lighten-2">
+        <v-card-subtitle>
+          <div>
             <span class="text-caption">Current name:</span>
-            <span class="text-body-2 ml-2">{{ fileName }}</span>
+            <span class="text-body-2">{{ fileName }}</span>
           </div>
         </v-card-subtitle>
 
         <!-- Rename input -->
-        <v-card-text class="pa-4 bg-dark">
+        <v-card-text>
           <v-text-field
             v-model="newName"
             label="New Name"
@@ -54,7 +54,7 @@
             theme="dark"
           >
             <template v-slot:prepend-inner>
-              <v-icon size="small" color="grey-lighten-2">mdi-form-textbox</v-icon>
+              <v-icon size="small">mdi-form-textbox</v-icon>
             </template>
           </v-text-field>
 
@@ -66,14 +66,12 @@
         </v-card-text>
 
         <!-- Dark themed action buttons -->
-        <v-card-actions class="pa-4 bg-dark">
+        <v-card-actions>
           <v-spacer />
           <v-btn
-            color="grey"
-            variant="text"
             @click="handleClose"
             :disabled="saving"
-            class="mr-2"
+            class="cancel-btn"
           >
             Cancel
           </v-btn>
@@ -105,7 +103,6 @@
       </div>
       <template v-slot:actions>
         <v-btn
-          color="white"
           variant="text"
           @click="showError = false"
         >
@@ -245,6 +242,19 @@ export default defineComponent({
 .cursor-pointer {
   cursor: pointer;
 }
+
+.close-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: var(--v-theme-on-surface) !important;
+}
+
+.cancel-btn {
+  /* Forces button text to use the current theme’s on-surface color */
+  color: var(--v-theme-on-surface) !important;
+}
+
 .border-subtle {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
