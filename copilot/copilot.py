@@ -126,12 +126,11 @@ async def text_document_did_open(params: DidOpenTextDocumentParams):
         try:
             component_context = mdx_parser.generate_completion_context()
             
-            
             # Combine all context
             full_context = f"/*\n{component_context}/\n"
-            
-            print(full_context)
-            params.textDocument.text = full_context + params.textDocument.text
+
+            if component_context not in params.textDocument.text:
+                params.textDocument.text = full_context + params.textDocument.text
             payload = {
                 "method": "textDocument/didOpen",
                 "params": params.dict()
@@ -145,7 +144,7 @@ async def text_document_did_open(params: DidOpenTextDocumentParams):
         except requests.RequestException as e:
             raise HTTPException(status_code=500, detail=str(e))
 
-@async_debounce(0.5)
+@async_debounce(0.65)
 async def text_document_did_change(params):
     global copilot_enabled
     global copilot_doc_open
