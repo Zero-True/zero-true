@@ -77,7 +77,7 @@
             <!-- <v-btn :icon="`ztIcon:${ztAliases.undo}`"></v-btn>
             <v-btn :icon="`ztIcon:${ztAliases.redo}`"></v-btn>
             <v-btn :icon="`ztIcon:${ztAliases.message}`"></v-btn> -->
-            <v-tooltip text="Run All" location="bottom" color="primary">
+            <v-tooltip text="Run All" location="bottom" content-class="theme-tooltip">
               <template v-slot:activator="{ props }">
             <v-btn
               v-if="$devMode && !isAppRoute"
@@ -1349,12 +1349,9 @@ export default {
   }
 }
 
-
-.v-tooltip--primary .v-tooltip-content {
-  background-color: var(--v-theme-primary) !important;
+:deep(.theme-tooltip) {
   color: var(--v-theme-on-primary) !important;
 }
-
 
 .toggle-group {
   display: flex;

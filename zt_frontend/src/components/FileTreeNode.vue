@@ -533,5 +533,7 @@ const handleDrop = async (event: DragEvent) => {
   max-height: 100vh; /* Adjust based on your layout */
   position: relative;
 }
-
+.node-item :deep(.v-btn.v-btn--icon) {
+  color: var(--v-theme-on-surface) !important;
+}
 </style>
