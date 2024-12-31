@@ -65,13 +65,6 @@ export default {
         branding: false,
         menubar: false,
         statusbar: false,
-        skin: false,
-        content_css: false,
-        font_formats:
-          "Roboto=Roboto, sans-serif;Arial=arial,helvetica,sans-serif;Courier New=courier new,courier,monospace;",
-        content_style:
-          "body { background-color: #FFFFFF; color: #1B2F3C; font-family: 'Roboto', sans-serif; }",
-        autoresize_bottom_margin: 10,
         min_height: 100,
         license_key: "gpl",
       },
@@ -81,12 +74,6 @@ export default {
         branding: false,
         menubar: false,
         statusbar: false,
-        skin: false,
-        content_css: false,
-        font_formats:
-          "Roboto=Roboto, sans-serif;Arial=arial,helvetica,sans-serif;Courier New=courier new,courier,monospace;",
-        content_style:
-          "body { background-color: #FFFFFF; color: #1B2F3C; font-family: 'Roboto', sans-serif; }",
         min_height: 0,
         autoresize_bottom_margin: 0,
         license_key: "gpl",
@@ -108,14 +95,48 @@ export default {
     isMobile() {
       return this.$vuetify.display.mobile;
     },
+    themeColors() {
+  const theme = this.$vuetify.theme.current;
+  const colors = theme.colors;
+  return {
+    background: colors['surface'],
+    text: colors['surface-variant'],
+    toolbar: colors['surface'], 
+    buttonBg: colors['surface-light'],  
+    buttonHoverBg: colors['background'],
+    buttonIcon: colors['surface-variant'],
+  };
+},
+    
+    baseConfig() {
+      return {
+        font_formats: "Roboto=Roboto, sans-serif;Arial=arial,helvetica,sans-serif;Courier New=courier new,courier,monospace;",
+        content_style: `
+          body { 
+            background-color: ${this.themeColors.background}; 
+            color: ${this.themeColors.text}; 
+            font-family: 'Roboto', sans-serif; 
+          }
+        `,
+        skin: false,
+        content_css: false,
+        license_key: "gpl",
+      };
+    },
     editorConfig() {
       return {
+        ...this.baseConfig,
         ...this.init,
         setup: (editor: any) => {
           // Store editor reference on setup
           this.editor = editor;
           editor.on('init', () => {
             this.handleEditorInit(editor);
+            this.applyTheme(editor);
+          });
+
+          watch(() => this.$vuetify.theme.current.dark, () => {
+            this.applyTheme(editor);
           });
 
           editor.on('keydown', (e: any) => {
@@ -137,7 +158,13 @@ export default {
           });
         }
       };
-    }
+    },
+    appConfig() {
+      return {
+        ...this.baseConfig,
+        ...this.app_init
+      };
+    },
   },
   methods: {
     saveCell() {
@@ -264,6 +291,14 @@ isCursorAtEnd(editor: any): boolean {
       }
     });
   },
+  applyTheme(editor: any) {
+      if (!editor || !editor.getDoc()) return;
+      
+      const body = editor.getDoc().body;
+      editor.dom.setStyle(body, 'background-color', this.themeColors.background);
+      editor.dom.setStyle(body, 'color', this.themeColors.text); 
+    },
+
     },
 };
 </script>
@@ -272,8 +307,28 @@ isCursorAtEnd(editor: any): boolean {
 .tox .tox-toolbar,
 .tox .tox-toolbar__primary,
 .tox .tox-toolbar__overflow {
-  background-color: #FFFFFF !important;
+  background: v-bind('themeColors.toolbar') !important;
 }
+
+.tox .tox-tbtn {
+  background: v-bind('themeColors.buttonBg') !important;
+  color: v-bind('themeColors.buttonIcon') !important;
+}
+
+.tox .tox-tbtn svg {
+  fill: v-bind('themeColors.buttonIcon') !important;
+}
+
+.tox .tox-tbtn:hover,
+.tox .tox-tbtn--enabled,
+.tox .tox-tbtn--enabled:hover {
+  background: v-bind('themeColors.buttonHoverBg') !important;
+}
+
+.tox .tox-tbtn:hover svg {
+  fill: v-bind('themeColors.buttonIcon') !important;
+}
+
 .tox-tinymce {
   border: none !important;
 }
