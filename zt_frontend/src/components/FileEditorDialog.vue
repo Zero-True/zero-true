@@ -196,8 +196,6 @@ const extensions = computed(() => [
     "&": {
       fontSize: "14px",
       height: "100%",
-      backgroundColor: isDark.value ? 'rgb(40, 44, 52)' : 'white',
-      color: isDark.value ? 'rgb(171, 178, 191)' : 'rgb(60, 60, 60)'
     }
   })
 ].filter(Boolean))
@@ -274,14 +272,6 @@ const handleReady = (payload: { view: EditorView }) => {
 </script>
 
 <style scoped>
-.editor-dialog {
-  --surface-dark: rgb(40, 44, 52);
-  --surface-light: rgb(255, 255, 255);
-  --text-dark: rgb(255, 255, 255);
-  --text-light: rgb(60, 60, 60);
-  --border-dark: rgba(255, 255, 255, 0.12);
-  --border-light: rgba(0, 0, 0, 0.12);
-}
 
 .editor-header {
   background-color: v-bind("isDark ? 'var(--surface-dark)' : 'var(--surface-light)'");

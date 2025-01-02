@@ -307,11 +307,11 @@
             v-if="isCodeRunning"
             density="comfortable"
             :icon="`ztIcon:${ztAliases.stop}`"
-            color="bluegrey"
             variant="plain"
             :ripple="false"
             @click="stopCodeExecution()"
             rounded
+            class="stop-btn"
           >
           </v-btn>
         </div>
@@ -1262,6 +1262,10 @@ export default {
   }
   &__queue-length-btn {
     margin: 0 2px 0 2px;
+    background-color: rgb(var(--v-theme-background));
+    .v-theme--light & {
+      background-color: rgb(var(--v-theme-on-surface));
+    }
     @include md {
       margin: 0 8px 0 24px;
     }
@@ -1299,23 +1303,23 @@ export default {
   .v-btn-toggle {
     .v-btn {
       /* Use Vuetify's text-on-surface color for unselected/normal state. */
-      color: var(--v-theme-on-surface) !important;
-      border-color: var(--v-theme-on-surface) !important;
+      color: rgb(var(--v-theme-on-surface)) !important;
+      border-color: rgb(var(--v-theme-on-surface)) !important;
       
       /* Icon color (normal/unselected). */
       .v-icon {
-        color: var(--v-theme-on-surface) !important;
+        color: rgb(var(--v-theme-on-primary)) !important;
       }
 
       /* Active (selected), or hover state uses primary color scheme. */
       &.v-btn--selected,
       &.v-btn--active,
       &:hover {
-        background-color: primary !important;
-        color: white !important;
+        background-color: rgb(var(--v-theme-primary)) !important;
+        color: rgb(var(--v-theme-on-primary)) !important;
         
         .v-icon {
-          color: var(--v-theme-on-primary) !important;
+          color: rgb(var(--v-theme-on-surface)) !important;
         }
       }
     }
@@ -1333,5 +1337,20 @@ export default {
   left: 50%;
   transform: translateX(-50%);
 }
+.stop-btn.v-btn--icon {
+  --v-btn-size: 1rem;
+  color: rgb(var(--v-theme-bluegrey)) !important;
+  
+  :deep(.v-icon) {
+    color: rgb(var(--v-theme-bluegrey)) !important;
+  }
 
+  .v-theme--light & {
+    color: rgb(var(--v-theme-surface-varient)) !important;
+    
+    :deep(.v-icon) {
+      color: rgb(var(--v-theme-surface-varient)) !important;
+    }
+  }
+}
 </style>
