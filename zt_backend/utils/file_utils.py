@@ -232,3 +232,22 @@ def list_dir(path):
                     {"title": item.name, "file": "file", "id": item.as_posix()}
                 )
     return items
+
+def is_hidden(path: str) -> bool:
+    """Check if path is hidden (starts with .)"""
+    return path.startswith('.') or any(part.startswith('.') for part in Path(path).parts)
+
+def is_system_folder(path: str) -> bool:
+    """Check if path is a system/build/cache folder"""
+    system_patterns = {
+        '__pycache__', 
+        'node_modules',
+        'build',
+        'dist',
+        'venv',
+        'env',
+        'tmp',
+        'temp',
+        'cache'
+    }
+    return any(part.lower() in system_patterns for part in Path(path).parts)

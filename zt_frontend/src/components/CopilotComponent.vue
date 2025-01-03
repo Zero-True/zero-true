@@ -139,7 +139,28 @@
               <v-divider class="my-3"></v-divider> 
               <div class="d-flex align-center justify-space-between">
                 <div>
-                  <div class="text-caption text-gray-400">Your code:</div>
+                  <div class="text-caption text-gray-400">Your code:
+                    <v-btn
+                    variant="text"
+                    class="copy-btn"
+                    min-width="24"
+                    size="small"
+                    color="white"
+                    @click="copyCode"
+                  >
+                    <v-icon
+                      :color="copySuccess ? 'success' : 'default'"
+                      icon="mdi-content-copy"
+                      size="small"
+                    ></v-icon>
+                    <v-tooltip
+                      activator="parent"
+                      location="top"
+                    >
+                      {{ copySuccess ? 'Copied!' : 'Copy code' }}
+                    </v-tooltip>
+                  </v-btn>
+                  </div>
                   <div class="verification-code text-h6 text-white">
                     {{ signInData.userCode }}
                   </div>
@@ -220,6 +241,7 @@ const isLoading = ref(false);
 const showError = ref(false);
 const errorMessage = ref('');
 const isUnauthorized = ref(false);
+const copySuccess = ref(false);
 const signInData = ref<{
   verificationUri?: string;
   userCode?: string;
@@ -347,6 +369,19 @@ const signOut = async () => {
   }
   
   isLoading.value = false;
+};
+const copyCode = async () => {
+  if (!signInData.value?.userCode) return;
+  
+  try {
+    await navigator.clipboard.writeText(signInData.value.userCode);
+    copySuccess.value = true;
+    setTimeout(() => {
+      copySuccess.value = false;
+    }, 2000);
+  } catch (err) {
+    handleError('Failed to copy code');
+  }
 };
 </script>
 
