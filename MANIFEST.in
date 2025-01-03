@@ -1,6 +1,7 @@
 recursive-include zt_backend/dist_dev *
 recursive-include zt_backend/dist_app *
 recursive-include copilot/node_modules *
+recursive-include mintlify-docs/Components *
 include copilot/client.js
 include zt_cli/log_config.yaml
 include zt_dev_cli/log_config.yaml

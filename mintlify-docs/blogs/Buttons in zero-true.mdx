@@ -7,8 +7,9 @@ title: 'Buttons in Zero-True'
 Creating a button in zero-true is very easy. It’s as simple as 
 
 ```py
-import zero-true as zt
-button=zt.Button(id=’btn’)
+import zero_true as zt
+button=zt.Button(id='btn')
+
 ```
 
 ![](/blogs/photos/button.png)
@@ -18,12 +19,20 @@ button=zt.Button(id=’btn’)
 Buttons return True when clicked and False otherwise. There is no need to write callbacks, simply reference buttons as follows.
 
 ```py
-if button.value==True:	print("hello")else:	print("goodbye")
+if button.value==True:
+	print("hello")
+else:
+	print("goodbye")
 ```
 
 ## Button Use Cases
 
-Buttons have a ton of potential use cases in zero-true. The example above uses a button to toggle different printed statements but logic can be used to render more complicated layouts. One of the more common patterns for using buttons in zero-true are gating expensive computations, for example:
+Buttons have a ton of potential use cases in zero-true. 
+The example above uses a button to toggle different printed statements but logic can be used to render more complicated layouts. 
+
+### Expensive Computations
+
+One of the more common patterns for using buttons in zero-true are gating expensive computations, for example:
 
 ```py
 import zero_true as zt 
@@ -33,16 +42,21 @@ def expensive_computation():
 	time.sleep(30)
 
 if button.value==True:
-expensive_computation()
+	expensive_computation()
 
 else:
-print("Press Button to Run Expensive Computation")	
+	print("Press Button to Run Expensive Computation")	
 ```
 
-Another use case for buttons in zero-true is getting user confirmation before submitting a form. In the example below we save feedback that a user submits in a text area under a .txt file under their name.
-
-
 ![title](/blogs/gifs/button_computation.gif)
+
+### Creating a Form
+
+
+Another use case for buttons in zero-true is getting user confirmation before submitting a form.
+In the example below we save feedback that a user submits in a text area under a .txt file under their name.
+
+
 
 ```py
 import zero_true as zt
@@ -60,11 +74,12 @@ text_area = zt.TextArea(id='txt_a',label='Write  your feedback here')
 button=zt.Button(id='btn', label= 'Submit you feedback')
 
 if button.value==True and name_input.value:
-write_feedback(name_input.value, text_area.value)
+	write_feedback(name_input.value, text_area.value)
 ```
 
 ![](/blogs/photos/button_form.png)
 
 ##  Customizing your button
 
-You can also add different colors and labels to your button to make things more interesting. Feel free to play around with all the attributes in the documentation.
+You can also add different colors and labels to your button to make things more interesting. 
+Feel free to play around with all the attributes in the documentation.

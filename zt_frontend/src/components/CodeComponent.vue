@@ -199,6 +199,7 @@ export default {
     "saveCell",
     "copilotCompletion",
     "updateTimers",
+    "navigateToCell",
   ],
   data() {
     return {
@@ -263,7 +264,27 @@ export default {
             return false;
           },
         },
-      ]);
+        {
+        key: 'ArrowUp',
+        run: (view) => {
+          if (view.state.selection.main.from === 0) {
+            this.$emit('navigateToCell', this.cellData.id, 'up');
+            return true;
+          }
+          return false;
+        },
+      },
+     {
+        key: 'ArrowDown',
+        run: (view) => {
+          if (view.state.selection.main.to === view.state.doc.length) {
+            this.$emit('navigateToCell', this.cellData.id, 'down');
+            return true;
+          }
+          return false;
+      },
+      },
+    ]);
 
       const fetchSuggestion = async (state: any) => {
         if (globalState.copilot_active) {
@@ -527,6 +548,9 @@ export default {
       if (this.view) {
         this.view.dispatch({});
       }
+    },
+    getEditorView() {
+      return this.view || null;
     },
   },
 };

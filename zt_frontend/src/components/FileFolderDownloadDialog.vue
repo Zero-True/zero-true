@@ -63,7 +63,7 @@
 
         <!-- Download info card -->
         <v-sheet
-          class="pa-4 rounded bg-grey-darken-4 border-subtle mb-4"
+          class="pa-4 rounded border-subtle mb-4"
         >
           <div class="d-flex align-items-center mb-2">
             <v-icon
@@ -276,31 +276,9 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.download-dialog {
-  background-color: #282c34 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.bg-dark {
-  background-color: #282c34 !important;
-}
-
-.border-subtle {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.hover-bg:hover {
-  background-color: rgba(var(--v-theme-primary), 0.1);
-}
 
 .cursor-pointer {
   cursor: pointer;
-}
-
-/* Dark theme overrides */
-:deep(.v-card) {
-  background-color: #282c34;
-  color: #abb2bf;
 }
 
 :deep(.v-alert) {

@@ -12,12 +12,19 @@ class Matplotlib(ZTComponent):
     component: str = Field("v-img", description="Vue component name")
     src: str = Field(..., description="Source URL of the image of the graph")
     alt: str = Field("", description="Alternative text for the graph image")
+    style: str = Field("", description="CSS style to apply to the component")
     width: Union[int, str] = Field("100%", description="Width of the graph")
     height: Union[int, str] = Field("100%", description="Height of the graph")
 
     @classmethod
     def from_matplotlib(
-        cls, id: str, figure: plt.Figure, alt="", width=200, height=200
+        cls,
+        id: str,
+        figure: plt.Figure,
+        alt="",
+        style="",
+        width=200,
+        height=200,
     ):
         """Create a Matplotlib component from a matplotlib figure"""
         plt.style.use("dark_background")
@@ -26,10 +33,10 @@ class Matplotlib(ZTComponent):
         buffer.seek(0)
         base64_data = base64.b64encode(buffer.read()).decode()
         src = f"data:image/png;base64,{base64_data}"
-        return cls(id=id, src=src, alt=alt, width=width, height=height)
+        return cls(id=id, src=src, alt=alt, style=style, width=width, height=height)
 
 
-def matplotlib(id: str, figure: plt.Figure, alt="", width=200, height=200):
+def matplotlib(id: str, figure: plt.Figure, alt="", style="", width=200, height=200):
     """Create a Matplotlib component from a matplotlib figure"""
     plt.style.use("dark_background")
     buffer = BytesIO()
@@ -37,4 +44,4 @@ def matplotlib(id: str, figure: plt.Figure, alt="", width=200, height=200):
     buffer.seek(0)
     base64_data = base64.b64encode(buffer.read()).decode()
     src = f"data:image/png;base64,{base64_data}"
-    return Matplotlib(id=id, src=src, alt=alt, width=width, height=height)
+    return Matplotlib(id=id, src=src, alt=alt, style=style, width=width, height=height)

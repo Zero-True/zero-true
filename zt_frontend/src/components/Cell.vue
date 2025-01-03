@@ -4,6 +4,7 @@
     :id="'codeCard' + cellId"
     :class="['cell', { 'cell--dev': isDevMode }]"
     color="bluegrey-darken-4"
+    width="100%"
   >
     <v-divider
       class="indicator"
@@ -51,7 +52,7 @@
               class="click-edit__edit-field"
               @keydown.enter="saveCellName"
               @update:focused="
-                (focused) => {
+                (focused:any) => {
                   if (!focused) saveCellName();
                 }
               "
@@ -461,6 +462,7 @@ const saveCellName = async () => {
   padding: 5px;
   display: flex;
   margin-bottom: 2px;
+  width: 100%;
   &--dev {
     margin-bottom: 6px;
   }

@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.5.3](https://github.com/Zero-True/zero-true/compare/v0.5.2...v0.5.3) (2024-12-10)
+
+
+### Bug Fixes
+
+* Free versions and proper environment installs ([#389](https://github.com/Zero-True/zero-true/issues/389)) ([6729dd2](https://github.com/Zero-True/zero-true/commit/6729dd2a6e2109bd40d3ac8464622f1c95b44889))
+
+## [0.5.2](https://github.com/Zero-True/zero-true/compare/v0.5.1...v0.5.2) (2024-12-09)
+
+
+### Bug Fixes
+
+* Restore deleted publish code ([#387](https://github.com/Zero-True/zero-true/issues/387)) ([24f371d](https://github.com/Zero-True/zero-true/commit/24f371de547b5866352f22725682888138e6d63c))
+
+## [0.5.1](https://github.com/Zero-True/zero-true/compare/v0.5.0...v0.5.1) (2024-12-09)
+
+
+### Bug Fixes
+
+* Add style attribute to all relevant components ([#384](https://github.com/Zero-True/zero-true/issues/384)) ([68f42f7](https://github.com/Zero-True/zero-true/commit/68f42f7eb76ef58b9e1263e793b2490a58fd4f9e))
+
 ## [0.5.0](https://github.com/Zero-True/zero-true/compare/v0.4.9...v0.5.0) (2024-11-25)
 
 

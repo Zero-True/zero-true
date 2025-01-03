@@ -12,8 +12,9 @@ DEBOUNCE_TIME = 0.5  # seconds
 RUFF_COMMAND = [
     "ruff",
     "check",
+    "--preview",
     "--output-format=json",
-    "--extend-ignore=E402",  # Ignore import position errors
+    "--extend-ignore=E,W",  # Ignore unwanted errors
     "-",
 ]
 
@@ -33,17 +34,18 @@ async def run_ruff_linting(text: str) -> List[Dict]:
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
+        encoding="utf-8",
     )
     stdout, stderr = process.communicate(input=text)
 
     if stderr:
-        logger.error(f"Error running Ruff: {stderr.decode()}")
+        logger.error(f"Error running Ruff: {stderr}")
         return []
 
     try:
         return json.loads(stdout)
     except json.JSONDecodeError:
-        logger.error(f"Error decoding Ruff output: {stdout.decode()}")
+        logger.error(f"Error decoding Ruff output: {stdout}")
         return []
 
 
@@ -128,6 +130,9 @@ async def queued_get_cell_linting(
     cell_id: str, text: str, code_w_context: str, websocket: WebSocket
 ):
     try:
+        text = text.encode('utf-8', errors='replace').decode('utf-8')
+        code_w_context = code_w_context.encode('utf-8', errors='replace').decode('utf-8')
+        
         context_lines = code_w_context.strip().split("\n")
         cell_lines = text.strip().split("\n")
 

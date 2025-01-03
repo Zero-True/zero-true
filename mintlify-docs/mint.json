@@ -57,6 +57,7 @@
         "blogs/Range Sliders in zero-true",
         "blogs/Text Inputs in zero-true",
         "blogs/Text Areas in zero-true",
+        "blogs/Displaying a Pandas DataFrame in zero-true",
         "blogs/Displaying a Matplotlib Plot in zero-true",
         "blogs/Displaying a Plotly Plot in zero-true",
         "CLI",

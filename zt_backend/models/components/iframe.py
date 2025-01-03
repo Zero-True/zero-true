@@ -13,6 +13,7 @@ class iFrame(ZTComponent):
     height: Union[int, str] = Field("100%", description="Height of the iframe")
     frameborder: int = Field(0, description="Frame border of the iframe")
     scrolling: str = Field("auto", description="Scrolling of the iframe")
+    style: str = Field("", description="CSS style to apply to the component")
     allowtransparency: bool = Field(
         False, description="Allow transparency of the iframe"
     )

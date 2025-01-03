@@ -24,6 +24,7 @@
     "codemirror": "^6.0.1",
     "codemirror-extension-inline-suggestion": "^0.0.1",
     "json-schema-to-typescript": "^13.1.1",
+    "loaddash": "^0.0.1-security",
     "marked": "^10.0.0",
     "pinia": "^2.1.7",
     "plotly.js-dist-min": "^2.29.1",

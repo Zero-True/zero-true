@@ -14,7 +14,7 @@
       <tiny-editor
         v-if="$devMode && !isAppRoute && !isMobile"
         v-model="cellData.code"
-        :init="init"
+        :init="editorConfig"
         @keyUp="saveCell"
       />
     </template>
@@ -55,7 +55,7 @@ export default {
     },
   },
   inheritAttrs: false,
-  emits: ["saveCell", "deleteCell", "createCell"],
+  emits: ["saveCell", "deleteCell", "createCell", 'navigateToCell'],
   data() {
     return {
       init: {
@@ -97,6 +97,7 @@ export default {
         { title: "Markdown" },
         { title: "Text" },
       ],
+      editor: null,
     };
   },
   computed: {
@@ -107,8 +108,37 @@ export default {
     isMobile() {
       return this.$vuetify.display.mobile;
     },
+    editorConfig() {
+      return {
+        ...this.init,
+        setup: (editor: any) => {
+          // Store editor reference on setup
+          this.editor = editor;
+          editor.on('init', () => {
+            this.handleEditorInit(editor);
+          });
+
+          editor.on('keydown', (e: any) => {
+            if (e.keyCode === 38) { // Up arrow
+              const isAtStart = this.isCursorAtStart(editor);
+              if (isAtStart) {
+                e.preventDefault();
+                this.$emit('navigateToCell', this.cellData.id, 'up');
+              }
+            }
+
+            if (e.keyCode === 40) { // Down arrow
+              const isAtEnd = this.isCursorAtEnd(editor);
+              if (isAtEnd) {
+                e.preventDefault();
+                this.$emit('navigateToCell', this.cellData.id, 'down');
+              }
+            }
+          });
+        }
+      };
+    }
   },
-  mounted() {},
   methods: {
     saveCell() {
       if (!this.$devMode) return;
@@ -120,9 +150,124 @@ export default {
     createCell(cellType: string) {
       this.$emit("createCell", this.cellData.id, cellType);
     },
+    getEditorView() {
+        return this.editor;
+    },
+
+    isCursorAtStart(editor: any): boolean {
+    const selection = editor.selection;
+    const rng = selection.getRng(true);
+    const body = editor.getBody();
+
+    if (!body || !body.childNodes.length) return true;
+
+    const blocks = Array.from(body.childNodes as NodeListOf<ChildNode>).flatMap((node: Node) => {
+        if (node.nodeName === "UL" || node.nodeName === "OL") {
+            return Array.from(node.childNodes).filter((child: Node) => child.nodeName === "LI");
+        }
+        return ["P", "DIV", "LI", "H1", "H2", "H3", "H4", "H5", "H6"].includes((node as HTMLElement).nodeName)
+            ? [node]
+            : [];
+    });
+
+    if (!blocks.length) return true;
+
+    const firstBlock = blocks[0] as HTMLElement;
+    const currentBlock = editor.dom.getParent(rng.startContainer, "p,div,li,h1,h2,h3,h4,h5,h6,ul,ol");
+
+    if (currentBlock !== firstBlock) return false;
+
+    // Handle links at start
+    if (rng.startContainer.nodeType === Node.ELEMENT_NODE && 
+        (rng.startContainer as HTMLElement).nodeName === "A") {
+        return rng.startOffset === 0;
+    }
+
+    const isFirstBlockEmpty = !firstBlock.textContent?.trim() || firstBlock.innerHTML === "<br>";
+    const isAtTextStart = rng.startContainer.nodeType === Node.TEXT_NODE && rng.startOffset === 0;
+
+    return isFirstBlockEmpty || isAtTextStart;
+},
+// Modify isCursorAtEnd method
+isCursorAtEnd(editor: any): boolean {
+    const selection = editor.selection;
+    const rng = selection.getRng(true);
+    const body = editor.getBody();
+
+    if (!body.childNodes.length) return true;
+
+    const blocks = Array.from(body.childNodes as NodeListOf<ChildNode>).flatMap((node: Node) => {
+        if (node.nodeName === "UL" || node.nodeName === "OL") {
+            return Array.from(node.childNodes).filter((child: Node) => child.nodeName === "LI");
+        }
+        return ["P", "DIV", "LI", "H1", "H2", "H3", "H4", "H5", "H6"].includes((node as HTMLElement).nodeName)
+            ? [node]
+            : [];
+    });
+
+    if (!blocks.length) return true;
+
+    const lastBlock = blocks[blocks.length - 1] as HTMLElement;
+    const currentBlock = editor.dom.getParent(rng.endContainer, "p,div,li,h1,h2,h3,h4,h5,h6,ul,ol");
+
+    if (currentBlock !== lastBlock) return false;
+
+    const isLastBlockEmpty = !lastBlock.textContent?.trim() || 
+                           lastBlock.innerHTML === "<br>" || 
+                           lastBlock.childNodes.length === 0;
+
+    if (isLastBlockEmpty) return true;
+
+    // Handle links at end
+    if (rng.endContainer.nodeType === Node.ELEMENT_NODE && 
+        (rng.endContainer as HTMLElement).nodeName === "A") {
+        const link = rng.endContainer as HTMLElement;
+        return rng.endOffset === link.childNodes.length;
+    }
+
+    // Handle lists
+    if (lastBlock.nodeName === "LI") {
+        const listItem = lastBlock as HTMLLIElement;
+        return rng.endOffset === (listItem.textContent || "").length;
+    }
+
+    const isAtTextEnd = rng.endContainer.nodeType === Node.TEXT_NODE &&
+                       rng.endOffset === (rng.endContainer.textContent || "").length;
+
+    return isAtTextEnd && !rng.endContainer.nextSibling;
+},
+
+  handleEditorInit(editor: any) {
+    this.editor = editor;
+
+    editor.on("keydown", (e: any) => {
+      try {
+        if (e.keyCode === 38) {
+          const isAtStart = this.isCursorAtStart(editor);
+          console.log("Up arrow pressed. Is at start:", isAtStart);
+          if (isAtStart) {
+            e.preventDefault();
+            this.$emit("navigateToCell", this.cellData.id, "up");
+          }
+        }
+
+        if (e.keyCode === 40) {
+          const isAtEnd = this.isCursorAtEnd(editor);
+          console.log("Down arrow pressed. Is at end:", isAtEnd);
+          if (isAtEnd) {
+            e.preventDefault();
+            this.$emit("navigateToCell", this.cellData.id, "down");
+          }
+        }
+      } catch (error) {
+        console.error("Error in editor navigation:", error);
+      }
+    });
   },
+    },
 };
 </script>
+
 <style>
 .tox .tox-toolbar,
 .tox .tox-toolbar__primary,

@@ -518,14 +518,69 @@ def share_notebook(shareRequest: request.ShareRequest):
             response_json = response.json()
             signed_url = response_json.get("uploadURL")
             if not signed_url:
-                return {"Error": "Failed to get signed URL"}
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Failed to get a signed URL",
+                )
 
-            output_filename = f"{project_name}"
-            project_source = os.path.normpath(os.getcwd())
-            logger.info(project_source)
-            shutil.make_archive(
-                base_name=output_filename, format="gztar", root_dir=project_source
+            python_warning = response_json.get("pythonWarning", None)
+            zt_warning = response_json.get("ztWarning", None)
+            warning_message = ""
+            if python_warning:
+                warning_message += python_warning
+                if zt_warning:
+                    warning_message += "\n" + zt_warning
+                warning_message += "\nWe recommend upgrading your versions before continuing. If you would like to continue, select confirm."
+                upload_state.signed_url = signed_url
+                return {"warning": warning_message}
+            if zt_warning:
+                warning_message += zt_warning
+                warning_message += (
+                    "\nWe recommend upgrading your versions before continuing"
+                )
+                upload_state.signed_url = signed_url
+                return {"warning": warning_message}
+
+            publish_files(project_name, signed_url)
+
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logger.error("Error submitting share request: %s", str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error submitting share request",
+        )
+
+
+@router.post("/api/confirm_share")
+def confirm_share(shareRequest: request.ShareRequest):
+    if app_state.run_mode == "dev":
+        if upload_state.signed_url:
+            try:
+                publish_files(
+                    shareRequest.projectName.lower().strip(), upload_state.signed_url
+                )
+                upload_state.signed_url = None
+            except Exception as e:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Error submitting share request",
+                )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="No active signed URL"
             )
+
+
+def publish_files(project_name, signed_url):
+    try:
+        output_filename = Path(settings.zt_path) / f"{project_name}.tar.gz"
+        tar_base = str(Path(settings.zt_path) / project_name)
+
+        shutil.make_archive(
+            base_name=tar_base, format="gztar", root_dir=settings.zt_path
+        )
 
         with output_filename.open("rb") as file:
             upload_files = {"file": file}
@@ -540,7 +595,7 @@ def share_notebook(shareRequest: request.ShareRequest):
                     upload_response.json().get("Message", "Failed to upload files"),
                 )
             }
-
+        
         try:
             output_filename.unlink()
         except OSError as e:
@@ -855,19 +910,187 @@ async def download_item(
 @router.get("/api/get_files")
 def list_files():
     path = Path(".")
-    files = list_dir(path)
-    return {"files": files}
+    root_name = Path.cwd().name  # Get current directory name
+    
+    # Get list of files/folders
+    items = list_dir(path)
+    
+    # Split and sort
+    folders = [item for item in items if item['file'] == 'folder']
+    files = [item for item in items if item['file'] != 'folder']
+    folders.sort(key=lambda x: x['title'].lower())
+    files.sort(key=lambda x: x['title'].lower())
+    
+    # Create root folder structure
+    root = {
+        "id": ".",
+        "title": root_name,
+        "file": "folder",
+        "children": folders + files
+    }
+    
+    return {"files": [root]}
 
+@router.get("/api/search_files")
+def search_files(query: str = Query(..., min_length=3)):
+    """Search for files and folders by name"""
+    if app_state.run_mode == "dev":
+        try:
+            base_path = Path(".")
+            results = []
+            
+            for root, dirs, files in os.walk(base_path):
+                # Skip hidden and system directories
+                dirs[:] = [d for d in dirs if not (is_hidden(d) or is_system_folder(d))]
+                
+                rel_root = Path(root).relative_to(base_path)
+                
+                # Search non-hidden directories
+                for dir_name in dirs:
+                    if query.lower() in dir_name.lower():
+                        full_path = Path(root) / dir_name
+                        rel_path = str(full_path.relative_to(base_path))
+                        results.append({
+                            "title": dir_name,
+                            "file": "folder",
+                            "id": rel_path
+                        })
+                
+                # Search non-hidden files
+                for file_name in files:
+                    if not (is_hidden(file_name) or is_system_folder(file_name)) and query.lower() in file_name.lower():
+                        full_path = Path(root) / file_name
+                        rel_path = str(full_path.relative_to(base_path))
+                        file_type = get_file_type(file_name)
+                        results.append({
+                            "title": file_name,
+                            "file": file_type or "file",
+                            "id": rel_path
+                        })
+            
+            return {"files": results}
+            
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Search failed: {str(e)}"
+            )
 
 @router.get("/api/get_children")
 def list_children(path: str = Query(...)):
     dir_path = Path(path)
+
+    if str(dir_path) == '.':
+        dir_name = Path.cwd().name
+    else:
+        dir_name = dir_path.name
+    
+    print(f"Directory name: {dir_name}, Path: {dir_path}")
+
     if not dir_path.is_dir():
         return {"error": "Path is not a directory"}
+    
+    
 
     items = list_dir(dir_path)
-    return {"files": items}
+    
+    # Split into folders and files
+    folders = [item for item in items if item['file'] == 'folder']
+    files = [item for item in items if item['file'] != 'folder']
+    
+    # Sort each group by title
+    folders.sort(key=lambda x: x['title'].lower())
+    files.sort(key=lambda x: x['title'].lower())
+    
+    # Combine with folders first
+    sorted_items = folders + files
+    
+    return {"files": sorted_items}
 
+@router.post("/api/move_item")
+async def move_item(move_request: request.MoveItemRequest) -> Dict:
+    if app_state.run_mode == "dev":
+        try:
+            base_dir = Path.cwd()
+            
+            # Convert relative paths to absolute
+            source_path = (base_dir / move_request.sourcePath).resolve()
+            target_dir = (base_dir / move_request.targetId).resolve()
+
+            print(source_path, target_dir)
+            
+            # Security: Validate paths are within base directory
+            if not source_path.is_relative_to(base_dir) or \
+               not target_dir.is_relative_to(base_dir):
+                raise HTTPException(
+                    status_code=403, 
+                    detail="Paths must be within workspace directory"
+                )
+
+            # Validate source exists
+            if not source_path.exists():
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Source not found: {source_path.name}"
+                )
+
+            # Validate target is a directory
+            if not target_dir.is_dir():
+                raise HTTPException(
+                    status_code=400,
+                    detail="Target must be a directory"
+                )
+
+            # Prevent moving into self or subdirectory
+            if source_path == target_dir or target_dir.is_relative_to(source_path):
+                raise HTTPException(
+                    status_code=400,
+                    detail="Cannot move a folder into itself or its subdirectories"
+                )
+
+            # Construct destination path
+            dest_path = target_dir / source_path.name
+
+            # Check for name conflicts
+            if dest_path.exists():
+                raise HTTPException(
+                    status_code=409,
+                    detail=f"'{source_path.name}' already exists in destination"
+                )
+
+            # Protected files check
+            protected_files = ["requirements.txt", "notebook.ztnb", 
+                             "zt_db.db", "zt_db.db.wal"]
+            if source_path.name in protected_files:
+                raise HTTPException(
+                    status_code=403,
+                    detail="Cannot move protected system files"
+                )
+
+            # Perform move
+            try:
+                shutil.move(str(source_path), str(dest_path))
+            except (OSError, shutil.Error) as e:
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Move operation failed: {str(e)}"
+                )
+
+            # Return success response with relative paths
+            return {
+                "success": True,
+                "message": "Item moved successfully",
+                "source": str(source_path.relative_to(base_dir)),
+                "destination": str(dest_path.relative_to(base_dir))
+            }
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, 
+                detail=f"Unexpected error: {str(e)}"
+            )
 
 @router.post("/api/add_comment")
 def add_comment(comment: request.AddCommentRequest):

@@ -10,10 +10,11 @@
     <template v-slot:activator="{ props }">
       <v-btn
         v-bind="props"
-        icon="mdi-upload"
-        color="bluegrey-darken-4"
-        class="mb-2"
+        icon="mdi-tray-arrow-up"
+        color="transparent"
         @click="openDialog"
+        size="small"
+        class="action-btn"
       >
       </v-btn>
     </template>
