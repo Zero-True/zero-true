@@ -32,7 +32,7 @@
 
         <!-- Item details -->
         <v-card-text class="pa-4 pb-0 bg-dark">
-          <div class="mb-4 text-grey-lighten-2">
+          <div class="mb-4">
             <div class="d-flex align-center mb-3">
               <v-icon 
                 size="large" 
