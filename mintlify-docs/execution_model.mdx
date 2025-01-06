@@ -1,0 +1,49 @@
+---
+title: 'Execution Model in Zero-True'
+---
+
+## Cells run top to bottom
+
+One of the first things you should know about zero-true is that your notebook runs top to bottom. You will not be able to reference variables that are defined below the cell you are currently in. This makes your code more readable to others you’re working with, as they don’t have to deal with non-linear code flows and can even help you reorient yourself faster when you come back to your own notebooks.
+
+![](/blogs/gifs/top_to_bottom.gif)
+
+## No hidden state
+
+Zero-True has no hidden state. This means rerunning code multiple times will give you consistent results each time. Take the example below:
+
+Cell 1:
+
+```py
+my_list = []
+```
+
+Cell 2:
+
+```py
+my_list.append(1)
+print(my_list)
+```
+
+If you want to know what the output will be in zero-true the answer is easy: It’s ‘\[1\]’ every time. 
+You can see in the gif below that in zero-true, no matter how many times I rerun cell 2, I get the same answer.
+
+![](/blogs/gifs/no_hidden_state.gif)
+
+In current Ipython notebooks on the other hand you get a different answer each time (Google colab pictured below). 
+Every time you rerun cell 2 you append to the same list and get a different answer.
+
+![](/blogs/gifs/jupyter_hidden_state.gif)
+
+This also means that if you delete a cell, all variables defined in that cell will be deleted and any updates made to those
+variables will be discarded. 
+
+## Related Cells Rerun Reactively
+
+We parse what cells are related in your notebook and automatically rerun downstream cells so that your notebook stays consistent. 
+This helps you catch errors before they happen and provides an interactive coding experience. 
+
+![](/blogs/gifs/reactive_updates.gif)
+
+You can toggle individual cells to be non-reactive by expanding the options on the sidebar on the right of each cell. 
+You can set the entire notebook to be non reactive by toggling the settings gear on the top right of the notebook, near the publish button. 
