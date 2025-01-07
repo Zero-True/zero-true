@@ -183,6 +183,7 @@ def test_initial_code_execution_and_output(driver):
     run_icon = cell_info["elements"]["run_icon"]
     run_icon.click()
     wait_for_coderun(driver)
+    time.sleep(6)
     cell_info = extract_code_cell_info(code_cells[0],driver)
     assert cell_info["elements"]["output_container"].find_element(By.ID, "slide"), "Element with id 'slide' not found in output."
     assert cell_info["elements"]["output_container"].find_element(By.ID, "text"), "Element with id 'text' not found in output."
