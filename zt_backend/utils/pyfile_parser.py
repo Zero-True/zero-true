@@ -15,6 +15,33 @@ from zt_backend.runner.code_cell_parser import (
     get_loaded_modules,
     get_functions,
 )
+
+def remove_top_level_returns(code):
+    """
+    Removes return statements from top-level functions while leaving nested functions intact.
+    """
+    class TopLevelReturnRemover(ast.NodeTransformer):
+        def __init__(self):
+            super().__init__()
+            self.in_top_level = False
+
+        def visit_FunctionDef(self, node):
+            # If entering a top-level function, mark it
+            if not self.in_top_level:
+                self.in_top_level = True
+                node.body = [stmt for stmt in node.body if not isinstance(stmt, ast.Return)]
+                self.in_top_level = False
+            else:
+                # Leave nested functions intact
+                self.generic_visit(node)
+            return node
+
+    # Parse, transform, and unparse the code
+    tree = ast.parse(code)
+    transformer = TopLevelReturnRemover()
+    transformed_tree = transformer.visit(tree)
+    return ast.unparse(transformed_tree)
+
 def parse_cell(func):
     """
     Inspect the function to detect:
@@ -45,9 +72,7 @@ def parse_cell(func):
     def filter_return_statements(node):
         """Recursively remove trivial returns from function bodies."""
         if isinstance(node, ast.FunctionDef):
-            node.body = [filter_return_statements(subnode) for subnode in node.body if not (isinstance(subnode, ast.Return) and not subnode.value)]
-        elif isinstance(node, ast.Module):
-            node.body = [filter_return_statements(subnode) for subnode in node.body]
+            node.body = [filter_return_statements(subnode) for subnode in node.body if not (isinstance(subnode, ast.Return))]
         return node
 
     # Remove trivial returns from the function body
