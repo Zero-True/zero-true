@@ -4,10 +4,11 @@ import textwrap
 import os
 import importlib.util
 from collections import OrderedDict, defaultdict
+import astroid
 from pathlib import Path
 from uuid import uuid4
 from zt_backend.models.notebook import Notebook, CodeCell
-
+from zt_backend.runner.code_cell_parser import get_imports, get_defined_names,get_loaded_names,get_loaded_modules,get_functions
 def parse_cell(func):
     """
     Inspect the function to detect:
@@ -38,7 +39,7 @@ def parse_cell(func):
     def filter_return_statements(node):
         """Recursively remove trivial returns from function bodies."""
         if isinstance(node, ast.FunctionDef):
-            node.body = [filter_return_statements(subnode) for subnode in node.body if not (isinstance(subnode, ast.Return) and not subnode.value)]
+            node.body = [filter_return_statements(subnode) for subnode in node.body if not (isinstance(subnode, ast.Return))]
         elif isinstance(node, ast.Module):
             node.body = [filter_return_statements(subnode) for subnode in node.body]
         return node
@@ -132,6 +133,63 @@ def load_notebook_from_file(file_path, notebook_variable_name="notebook"):
         raise AttributeError(f"{notebook_variable_name} not found in {file_path}")
 
 
+def build_cell_code_block(fn_name, cell_obj, def_line):
+        """
+        If the cell is e.g. sql, we'll put "    zt.sql(\"\"\"...\")" in the file.
+        Meanwhile, in the notebook data structure, .code contains only the raw query.
+        """
+        return_line= "    return\n"
+
+        if cell_obj.cellType == "code":
+            # 1) Attempt to parse & extract loaded/defined names
+            try:
+                module = astroid.parse(cell_obj.code)
+                all_imports = get_imports(module)
+                function_names, function_args = get_functions(module)
+                defined_names = get_defined_names(module) + function_names
+                loaded_names = (
+                    get_loaded_names(module, defined_names)
+                    + get_loaded_modules(module, all_imports)
+                )
+                # Optionally ensure uniqueness while preserving order
+                seen = set()
+                loaded_names_ordered = []
+                for name in loaded_names:
+                    if name not in seen:
+                        seen.add(name)
+                        loaded_names_ordered.append(name)
+                loaded_names = loaded_names_ordered
+            except Exception as e:
+                print(f"[Warning] Could not parse code in cell '{fn_name}': {e}")
+                loaded_names = []
+                defined_names = []
+
+            # 2) Build function signature (optional arguments)
+            if loaded_names:
+                signature_line = f"def {fn_name}({', '.join(loaded_names)}):"
+            else:
+                signature_line = f"def {fn_name}():"
+
+            def_line=signature_line
+            
+            if defined_names:
+                return_line = f"    return {', '.join(defined_names)}\n"
+
+
+        
+        lines = [def_line]  # e.g. "def cell_0():"
+        if cell_obj.cellType in ["markdown", "sql", "text"]:
+            # Write zt.sql("""some code""") in the file
+            lines.append(f"    zt.{cell_obj.cellType}(\"\"\"{cell_obj.code}\"\"\")")
+        else:
+            # For "code" cells, we just insert them line by line
+            for raw in cell_obj.code.splitlines():
+                lines.append(f"    {raw}")
+        lines.append(return_line)
+        return lines
+
+
+
 def update_notebook_file(filepath, notebook_obj):
     """
     Update or create a Python file to match the given Notebook’s cell definitions
@@ -151,22 +209,6 @@ def update_notebook_file(filepath, notebook_obj):
         if line_list and line_list[-1].strip():  # last line not empty
             line_list.append("\n")
 
-    # Helper to build code block for each cell (in the file).
-    def build_cell_code_block(fn_name, cell_obj, def_line):
-        """
-        If the cell is e.g. sql, we'll put "    zt.sql(\"\"\"...\")" in the file.
-        Meanwhile, in the notebook data structure, .code contains only the raw query.
-        """
-        lines = [def_line]  # e.g. "def cell_0():"
-        if cell_obj.cellType in ["markdown", "sql", "text"]:
-            # Write zt.sql("""some code""") in the file
-            lines.append(f"    zt.{cell_obj.cellType}(\"\"\"{cell_obj.code}\"\"\")")
-        else:
-            # For "code" cells, we just insert them line by line
-            for raw in cell_obj.code.splitlines():
-                lines.append(f"    {raw}")
-        lines.append("    return")
-        return lines
 
     # 1) Read existing lines or init
     try:
