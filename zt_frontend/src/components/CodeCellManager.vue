@@ -5,10 +5,11 @@
       @createCodeCell="e => createCodeCell('', e)" 
     />
   </v-container>
-  <v-container 
+  <v-container
     :class="[
       'cell-container',
-      { 'cell-container--app':  !$devMode || isAppRoute }
+      { 'cell-container--app':  !$devMode || isAppRoute },
+      { 'cell-container--wide': notebook.wideMode }
     ]"
     v-for="codeCell in notebook.cells"
   >
@@ -57,7 +58,6 @@ import PackageComponent from "@/components/PackageComponent.vue";
 import AddCell from '@/components/AddCell.vue'
 import { PropType } from "vue";
 import { useRoute } from "vue-router";
-import { callbackify } from "util";
 
 
 export default {
@@ -261,6 +261,10 @@ export default {
   padding-top: 0;
   &--app {
     padding-bottom: 0;
+  }
+  &--wide {
+    max-width: 100% !important;
+    margin: 0% !important;
   }
 }
 .cm-editor {

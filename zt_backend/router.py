@@ -14,6 +14,7 @@ from fastapi import (
 )
 from zt_backend.models import notebook
 from zt_backend.models.api import request
+from zt_backend.models.state import notebook_state
 from zt_backend.runner.execute_code import execute_request
 from zt_backend.config import settings
 from zt_backend.utils.completions import get_code_completions
@@ -26,6 +27,7 @@ from zt_backend.utils.dependencies import (
 from zt_backend.utils.notebook import (
     get_notebook_request,
     get_request_base,
+    save_notebook,
     save_worker,
     websocket_message_sender,
 )
@@ -99,6 +101,11 @@ def env_data():
 def base_path():
     return settings.user_name + "/" + settings.project_name
 
+@router.post("/api/wide_mode_update")
+async def update_wide_mode(request: request.WideModelRequest):
+    notebook_state.zt_notebook.wideMode = request.wideMode
+    await save_notebook()
+    return {"status": "success"}
 
 @router.websocket("/ws/run_code")
 async def run_code(websocket: WebSocket):
@@ -260,7 +267,6 @@ def cell_reactivity(cellReactivityRequest: request.CellReactivityRequest):
         logger.debug("Cell reactivity request started")
         app_state.save_queue.put_nowait({"cellReactivity": cellReactivityRequest})
         logger.debug("Cell reactivity request completed")
-
 
 @router.post("/api/expand_code")
 def expand_code(expandCodeRequest: request.ExpandCodeRequest):

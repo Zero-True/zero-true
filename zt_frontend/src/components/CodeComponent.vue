@@ -10,6 +10,7 @@
     :cell-has-output="hasCellContent"
     :currentlyExecutingCell="currentlyExecutingCell"
     :isCodeRunning="isCodeRunning"
+    :is-focused="isFocused"
     :is-dev-mode="$devMode && !isAppRoute && !isMobile"
     @play="runCode(false, '', '')"
     @delete="deleteCell"
@@ -538,8 +539,10 @@ export default {
     handleFocus() {
       this.isFocused = true;
       this.runLint = true;
-      if (this.view) {
-        this.view.dispatch({});
+      if (this.getEditorView()) {
+        if (this.view) {
+          this.view.dispatch({});
+        }
       }
     },
     handleBlur() {

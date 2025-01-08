@@ -187,3 +187,6 @@ class MoveItemRequest(BaseModel):
     targetId: str
     sourceId: str
     targetPath: str
+
+class WideModelRequest(BaseModel):
+    wideMode: bool

@@ -179,83 +179,145 @@ def test_intial_code_cell_content(driver):
 
 def test_initial_code_execution_and_output(driver):
     code_cells = find_code_cells(driver)
+    code_cells[0].click
     cell_info = extract_code_cell_info(code_cells[0],driver)
     run_icon = cell_info["elements"]["run_icon"]
     run_icon.click()
     wait_for_coderun(driver)
+    time.sleep(6)
     cell_info = extract_code_cell_info(code_cells[0],driver)
     assert cell_info["elements"]["output_container"].find_element(By.ID, "slide"), "Element with id 'slide' not found in output."
     assert cell_info["elements"]["output_container"].find_element(By.ID, "text"), "Element with id 'text' not found in output."
 
 
 def test_adding_new_code_cell(driver):
+    # Find initial code cells
     code_cells = find_code_cells(driver)
-    cell_info = extract_code_cell_info(code_cells[0],driver)
-    add_icon = cell_info["elements"]["add_cell"]
-    add_icon.click()
-    WebDriverWait(driver, 100).until(
-        EC.presence_of_element_located((By.ID, f"addCell_Code_{cell_info['cell_id']}")))
-    assert driver.find_element(By.ID, f"addCell_Code_{cell_info['cell_id']}"), "Add code cell below not found"
-    add_code_cell = driver.find_element(By.ID,f"addCell_Code_{cell_info['cell_id']}")
-    time.sleep(4)
+    cell_info = extract_code_cell_info(code_cells[0], driver)
+    
+    # Find and trigger the add cell button
+    activator_area = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, f"#addCell{cell_info['cell_id']}")
+    ))
+    
+    # Make the container visible
+    driver.execute_script("""
+        arguments[0].style.height = '24px';
+        arguments[0].querySelector('.divider-container').style.opacity = '1';
+        var btn = arguments[0].querySelector('.divider__btn');
+        btn.style.opacity = '1';
+        btn.style.visibility = 'visible';
+        btn.style.pointerEvents = 'auto';
+    """, activator_area)
+    
+    driver.execute_script("arguments[0].offsetHeight;", activator_area)
+    
+    add_button = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, f"#addCell{cell_info['cell_id']} .v-btn.divider__btn"))
+    )
+    
+    driver.execute_script("arguments[0].scrollIntoView(true);", add_button)
+    driver.execute_script("arguments[0].click();", add_button)
+    
+    add_code_cell = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.ID, f"addCell_Code_{cell_info['cell_id']}"))
+    )
     add_code_cell.click()
-    time.sleep(4)
+    
     code_cells = find_code_cells(driver)
-    assert len(code_cells) == 2 and code_cells[0].get_attribute('id') == 'codeCard57fbbd59-8f30-415c-87bf-8caae0374070', "Expected code cell not found."
-
-
+    assert len(code_cells) == 2, "New code cell was not added"
+    assert code_cells[0].get_attribute('id') == 'codeCard57fbbd59-8f30-415c-87bf-8caae0374070', "Expected code cell not found"
 
 def test_execution_of_new_code_cell(driver):
     code_cells = find_code_cells(driver)
-    cell_info = extract_code_cell_info(code_cells[0],driver)
-    new_cell_info =  extract_code_cell_info(code_cells[1],driver)
-    slider = cell_info["elements"]["output_container"].find_element(By.CLASS_NAME,'v-slider-thumb')
+    cell_info = extract_code_cell_info(code_cells[0], driver)
+    new_cell_info = extract_code_cell_info(code_cells[1], driver)
+    
+    # Get slider value from first cell
+    slider = cell_info["elements"]["output_container"].find_element(By.CLASS_NAME, 'v-slider-thumb')
     slider_value = slider.get_attribute("aria-valuenow")
-    new_code = """
+    
+    # Prepare the code to execute
+    new_code = f"""
 time.sleep(2)
 print(slider.value)"""
+    
+    # Focus the new cell to make header visible
+    new_cell = code_cells[1]
+    driver.execute_script("""
+        // Trigger mouseenter event to show header
+        var event = new MouseEvent('mouseenter', {
+            'view': window,
+            'bubbles': true,
+            'cancelable': true
+        });
+        arguments[0].dispatchEvent(event);
+    """, new_cell)
+    
+    # Wait for header to be visible
+    WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.CSS_SELECTOR, f"#codeCard{new_cell_info['cell_id']} .header"))
+    )
+    
+    # Input the code
     clear_codemirror_and_send_text(driver, new_cell_info["elements"]["codemirror_input"], new_code)
-    new_run_icon = new_cell_info["elements"]["run_icon"]
-    new_run_icon.click()
+    
+    # Find and click run button
+    run_button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, f"#runCode{new_cell_info['cell_id']}"))
+    )
+    driver.execute_script("arguments[0].click();", run_button)
+    
+    # Wait for execution
     wait_for_coderun(driver)
-    new_cell_info =  extract_code_cell_info(code_cells[1],driver)
+    time.sleep(10)
+    
+    # Verify output
+    new_cell_info = extract_code_cell_info(code_cells[1], driver)
     new_cell_output = new_cell_info["elements"]["cell_output"]
-    assert new_cell_output.text == slider_value, "Output of new cell does not match slider value"
-
+    
+    assert new_cell_output.text.strip() == str(slider_value).strip(), (
+        f"\nOutput mismatch:"
+        f"\nActual output: '{new_cell_output.text}'"
+        f"\nExpected output: '{slider_value}'"
+    )
 
 def test_slider_interaction(driver):
     code_cells = find_code_cells(driver)
-    cell_info = extract_code_cell_info(code_cells[0],driver)
-    new_cell_info = extract_code_cell_info(code_cells[1],driver)
-    slider = cell_info["elements"]["output_container"].find_element(By.CLASS_NAME,'v-slider-thumb')
+    
+    # Click first cell to focus it
+    code_cells[0].click()
+    time.sleep(2)  # Wait for focus
+    
+    slider = code_cells[0].find_element(By.CLASS_NAME,'v-slider-thumb')
     slider_value = slider.get_attribute("aria-valuenow")
 
-    # Perform the drag-and-drop action
-    if slider_value=='100':
-        offset = -250
-    else:
-        offset = 250
-    ActionChains(driver).drag_and_drop_by_offset(slider,offset, 0).release().perform()
-    wait_for_coderun(driver)
-    #get new output from parent cell 
-    new_cell_info = extract_code_cell_info(code_cells[1],driver)
+    # Move slider
+    offset = -250 if slider_value == '100' else 250
+    ActionChains(driver).drag_and_drop_by_offset(slider, offset, 0).perform()
+    
+    # Click second cell to focus it
+    code_cells[1].click()
+    
+    time.sleep(6)  # Wait for execution
+    
+    # Get output
+    new_cell_info = extract_code_cell_info(code_cells[1], driver)
     new_cell_output = new_cell_info["elements"]["cell_output"]
-
-    slider_value = slider.get_attribute("aria-valuenow")
-    time.sleep(2)
-    #assert they are equal 
-    assert new_cell_output.text == slider_value
-
+    
+    # Verify
+    assert new_cell_output.text == slider.get_attribute("aria-valuenow")
 def test_app_mode(driver):
     #hide the second code cell
     code_cells = find_code_cells(driver)
+    code_cells[1].click()
     new_cell_info =  extract_code_cell_info(code_cells[1],driver)
     new_cell_info["elements"]["cell_toolbar"].click()
     WebDriverWait(driver, 25).until(
         EC.element_to_be_clickable((By.ID, f"hideCell{new_cell_info['cell_id']}")))
     hide_btn = driver.find_element(By.ID,f"hideCellSwitch{new_cell_info['cell_id']}")
     hide_btn.click()
-    time.sleep(2)
+    time.sleep(6)
 
     #find app mode button by id 
     app_mode_btn = driver.find_element(By.ID, "appBtn")
@@ -273,6 +335,7 @@ def test_app_mode(driver):
 
     #test whether code cell is editable in app mode
     code_cells = find_code_cells(driver)
+    code_cells[0].click()
 
     #assert that there is only cell in app mode because the second cell was hidden
 
@@ -297,6 +360,7 @@ def test_app_mode(driver):
     #check that the code has not chenged since before the clear_codemirror_and_send_text call
     #and that it matches the expected code
     code_cells = find_code_cells(driver)
+    code_cells[0].click()
     cell_info = extract_code_cell_info(code_cells[0],driver, mode='app')
     assert cell_info['code'].strip() == expected_code.strip(), "Code in the cell does not match the expected code."
     

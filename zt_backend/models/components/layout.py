@@ -1,4 +1,4 @@
-from pydantic import BaseModel,Field
+from pydantic import BaseModel,Field, validator
 from typing import ForwardRef,Union
 from typing import List
 from zt_backend.models.state.user_state import UserContext
@@ -10,6 +10,12 @@ class Column(BaseModel):
     """A Column must be a subcomponent of a Row. It can contain both individual components and rows"""
     components: List[Union[str,"Row"]] = Field([], description="List of component IDs and rows that belong to this column, rendered in order")
     width: Union[int,bool] = Field(False, description="Width of the column. It can be a number 1-12 and by default is automatically calculated")
+
+    @validator('width')
+    def width_must_be_between_1_and_12(cls, v):
+        if isinstance(v, int) and not 1 <= v <= 12:
+            raise ValueError('Column width must be between 1 and 12 got {v}')
+        return v
 
     def __init__(__pydantic_self__, *args, **data):
         if args:

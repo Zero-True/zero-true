@@ -325,7 +325,7 @@ def write_notebook():
         with tmp_uuid_file.open("w", encoding="utf-8") as project_file:
             # Write notebookId
             project_file.write(
-                f'notebookId = "{notebook_state.zt_notebook.notebookId}"\nnotebookName = "{notebook_state.zt_notebook.notebookName}"\n\n'
+                f'notebookId = "{notebook_state.zt_notebook.notebookId}"\nnotebookName = "{notebook_state.zt_notebook.notebookName}"\nwideMode = "{notebook_state.zt_notebook.wideMode}"\n\n'
             )
 
             for cell_id, cell in notebook_state.zt_notebook.cells.items():

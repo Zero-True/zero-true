@@ -9,9 +9,6 @@ class RangeSlider(ZTComponent):
     """A slider component that allows a user to select a range of values"""
 
     component: str = Field("v-range-slider", description="Vue component name")
-    value: List[Union[int, float]] = Field(
-        [0, 100], description="Current value range of the slider"
-    )
     min: Union[int, float] = Field(0, description="Minimum value of the slider")
     max: Union[int, float] = Field(100, description="Maximum value of the slider")
     step: Union[int, float] = Field(1, gt=0, description="Step increment of the slider")
@@ -30,14 +27,23 @@ class RangeSlider(ZTComponent):
         True, description="Determines if the slider has rounded edges"
     )
     style: Optional[str] = Field("", description="CSS style to apply to the component")
+    value: List[Union[int, float]] = Field(
+        [0, 100], description="Current value range of the slider"
+    )
     triggerEvent: str = Field(
         "end", description="Trigger event for when to trigger a run"
     )
 
+    def __init__(self, **data):
+        # Set initial value to [min, max]
+        data['value'] = [data.get('min', 0), data.get('max', 100)]
+        super().__init__(**data)
+
+
     @field_validator("color")
     def validate_color(cls, color):
         return validate_color(color)
-
+    
     @validator("value", always=True)  # TODO: debug and replace with field validator
     def get_value_from_global_state(cls, value, values):
         id = values["id"]  # Get the id if it exists in the field values
