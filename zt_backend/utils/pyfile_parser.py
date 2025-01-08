@@ -4,11 +4,17 @@ import textwrap
 import os
 import importlib.util
 from collections import OrderedDict, defaultdict
-import astroid
 from pathlib import Path
 from uuid import uuid4
 from zt_backend.models.notebook import Notebook, CodeCell
-from zt_backend.runner.code_cell_parser import get_imports, get_defined_names,get_loaded_names,get_loaded_modules,get_functions
+import astroid
+from zt_backend.runner.code_cell_parser import (
+    get_imports,
+    get_defined_names,
+    get_loaded_names,
+    get_loaded_modules,
+    get_functions,
+)
 def parse_cell(func):
     """
     Inspect the function to detect:
@@ -39,7 +45,7 @@ def parse_cell(func):
     def filter_return_statements(node):
         """Recursively remove trivial returns from function bodies."""
         if isinstance(node, ast.FunctionDef):
-            node.body = [filter_return_statements(subnode) for subnode in node.body if not (isinstance(subnode, ast.Return))]
+            node.body = [filter_return_statements(subnode) for subnode in node.body if not (isinstance(subnode, ast.Return) and not subnode.value)]
         elif isinstance(node, ast.Module):
             node.body = [filter_return_statements(subnode) for subnode in node.body]
         return node
@@ -133,15 +139,33 @@ def load_notebook_from_file(file_path, notebook_variable_name="notebook"):
         raise AttributeError(f"{notebook_variable_name} not found in {file_path}")
 
 
-def build_cell_code_block(fn_name, cell_obj, def_line):
+def update_notebook_file(filepath, notebook_obj):
+    """
+    Update or create a Python file to match the given Notebook’s cell definitions
+    and *physically remove* the function definition for any cell that was deleted
+    from the notebook.
+    This version:
+      - Keeps exactly one blank line before each cell (if needed).
+      - Removes old functions if they've been removed from the notebook.
+      - If a cell is recognized as markdown/sql/text, it writes zt.markdown(...), zt.sql(...), etc. in the file,
+        but the notebook only loads the raw string (see parse_cell).
+    """
+    import re
+    import_line = "import zero_true as zt\n"
+
+    # Helper function to ensure at most one blank line
+    def maybe_add_blank_line(line_list):
+        if line_list and line_list[-1].strip():  # last line not empty
+            line_list.append("\n")
+
+    # Helper to build code block for each cell (in the file).
+    def build_cell_code_block(fn_name, cell_obj, def_line):
         """
         If the cell is e.g. sql, we'll put "    zt.sql(\"\"\"...\")" in the file.
         Meanwhile, in the notebook data structure, .code contains only the raw query.
         """
-        return_line= "    return\n"
-
-        if cell_obj.cellType == "code":
-            # 1) Attempt to parse & extract loaded/defined names
+        return_line = "    return"
+        if cell_obj.cellType == 'code':
             try:
                 module = astroid.parse(cell_obj.code)
                 all_imports = get_imports(module)
@@ -166,16 +190,9 @@ def build_cell_code_block(fn_name, cell_obj, def_line):
 
             # 2) Build function signature (optional arguments)
             if loaded_names:
-                signature_line = f"def {fn_name}({', '.join(loaded_names)}):"
-            else:
-                signature_line = f"def {fn_name}():"
-
-            def_line=signature_line
-            
+                def_line = f"def {fn_name}({', '.join(loaded_names)}):"
             if defined_names:
-                return_line = f"    return {', '.join(defined_names)}\n"
-
-
+                return_line =f"    return({', '.join(defined_names)})"
         
         lines = [def_line]  # e.g. "def cell_0():"
         if cell_obj.cellType in ["markdown", "sql", "text"]:
@@ -187,28 +204,6 @@ def build_cell_code_block(fn_name, cell_obj, def_line):
                 lines.append(f"    {raw}")
         lines.append(return_line)
         return lines
-
-
-
-def update_notebook_file(filepath, notebook_obj):
-    """
-    Update or create a Python file to match the given Notebook’s cell definitions
-    and *physically remove* the function definition for any cell that was deleted
-    from the notebook.
-    This version:
-      - Keeps exactly one blank line before each cell (if needed).
-      - Removes old functions if they've been removed from the notebook.
-      - If a cell is recognized as markdown/sql/text, it writes zt.markdown(...), zt.sql(...), etc. in the file,
-        but the notebook only loads the raw string (see parse_cell).
-    """
-    import re
-    import_line = "import zero_true as zt\n"
-
-    # Helper function to ensure at most one blank line
-    def maybe_add_blank_line(line_list):
-        if line_list and line_list[-1].strip():  # last line not empty
-            line_list.append("\n")
-
 
     # 1) Read existing lines or init
     try:
