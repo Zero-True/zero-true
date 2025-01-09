@@ -11,7 +11,6 @@ import os
 import webbrowser
 import logging
 import traceback
-import matplotlib
 
 app = FastAPI()
 logger = logging.getLogger("__name__")
@@ -39,7 +38,13 @@ app.add_middleware(
 @app.on_event("startup")
 def open_project():
     try:
+        import matplotlib
         matplotlib.use("Agg")
+    except Exception as e:
+        logger.info('matplotlib not found')
+    try:
+
+
         notebook_path = Path(settings.zt_path) / "notebook.ztnb"
         if not notebook_path.exists():
             logger.info("No notebook file found, creating with empty notebook")

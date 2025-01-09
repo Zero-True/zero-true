@@ -52,7 +52,6 @@ from zt_backend.utils.file_utils import upload_queue
 from typing import Optional
 import mimetypes
 from typing import Dict, Tuple, Optional
-import aiofiles
 import tempfile
 from zt_backend.utils.file_utils import *
 
