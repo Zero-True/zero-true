@@ -73,6 +73,12 @@ async def dependency_update(
                 await websocket.send_json({"output": line})
             process.stdout.close()
         write_dependencies(dependency_request.dependencies)
+        if any(dep.startswith("matplotlib") for dep in dependency_request.dependencies):
+            try:
+                import matplotlib
+                matplotlib.use("Agg")
+            except Exception as e:
+                logger.info('matplotlib not found')
         return parse_dependencies()
     except Exception as e:
         logger.error("Error updating dependencies: %s", traceback.format_exc())
