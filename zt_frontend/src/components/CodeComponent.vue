@@ -10,7 +10,6 @@
     :cell-has-output="hasCellContent"
     :currentlyExecutingCell="currentlyExecutingCell"
     :isCodeRunning="isCodeRunning"
-    :is-focused="isFocused"
     :is-dev-mode="$devMode && !isAppRoute && !isMobile"
     @play="runCode(false, '', '')"
     @delete="deleteCell"
@@ -115,7 +114,7 @@ import { python } from "@codemirror/lang-python";
 import { indentUnit } from "@codemirror/language";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorView, keymap } from "@codemirror/view";
-import { Prec, EditorState } from "@codemirror/state";
+import { Prec, EditorState, Extension } from "@codemirror/state";
 import {
   autocompletion,
   acceptCompletion,
@@ -417,22 +416,22 @@ export default {
       );
 
       if (this.$devMode && !this.isAppRoute) {
-        return [
-          Prec.highest(keyMap),
-          python(),
-          this.isDarkMode ? oneDark : undefined, // Add condition for dark mode
-          indentUnit.of("    "),
-          inlineSuggestion({ fetchFn: fetchSuggestion, delay: 400 }),
-          autocompletion({ override: [customCompletionSource] }),
-          customLinter,
-        ].filter(Boolean);
+      return [
+        Prec.highest(keyMap),
+        python(),
+        ...(this.isDarkMode ? [oneDark] : []), // Add only when in dark mode
+        indentUnit.of("    "),
+        inlineSuggestion({ fetchFn: fetchSuggestion, delay: 400 }),
+        autocompletion({ override: [customCompletionSource] }),
+        customLinter,
+      ].filter(Boolean) as Extension[];
       }
       return [
         EditorState.readOnly.of(true),
         Prec.highest(keyMap),
         python(),
-        this.isDarkMode ? oneDark : undefined, // Add condition for dark mode
-      ].filter(Boolean);
+        ...(this.isDarkMode ? [oneDark] : []), // Add only when in dark mode
+      ].filter(Boolean) as Extension[];
     },
 
     unplacedComponents() {
@@ -542,10 +541,8 @@ export default {
     handleFocus() {
       this.isFocused = true;
       this.runLint = true;
-      if (this.getEditorView()) {
-        if (this.view) {
-          this.view.dispatch({});
-        }
+      if (this.view) {
+        this.view.dispatch({});
       }
     },
     handleBlur() {

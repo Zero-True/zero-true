@@ -6,7 +6,6 @@
     :hide-cell="(cellData.hideCell as boolean)"
     :cell-name="(cellData.cellName as string)"
     :cell-has-output=hasCellContent
-    :is-focused="isFocused"
     @delete="deleteCell"
     @save="saveCell"
     @addCell="e => createCell(e)"
@@ -23,8 +22,6 @@
         :extensions="extensions"
         @keyup="saveCell"
         @ready="handleReady"
-        @focus="onEditorFocus"
-        @blur="onEditorBlur"
       />
     </template>
     <template v-slot:outcome>
@@ -45,7 +42,7 @@ import AddCell from '@/components/AddCell.vue'
 import { useRoute } from 'vue-router'
 import Cell from '@/components/Cell.vue'
 import {EditorView, keymap} from "@codemirror/view";
-import {Prec} from "@codemirror/state";
+import {Prec, Extension} from "@codemirror/state";
 
 
 export default {
@@ -100,9 +97,9 @@ export default {
       return [
         Prec.highest(keyMap),
         markdown(),
-        this.isDarkMode ? oneDark : undefined, // Add condition for dark mode
+        ...(this.isDarkMode ? [oneDark] : []), // Add only when in dark mode
         autocompletion({ override: [] }),
-      ].filter(Boolean); // Filter out undefined values
+      ].filter(Boolean) as Extension[]; // Filter out undefined values
     },
 
     compiledMarkdown() {
@@ -150,13 +147,6 @@ export default {
     getEditorView() {
       return this.view || null;
     },
-
-  onEditorFocus() {
-    this.isFocused = true;
-  },
-  onEditorBlur() {
-    this.isFocused = false;
-  },
   },
 };
 </script>
