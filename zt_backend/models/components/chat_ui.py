@@ -5,7 +5,6 @@ from zt_backend.models.components.slider import Slider
 from zt_backend.models.components.card import Card
 from zt_backend.models.components.layout import Row, Layout
 from zt_backend.models.state.state import state
-import openai
 import logging
 
 class CustomError(Exception):
@@ -15,6 +14,7 @@ class CustomError(Exception):
         super().__init__(self.message)
 
 def chat_ui(api_key=""):
+    import openai
 
     # Initialize state
     zt_state = state()

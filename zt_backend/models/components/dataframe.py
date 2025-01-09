@@ -1,9 +1,7 @@
-import pandas as pd
 from pydantic import Field, BaseModel
 import numpy as np
 from zt_backend.models.components.zt_component import ZTComponent
-from typing import List, Dict, Any
-
+from typing import List, Dict, Any\
 
 class Header(BaseModel):
     """Header class for the columns of a DataFrame component"""
@@ -36,7 +34,7 @@ class DataFrame(ZTComponent):
 
     @classmethod
     def from_dataframe(
-        cls, df: pd.DataFrame, id: str, multi_sort: bool = True, search: str = ""
+        cls, df, id: str, multi_sort: bool = True, search: str = ""
     ):
         """Create a DataFrame component from a pandas DataFrame"""
         df = df.replace({np.nan: None}).replace({np.inf: None}).replace({-np.inf: None})
@@ -54,7 +52,7 @@ class DataFrame(ZTComponent):
         )
 
 
-def dataframe(df: pd.DataFrame, id: str, multi_sort: bool = True, search: str = ""):
+def dataframe(df, id: str, multi_sort: bool = True, search: str = ""):
     """Create a ZT DataFrame component from a pandas DataFrame"""
     df = df.replace({np.nan: None}).replace({np.inf: None}).replace({-np.inf: None})
     if search:
