@@ -12,12 +12,13 @@ def pygwalker(id: str, df, width: Union[int, str] = '100%', height: Union[int, s
     try:
         import pandas as pd
         import pygwalker as pyg
+        if not isinstance(df, pd.DataFrame):
+            raise ValueError("Input must be a pandas DataFrame")
+        
     except ImportError as e:
         raise ImportError(
             "pygwalker or pandas is not installed. Please install with 'pip install pygwalkwer'."
         ) from e
         
-    if not isinstance(df, pd.DataFrame):
-        raise ValueError("Input must be a pandas DataFrame")
-        
+
     return HTML(id=id, v_html=pyg.to_html(df, width=width, height=height))
