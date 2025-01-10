@@ -92,25 +92,6 @@
             </v-btn>
               </template>
             </v-tooltip>
-            <v-menu
-              v-if="$devMode && !isAppRoute"
-              :close-on-content-click="false"
-            >
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  :icon="`ztIcon:${ztAliases.settings}`"
-                  v-bind="props"
-                ></v-btn>
-              </template>
-              <v-list bg-color="bluegrey-darken-4">
-                <v-list-item>
-                  <template v-slot:prepend>
-                    <v-switch v-model="reactiveMode"></v-switch>
-                  </template>
-                  <v-list-item-title>Reactive Mode</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
             <!-- <v-btn
               v-if="$devMode && !isAppRoute"
               :icon="`ztIcon:${ztAliases.message}`"
@@ -195,6 +176,11 @@
                     <v-switch v-model="reactiveMode"></v-switch>
                   </template>
                   <v-list-item-title>Reactive Mode</v-list-item-title>
+                </v-list-item><v-list-item>
+                  <template v-slot:prepend>
+                    <v-switch></v-switch>
+                  </template>
+                  <v-list-item-title>Wide Mode</v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>
