@@ -50,12 +50,12 @@
 
 <script lang="ts">
 import { Notebook, CodeCell } from "@/types/notebook";
-import CodeComponent from "@/components/CodeComponent.vue";
-import MarkdownComponent from "@/components/MarkdownComponent.vue";
-import EditorComponent from "@/components/EditorComponent.vue";
-import SQLComponent from "@/components/SQLComponent.vue";
-import PackageComponent from "@/components/PackageComponent.vue";
-import AddCell from '@/components/AddCell.vue'
+import CodeComponent from "@/components/cells/code/CodeComponent.vue";
+import MarkdownComponent from "@/components/cells/markdown/MarkdownComponent.vue";
+import EditorComponent from "@/components/cells/text/EditorComponent.vue";
+import SQLComponent from "@/components/cells/sql/SQLComponent.vue";
+import PackageComponent from "@/components/plugins/PackageComponent.vue";
+import AddCell from '@/components/cells/base/AddCell.vue'
 import { PropType } from "vue";
 import { useRoute } from "vue-router";
 

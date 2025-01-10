@@ -77,13 +77,13 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted, watch, computed } from "vue";
 import axios from "axios";
-import FileUploader from "@/components/FileUploader.vue";
-import FileFolderCreator from "@/components/FileFolderCreator.vue";
-import RenameDialog from "@/components/FileFolderRenameDialog.vue";
-import DeleteDialog from "@/components/FileFolderDeleteDialog.vue";
-import FileEditorDialog from '@/components/FileEditorDialog.vue';
-import FileFolderDownloadDialog from "@/components/FileFolderDownloadDialog.vue";
-import FileTreeNode from "@/components/FileTreeNode.vue";
+import FileUploader from "@/components/file-system/FileUploader.vue";
+import FileFolderCreator from "@/components/file-system/dialogs/FileFolderCreator.vue";
+import RenameDialog from "@/components/file-system/dialogs/FileFolderRenameDialog.vue";
+import DeleteDialog from "@/components/file-system/dialogs/FileFolderDeleteDialog.vue";
+import FileEditorDialog from '@/components/file-system/dialogs/FileEditorDialog.vue';
+import FileFolderDownloadDialog from "@/components/file-system/dialogs/FileFolderDownloadDialog.vue";
+import FileTreeNode from "@/components/file-system/FileTreeNode.vue";
 import { debounce } from "lodash";
 
 export default defineComponent({

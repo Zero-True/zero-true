@@ -78,8 +78,8 @@ import {
   VCard,
 } from "vuetify/lib/components/index.mjs";
 import { VDataTable } from "vuetify/components/VDataTable";
-import TextComponent from "@/components/TextComponent.vue";
-import PlotlyPlot from "@/components/PlotlyComponent.vue";
+import TextComponent from "@/components/plugins/TextComponent.vue";
+import PlotlyPlot from "@/components/plugins/PlotlyComponent.vue";
 
 export default {
   components: {

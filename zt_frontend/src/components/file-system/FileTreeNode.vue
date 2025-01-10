@@ -82,11 +82,11 @@
 <script lang="ts">
 import { defineComponent, ref} from 'vue';
 import axios from 'axios';
-import FileEditorDialog from '@/components/FileEditorDialog.vue';
-import FileFolderDownloadDialog from '@/components/FileFolderDownloadDialog.vue';
-import RenameDialog from '@/components/FileFolderRenameDialog.vue';
-import DeleteDialog from '@/components/FileFolderDeleteDialog.vue';
-import FileFolderCreator from '@/components/FileFolderCreator.vue'; // Import the component
+import FileEditorDialog from '@/components/file-system/dialogs/FileEditorDialog.vue';
+import FileFolderDownloadDialog from '@/components/file-system/dialogs/FileFolderDownloadDialog.vue';
+import RenameDialog from '@/components/file-system/dialogs/FileFolderRenameDialog.vue';
+import DeleteDialog from '@/components/file-system/dialogs/FileFolderDeleteDialog.vue';
+import FileFolderCreator from '@/components/file-system/dialogs/FileFolderCreator.vue';
 
 let currentlyOpenMenu: any = null;
 

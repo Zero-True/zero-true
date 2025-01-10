@@ -102,7 +102,7 @@ import {
 } from "@codemirror/autocomplete";
 import { CodeCell } from "@/types/notebook";
 import { useRoute } from "vue-router";
-import Cell from '@/components/Cell.vue'
+import Cell from '@/components/cells/base/Cell.vue'
 
 export default {
   components: {

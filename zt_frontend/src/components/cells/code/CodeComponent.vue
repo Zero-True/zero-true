@@ -14,11 +14,11 @@
     :is-dev-mode="$devMode && !isAppRoute && !isMobile"
     @play="runCode(false, '', '')"
     @delete="deleteCell"
-    @expandCodeUpdate="(e) => expandCodeUpdate(e)"
-    @hideCode="(e) => hideCode(e)"
-    @renameCell="(e) => renameCell(e)"
-    @updateReactivity="(e) => updateReactivity(e)"
-    @addCell="(e) => createCell(e)"
+    @expandCodeUpdate="(e:any) => expandCodeUpdate(e)"
+    @hideCode="(e:any) => hideCode(e)"
+    @renameCell="(e:any) => renameCell(e)"
+    @updateReactivity="(e:any) => updateReactivity(e)"
+    @addCell="(e:any) => createCell(e)"
   >
     <template v-slot:header-title>
       <div
@@ -109,7 +109,7 @@
 import type { PropType, ShallowRef } from "vue";
 import { shallowRef } from "vue";
 import axios from "axios";
-import PlotlyPlot from "@/components/PlotlyComponent.vue";
+import PlotlyPlot from "@/components/plugins/PlotlyComponent.vue";
 import { Codemirror } from "vue-codemirror";
 import { python } from "@codemirror/lang-python";
 import { indentUnit } from "@codemirror/language";
@@ -138,13 +138,13 @@ import {
 } from "vuetify/lib/components/index.mjs";
 import { VDataTable } from "vuetify/components/VDataTable";
 import { CodeCell, Layout, ZTComponent } from "@/types/notebook";
-import LayoutComponent from "@/components/LayoutComponent.vue";
-import TextComponent from "@/components/TextComponent.vue";
+import LayoutComponent from "@/components/cells/base/LayoutComponent.vue";
+import TextComponent from "@/components/plugins/TextComponent.vue";
 import { globalState } from "@/global_vars";
 import { useRoute } from "vue-router";
-import Cell from "@/components/Cell.vue";
+import Cell from "@/components/cells/base/Cell.vue";
 import { inlineSuggestion } from "codemirror-extension-inline-suggestion";
-import ComponentWrapper from "@/components/ComponentWrapper.vue";
+import ComponentWrapper from "@/components/cells/base/ComponentWrapper.vue";
 import { linter, Diagnostic } from "@codemirror/lint";
 
 export default {
