@@ -60,9 +60,9 @@ import {
 } from "vuetify/lib/components/index.mjs";
 import { VDataTable } from "vuetify/components/VDataTable";
 import { Column, ZTComponent, Row } from "@/types/notebook";
-import PlotlyPlot from "@/components/PlotlyComponent.vue";
-import TextComponent from "@/components/TextComponent.vue"
-import ComponentWrapper from "@/components/ComponentWrapper.vue";
+import PlotlyPlot from "@/components/plugins/PlotlyComponent.vue";
+import TextComponent from "@/components/plugins/TextComponent.vue"
+import ComponentWrapper from "@/components/cells/base/ComponentWrapper.vue";
 
 export default {
   emits: ["runCode"],

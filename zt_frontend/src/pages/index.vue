@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import CodeCellManager from "@/components/CodeCellManager.vue";
+import CodeCellManager from "@/components/cells/base/CodeCellManager.vue";
 import { Notebook } from "@/types/notebook";
 import { PropType } from "vue";
 
