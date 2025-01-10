@@ -41,9 +41,9 @@ import { markdown } from '@codemirror/lang-markdown'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { autocompletion } from '@codemirror/autocomplete'
 import { CodeCell } from "@/types/notebook";
-import AddCell from '@/components/AddCell.vue'
+import AddCell from '@/components/cells/base/AddCell.vue'
 import { useRoute } from 'vue-router'
-import Cell from '@/components/Cell.vue'
+import Cell from '@/components/cells/base/Cell.vue'
 import {EditorView, keymap} from "@codemirror/view";
 import {Prec} from "@codemirror/state";
 
