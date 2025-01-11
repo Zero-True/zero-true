@@ -162,7 +162,7 @@
                   <v-list-item-title>Reactive Mode</v-list-item-title>
                 </v-list-item><v-list-item>
                   <template v-slot:prepend>
-                    <v-switch></v-switch>
+                    <v-switch v-model="wideMode" @update:modelValue="updateWideMode"></v-switch>
                   </template>
                   <v-list-item-title>Wide Mode</v-list-item-title>
                 </v-list-item>
@@ -387,6 +387,7 @@ export default {
       items: [] as any[],
       openFolders: [],
       reactiveMode: true,
+      wideMode: false,
       showComments: false,
       showCreateButton: false,
       envUserName: "",
@@ -665,6 +666,7 @@ export default {
       const response = JSON.parse(event.data);
       if (response.notebook_name) {
         this.notebookName = response.notebook_name;
+        this.wideMode = response.wide_mode;
         document.title = this.notebookName;
       } else if (response.cell_id) {
         if (response.clear_output) {
@@ -1089,13 +1091,13 @@ export default {
         timer.start(startTimer);
       }
     },
-    async updateWideMode(value:boolean) {
+    async updateWideMode() {
       // Send update to backend
       await axios.post(import.meta.env.VITE_BACKEND_URL + "api/wide_mode_update", {
-        wideMode: value
+        wideMode: this.wideMode,
       });
       
-      this.notebook.wideMode = value;
+      this.notebook.wideMode = this.wideMode;
     }
   },
 };

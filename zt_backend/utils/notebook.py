@@ -184,6 +184,7 @@ def globalStateUpdate(
     run_request: request.Request = None,
     run_response: response.Response = None,
     new_notebook_name: str = "",
+    wide_mode: request.WideModelRequest = None,
     add_comment: request.AddCommentRequest = None,
     delete_comment: request.DeleteCommentRequest = None,
     edit_comment: request.EditCommentRequest = None,
@@ -260,6 +261,8 @@ def globalStateUpdate(
                     )
             if new_notebook_name:
                 notebook_state.zt_notebook.notebookName = new_notebook_name
+            if wide_mode is not None:
+                notebook_state.zt_notebook.wideMode = wide_mode.wideMode
         if add_comment is not None:
             notebook_state.zt_notebook.cells[add_comment.cellId].comments[
                 add_comment.commentId

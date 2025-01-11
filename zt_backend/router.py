@@ -102,10 +102,11 @@ def base_path():
     return settings.user_name + "/" + settings.project_name
 
 @router.post("/api/wide_mode_update")
-async def update_wide_mode(request: request.WideModelRequest):
-    notebook_state.zt_notebook.wideMode = request.wideMode
-    await save_notebook()
-    return {"status": "success"}
+async def update_wide_mode(wideModeRequest: request.WideModelRequest):
+    if app_state.run_mode == "dev":
+        logger.debug("Hide cell request started")
+        app_state.save_queue.put_nowait({"wide_mode": wideModeRequest})
+        logger.debug("Hide cell request completed")
 
 @router.websocket("/ws/run_code")
 async def run_code(websocket: WebSocket):
@@ -383,7 +384,7 @@ async def load_notebook(websocket: WebSocket):
                 logger.debug("Get notebook request received")
                 notebook_start = get_notebook_request()
                 await websocket.send_json(
-                    {"notebook_name": notebook_start.notebookName}
+                    {"notebook_name": notebook_start.notebookName, "wide_mode": notebook_start.wideMode}
                 )
                 if app_state.run_mode == "app":
                     userId = str(uuid.uuid4())
