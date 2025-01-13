@@ -85,7 +85,7 @@ async def dependency_update(
                 await websocket.send_json({"output": line})
             process.stdout.close()
         write_dependencies(dependency_request.dependencies)
-        if any(dep.startswith("matplotlib") for dep in dependency_request.dependencies):
+        if any(dep[0].startswith("matplotlib") for dep in dependency_request.dependencies):
             try:
                 import matplotlib
                 matplotlib.use("Agg")
