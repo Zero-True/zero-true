@@ -4,7 +4,7 @@ from zt_backend.models import notebook
 import subprocess
 import logging
 import traceback
-import pkg_resources
+from importlib.metadata import version, PackageNotFoundError
 import re
 from pathlib import Path
 from zt_backend.config import settings
@@ -36,26 +36,38 @@ def parse_dependencies():
 
 def check_env(dependencies: notebook.Dependencies):
     for dependency in dependencies.dependencies:
+        package_name = dependency.package
+        required_version = dependency.version
         try:
-            pkg_resources.require(f"{dependency.package}{dependency.version}")
-        except pkg_resources.DistributionNotFound:
-            return False
-        except pkg_resources.VersionConflict:
+            installed_version = version(package_name)
+            if required_version and not _check_version(installed_version, required_version):
+                return False
+        except PackageNotFoundError:
             return False
     return True
 
+def _check_version(installed_version, required_version):
+    # Assuming `required_version` is in PEP 440-compatible format, e.g., `>=1.2.3`
+    from packaging.version import Version
+    from packaging.specifiers import SpecifierSet
+
+    specifier_set = SpecifierSet(required_version)
+    return Version(installed_version) in specifier_set
 
 def write_dependencies(dependencies: notebook.Dependencies):
     requirements_path = Path(settings.zt_path) / "requirements.txt"
     with requirements_path.open("w", encoding="utf-8") as file:
         for dependency in dependencies.dependencies:
             if dependency.package and dependency.version:
+                # Write package with specified version
                 file.write(f"{dependency.package}{dependency.version}\n")
             elif dependency.package:
                 try:
-                    version = pkg_resources.get_distribution(dependency.package).version
-                    file.write(f"{dependency.package}=={version}\n")
-                except pkg_resources.DistributionNotFound:
+                    # Get installed version of the package
+                    installed_version = version(dependency.package)
+                    file.write(f"{dependency.package}=={installed_version}\n")
+                except PackageNotFoundError:
+                    # Package not found, write only the package name
                     file.write(f"{dependency.package}\n")
 
 

@@ -45,7 +45,7 @@ import os
 import traceback
 import sys
 import asyncio
-import pkg_resources
+from importlib.metadata import version
 import requests
 import re
 from zt_backend.utils.file_utils import upload_queue
@@ -83,7 +83,7 @@ def env_data():
     environment_data = {
         "ws_url": settings.ws_url,
         "python_version": f"{sys.version_info.major}.{sys.version_info.minor}",
-        "zt_version": pkg_resources.get_distribution("zero-true").version,
+        "zt_version": version("zero-true"),
         "comments_enabled": settings.comments_enabled,
         "show_create_button": settings.show_create_button,
     }
@@ -466,7 +466,7 @@ def share_notebook(shareRequest: request.ShareRequest):
             project_name = shareRequest.projectName.lower().strip()
             compute_profile_long = shareRequest.computeProfile.strip()
             python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
-            zt_version = pkg_resources.get_distribution("zero-true").version
+            zt_version = version("zero-true")
             if compute_profile_long == "Small (1 CPU, 4GB RAM)":
                 compute_profile = "small"
             elif compute_profile_long == "Medium (1.5 CPU, 8GB RAM)":

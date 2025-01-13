@@ -9,7 +9,8 @@ from rich import print
 from pathlib import Path
 import shutil
 import requests
-import pkg_resources
+import importlib import version
+from importlib.resources import files
 import sys
 import yaml
 import json
@@ -84,7 +85,7 @@ def publish(
     project_name = project_name.lower().strip()
     compute_profile = compute_profile.lower().strip()
     python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
-    zt_version = pkg_resources.get_distribution("zero-true").version
+    zt_version = version("zero-true")
     if team_name:
         if compute_profile not in ["xsmall", "small", "medium", "large", "xlarge"]:
             typer.echo("Invalid compute profile")
@@ -179,9 +180,7 @@ def app(
     os.environ["ZT_PATH"] = str(Path.cwd())
     print_ascii_logo()
     os.environ["RUN_MODE"] = "app"
-    log_path = os.path.normpath(
-        pkg_resources.resource_filename("zt_cli", "log_config.yaml")
-    )
+    log_path = files("zt_cli").joinpath("log_config.yaml")
 
     print(f"[yellow]Starting Zero-True in app mode on http://{host}:{port}[/yellow]")
 
@@ -211,9 +210,7 @@ def notebook(
     os.environ["ZT_PATH"] = str(Path.cwd())
     print_ascii_logo()
     os.environ["RUN_MODE"] = "dev"
-    log_path = os.path.normpath(
-        pkg_resources.resource_filename("zt_cli", "log_config.yaml")
-    )
+    log_path = files("zt_cli").joinpath("log_config.yaml")
 
     print(
         f"[yellow]Starting Zero-True in notebook mode on http://{host}:{port}[/yellow]"

@@ -9,7 +9,7 @@ from zt_backend.models.generate_schema import generate_schema
 from typing_extensions import Annotated
 from typing import Optional
 from rich import print
-import pkg_resources
+from importlib.resources import files
 
 cli_app = typer.Typer()
 
@@ -63,9 +63,8 @@ def app(
     os.environ["ZT_PATH"] = str(Path.cwd())
     print_ascii_logo()
 
-    log_path = os.path.normpath(
-        pkg_resources.resource_filename("zt_dev_cli", "log_config.yaml")
-    )
+    log_path = files("zt_dev_cli").joinpath("log_config.yaml")
+
     os.environ["RUN_MODE"] = "app"
     frontend_cmd = ["yarn", "run", "app", str(port)]
     backend_cmd = [
@@ -94,9 +93,8 @@ def notebook(
     os.environ["ZT_PATH"] = str(Path.cwd())
     print_ascii_logo()
 
-    log_path = os.path.normpath(
-        pkg_resources.resource_filename("zt_dev_cli", "log_config.yaml")
-    )
+    log_path = files("zt_dev_cli").joinpath("log_config.yaml")
+
     os.environ["RUN_MODE"] = "dev"
     frontend_cmd = ["yarn", "run", "dev", str(port)]
     backend_cmd = [
