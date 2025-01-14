@@ -7,9 +7,9 @@ import os
 
 notebook_state = NotebookState()
 
-IPYNB_PATH = Path(__file__).resolve().parent / "test_file.ipynb"
-OUTPUT_PATH = Path(__file__).resolve().parent / "notebook.ztnb"
-NOTEBOOK_PATH = Path(__file__).resolve().parent / "test_notebook.ztnb"
+IPYNB_PATH = Path("zt_backend/tests/test_file.ipynb").resolve()
+OUTPUT_PATH = Path("zt_backend/tests/notebook.ztnb").resolve()
+NOTEBOOK_PATH = Path("zt_backend/tests/test_notebook.ztnb").resolve()
 
 def test_ipynb_to_ztnb():
 

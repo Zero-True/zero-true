@@ -9,7 +9,7 @@ from rich import print
 from pathlib import Path
 import shutil
 import requests
-from importlib import version
+from importlib.metadata import version
 from importlib.resources import files
 import sys
 import yaml
