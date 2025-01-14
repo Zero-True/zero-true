@@ -56,8 +56,8 @@
             to="/"
             id="notebookBtn"
           >
-            Notebook</v-btn
-          >
+            Notebook
+          </v-btn>
           <v-btn
             :color="isAppRoute ? 'primary' : 'bluegrey-darken-1'"
             :variant="isAppRoute ? 'flat' : 'text'"
@@ -65,8 +65,9 @@
             :prepend-icon="`ztIcon:${ztAliases.monitor}`"
             to="/app"
             id="appBtn"
-            >App</v-btn
           >
+            App
+          </v-btn>
         </v-btn-toggle>
       </div>
 
@@ -76,18 +77,19 @@
             <!-- <v-btn :icon="`ztIcon:${ztAliases.undo}`"></v-btn>
             <v-btn :icon="`ztIcon:${ztAliases.redo}`"></v-btn>
             <v-btn :icon="`ztIcon:${ztAliases.message}`"></v-btn> -->
-            <v-tooltip text="Run All" location="bottom" color="primary">
+            <v-tooltip text="Run All" location="bottom" content-class="theme-tooltip">
               <template v-slot:activator="{ props }">
-                <v-btn
-                  v-if="$devMode && !isAppRoute"
-                  :icon="`ztIcon:${ztAliases.play}`"
-                  v-bind="props"
-                  variant="flat"
-                  ripple
-                  color="bluegrey-darken-4"
-                  @click="runCode('')"
-                >
-                </v-btn>
+            <v-btn
+              v-if="$devMode && !isAppRoute"
+              icon
+              v-bind="props"
+              variant="flat"
+              ripple
+              color="bluegrey-darken-4"
+              @click="runCode('')"
+            >
+              <v-icon :icon="`ztIcon:${ztAliases.play}`" color="bluegrey-darken-1"></v-icon>
+            </v-btn>
               </template>
             </v-tooltip>
             <v-menu
@@ -129,6 +131,20 @@
           </div>
         </v-col>
       </template>
+      <!-- Spacer to push the toggle to the right -->
+      <v-spacer></v-spacer>
+
+      <!-- Right-aligned theme toggle with icon -->
+      <v-btn
+        icon
+        class="align-self-center"
+        @click="toggleTheme"
+        :aria-label="`Switch to ${isLightTheme ? 'dark' : 'light'} mode`"
+      >
+        <v-icon color='bluegrey-darken-1'>
+          {{ isLightTheme ? 'mdi-weather-sunny' : 'mdi-weather-night' }}
+        </v-icon>
+      </v-btn>
     </v-app-bar>
     <v-navigation-drawer
       v-if="$devMode && !isMobile && !isAppRoute"
@@ -142,9 +158,9 @@
             color="bluegrey-darken-4"
             icon="mdi-folder-multiple-outline"
             @click="drawer = !drawer"
-            class="text-bluegrey"
+            class="text-bluegrey-darken-1"
           >
-          <v-icon :color="drawer ? 'primary' : 'white'">mdi-folder-multiple-outline</v-icon>
+          <v-icon :color="drawer ? 'primary' : 'bluegrey-darken-1'">mdi-folder-multiple-outline</v-icon>
           </v-btn>
         </v-list-item>
         <v-list-item>
@@ -170,7 +186,7 @@
                   v-bind="props"
                   color="bluegrey-darken-4"
                 >
-                  <v-icon color="white">mdi-cog</v-icon>
+                  <v-icon color="bluegrey-darken-1">mdi-cog</v-icon>
                 </v-btn>
               </template>
               <v-list bg-color="bluegrey-darken-4">
@@ -239,7 +255,7 @@
     </v-main>
     <v-footer
       app
-      class="footer bg-bluegrey-darken-4 text-bluegrey"
+      class="footer bg-bluegrey-darken-4 text-bluegrey-darken-1"
       v-if="!isMobile"
     >
       <div class="footer__left-container">
@@ -277,7 +293,7 @@
                   :key="i"
                   class="footer__queue-list-item"
                 >
-                  <span class="text-bluegrey">Python #2</span>
+                  <span class="text-bluegrey-darken-1">Python #2</span>
                   <template v-slot:append>
                     <v-icon icon="$done" color="success" />
                   </template>
@@ -310,11 +326,11 @@
             v-if="isCodeRunning"
             density="comfortable"
             :icon="`ztIcon:${ztAliases.stop}`"
-            color="bluegrey"
             variant="plain"
             :ripple="false"
             @click="stopCodeExecution()"
             rounded
+            class="stop-btn"
           >
           </v-btn>
         </div>
@@ -355,8 +371,10 @@ import { DependencyRequest } from "./types/dependency_request";
 import SidebarComponent from "@/components/FileExplorer.vue";
 import { WebSocketManager } from "@/websocket_manager";
 import { useCommentsStore } from "@/stores/comments";
+import { toggleTheme } from "@/plugins/vuetify";
 
 export default {
+
   components: {
     CodeComponent,
     MarkdownComponent,
@@ -370,8 +388,15 @@ export default {
     Comments,
   },
 
+  watch: {
+    isLightTheme(newValue) {
+      toggleTheme();
+    },
+  },
+
   data() {
     return {
+      isLightTheme: true, 
       editingProjectName: false,
       errorMessage: "" as string,
       notebook: {} as Notebook,
@@ -469,6 +494,9 @@ export default {
   },
 
   methods: {
+    toggleTheme() {
+      toggleTheme();
+    },
     async connectSockets() {
       this.notebook_socket = new WebSocketManager(this.ws_url + "ws/notebook", {
         onMessage: (message: any) => this.notebookOnMessage(message),
@@ -1117,6 +1145,7 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/styles/mixins.scss";
+
 .zt-app-bar {
   padding-top: 3px;
   padding-bottom: 3px;
@@ -1260,6 +1289,10 @@ export default {
   }
   &__queue-length-btn {
     margin: 0 2px 0 2px;
+    background-color: rgb(var(--v-theme-background));
+    .v-theme--light & {
+      background-color: rgb(var(--v-theme-on-surface));
+    }
     @include md {
       margin: 0 8px 0 24px;
     }
@@ -1294,10 +1327,58 @@ export default {
 }
 
 .toggle-group {
+  .v-btn-toggle {
+    .v-btn {
+      /* Use Vuetify's text-on-surface color for unselected/normal state. */
+      color: rgb(var(--v-theme-on-surface)) !important;
+      border-color: rgb(var(--v-theme-on-surface)) !important;
+      
+      /* Icon color (normal/unselected). */
+      .v-icon {
+        color: rgb(var(--v-theme-on-primary)) !important;
+      }
+
+      /* Active (selected), or hover state uses primary color scheme. */
+      &.v-btn--selected,
+      &.v-btn--active,
+      &:hover {
+        background-color: rgb(var(--v-theme-primary)) !important;
+        color: rgb(var(--v-theme-on-primary)) !important;
+        
+        .v-icon {
+          color: rgb(var(--v-theme-on-surface)) !important;
+        }
+      }
+    }
+  }
+}
+
+:deep(.theme-tooltip) {
+  color: var(--v-theme-on-primary) !important;
+}
+
+.toggle-group {
   display: flex;
   justify-content: center;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
 }
+.stop-btn.v-btn--icon {
+  --v-btn-size: 1rem;
+  color: rgb(var(--v-theme-bluegrey)) !important;
+  
+  :deep(.v-icon) {
+    color: rgb(var(--v-theme-bluegrey)) !important;
+  }
+
+  .v-theme--light & {
+    color: rgb(var(--v-theme-surface-varient)) !important;
+    
+    :deep(.v-icon) {
+      color: rgb(var(--v-theme-surface-varient)) !important;
+    }
+  }
+}
+
 </style>

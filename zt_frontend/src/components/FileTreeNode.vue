@@ -42,8 +42,8 @@
         min-width="100"
       >
         <template v-slot:activator="{ props }">
-          <v-btn icon variant="text" density="compact" class="file-actions-menu" v-bind="menuActivator ? {} : props">
-            <v-icon size="small">mdi-dots-vertical</v-icon>
+          <v-btn icon variant="text" density="compact" v-bind="menuActivator ? {} : props">
+            <v-icon size="small" >mdi-dots-vertical</v-icon>
           </v-btn>
         </template>
         <v-list class="menu-list">
@@ -444,13 +444,13 @@ const handleDrop = async (event: DragEvent) => {
 
 .file-icon {
   margin-right: 6px;
-  color: #B0BEC5;
+  color: var(--v-theme-on-surface) !important;
 }
 
 .file-name {
   font-family: 'Pathway Extreme', sans-serif;
   font-size: 12.5px;
-  color: #B0BEC5;
+  color: var(--v-theme-on-surface) !important;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -463,7 +463,7 @@ const handleDrop = async (event: DragEvent) => {
 }
 
 .node-item:hover .file-name {
-  color: #FFFFFF;
+  color: var(--v-theme-on-surface) !important;
 }
 
 .file-actions-menu {
@@ -472,7 +472,7 @@ const handleDrop = async (event: DragEvent) => {
 }
 
 .node-item:hover .file-actions-menu {
-  opacity: 1;
+  opacity: 100;
 }
 
 .children-container {
@@ -480,14 +480,6 @@ const handleDrop = async (event: DragEvent) => {
   margin-left: 7px;
 }
 
-.file-actions-menu .v-icon {
-  color: #607D8B;
-  font-size: 16px;
-}
-
-.file-actions-menu:hover .v-icon {
-  color: #FFFFFF;
-}
 
 .menu-item {
   height: 20px !important;
@@ -496,24 +488,24 @@ const handleDrop = async (event: DragEvent) => {
 
 .menu-list :deep(.v-list-item-title),
 .menu-list :deep(.v-list-item__content) {
-  color: #B0BEC5 !important;
+  color: var(--v-theme-on-surface) !important;
   font-family: 'Pathway Extreme', sans-serif !important;
   font-size: 11px !important;
 }
 
 .menu-list :deep(.v-list-item:hover) .v-list-item-title,
 .menu-list :deep(.v-list-item:hover) .v-list-item__content {
-  color: #FFFFFF !important;
+  color: var(--v-theme-on-surface) !important;
 }
 
 .menu-list :deep(.v-icon) {
-  color: #607D8B;
+  color: var(--v-theme-on-surface) !important;
   font-size: 16px;
   margin-right: 6px;
 }
 
 .menu-list :deep(.v-list-item:hover .v-icon) {
-  color: #FFFFFF;
+  color: var(--v-theme-on-surface) !important;
 }
 
 /* Menu Open State */
@@ -523,7 +515,7 @@ const handleDrop = async (event: DragEvent) => {
 }
 
 .node-item.menu-open .file-name {
-  color: #FFFFFF;
+  color: var(--v-theme-on-surface) !important;
 }
 
 .node-item.menu-open .file-actions-menu {
@@ -541,5 +533,7 @@ const handleDrop = async (event: DragEvent) => {
   max-height: 100vh; /* Adjust based on your layout */
   position: relative;
 }
-
+.node-item :deep(.v-btn.v-btn--icon) {
+  color: var(--v-theme-on-surface) !important;
+}
 </style>

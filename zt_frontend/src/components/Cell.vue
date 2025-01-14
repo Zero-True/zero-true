@@ -15,7 +15,7 @@
       :thickness="4"
     ></v-divider>
     <div class="content">
-      <header v-if=" isFocused || isMenuOpen || showHeader" class="header">
+      <header v-if="true" class="header">
         <div class="click-edit" v-if="isDevMode && keepCodeInAppModel">
           <div class="click-edit__show-text" v-if="!editingCellName">
             <div class="loading-wrapper">
@@ -83,9 +83,6 @@
         <v-spacer v-else></v-spacer>
         <v-defaults-provider
           :defaults="{
-            VIcon: {
-              color: 'bluegrey',
-            },
             VBtn: {
               variant: 'text',
               size: 'small',
@@ -513,6 +510,12 @@ const saveCellName = async () => {
   display: flex;
   justify-content: space-between;
   margin-bottom: 2px;
+  :deep(.v-btn) {
+    color: rgba(var(--v-theme-bluegrey)) !important;
+    .v-theme--light & {
+      color: rgba(var(--v-theme-on-surface)) !important;
+  }
+  }
 }
 
 .code,

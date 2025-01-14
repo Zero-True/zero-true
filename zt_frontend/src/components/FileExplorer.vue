@@ -35,7 +35,7 @@
         <FileFolderCreator :current-path="currentPath" @item-created="refreshFiles" />
         <FileUploader :current-path="currentPath" @file-uploaded="refreshFiles" />
         <v-btn
-          color="transparent"
+          color="bluegrey-darken-1"
           icon="mdi-refresh"
           @click="refreshFiles"
           size="small"
@@ -63,7 +63,7 @@
       {{ errorMessage }}
       <template v-slot:actions>
         <v-btn
-          color="white"
+          color="bluegrey-darken-1"
           variant="text"
           @click="showError = false"
         >
@@ -236,7 +236,7 @@ export default defineComponent({
 }
 
 .search-field :deep(.v-field__input) {
-  color: #ecf0f1;            /* Light text color */
+  color: var(--v-theme-on-surface) !important;
   font-size: 11px;
 }
 
@@ -249,7 +249,7 @@ export default defineComponent({
 }
 
 .section-title {
-  color: white;
+  color: var(--v-theme-on-surface) !important;
   font-family: 'Pathway Extreme', sans-serif;
   font-size: 13px;
   font-weight: 600;
@@ -268,6 +268,8 @@ export default defineComponent({
   font-size: 16px !important;
   width: 16px;
   height: 16px;
+  color: var(--v-theme-on-surface) !important;
+;
 }
 
 :deep(.action-btn.v-btn) {
@@ -278,11 +280,12 @@ export default defineComponent({
   margin: 0 !important;
   
   .v-icon {
-    color: #3A586B !important;
+    color: var(--v-theme-on-surface) !important;
+
   }
   
   &:hover .v-icon {
-    color: #FFFFFF !important;
+    color: var(--v-theme-on-surface) !important;
   }
 }
 .sidebar {
@@ -299,14 +302,14 @@ export default defineComponent({
 }
 
 .sidebar::-webkit-scrollbar-thumb {
-  background-color: rgba(58, 88, 107, 0.5);
+  background-color: rgba(0, 0, 0, 0.5);
   border-radius: 50px; /* Significantly more rounded */
   border: 2px solid transparent; /* Creates a softer, rounder appearance */
   background-clip: content-box; /* Allows the border to create additional roundness */
 }
 
 .sidebar::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(58, 88, 107, 0.7);
+  background-color: rgba(0, 0, 0, 0.7);
 }
 
 /* Remove padding from file-tree to allow full content scrolling */

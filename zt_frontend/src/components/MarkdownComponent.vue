@@ -6,7 +6,6 @@
     :hide-cell="(cellData.hideCell as boolean)"
     :cell-name="(cellData.cellName as string)"
     :cell-has-output=hasCellContent
-    :is-focused="isFocused"
     @delete="deleteCell"
     @save="saveCell"
     @addCell="e => createCell(e)"
@@ -23,8 +22,6 @@
         :extensions="extensions"
         @keyup="saveCell"
         @ready="handleReady"
-        @focus="onEditorFocus"
-        @blur="onEditorBlur"
       />
     </template>
     <template v-slot:outcome>
@@ -45,7 +42,7 @@ import AddCell from '@/components/AddCell.vue'
 import { useRoute } from 'vue-router'
 import Cell from '@/components/Cell.vue'
 import {EditorView, keymap} from "@codemirror/view";
-import {Prec} from "@codemirror/state";
+import {Prec, Extension} from "@codemirror/state";
 
 
 export default {
@@ -68,6 +65,10 @@ export default {
     const hasOutput = Boolean(this.cellData.code?.trim());
     return hasOutput
   },
+  isDarkMode() {
+      // Adjust to your actual method of determining dark mode
+      return this.$vuetify.theme.current.dark;
+    },
     extensions() {
       const keyMap = keymap.of([
         {
@@ -92,8 +93,13 @@ export default {
         }
       ]);
       
-    return [Prec.highest(keyMap),markdown(), oneDark, autocompletion({ override: [] })]
     
+      return [
+        Prec.highest(keyMap),
+        markdown(),
+        ...(this.isDarkMode ? [oneDark] : []), // Add only when in dark mode
+        autocompletion({ override: [] }),
+      ].filter(Boolean) as Extension[]; // Filter out undefined values
     },
 
     compiledMarkdown() {
@@ -141,13 +147,6 @@ export default {
     getEditorView() {
       return this.view || null;
     },
-
-  onEditorFocus() {
-    this.isFocused = true;
-  },
-  onEditorBlur() {
-    this.isFocused = false;
-  },
   },
 };
 </script>
@@ -158,7 +157,7 @@ export default {
   /* General text styling */
   font-family: Arial, sans-serif;
   line-height: 1.6;
-  color: #ffffff;}
+  color: bluegrey-darken-1;}
   
 
   /* Headings */

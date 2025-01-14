@@ -21,18 +21,18 @@
             <v-icon size="small" class="mr-2">mdi-alert-circle</v-icon>
             <span class="text-h6">Confirm Deletion</span>
           </div>
-          <v-btn
-            icon="mdi-close"
-            variant="text"
-            @click="handleClose"
-            class="ml-2"
-            color="grey-lighten-2"
-          />
+        <v-btn
+          icon
+          @click="handleClose"
+          class="close-button"
+        >
+          <v-icon size="20">mdi-close</v-icon>
+        </v-btn>
         </v-card-title>
 
         <!-- Item details -->
         <v-card-text class="pa-4 pb-0 bg-dark">
-          <div class="mb-4 text-grey-lighten-2">
+          <div class="mb-4">
             <div class="d-flex align-center mb-3">
               <v-icon 
                 size="large" 
@@ -79,7 +79,7 @@
             variant="text"
             @click="handleClose"
             :disabled="deleting"
-            class="mr-2"
+            class="cancel-button"
           >
             Cancel
           </v-btn>
@@ -229,6 +229,20 @@ export default defineComponent({
 
 
 <style scoped>
+
+.close-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: var(--v-theme-on-surface) !important;
+}
+
+.cancel-btn {
+  /* Forces button text to use the current theme’s on-surface color */
+  color: var(--v-theme-on-surface) !important;
+}
+
+
 .cursor-pointer {
   cursor: pointer;
 }

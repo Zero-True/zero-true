@@ -12,7 +12,6 @@
     :currentlyExecutingCell="currentlyExecutingCell"
     :isCodeRunning="isCodeRunning"
     :is-dev-mode="$devMode && !isAppRoute && !isMobile"
-    :is-focused="isFocused"
     @play="runCode" 
     @delete="deleteCell"
     @expandCodeUpdate="e => expandCodeUpdate(e)"
@@ -26,7 +25,7 @@
       <div v-if="!$devMode || isAppRoute || isMobile" style="display: flex; width: 100%;">
         <h4 v-if="cellData.hideCode" class="text-bluegrey-darken-1 text-ellipsis app-static-name" >{{ cellData.cellName }} </h4>
         <v-expansion-panels v-else v-model="expanded">
-          <v-expansion-panel  v-model="expanded" bg-color="bluegrey-darken-3">
+          <v-expansion-panel  v-model="expanded" bg-color="bluegrey-darken-4">
             <v-expansion-panel-title class="text-bluegrey-darken-1">
               <h4 class="text-ellipsis app-static-name" > {{ cellData.cellName }} </h4>
             </v-expansion-panel-title>
@@ -64,8 +63,6 @@
         :extensions="extensions"
         @keyup="saveCell"
         @ready="handleReady"
-        @focus="onEditorFocus"
-        @blur="onEditorBlur"
       />
     </template>
     <template v-slot:outcome>
@@ -94,7 +91,7 @@ import { Codemirror } from "vue-codemirror";
 import { sql } from "@codemirror/lang-sql";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorView, keymap } from "@codemirror/view";
-import { Prec, EditorState } from "@codemirror/state";
+import { Prec, EditorState,Extension } from "@codemirror/state";
 import {
   autocompletion,
   CompletionResult,
@@ -112,6 +109,10 @@ export default {
   },
 
   computed: {
+    isDarkMode() {
+      // Adjust to your actual method of determining dark mode
+      return this.$vuetify.theme.current.dark;
+    },
     isAppRoute() {
       const route = useRoute()
       return route.path === '/app'
@@ -149,31 +150,31 @@ export default {
       },
     },
     {
-          key: 'ArrowDown',
-          run: (view) => {
-            if (view.state.selection.main.to === view.state.doc.length) {
-              this.$emit('navigateToCell', this.cellData.id, 'down');
-              return true;
-            }
-            return false;
-          },
+      key: 'ArrowDown', 
+      run: (view) => {
+        if (view.state.selection.main.to === view.state.doc.length) {
+          this.$emit('navigateToCell', this.cellData.id, 'down');
+          return true;
         }
+        return false;
+      },
+    },
       ]);
       if (this.$devMode && !this.isAppRoute) {
         return [
           Prec.highest(keyMap),
           sql(),
-          oneDark,
+          ...(this.isDarkMode ? [oneDark] : []), // Add only when in dark mode
           autocompletion({ override: [] }),
-        ];
+        ].filter(Boolean) as Extension[];
       }
       return [
         EditorState.readOnly.of(true),
         Prec.highest(keyMap),
         sql(),
-        oneDark,
+        ...(this.isDarkMode ? [oneDark] : []), // Add only when in dark mode
         autocompletion({ override: [] }),
-      ];
+      ].filter(Boolean) as Extension[];
     },
   },
   inheritAttrs: false,
@@ -246,12 +247,6 @@ export default {
     getEditorView() {
       return this.view || null;
     },
-    onEditorFocus() {
-    this.isFocused = true;
-  },
-  onEditorBlur() {
-    this.isFocused = false;
-  },
   },
 };
 </script>
