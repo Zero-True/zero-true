@@ -15,7 +15,7 @@
       :thickness="4"
     ></v-divider>
     <div class="content">
-      <header v-if=" isFocused || isMenuOpen || showHeader" class="header">
+      <header v-if="true" class="header">
         <div class="click-edit" v-if="isDevMode && keepCodeInAppModel">
           <div class="click-edit__show-text" v-if="!editingCellName">
             <div class="loading-wrapper">
