@@ -1,0 +1,85 @@
+name: Manual Build Files and Run Tests
+
+on:
+  workflow_dispatch:
+    types: [submitted]
+    branches:
+      - main
+jobs:
+  build-frontend:
+    runs-on: ubuntu-latest
+    outputs:
+      any_changed: ${{ steps.check-changes.outputs.any_changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Check for changes in zt_frontend/
+        id: check-changes
+        uses: tj-actions/changed-files@v41
+        with:
+          files: zt_frontend/**
+          base_sha: ${{ github.event.pull_request.base.sha }}
+      - name: Build Frontend if changed
+        if: steps.check-changes.outputs.any_changed == 'true'
+        run: |
+          npm install --global yarn
+          ls -a
+          rm -r zt_backend/dist_dev/
+          rm -r zt_backend/dist_app/
+          cd zt_frontend
+          yarn install
+          yarn run build
+          cp -r dist/ ../zt_backend/dist_dev/
+          yarn run buildapp
+          cp -r dist/ ../zt_backend/dist_app/
+      - name: Upload Frontend Artifacts
+        if: steps.check-changes.outputs.any_changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-files
+          path: |
+            zt_backend/dist_app/
+            zt_backend/dist_dev/
+
+  test:
+    runs-on: ${{ matrix.os }}
+    needs: build-frontend
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.9', '3.10', '3.11','3.12']
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Remove Existing Frontend Files (Windows)
+        if: runner.os == 'Windows' && needs.build-frontend.outputs.any_changed == 'true'
+        run: |
+          Remove-Item -Path zt_backend\dist_dev -Force -Recurse
+          Remove-Item -Path zt_backend\dist_app -Force -Recurse
+        shell: powershell
+
+
+      - name: Remove Existing Frontend Files (Linux/Mac)
+        if: runner.os != 'Windows' && needs.build-frontend.outputs.any_changed == 'true'
+        run: |
+          rm -rf zt_backend/dist_dev
+          rm -rf zt_backend/dist_app
+      - name: Download Frontend Files
+        if: needs.build-frontend.outputs.any_changed == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-files
+          path: zt_backend/
+      - name: Install
+        run: |
+          pip install .[test] 
+      - name: Setup Chrome
+        uses: nanasess/setup-chromedriver@v2
+      - name: Test with pytest
+        run: pytest

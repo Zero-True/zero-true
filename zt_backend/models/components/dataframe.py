@@ -1,8 +1,6 @@
-import pandas as pd
 from pydantic import Field, BaseModel
-import numpy as np
-from zt_backend.models.components.zt_component import ZTComponent
 from typing import List, Dict, Any
+from zt_backend.models.components.zt_component import ZTComponent
 
 
 class Header(BaseModel):
@@ -16,7 +14,7 @@ class Header(BaseModel):
 
 
 class DataFrame(ZTComponent):
-    """DataFrame component for displaying tabluar data"""
+    """DataFrame component for displaying tabular data"""
 
     component: str = Field("v-data-table", description="Vue component name.")
     headers: List[Header] = Field(
@@ -35,11 +33,24 @@ class DataFrame(ZTComponent):
     )
 
     @classmethod
-    def from_dataframe(
-        cls, df: pd.DataFrame, id: str, multi_sort: bool = True, search: str = ""
-    ):
-        """Create a DataFrame component from a pandas DataFrame"""
-        df = df.replace({np.nan: None}).replace({np.inf: None}).replace({-np.inf: None})
+    def from_dataframe(cls, df, id: str, multi_sort: bool = True, search: str = ""):
+        """Create a DataFrame component from a pandas DataFrame."""
+        # Check if pandas / numpy are installed
+        try:
+            import pandas as pd
+            import numpy as np
+        except ImportError as e:
+            raise ImportError(
+                "pandas or numpy is not installed. Please install with 'pip install pandas numpy'."
+            ) from e
+
+        if not isinstance(df, pd.DataFrame):
+            raise ValueError("Input must be a pandas DataFrame")
+
+        # Replace NaN/inf values
+        df = df.replace({np.nan: None, np.inf: None, -np.inf: None})
+
+        # Filter rows if a search string is provided
         if search:
             search = search.lower()
             df = df[
@@ -47,16 +58,34 @@ class DataFrame(ZTComponent):
                 .apply(lambda x: x.str.lower().str.contains(search))
                 .any(axis=1)
             ]
+
+        # Create headers/items from the DataFrame
         headers = [{"title": col, "key": col} for col in df.columns]
         items = df.to_dict(orient="records")
+
         return cls(
             id=id, headers=headers, items=items, multi_sort=multi_sort, search=search
         )
 
 
-def dataframe(df: pd.DataFrame, id: str, multi_sort: bool = True, search: str = ""):
-    """Create a ZT DataFrame component from a pandas DataFrame"""
-    df = df.replace({np.nan: None}).replace({np.inf: None}).replace({-np.inf: None})
+def dataframe(df, id: str, multi_sort: bool = True, search: str = ""):
+    """Create a ZT DataFrame component from a pandas DataFrame."""
+    # Check if pandas / numpy are installed
+    try:
+        import pandas as pd
+        import numpy as np
+    except ImportError as e:
+        raise ImportError(
+            "pandas or numpy is not installed. Please install with 'pip install pandas numpy'."
+        ) from e
+
+    if not isinstance(df, pd.DataFrame):
+        raise ValueError("Input must be a pandas DataFrame")
+
+    # Replace NaN/inf values
+    df = df.replace({np.nan: None, np.inf: None, -np.inf: None})
+
+    # Filter rows if a search string is provided
     if search:
         search = search.lower()
         df = df[
@@ -64,8 +93,11 @@ def dataframe(df: pd.DataFrame, id: str, multi_sort: bool = True, search: str = 
             .apply(lambda x: x.str.lower().str.contains(search))
             .any(axis=1)
         ]
+
+    # Create headers/items from the DataFrame
     headers = [{"title": col, "key": col} for col in df.columns]
     items = df.to_dict(orient="records")
+
     return DataFrame(
         id=id, headers=headers, items=items, multi_sort=multi_sort, search=search
     )
