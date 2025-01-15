@@ -92,25 +92,6 @@
             </v-btn>
               </template>
             </v-tooltip>
-            <v-menu
-              v-if="$devMode && !isAppRoute"
-              :close-on-content-click="false"
-            >
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  :icon="`ztIcon:${ztAliases.settings}`"
-                  v-bind="props"
-                ></v-btn>
-              </template>
-              <v-list bg-color="bluegrey-darken-4">
-                <v-list-item>
-                  <template v-slot:prepend>
-                    <v-switch v-model="reactiveMode"></v-switch>
-                  </template>
-                  <v-list-item-title>Reactive Mode</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
             <!-- <v-btn
               v-if="$devMode && !isAppRoute"
               :icon="`ztIcon:${ztAliases.message}`"
@@ -195,6 +176,11 @@
                     <v-switch v-model="reactiveMode"></v-switch>
                   </template>
                   <v-list-item-title>Reactive Mode</v-list-item-title>
+                </v-list-item><v-list-item>
+                  <template v-slot:prepend>
+                    <v-switch v-model="wideMode" @update:modelValue="updateWideMode"></v-switch>
+                  </template>
+                  <v-list-item-title>Wide Mode</v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>
@@ -426,6 +412,7 @@ export default {
       items: [] as any[],
       openFolders: [],
       reactiveMode: true,
+      wideMode: false,
       showComments: false,
       showCreateButton: false,
       envUserName: "",
@@ -707,6 +694,7 @@ export default {
       const response = JSON.parse(event.data);
       if (response.notebook_name) {
         this.notebookName = response.notebook_name;
+        this.wideMode = response.wide_mode;
         document.title = this.notebookName;
       } else if (response.cell_id) {
         if (response.clear_output) {
@@ -1131,13 +1119,13 @@ export default {
         timer.start(startTimer);
       }
     },
-    async updateWideMode(value:boolean) {
+    async updateWideMode() {
       // Send update to backend
       await axios.post(import.meta.env.VITE_BACKEND_URL + "api/wide_mode_update", {
-        wideMode: value
+        wideMode: this.wideMode,
       });
       
-      this.notebook.wideMode = value;
+      this.notebook.wideMode = this.wideMode;
     }
   },
 };

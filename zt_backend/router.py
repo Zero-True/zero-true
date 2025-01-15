@@ -101,10 +101,11 @@ def base_path():
     return settings.user_name + "/" + settings.project_name
 
 @router.post("/api/wide_mode_update")
-async def update_wide_mode(request: request.WideModelRequest):
-    notebook_state.zt_notebook.wideMode = request.wideMode
-    await save_notebook()
-    return {"status": "success"}
+async def update_wide_mode(wideModeRequest: request.WideModelRequest):
+    if app_state.run_mode == "dev":
+        logger.debug("Hide cell request started")
+        app_state.save_queue.put_nowait({"wide_mode": wideModeRequest})
+        logger.debug("Hide cell request completed")
 
 @router.websocket("/ws/run_code")
 async def run_code(websocket: WebSocket):
@@ -382,7 +383,7 @@ async def load_notebook(websocket: WebSocket):
                 logger.debug("Get notebook request received")
                 notebook_start = get_notebook_request()
                 await websocket.send_json(
-                    {"notebook_name": notebook_start.notebookName}
+                    {"notebook_name": notebook_start.notebookName, "wide_mode": notebook_start.wideMode}
                 )
                 if app_state.run_mode == "app":
                     userId = str(uuid.uuid4())
@@ -528,20 +529,20 @@ def share_notebook(shareRequest: request.ShareRequest):
                     detail="Failed to get a signed URL",
                 )
 
-            python_warning = response_json.get("pythonWarning", None)
-            zt_warning = response_json.get("ztWarning", None)
+            python_warning = response_json.get("pythonWarning", "")
+            zt_warning = response_json.get("ztWarning", "")
+            project_warning = response_json.get("projectWarning", "")
             warning_message = ""
             if python_warning:
-                warning_message += python_warning
-                if zt_warning:
-                    warning_message += "\n" + zt_warning
-                warning_message += "\nWe recommend upgrading your versions before continuing. If you would like to continue, select confirm."
-                upload_state.signed_url = signed_url
-                return {"warning": warning_message}
+                warning_message += f"\n{python_warning}"
             if zt_warning:
-                warning_message += zt_warning
+                warning_message += f"\n{zt_warning}"
+            if project_warning:
+                warning_message += f"\n{project_warning}"
+            if warning_message:
                 warning_message += (
                     "\nWe recommend upgrading your versions before continuing"
+                    "\nSelect confirm if you would like to proceed"
                 )
                 upload_state.signed_url = signed_url
                 return {"warning": warning_message}
@@ -989,8 +990,6 @@ def list_children(path: str = Query(...)):
         dir_name = Path.cwd().name
     else:
         dir_name = dir_path.name
-    
-    print(f"Directory name: {dir_name}, Path: {dir_path}")
 
     if not dir_path.is_dir():
         return {"error": "Path is not a directory"}

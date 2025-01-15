@@ -17,24 +17,8 @@
         v-bind="componentBind(component)"
         :error="errors[component.id]?.hasError || false"
         :error-messages="errors[component.id]?.message || ''"
-        @update:model-value="
-          async (newValue: any) => {
-            if (!newValue) return;
-            const files = Array.isArray(newValue) ? newValue : [newValue];
-            const totalSize = files.reduce((acc, file) => acc + file.size, 0);
-            const maxSize = 50 * 1024 * 1024; // 50 MB in bytes
-
-            if (totalSize > maxSize) {
-              setError(component.id, 'Total file size must not exceed 50 MB');
-              return;
-            }
-            // Clear any existing error
-            clearError(component.id);
-
-            component.value = await createFormData(files);
-            runCode(true, component.id, component.value);
-          }
-        "
+        @update:model-value="(newValue: any)=> handleFileInput(component, newValue)"
+        @click:clear="() => handleFileClear(component)"
       />
       <component
         v-else
@@ -128,12 +112,14 @@ export default {
       return this.convertUnderscoresToHyphens(component);
     },
 
-    convertUnderscoresToHyphens(obj: any) {
-      return Object.entries(obj).reduce((newObj: any, [key, value]) => {
-        const modifiedKey = key.replace(/_/g, "-");
-        newObj[modifiedKey] = value;
-        return newObj;
-      }, {});
+    convertUnderscoresToHyphens(obj: Record<string, any>): Record<string, any> {
+      return Object.entries(obj).reduce(
+        (acc, [key, value]) => ({
+          ...acc,
+          [key.replace(/_/g, "-")]: value,
+        }),
+        {}
+      );
     },
 
     getEventBindings(component: any) {
@@ -181,35 +167,76 @@ export default {
       this.$emit("runCode", fromComponent, componentId, componentValue);
     },
 
-    setError(componentId: string, message: string) {
+    async handleFileInput(
+      component: ZTComponent,
+      newValue: File | File[] | null
+    ): Promise<void> {
+      // If no files, exit early
+      if (!newValue) {
+        return;
+      }
+      const files = Array.isArray(newValue) ? newValue : [newValue];
+
+      // Validate file size (50MB limit)
+      const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+      if (totalSize > 50 * 1024 * 1024) {
+        this.setError(component.id, "Total file size must not exceed 50 MB");
+        return;
+      }
+      this.clearError(component.id);
+      try {
+        component.value = await this.processFiles(files);
+        this.$emit("runCode", true, component.id, component.value);
+      } catch (error) {
+        console.error("Error processing files:", error);
+        this.setError(component.id, "Error processing files");
+      }
+    },
+    handleFileClear(component: ZTComponent): void {
+      component.value = {};
+      this.$emit("runCode", true, component.id, component.value);
+    },
+    async processFiles(files: File[]): Promise<Record<string, string>> {
+      const fileList: Record<string, string> = {};
+
+      for (const file of files) {
+        if (file) {
+          const base64Content = await this.fileToBase64(file);
+          fileList[file.name] = base64Content;
+        }
+      }
+
+      return fileList;
+    },
+    async fileToBase64(file: File): Promise<string> {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => {
+          const result = reader.result as string;
+          const base64 = result.split(",")[1];
+          // Add padding if needed
+          resolve(
+            base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=")
+          );
+        };
+        reader.onerror = () => reject(new Error("Failed to read file"));
+        reader.readAsDataURL(file);
+      });
+    },
+    setError(componentId: string, message: string): void {
       this.errors[componentId] = {
         hasError: true,
-        message: message,
+        message,
       };
     },
-
-    clearError(componentId: string) {
+    clearError(componentId: string): void {
       if (this.errors[componentId]) {
         this.errors[componentId] = {
           hasError: false,
           message: "",
         };
       }
-    },
-
-    async fileToBase64(file: File) {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      return new Promise((resolve) => {
-        reader.onload = () => {
-          let base64String = (reader.result as string).split(",")[1];
-          base64String = base64String.padEnd(
-            base64String.length + ((4 - (base64String.length % 4)) % 4),
-            "="
-          );
-          resolve(base64String);
-        };
-      });
     },
 
     async createFormData(files: Array<File>) {
