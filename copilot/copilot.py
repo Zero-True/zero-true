@@ -144,7 +144,7 @@ async def text_document_did_open(params: DidOpenTextDocumentParams):
         except requests.RequestException as e:
             raise HTTPException(status_code=500, detail=str(e))
 
-@async_debounce(0.65)
+@async_debounce(0.3)
 async def text_document_did_change(params):
     global copilot_enabled
     global copilot_doc_open

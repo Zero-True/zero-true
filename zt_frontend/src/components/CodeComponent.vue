@@ -421,7 +421,7 @@ export default {
         python(),
         ...(this.isDarkMode ? [oneDark] : []), // Add only when in dark mode
         indentUnit.of("    "),
-        inlineSuggestion({ fetchFn: fetchSuggestion, delay: 400 }),
+        inlineSuggestion({ fetchFn: fetchSuggestion, delay: 500 }),
         autocompletion({ override: [customCompletionSource] }),
         customLinter,
       ].filter(Boolean) as Extension[];
