@@ -16,7 +16,7 @@
     </template>
 
     <!-- Main Card -->
-    <v-card class="bg-dark rounded-lg">
+    <v-card class="rounded-lg">
       <!-- Loading Overlay -->
       <v-overlay
         :model-value="isLoading"
@@ -33,7 +33,7 @@
       <v-card-title class="d-flex align-center justify-end pa-3">
         <v-btn
           icon="mdi-close"
-          variant="plain"
+          :color="isDarkMode ? 'default' : 'bluegrey'"
           @click="dialog = false"
         />
       </v-card-title>
@@ -119,7 +119,7 @@
               Complete Your Sign In
             </div>
             <v-alert
-              color="info"
+              color="bluegrey-darken"
               variant="tonal"
               density="compact"
               class="rounded-lg"
@@ -137,26 +137,18 @@
               <v-divider class="my-3"></v-divider> 
               <div class="d-flex align-center justify-space-between">
                 <div>
-                  <div class="text-caption text-gray-400">Your code:
+                  <div class="text-caption">Your code:
                     <v-btn
                     variant="text"
-                    class="copy-btn"
                     min-width="24"
                     size="small"
-                    color="white"
                     @click="copyCode"
                   >
                     <v-icon
-                      :color="copySuccess ? 'success' : 'default'"
+                      :color="isDarkMode ? 'white' : 'black'"
                       icon="mdi-content-copy"
-                      size="small"
+                      size="large"
                     ></v-icon>
-                    <v-tooltip
-                      activator="parent"
-                      location="top"
-                    >
-                      {{ copySuccess ? 'Copied!' : 'Copy code' }}
-                    </v-tooltip>
                   </v-btn>
                   </div>
                   <div class="verification-code text-h6">
@@ -229,8 +221,10 @@ import { ref } from 'vue';
 import { ztAliases } from '@/iconsets/ztIcon';
 import { globalState } from '@/global_vars';
 import axios from 'axios';
+import { computed, getCurrentInstance } from 'vue';
 
-// State
+const instance = getCurrentInstance();
+const isDarkMode = computed(() => instance?.proxy?.$vuetify.theme?.current?.dark ?? true);// State
 const dialog = ref(false);
 const serverStarted = ref(false);
 const isSignedIn = ref(false);
@@ -399,4 +393,5 @@ const copyCode = async () => {
   margin-left: auto;
   margin-right: auto;
 }
+
 </style>
