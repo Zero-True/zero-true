@@ -223,7 +223,7 @@ import { globalState } from '@/global_vars';
 import axios from 'axios';
 
 
-const isDarkMode = computed(() => this.$vuetify.theme.current.dark);
+const isDarkMode = computed(() => this.$vuetify.theme.current.dark ?? true );
 // State
 const dialog = ref(false);
 const serverStarted = ref(false);
