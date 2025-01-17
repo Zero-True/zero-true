@@ -114,7 +114,7 @@ import { python } from "@codemirror/lang-python";
 import { indentUnit } from "@codemirror/language";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorView, keymap } from "@codemirror/view";
-import { Prec, EditorState, Extension } from "@codemirror/state";
+import { Prec, EditorState, Extension, Compartment } from "@codemirror/state";
 import {
   autocompletion,
   acceptCompletion,
@@ -145,6 +145,9 @@ import Cell from "@/components/Cell.vue";
 import { inlineSuggestion } from "codemirror-extension-inline-suggestion";
 import ComponentWrapper from "@/components/ComponentWrapper.vue";
 import { linter, Diagnostic } from "@codemirror/lint";
+
+// Create a Compartment so we can dynamically enable/disable the linter.
+const lintCompartment = new Compartment();
 
 export default {
   components: {
@@ -268,26 +271,26 @@ export default {
           },
         },
         {
-        key: 'ArrowUp',
-        run: (view) => {
-          if (view.state.selection.main.from === 0) {
-            this.$emit('navigateToCell', this.cellData.id, 'up');
-            return true;
-          }
-          return false;
+          key: "ArrowUp",
+          run: (view) => {
+            if (view.state.selection.main.from === 0) {
+              this.$emit("navigateToCell", this.cellData.id, "up");
+              return true;
+            }
+            return false;
+          },
         },
-      },
-     {
-        key: 'ArrowDown',
-        run: (view) => {
-          if (view.state.selection.main.to === view.state.doc.length) {
-            this.$emit('navigateToCell', this.cellData.id, 'down');
-            return true;
-          }
-          return false;
-      },
-      },
-    ]);
+        {
+          key: "ArrowDown",
+          run: (view) => {
+            if (view.state.selection.main.to === view.state.doc.length) {
+              this.$emit("navigateToCell", this.cellData.id, "down");
+              return true;
+            }
+            return false;
+          },
+        },
+      ]);
 
       const fetchSuggestion = async (state: any) => {
         if (globalState.copilot_active) {
@@ -311,7 +314,7 @@ export default {
             this.copilotSuggestion = "";
           }
           const position = state.selection.main.head;
-          const line = state.doc.lineAt(position).number;
+          const line = state.doc.lineAt(position).number - 1;
           const column = position - state.doc.line(line).from;
           const promise = new Promise((resolve, reject) => {
             this.$emit(
@@ -375,6 +378,9 @@ export default {
 
       const customLinter = linter(
         (view) => {
+          if (true) {
+            this.currentLint;
+          }
           if (!this.isFocused) {
             return [];
           }
@@ -384,7 +390,8 @@ export default {
           if (Array.isArray(this.lintResults)) {
             this.lintResults.forEach((result: any) => {
               const fromPos =
-                view.state.doc.line(result.from.line + 1).from + result.from.ch;
+                view.state.doc.line(result.from.line + 1).from +
+                result.from.ch;
               const toPos =
                 view.state.doc.line(result.to.line + 1).from + result.to.ch;
 
@@ -416,15 +423,16 @@ export default {
       );
 
       if (this.$devMode && !this.isAppRoute) {
-      return [
-        Prec.highest(keyMap),
-        python(),
-        ...(this.isDarkMode ? [oneDark] : []), // Add only when in dark mode
-        indentUnit.of("    "),
-        inlineSuggestion({ fetchFn: fetchSuggestion, delay: 500 }),
-        autocompletion({ override: [customCompletionSource] }),
-        customLinter,
-      ].filter(Boolean) as Extension[];
+        // Here we use the compartment-based approach to add the linter dynamically.
+        return [
+          Prec.highest(keyMap),
+          python(),
+          ...(this.isDarkMode ? [oneDark] : []), // Add only when in dark mode
+          indentUnit.of("    "),
+          inlineSuggestion({ fetchFn: fetchSuggestion }),
+          lintCompartment.of(customLinter),
+          autocompletion({ override: [customCompletionSource] }),
+        ].filter(Boolean) as Extension[];
       }
       return [
         EditorState.readOnly.of(true),
@@ -518,13 +526,7 @@ export default {
       const position = this.view?.state.selection.main.head;
       const line = this.view?.state.doc.lineAt(position).number;
       const column = position - this.view?.state.doc.line(line).from;
-      this.$emit(
-        "saveCell",
-        this.cellData.id,
-        this.cellData.code,
-        line,
-        column
-      );
+      this.$emit("saveCell", this.cellData.id, this.cellData.code, line, column);
     },
     expandCodeUpdate(e: Boolean) {
       this.expanded = e ? [0] : [];
@@ -541,15 +543,61 @@ export default {
     handleFocus() {
       this.isFocused = true;
       this.runLint = true;
+      // Toggle OFF the linter if you want to ensure no conflict while user types:
       if (this.view) {
-        this.view.dispatch({});
+        this.view.dispatch({
+          effects: lintCompartment.reconfigure([]),
+        });
       }
     },
     handleBlur() {
       this.isFocused = false;
       this.runLint = true;
+      // Toggle ON the linter after user blurs:
       if (this.view) {
-        this.view.dispatch({});
+        this.view.dispatch({
+          effects: lintCompartment.reconfigure(linter(
+            (view) => {
+              if (!this.isFocused) {
+                return [];
+              }
+              if (!this.runLint) return this.currentLint;
+              const diagnostics: Diagnostic[] = [];
+
+              if (Array.isArray(this.lintResults)) {
+                this.lintResults.forEach((result: any) => {
+                  const fromPos =
+                    view.state.doc.line(result.from.line + 1).from + result.from.ch;
+                  const toPos =
+                    view.state.doc.line(result.to.line + 1).from + result.to.ch;
+
+                  if (
+                    fromPos >= 0 &&
+                    toPos >= fromPos &&
+                    toPos <= view.state.doc.length
+                  ) {
+                    diagnostics.push({
+                      from: fromPos,
+                      to: toPos,
+                      severity: result.severity,
+                      message: result.message,
+                    });
+                  } else {
+                    console.warn("Invalid lint result positions:", result);
+                  }
+                });
+              } else {
+                console.warn("No lint results for cell:", this.cellData.id);
+              }
+              this.runLint = false;
+              this.currentLint = diagnostics;
+              return diagnostics;
+            },
+            {
+              needsRefresh: () => this.runLint,
+            }
+          )),
+        });
       }
     },
     getEditorView() {
