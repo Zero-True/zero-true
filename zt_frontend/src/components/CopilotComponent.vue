@@ -33,7 +33,7 @@
       <v-card-title class="d-flex align-center justify-end pa-3">
         <v-btn
           icon="mdi-close"
-          :color="this.isDarkMode ? 'default' : 'bluegrey'"
+          :color="isDarkMode ? 'default' : 'bluegrey'"
           @click="dialog = false"
         />
       </v-card-title>
@@ -145,7 +145,7 @@
                     @click="copyCode"
                   >
                     <v-icon
-                      :color="this.isDarkMode ? 'white' : 'black'"
+                      :color="isDarkMode ? 'white' : 'black'"
                       icon="mdi-content-copy"
                       size="large"
                     ></v-icon>
