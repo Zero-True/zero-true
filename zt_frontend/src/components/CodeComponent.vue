@@ -378,9 +378,6 @@ export default {
 
       const customLinter = linter(
         (view) => {
-          if (true) {
-            this.currentLint;
-          }
           if (!this.isFocused) {
             return [];
           }
