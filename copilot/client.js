@@ -9,7 +9,7 @@ const path = require('path');
 const app = express();
 app.use(bodyParser.json());
 
-const agentPath = path.join(__dirname, 'node_modules/copilot-node-server/copilot/dist/agent.js');
+const agentPath = path.join(__dirname, 'node_modules/copilot-node-server/copilot/dist/language-server.js');
 const server = spawn("node", [agentPath]);
 // use `fork` in `node:child_process` is also OK
 // const server = fork("agent.js", { silent: true });
@@ -119,7 +119,7 @@ app.post('/sendRequest', async (req, res) => {
 app.post('/sendNotification', (req, res) => {
   const { method, params } = req.body;
   sendNotification(method, params);
-  res.status(200).send('Notification sent');
+  res.status(200).json({ message: "Notification sent" });
 });
 
 const PORT = process.env.PORT || 3000;
