@@ -221,10 +221,10 @@ import { ref } from 'vue';
 import { ztAliases } from '@/iconsets/ztIcon';
 import { globalState } from '@/global_vars';
 import axios from 'axios';
+import { computed, getCurrentInstance } from 'vue';
 
-
-const isDarkMode = computed(() => this.$vuetify.theme?.current?.dark ?? true );
-// State
+const instance = getCurrentInstance();
+const isDarkMode = computed(() => instance?.proxy?.$vuetify.theme?.current?.dark ?? true);// State
 const dialog = ref(false);
 const serverStarted = ref(false);
 const isSignedIn = ref(false);
