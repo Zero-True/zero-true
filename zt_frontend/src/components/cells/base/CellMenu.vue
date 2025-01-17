@@ -76,7 +76,7 @@
 </template> 
 
 <script setup lang="ts">
-import { useCellMenu, CellMenuProps } from '@/composables/cell-menu';
+import { useCellMenu, CellMenuProps } from '@/composables/CellComponent/cell-menu';
 
 const props = defineProps({
   cellId: String,

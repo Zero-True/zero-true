@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import { watch } from 'vue';
-import { useCellHeader } from '@/composables/cell-header';
+import { useCellHeader } from '@/composables/CellComponent/cell-header';
 import CellNameEditor from './CellNameEditor.vue';
 import CellActionButtons from './CellActionButtons.vue';
 import CellMenu from './CellMenu.vue';

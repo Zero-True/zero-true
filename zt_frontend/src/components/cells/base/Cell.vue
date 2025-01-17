@@ -80,9 +80,9 @@ import { computed, PropType, toRef } from "vue";
 import type { Celltype } from "@/types/create_request";
 import AddCell from "./AddCell.vue";
 import CellHeader from "./CellHeader.vue";
-import { useCellType } from "@/composables/cell-type";
-import { useCellState } from "@/composables/cell-state";
-import { useRouteHelpers } from "@/composables/route-helpers";
+import { useCellType } from "@/composables/CellComponent/cell-type";
+import { useCellState } from "@/composables/CellComponent/cell-state";
+import { useRouteHelpers } from "@/composables/CellComponent/route-helpers";
 
 const props = defineProps({
   isDevMode: Boolean,

@@ -20,87 +20,39 @@
     @updateReactivity="(e:any) => updateReactivity(e)"
     @addCell="(e:any) => createCell(e)"
   >
-    <template v-slot:header-title>
-      <div
-        v-if="!$devMode || isAppRoute || isMobile"
-        style="display: flex; width: 100%"
-      >
-        <h4
-          v-if="cellData.hideCode"
-          class="text-bluegrey-darken-1 text-ellipsis app-static-name"
-        >
-          {{ cellData.cellName }}
-        </h4>
-        <v-expansion-panels v-else v-model="expanded">
-          <v-expansion-panel v-model="expanded" bg-color="bluegrey-darken-3">
-            <v-expansion-panel-title
-              class="text-bluegrey-darken-1"
-              :id="'codeMirrorAppTitle' + cellData.id"
-            >
-              <h4 class="text-ellipsis app-static-name">
-                {{ cellData.cellName }}
-              </h4>
-            </v-expansion-panel-title>
-            <v-expansion-panel-text>
-              <codemirror
-                v-model="cellData.code"
-                :style="{ height: '400px' }"
-                :autofocus="true"
-                :indent-with-tab="true"
-                :tab-size="2"
-                :viewportMargin="Infinity"
-                :extensions="extensions"
-                :code="cellData.code"
-                :id="'codeMirrorApp' + cellData.id"
-              />
-            </v-expansion-panel-text>
-          </v-expansion-panel>
-        </v-expansion-panels>
-      </div>
+      <template v-slot:header-title>
+      <HeaderTitle
+        :cellData="cellData"
+        v-model:expanded="expanded"
+        :extensions="extensions"
+        :devMode="$devMode"
+        :isAppRoute="isAppRoute"
+        :isMobile="isMobile"
+      />
     </template>
     <template v-slot:code>
-      <codemirror
-        v-if="$devMode && !isAppRoute && !isMobile"
-        v-model="cellData.code"
-        :style="{ height: '400px' }"
-        :autofocus="true"
-        :indent-with-tab="true"
-        :tab-size="2"
-        :viewportMargin="Infinity"
+      <EditorComponent
+        :code="cellData.code"
         :extensions="extensions"
+        :cell-id="cellData.id"
+        :is-dev-mode="$devMode"
+        @update:code="updateCode"
+        @saveCell="saveCell"
         @ready="handleReady"
-        @keyup="saveCell"
         @focus="handleFocus"
         @blur="handleBlur"
-        :code="cellData.code"
-        :id="'codeMirrorDev' + cellData.id"
       />
     </template>
     <template v-slot:outcome>
-      <div :id="'outputContainer_' + cellData.id">
-        <layout-component
-          v-if="cellData.layout?.rows?.length"
-          v-for="(row, rowIndex) in cellData.layout?.rows"
-          :key="rowIndex"
-          :row-data="row"
-          :components="compDict"
-          @runCode="runCode"
-        />
-        <!-- Render unplaced components at the bottom -->
-        <div
-          v-if="unplacedComponents.length"
-          :id="'unplacedComponents' + cellData.id"
-        >
-          <component-wrapper
-            :renderComponents="unplacedComponents"
-            :allComponents="compDict"
-            @runCode="runCode"
-          />
-        </div>
-        <pre class="code-output" :id="'cellOutput' + cellData.id">{{
-          cellData.output
-        }}</pre>
-      </div>
+      <OutcomeComponent
+      :cell-id="cellData.id"
+      :layout="cellData.layout"
+      :unplacedComponents="unplacedComponents"
+      :output="cellData.output"
+      :compDict="compDict"
+      @runCode="runCode"
+    />
+
     </template>
   </cell>
 </template>
@@ -146,11 +98,17 @@ import Cell from "@/components/cells/base/Cell.vue";
 import { inlineSuggestion } from "codemirror-extension-inline-suggestion";
 import ComponentWrapper from "@/components/cells/base/ComponentWrapper.vue";
 import { linter, Diagnostic } from "@codemirror/lint";
+import HeaderTitle from "./HeaderTitleComponent.vue";
+import EditorComponent from "./EditorComponent.vue";
+import OutcomeComponent from "./OutcomeComponent.vue";
 
 export default {
   components: {
     cell: Cell,
     codemirror: Codemirror,
+    HeaderTitle,
+    EditorComponent,
+    OutcomeComponent,
     "v-slider": VSlider,
     "v-rating": VRating,
     "v-text-field": VTextField,
@@ -510,6 +468,9 @@ export default {
     },
     createCell(cellType: string) {
       this.$emit("createCell", this.cellData.id, cellType);
+    },
+    updateCode(newCode:any) {
+      this.cellData.code = newCode;
     },
     saveCell() {
       if (!this.$devMode || !this.view?.hasFocus) return;
