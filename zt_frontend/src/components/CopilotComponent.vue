@@ -221,10 +221,9 @@ import { ref } from 'vue';
 import { ztAliases } from '@/iconsets/ztIcon';
 import { globalState } from '@/global_vars';
 import axios from 'axios';
-import { useTheme } from 'vuetify';
 
-const { theme } = useTheme();
-const isDarkMode = computed(() => theme.current.value.dark);
+
+const isDarkMode = computed(() => this.$vuetify.theme.current.dark);
 // State
 const dialog = ref(false);
 const serverStarted = ref(false);
