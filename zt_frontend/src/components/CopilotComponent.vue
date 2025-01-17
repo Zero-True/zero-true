@@ -33,7 +33,7 @@
       <v-card-title class="d-flex align-center justify-end pa-3">
         <v-btn
           icon="mdi-close"
-          :color="this.$vuetify.theme.current.dark ? 'default' : 'bluegrey'"
+          :color="this.isDarkMode ? 'default' : 'bluegrey'"
           @click="dialog = false"
         />
       </v-card-title>
@@ -145,7 +145,7 @@
                     @click="copyCode"
                   >
                     <v-icon
-                      :color="this.$vuetify.theme.current.dark ? 'white' : 'black'"
+                      :color="this.isDarkMode ? 'white' : 'black'"
                       icon="mdi-content-copy"
                       size="large"
                     ></v-icon>
@@ -221,7 +221,10 @@ import { ref } from 'vue';
 import { ztAliases } from '@/iconsets/ztIcon';
 import { globalState } from '@/global_vars';
 import axios from 'axios';
+import { useTheme } from 'vuetify';
 
+const { theme } = useTheme();
+const isDarkMode = computed(() => theme.current.value.dark);
 // State
 const dialog = ref(false);
 const serverStarted = ref(false);
@@ -231,7 +234,6 @@ const showError = ref(false);
 const errorMessage = ref('');
 const isUnauthorized = ref(false);
 const copySuccess = ref(false);
-const isDarkMode = ref(true)
 const signInData = ref<{
   verificationUri?: string;
   userCode?: string;
