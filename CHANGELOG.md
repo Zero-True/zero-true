@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.6.0](https://github.com/Zero-True/zero-true/compare/v0.5.3...v0.6.0) (2025-01-20)
+
+
+### Bug Fixes
+
+* Actions artifacts v3 is closing down and other upgrades ([#391](https://github.com/Zero-True/zero-true/issues/391)) ([8d74828](https://github.com/Zero-True/zero-true/commit/8d74828cb6b6477b7046057611cb21069d7f7190))
+* added intro to docs ([#412](https://github.com/Zero-True/zero-true/issues/412)) ([c1070d5](https://github.com/Zero-True/zero-true/commit/c1070d534e10918c60c90477e83fa0243c67546f))
+* Adding More docs ([#406](https://github.com/Zero-True/zero-true/issues/406)) ([e40272c](https://github.com/Zero-True/zero-true/commit/e40272c95a0afbb0ea7740f0dfbc6ae68df8740a))
+* copilot quality, flashing and UI ([#417](https://github.com/Zero-True/zero-true/issues/417)) ([524656f](https://github.com/Zero-True/zero-true/commit/524656f28dca3f2bd465252bf55f892383264f56))
+* Include docs files for copilot in package ([#397](https://github.com/Zero-True/zero-true/issues/397)) ([fcb5071](https://github.com/Zero-True/zero-true/commit/fcb507151b6977db8f877657564b562388d712fd))
+* **logic-optimizations:** Added copy button on copilot code,update search logic in file explorer, optimized copilot suggesstions ([#402](https://github.com/Zero-True/zero-true/issues/402)) ([3fa8ae7](https://github.com/Zero-True/zero-true/commit/3fa8ae736da11dfa93ad09d9568d9c62238a271e))
+* Optional dependencies ([#410](https://github.com/Zero-True/zero-true/issues/410)) ([c3a7fe5](https://github.com/Zero-True/zero-true/commit/c3a7fe59e56186fafa9ae0ed7a7495719c2d41a3))
+* Resolve minor issues for 5.4 ([#414](https://github.com/Zero-True/zero-true/issues/414)) ([b64c635](https://github.com/Zero-True/zero-true/commit/b64c635a536c88ed9c9e13646f52eca6a4b58067))
+* **solve-bug-in-linting:** Updated the linting command to check only stable errors according to ruff and ignore others ([#383](https://github.com/Zero-True/zero-true/issues/383)) ([712fab8](https://github.com/Zero-True/zero-true/commit/712fab8364fc245f46eff0d2a608f876ef391105))
+* **solve-parser-issue:** Solved parsing issue with list of variables define globally and in function together ([#379](https://github.com/Zero-True/zero-true/issues/379)) ([fc9deec](https://github.com/Zero-True/zero-true/commit/fc9deec9336dcfb6ba7ac06d36d2d18ac3e65d1a))
+* **text-cell-traversal:** Debugged the issue with text cell traversal and handled all the edge cases for traversal with different decorations and elements ([ae1f10b](https://github.com/Zero-True/zero-true/commit/ae1f10b43eacc6d9be214605d2dc41c9d2b53e93))
+* **text-cell-traversal:** Debugged the issue with text cell traversal and handled all the edge cases for traversal with different decorations and elements ([#395](https://github.com/Zero-True/zero-true/issues/395)) ([ae1f10b](https://github.com/Zero-True/zero-true/commit/ae1f10b43eacc6d9be214605d2dc41c9d2b53e93))
+* Tune copilot ([#415](https://github.com/Zero-True/zero-true/issues/415)) ([c4dd717](https://github.com/Zero-True/zero-true/commit/c4dd71762a7e41945e969dcfc90dc12216978623))
+* updated docs with higher res screenshots and fixed typos/errors in code ([#382](https://github.com/Zero-True/zero-true/issues/382)) ([efa5add](https://github.com/Zero-True/zero-true/commit/efa5add35593bd52735dbe97e30ba28958091325))
+
 ## [0.5.3](https://github.com/Zero-True/zero-true/compare/v0.5.2...v0.5.3) (2024-12-10)
 
 
