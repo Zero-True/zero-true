@@ -16,7 +16,7 @@ notebook_id = str(uuid.uuid4())
 
 
 # Define the expected Python code for the notebook
-notebook_content = f"""
+notebook_str = f"""
 import zero_true as zt
 import time
 
