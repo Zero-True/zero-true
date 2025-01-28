@@ -193,7 +193,6 @@ def run_all():
 def create_cell(cellRequest: request.CreateRequest):
     if app_state.run_mode == "dev":
         logger.debug("Code cell addition request started")
-        num_cells = len(notebook_state.zt_notebook.cells.keys())
         num_cells = str(uuid.uuid4()).split('-')[0]
         createdCell = notebook.CodeCell(
             id="cell_"+str(num_cells),
