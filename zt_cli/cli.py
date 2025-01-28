@@ -243,7 +243,7 @@ def jupyter_convert(
 
     try:
         with open(ipynb_path, "r", encoding="utf-8") as f:
-            notebook = json.loads(f.read())
+            notebook = json.load(f)
     except Exception as e:
         typer.echo(f"Error occured: {e}")
         return
@@ -257,8 +257,7 @@ def jupyter_convert(
         typer.echo(f"Successfully converted {ipynb_path} to {nb_path}")
         return
 
-def jupyter_convert_func(ipynb_string):
-    notebook = json.loads(ipynb_string)
+def jupyter_convert_func(notebook):
     output_lines = []
 
     # Add notebook metadata
@@ -267,31 +266,34 @@ def jupyter_convert_func(ipynb_string):
     output_lines.append("")
 
     # Generate Python functions for each cell
-    for index, cell in enumerate(notebook["cells"], start=1):
+    for index, cell in enumerate(notebook["cells"], start=0):
         cell_id = f"cell_{index}"
         if cell["cell_type"] == "code":
             output_lines.append(f"def {cell_id}():")
-            for line in cell["source"]:
-                output_lines.append(f"    {line.strip()}")
-            output_lines.append("")
+            # Join the source lines with proper indentation
+            source_code = "".join(cell["source"])
+            for line in source_code.splitlines():
+                output_lines.append(f"    {line}")
+            output_lines.append("")  # Add an empty line after the function
 
         elif cell["cell_type"] == "markdown":
             markdown_content = "".join(cell["source"]).strip().replace('"""', "'''")
             output_lines.append(f"def {cell_id}():")
             output_lines.append(f"    zt.markdown(\"\"\"{markdown_content}\"\"\")")
-            output_lines.append("")
+            output_lines.append("")  # Add an empty line after the function
 
     # Add notebook definition
     output_lines.append(f"notebook = zt.notebook(")
     output_lines.append(f"    id='{notebook_id}',")
     output_lines.append(f"    name='Zero True',")
     output_lines.append(f"    cells=[")
-    for index in range(1, len(notebook["cells"]) + 1):
-        output_lines.append(f"        zt.cell(cell_{index}, type='{'markdown' if notebook['cells'][index-1]['cell_type'] == 'markdown' else 'code'}'),")
+    for index in range(0, len(notebook["cells"])):
+        output_lines.append(f"        zt.cell(cell_{index}, type='{'markdown' if notebook['cells'][index]['cell_type'] == 'markdown' else 'code'}'),")
     output_lines.append(f"    ]")
     output_lines.append(f")")
 
-    return "\n".join(output_lines)
+    return output_lines  # Return the list of output lines directly
+
 
 
 

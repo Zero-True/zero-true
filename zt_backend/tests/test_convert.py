@@ -1,51 +1,36 @@
 from zt_backend.models.state.notebook_state import NotebookState
-from zt_backend.models import notebook
-import rtoml
 import subprocess
 from pathlib import Path
 import os
+import importlib.util
 
-notebook_state = NotebookState()
+IPYNB_PATH = Path("test_file.ipynb").resolve()
+OUTPUT_PATH = Path("notebook.py").resolve()
+NOTEBOOK_PATH = Path("test_notebook.py").resolve()
 
-IPYNB_PATH = Path("zt_backend/tests/test_file.ipynb").resolve()
-OUTPUT_PATH = Path("zt_backend/tests/notebook.py").resolve()
-NOTEBOOK_PATH = Path("zt_backend/tests/test_notebook.py").resolve()
+def dynamic_import(module_path):
+    spec = importlib.util.spec_from_file_location("notebook_module", module_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 def test_ipynb_to_ztnb():
 
+    # Step 1: Convert the IPYNB file to a Python file
     convert = subprocess.Popen(
         ["zero-true", "jupyter-convert", IPYNB_PATH, OUTPUT_PATH]
     )
     convert.wait()
 
-    with open(NOTEBOOK_PATH, "r", encoding="utf-8") as file:
-        expected_data = rtoml.loads(file.read().replace("\\", "\\\\"))
+    # Step 2: Import the expected notebook from test_notebook.py
+    from test_notebook import notebook as expected_notebook
+    output_module = dynamic_import(OUTPUT_PATH)
+    output_notebook = output_module.notebook
+    # Step 3: Import the generated notebook from notebook.py
+    expected_notebook.notebookId='0'
+    output_notebook.notebookId='0'
+    # Step 4: Assert that the generated notebook matches the expected notebook
+    assert output_notebook == expected_notebook
 
-    expected_notebook_data = {
-        "notebookId": "test_id",
-        "notebookName": expected_data.get("notebookName", "Zero True"),
-        "userId": "",
-        "cells": {
-            f"{index}": notebook.CodeCell(id=f"{index}", **cell_data, output="")
-            for index, (cell_id, cell_data) in enumerate(expected_data["cells"].items())
-        },
-    }
-    expected_notebook = notebook.Notebook(**expected_notebook_data)
-
-    with open(OUTPUT_PATH, "r", encoding="utf-8") as file:
-        output_data = rtoml.loads(file.read().replace("\\", "\\\\"))
-
-    output_notebook_data = {
-        "notebookId": "test_id",
-        "notebookName": output_data.get("notebookName", "Zero True"),
-        "userId": "",
-        "cells": {
-            f"{index}": notebook.CodeCell(id=f"{index}", **cell_data, output="")
-            for index, (cell_id, cell_data) in enumerate(output_data["cells"].items())
-        },
-    }
-    output_notebook = notebook.Notebook(**output_notebook_data)
-
-    assert expected_notebook == output_notebook
-
+    # Step 5: Clean up the generated file
     os.remove(OUTPUT_PATH)
