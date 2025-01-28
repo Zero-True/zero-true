@@ -8,6 +8,8 @@ from pathlib import Path
 from uuid import uuid4
 from zt_backend.models.notebook import Notebook, CodeCell
 import astroid
+from collections import defaultdict
+import re
 from zt_backend.runner.code_cell_parser import (
     get_imports,
     get_defined_names,
@@ -16,39 +18,13 @@ from zt_backend.runner.code_cell_parser import (
     get_functions,
 )
 
-def remove_top_level_returns(code):
-    """
-    Removes return statements from top-level functions while leaving nested functions intact.
-    """
-    class TopLevelReturnRemover(ast.NodeTransformer):
-        def __init__(self):
-            super().__init__()
-            self.in_top_level = False
-
-        def visit_FunctionDef(self, node):
-            # If entering a top-level function, mark it
-            if not self.in_top_level:
-                self.in_top_level = True
-                node.body = [stmt for stmt in node.body if not isinstance(stmt, ast.Return)]
-                self.in_top_level = False
-            else:
-                # Leave nested functions intact
-                self.generic_visit(node)
-            return node
-
-    # Parse, transform, and unparse the code
-    tree = ast.parse(code)
-    transformer = TopLevelReturnRemover()
-    transformed_tree = transformer.visit(tree)
-    return ast.unparse(transformed_tree)
-
 def parse_cell(func):
     """
     Inspect the function to detect:
       - The function name (the cell_id).
       - Whether its *only* statement is one of zt.sql(...), zt.markdown(...), or zt.text(...).
       - If so, store only that string argument in cell_obj.code.
-      - Otherwise, store the full code block in cell_obj.code, excluding all return statements.
+      - Otherwise, store the full code block in cell_obj.code, excluding the function_def and the final return statement.
       - Includes nested function definitions.
     """
     WRAPPER_TO_TYPE = {"sql": "sql", "markdown": "markdown", "text": "text"}
@@ -69,42 +45,46 @@ def parse_cell(func):
     cell_id = func_def.name
     cell_type = "code"  # default
 
-    def filter_return_statements(node):
-        """Recursively remove trivial returns from function bodies."""
+    def filter_return_statement(node):
+        """Recursively process the AST to exclude the final return statement."""
         if isinstance(node, ast.FunctionDef):
-            node.body = [filter_return_statements(subnode) for subnode in node.body if not (isinstance(subnode, ast.Return))]
+            node.body = [filter_return_statement(subnode) for subnode in node.body]
+            if node.body and isinstance(node.body[-1], ast.Return):
+                node.body = node.body[:-1]  # Remove the final return statement
         return node
 
-    # Remove trivial returns from the function body
-    filtered_tree = filter_return_statements(func_def)
-    meaningful_body = filtered_tree.body
+    # Filter out the final return statement in the main function
+    func_def = filter_return_statement(func_def)
 
-    if len(meaningful_body) == 1 and isinstance(meaningful_body[0], ast.Expr):
-        expr_node = meaningful_body[0].value
+    # If there's only one statement and it's a zt.<something>(...), extract it
+    if len(func_def.body) == 1 and isinstance(func_def.body[0], ast.Expr):
+        expr_node = func_def.body[0].value
         if (
             isinstance(expr_node, ast.Call)
             and isinstance(expr_node.func, ast.Attribute)
             and isinstance(expr_node.func.value, ast.Name)
             and expr_node.func.value.id == "zt"
         ):
-            # This is zt.<something>(...)
             wrapper_name = expr_node.func.attr
             if wrapper_name in WRAPPER_TO_TYPE:
                 cell_type = WRAPPER_TO_TYPE[wrapper_name]
-                # If there's exactly one arg and it's a string, store only that string
                 if expr_node.args and isinstance(expr_node.args[0], ast.Constant):
                     return cell_id, expr_node.args[0].value, cell_type
 
-    # Otherwise, gather the entire code block as multi-line code (excluding all return statements)
-    code_lines = []
-    for subnode in meaningful_body:
-        segment = ast.get_source_segment(source, subnode)
-        if segment and segment.strip():
-            code_lines.append(segment)
+    # Otherwise, reassemble the function's body excluding the definition and the final return
+    code_lines = source.splitlines()
+    start_line = func_def.lineno  # Start after the function definition line
+    end_line = func_def.end_lineno
+    body_lines = code_lines[start_line:end_line]
 
-    final_code = "\n".join(code_lines)
+    # Remove the last return line if it exists
+    dedented_body = textwrap.dedent("\n".join(body_lines)).strip()
+    body_lines = dedented_body.splitlines()
+    if body_lines and body_lines[-1].strip().startswith("return"):
+        body_lines = body_lines[:-1]  # Exclude the final return line
+
+    final_code = "\n".join(body_lines).strip()
     return cell_id, final_code, cell_type
-
 
 
 def cell(func, hidden=False, type='code', hide_code=False, expand_code=False,
@@ -163,6 +143,64 @@ def load_notebook_from_file(file_path, notebook_variable_name="notebook"):
     else:
         raise AttributeError(f"{notebook_variable_name} not found in {file_path}")
 
+def get_top_level_imports(source_code):
+    """
+    Parse the source code and collect all top-level imports, including aliases.
+    """
+    top_level_imports = set()
+    try:
+        tree = ast.parse(source_code)
+        for node in tree.body:
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    if alias.asname:
+                        top_level_imports.add(f"import {alias.name} as {alias.asname}")
+                    else:
+                        top_level_imports.add(f"import {alias.name}")
+            elif isinstance(node, ast.ImportFrom):
+                module = node.module
+                for alias in node.names:
+                    if alias.asname:
+                        top_level_imports.add(f"from {module} import {alias.name} as {alias.asname}")
+                    else:
+                        top_level_imports.add(f"from {module} import {alias.name}")
+    except Exception as e:
+        print(f"[Warning] Could not parse top-level imports: {e}")
+    return top_level_imports
+
+def parse_cell_calls_from_notebook_line(source_code: str):
+    """
+    Parse the source code to extract all cell IDs from a `notebook = zt.notebook(...)` definition.
+    Handles multi-line definitions and nested formatting.
+    """
+    cell_ids = []
+    try:
+        tree = ast.parse(source_code)
+        for node in ast.walk(tree):
+            # Look for the assignment `notebook = zt.notebook(...)`
+            if isinstance(node, ast.Assign) and isinstance(node.value, ast.Call):
+                if (
+                    isinstance(node.value.func, ast.Attribute)
+                    and node.value.func.value.id == "zt"
+                    and node.value.func.attr == "notebook"
+                ):
+                    # Find the `cells=[...]` argument
+                    for kw in node.value.keywords:
+                        if kw.arg == "cells" and isinstance(kw.value, ast.List):
+                            for elem in kw.value.elts:
+                                if (
+                                    isinstance(elem, ast.Call)
+                                    and isinstance(elem.func, ast.Attribute)
+                                    and elem.func.value.id == "zt"
+                                    and elem.func.attr == "cell"
+                                ):
+                                    # Extract the first argument of zt.cell(...)
+                                    if elem.args and isinstance(elem.args[0], ast.Name):
+                                        cell_ids.append(elem.args[0].id)
+    except Exception as e:
+        print(f"[Warning] Could not parse cell IDs: {e}")
+    return cell_ids
+
 
 def update_notebook_file(filepath, notebook_obj):
     """
@@ -186,47 +224,61 @@ def update_notebook_file(filepath, notebook_obj):
     # Helper to build code block for each cell (in the file).
     def build_cell_code_block(fn_name, cell_obj, def_line):
         """
-        If the cell is e.g. sql, we'll put "    zt.sql(\"\"\"...\")" in the file.
-        Meanwhile, in the notebook data structure, .code contains only the raw query.
+        Build the function code block for a given notebook cell.
+        Ensures imports, nested function variables, and internal definitions are excluded.
         """
         return_line = "    return"
-        if cell_obj.cellType == 'code':
+        filtered_arguments = []  # Final function arguments
+        filtered_returns = []  # Final return variables
+
+        if cell_obj.cellType == "code":
             try:
                 module = astroid.parse(cell_obj.code)
+
+                # Gather imports
                 all_imports = get_imports(module)
-                function_names, function_args = get_functions(module)
-                defined_names = get_defined_names(module) + function_names
-                loaded_names = (
-                    get_loaded_names(module, defined_names)
-                    + get_loaded_modules(module, all_imports)
-                )
-                # Optionally ensure uniqueness while preserving order
+
+                # Gather top-level defined variables (exclude nested function variables)
+                defined_names = get_defined_names(module)
+                function_names, _ = get_functions(module)
+                defined_names += function_names
+
+                # Gather used variables
+                loaded_names = get_loaded_names(module, defined_names)
+                loaded_names += get_loaded_modules(module, all_imports)
+
+                # Exclude duplicates while preserving order
                 seen = set()
-                loaded_names_ordered = []
-                for name in loaded_names:
-                    if name not in seen:
-                        seen.add(name)
-                        loaded_names_ordered.append(name)
-                loaded_names = loaded_names_ordered
+                filtered_arguments = [
+                    name for name in loaded_names
+                    if name not in all_imports and name not in defined_names and name not in seen and not seen.add(name)
+                ]
+
+                filtered_returns = [
+                    name for name in defined_names
+                    if name not in all_imports and name not in seen and not seen.add(name)
+                ]
             except Exception as e:
                 print(f"[Warning] Could not parse code in cell '{fn_name}': {e}")
-                loaded_names = []
-                defined_names = []
+                filtered_arguments = []
+                filtered_returns = []
 
-            # 2) Build function signature (optional arguments)
-            if loaded_names:
-                def_line = f"def {fn_name}({', '.join(loaded_names)}):"
-            if defined_names:
-                return_line =f"    return({', '.join(defined_names)})"
-        
-        lines = [def_line]  # e.g. "def cell_0():"
+        # Update function signature
+        def_line = f"def {fn_name}({', '.join(filtered_arguments)}):"
+
+        # Update the return statement
+        if filtered_returns:
+            return_line = f"    return({', '.join(filtered_returns)})"
+
+        # Build the full function
+        lines = [def_line]
+
         if cell_obj.cellType in ["markdown", "sql", "text"]:
-            # Write zt.sql("""some code""") in the file
             lines.append(f"    zt.{cell_obj.cellType}(\"\"\"{cell_obj.code}\"\"\")")
         else:
-            # For "code" cells, we just insert them line by line
             for raw in cell_obj.code.splitlines():
                 lines.append(f"    {raw}")
+
         lines.append(return_line)
         return lines
 
@@ -241,28 +293,10 @@ def update_notebook_file(filepath, notebook_obj):
     print("ORIGINAL:\n", original_source)
 
     # 1a) Gather old_cell_ids by scanning lines for 'notebook=zt.notebook(..., cells=[zt.cell(...), ...])'
-    def parse_cell_calls_from_notebook_line(line: str):
-        collapsed = line.replace(" ", "").replace("\n", "")
-        if "notebook=zt.notebook(" not in collapsed:
-            return []
-        pattern = r"cells=\[(.*?)\]"
-        m = re.search(pattern, collapsed)
-        if not m:
-            return []
-        inside = m.group(1)  # e.g. "zt.cell(a),zt.cell(b)"
-        cell_pattern = r"zt\.cell\((.*?)\)"
-        found = re.findall(cell_pattern, inside)
-        ret = []
-        for fcall in found:
-            # first arg is before the first comma or end
-            first_part = fcall.split(",")[0].strip().strip("'").strip('"')
-            ret.append(first_part)
-        return ret
+    
 
-    old_cell_ids = set()
-    for line in original_lines:
-        for cid in parse_cell_calls_from_notebook_line(line):
-            old_cell_ids.add(cid)
+    old_cell_ids = parse_cell_calls_from_notebook_line(original_source)
+
 
     # 2) Parse the file’s AST => gather all top-level function definitions
     try:
@@ -281,7 +315,6 @@ def update_notebook_file(filepath, notebook_obj):
 
     func_defs.sort(key=lambda x: x[0])
 
-    from collections import defaultdict
     fn_name_map = defaultdict(list)
     for (start_i, end_i, fn_name) in func_defs:
         fn_name_map[fn_name].append((start_i, end_i))
@@ -363,23 +396,50 @@ def update_notebook_file(filepath, notebook_obj):
         updated_lines.append(original_lines[current_idx])
         current_idx += 1
 
-    # remove old notebook lines (the lines with "notebook=zt.notebook(...)")
+    # Remove old notebook lines
+    notebook_start_pattern = re.compile(r"notebook\s*=\s*zt\.notebook\(")
+    inside_notebook = False
     final_buf = []
     for line in updated_lines:
-        if "notebook=zt.notebook(" in line.replace(" ", ""):
-            continue
-        final_buf.append(line)
+        # Detect the start of the notebook definition
+        if notebook_start_pattern.match(line.strip()):
+            inside_notebook = True
+            continue  # Skip the line
+        # Detect the end of the notebook definition
+        if inside_notebook and line.strip() == ")":
+            inside_notebook = False
+            continue  # Skip the closing parenthesis
+        # If not inside a notebook definition, retain the line
+        if not inside_notebook:
+            final_buf.append(line)
     updated_lines = final_buf
 
     # Now add brand-new cells that didn't exist previously
+    all_imports = set()  # Collect all imports across cells
+    # Parse imports from the cell's code
     for cid, cobj in notebook_obj.cells.items():
-        if cid not in handled_cells:
-            # brand new cell
-            maybe_add_blank_line(updated_lines)
-            def_line = f"def {cid}():"
-            new_block = build_cell_code_block(cid, cobj, def_line)
-            for ln in new_block:
-                updated_lines.append(ln + "\n")
+        try:
+            module = ast.parse(cobj.code)
+            cell_imports = set()
+            for node in ast.walk(module):
+                if isinstance(node, ast.Import):
+                    for alias in node.names:
+                        if alias.asname:
+                            cell_imports.add(f"import {alias.name} as {alias.asname}")
+                        else:
+                            cell_imports.add(f"import {alias.name}")
+                elif isinstance(node, ast.ImportFrom):
+                    for alias in node.names:
+                        if alias.asname:
+                            cell_imports.add(f"from {node.module} import {alias.name} as {alias.asname}")
+                        else:
+                            cell_imports.add(f"from {node.module} import {alias.name}")
+            all_imports.update(cell_imports)
+        except Exception as e:
+            print(f"[Warning] Could not parse imports in cell '{cid}': {e}")
+        
+    existing_imports = get_top_level_imports(original_source)
+    all_imports -= existing_imports
 
     # Build the final notebook=zt.notebook(...) line
     def format_cell_call(fn_name, cobj):
@@ -408,16 +468,26 @@ def update_notebook_file(filepath, notebook_obj):
         call += ")"
         return call
 
+   # Build the notebook arguments
     nb_args = [f"id={notebook_obj.notebookId!r}"]
     if notebook_obj.notebookName != "Zero True":
         nb_args.append(f"name={notebook_obj.notebookName!r}")
 
-    calls = []
-    for cid in notebook_obj.cells:
-        calls.append(format_cell_call(cid, notebook_obj.cells[cid]))
-    nb_args.append("cells=[" + ", ".join(calls) + "]")
+    # Format the cells list, one cell per line with proper indentation
+    cell_lines = [
+        "        " + format_cell_call(cid, cobj) + ","  # Indented for cells list
+        for cid, cobj in notebook_obj.cells.items()
+    ]
 
-    final_line = "notebook = zt.notebook(" + ", ".join(nb_args) + ")\n"
+    # Combine everything into a properly formatted multi-line notebook definition
+    notebook_lines = [
+        "notebook = zt.notebook(",
+        "    " + ",\n    ".join(nb_args) + ",",  # Add notebook args
+        "    cells=[",
+        *cell_lines,  # Add each cell line
+        "    ]",
+        ")",
+    ]
 
     # Clean up trailing blank lines
     while updated_lines and not updated_lines[-1].strip():
@@ -425,18 +495,34 @@ def update_notebook_file(filepath, notebook_obj):
 
     # Ensure at most one blank line before the final line
     maybe_add_blank_line(updated_lines)
-    updated_lines.append(final_line)
+    updated_lines.append("\n".join(notebook_lines))
 
     # Make sure we end with a newline
     if not updated_lines[-1].endswith("\n"):
         updated_lines[-1] += "\n"
 
-    # Ensure import line
-    if not any("import zero_true as zt" in line for line in updated_lines):
-        updated_lines.insert(0, "import zero_true as zt\n\n")
+    
+    original_source = "".join(original_lines)
+
+    # Gather top-level imports from the file
+
+    # Consolidate and add missing imports
+    # Ensure import zero_true is always at the top
+    if "import zero_true as zt" not in existing_imports:
+        updated_lines.insert(0, "import zero_true as zt\n")
+        existing_imports.add("import zero_true as zt")
+
+    # Add  imports below zero_true
+    # Consolidate and add missing imports
+    if all_imports:
+        for imp in sorted(all_imports):
+            if imp not in existing_imports:
+                updated_lines.insert(1, imp + "\n")  # Insert after `import zero_true as zt`
+                existing_imports.add(imp + "\n")  # Track the added import
+
 
     print("UPDATED:\n", "".join(updated_lines))
-    filepath_temp = filepath.replace('.py', str(uuid4()) + '.py')
+    filepath_temp = str(filepath).replace('.py', str(uuid4()) + '.py')
     with open(filepath_temp, 'w') as f:
         f.writelines(updated_lines)
     os.replace(filepath_temp, filepath)

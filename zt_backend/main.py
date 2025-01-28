@@ -50,7 +50,6 @@ def open_project():
         if not notebook_path.exists() and not ztnb_path.exists():
             logger.info("No notebook file found, creating with empty notebook")
             write_notebook_to_python()
-            write_notebook()
         requirements_path = Path(settings.zt_path) / "requirements.txt"
         if not requirements_path.exists():
             logger.info("No requirements file found, creating empty file")

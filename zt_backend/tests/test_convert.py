@@ -8,8 +8,8 @@ import os
 notebook_state = NotebookState()
 
 IPYNB_PATH = Path("zt_backend/tests/test_file.ipynb").resolve()
-OUTPUT_PATH = Path("zt_backend/tests/notebook.ztnb").resolve()
-NOTEBOOK_PATH = Path("zt_backend/tests/test_notebook.ztnb").resolve()
+OUTPUT_PATH = Path("zt_backend/tests/notebook.py").resolve()
+NOTEBOOK_PATH = Path("zt_backend/tests/test_notebook.py").resolve()
 
 def test_ipynb_to_ztnb():
 

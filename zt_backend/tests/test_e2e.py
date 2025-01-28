@@ -15,31 +15,26 @@ import uuid
 notebook_id = str(uuid.uuid4())
 
 
-expected_code = """
+# Define the expected Python code for the notebook
+notebook_content = f"""
 import zero_true as zt
 import time
-time.sleep(2)
-slider = zt.Slider(id='slide')
-zt.TextInput(id='text')"""
 
+def cell_57fbbd59_8f30_415c_87bf_8caae0374070():
+    time.sleep(2)
+    slider = zt.Slider(id='slide')
+    zt.TextInput(id='text')
 
-notebook_str = '''notebookId = "''' + notebook_id + '''"
-notebookName = "Zero True"
+notebook = zt.notebook(
+    id="{notebook_id}",
+    name="Zero True",
+    cells=[
+        zt.cell(cell_57fbbd59_8f30_415c_87bf_8caae0374070, type="code")
+    ]
+)
+"""
 
-[cells.57fbbd59-8f30-415c-87bf-8caae0374070]
-cellName = ""
-cellType = "code"
-hideCell = "False"
-hideCode = "False"
-expandCode = "False"
-showTable = "False"
-nonReactive = "False"
-code = """
-'''+expected_code+'''"""
-
-'''
-
-notebook_filename = "notebook.ztnb"
+notebook_filename = "notebook.py"
 
 @pytest.fixture(scope="session", autouse=True)
 def start_stop_app():

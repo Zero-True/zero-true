@@ -29,12 +29,11 @@ def write_notebook_to_python(notebook_state=notebook_state):
 def get_notebook_python():
     # Load the Python notebook file dynamically
     notebook_path = Path(settings.zt_path) / "notebook.py"
-    ztnb_path = Path(settings.zt_path) / "notebook.ztnb"
 
     if notebook_path.exists():
         return(load_notebook_from_file(notebook_path))
-    if ztnb_path.exists():
-        return(get_ztnb())
+
+
 def get_ztnb():
     logger.debug("Notebook id is empty")
     # If it doesn't exist in the database, load it from the TOML file
@@ -114,26 +113,48 @@ def get_notebook(id=""):
             )
 
     try:
-        notebook_data=get_notebook_python()
-        print(notebook_data)
-        if notebook_data != None:
+        ztnb_path = Path(settings.zt_path) / "notebook.ztnb"
+        notebook_path = Path(settings.zt_path) / "notebook.py"
+
+        # Step 1: Check for the .ztnb file
+        if ztnb_path.exists():
+            logger.info(f".ztnb file detected: {ztnb_path}")
+            # Load the .ztnb file
+            notebook_data = get_ztnb()
+
+            # Save it as a Python file
+            update_notebook_file(notebook_path, notebook_state.zt_notebook)
+
+            # Delete the .ztnb file
+            try:
+                ztnb_path.unlink()
+                logger.info(f".ztnb file deleted: {ztnb_path}")
+            except Exception as e:
+                logger.error(f"Error deleting .ztnb file: {e}")
+
+        # Step 2: Load the Python file if it exists
+        elif notebook_path.exists():
+            notebook_data = get_notebook_python()
+
+        # Step 3: Handle loaded notebook data
+        if notebook_data is not None:
             notebook_state.zt_notebook = notebook.Notebook(**notebook_data.model_dump())
             new_notebook = notebook_state.zt_notebook.model_dump_json()
-            print(new_notebook)
 
-        conn = duckdb.connect(notebook_state.notebook_db_path)
-        create_table_query = f"CREATE TABLE IF NOT EXISTS '{notebook_state.zt_notebook.notebookId}' (id STRING PRIMARY KEY, notebook STRING)"
-        conn.execute(create_table_query)
-        insert_query = f"INSERT OR REPLACE INTO '{notebook_state.zt_notebook.notebookId}' (id, notebook) VALUES (?, ?)"
-        conn.execute(
-            insert_query, [notebook_state.zt_notebook.notebookId, new_notebook]
-        )
-        conn.close()
-        logger.debug(
-            "Notebook with id %s loaded from toml and new db entry created",
-            notebook_data.notebookId,
-        )
-        notebook_state_init()
+            conn = duckdb.connect(notebook_state.notebook_db_path)
+            create_table_query = f"CREATE TABLE IF NOT EXISTS '{notebook_state.zt_notebook.notebookId}' (id STRING PRIMARY KEY, notebook STRING)"
+            conn.execute(create_table_query)
+            insert_query = f"INSERT OR REPLACE INTO '{notebook_state.zt_notebook.notebookId}' (id, notebook) VALUES (?, ?)"
+            conn.execute(
+                insert_query, [notebook_state.zt_notebook.notebookId, new_notebook]
+            )
+            conn.close()
+
+            logger.debug(
+                "Notebook with id %s loaded from toml/python and new db entry created",
+                notebook_state.zt_notebook.notebookId,
+            )
+            notebook_state_init()
     except Exception as e:
         logger.error(
             "Error when loading notebook, return empty notebook: %s",
@@ -343,7 +364,6 @@ def save_notebook():
     insert_query = f"INSERT OR REPLACE INTO '{notebook_state.zt_notebook.notebookId}' (id, notebook) VALUES (?, ?)"
     conn.execute(insert_query, [notebook_state.zt_notebook.notebookId, new_notebook])
     conn.close()
-    write_notebook()
     write_notebook_to_python(notebook_state)
 
 

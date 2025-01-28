@@ -1065,7 +1065,7 @@ async def move_item(move_request: request.MoveItemRequest) -> Dict:
                 )
 
             # Protected files check
-            protected_files = ["requirements.txt", "notebook.ztnb", 
+            protected_files = ["requirements.txt", "notebook.ztnb", "notebook.py",
                              "zt_db.db", "zt_db.db.wal"]
             if source_path.name in protected_files:
                 raise HTTPException(
