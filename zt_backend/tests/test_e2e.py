@@ -1,5 +1,6 @@
 import pytest
 import subprocess
+import textwrap
 import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -14,22 +15,27 @@ import uuid
 
 notebook_id = str(uuid.uuid4())
 
+expected_code = """
+import zero_true as zt
+import time
+time.sleep(2)
+slider = zt.Slider(id='slide')
+zt.TextInput(id='text')"""
+
 
 # Define the expected Python code for the notebook
 notebook_str = f"""
 import zero_true as zt
 import time
 
-def cell_57fbbd59_8f30_415c_87bf_8caae0374070():
-    time.sleep(2)
-    slider = zt.Slider(id='slide')
-    zt.TextInput(id='text')
+def cell_0():
+"""+textwrap.indent(expected_code,'    ')+"""
 
 notebook = zt.notebook(
     id="{notebook_id}",
     name="Zero True",
     cells=[
-        zt.cell(cell_57fbbd59_8f30_415c_87bf_8caae0374070, type="code")
+        zt.cell(cell_0, type="code")
     ]
 )
 """
@@ -76,6 +82,7 @@ def find_code_cells(driver):
     EC.presence_of_element_located((By.XPATH, "//div[contains(@id, 'codeCard')]"))
     )
     code_cells = driver.find_elements(By.XPATH, "//div[contains(@id, 'codeCard')]")
+    print(code_cells)
     return code_cells
 
 def find_el_by_id_w_exception(driver,element_id):
@@ -163,7 +170,7 @@ def test_notebook_loading(driver):
 
 def test_initial_code_cell(driver):
     code_cells = find_code_cells(driver)
-    assert len(code_cells) == 1 and code_cells[0].get_attribute('id') == 'codeCard57fbbd59-8f30-415c-87bf-8caae0374070', "Expected code cell not found."
+    assert len(code_cells) == 1 and code_cells[0].get_attribute('id') == 'codeCardcell_0', "Expected code cell not found."
 
 def test_intial_code_cell_content(driver):
     code_cells = find_code_cells(driver)
@@ -221,7 +228,7 @@ def test_adding_new_code_cell(driver):
     
     code_cells = find_code_cells(driver)
     assert len(code_cells) == 2, "New code cell was not added"
-    assert code_cells[0].get_attribute('id') == 'codeCard57fbbd59-8f30-415c-87bf-8caae0374070', "Expected code cell not found"
+    assert code_cells[0].get_attribute('id') == 'codeCardcell_0', "Expected code cell not found"
 
 def test_execution_of_new_code_cell(driver):
     code_cells = find_code_cells(driver)
@@ -334,7 +341,7 @@ def test_app_mode(driver):
 
     #assert that there is only cell in app mode because the second cell was hidden
 
-    cell_id_0 = '57fbbd59-8f30-415c-87bf-8caae0374070'
+    cell_id_0 = 'cell_0'
 
     assert len(code_cells) == 1 and code_cells[0].get_attribute('id') == f'codeCard{cell_id_0}', "Expected code cell not found."
 
@@ -380,7 +387,7 @@ def test_deletion_of_new_code_cell(driver):
     delete_btn.click()
     time.sleep(2)
     code_cells = find_code_cells(driver)
-    assert len(code_cells) == 1 and code_cells[0].get_attribute('id') == 'codeCard57fbbd59-8f30-415c-87bf-8caae0374070', "Expected code cell not found."
+    assert len(code_cells) == 1 and code_cells[0].get_attribute('id') == 'codeCardcell_0', "Expected code cell not found."
 
 # test hiding code cell
 

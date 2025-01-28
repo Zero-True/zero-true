@@ -290,7 +290,6 @@ def update_notebook_file(filepath, notebook_obj):
         original_lines = [import_line, "\n"]
 
     original_source = "".join(original_lines)
-    print("ORIGINAL:\n", original_source)
 
     # 1a) Gather old_cell_ids by scanning lines for 'notebook=zt.notebook(..., cells=[zt.cell(...), ...])'
     
@@ -390,6 +389,15 @@ def update_notebook_file(filepath, notebook_obj):
                 updated_lines.append(original_lines[current_idx])
                 current_idx += 1
             i += 1
+
+    # Handle new cells that are not already handled
+    for cid, cell_obj in notebook_obj.cells.items():
+        if cid not in handled_cells:
+            maybe_add_blank_line(updated_lines)
+            def_line = f"def {cid}():"
+            new_block = build_cell_code_block(cid, cell_obj, def_line)
+            for ln in new_block:
+                updated_lines.append(ln + "\n")
 
     # copy leftover lines
     while current_idx < len(original_lines):
@@ -521,7 +529,6 @@ def update_notebook_file(filepath, notebook_obj):
                 existing_imports.add(imp + "\n")  # Track the added import
 
 
-    print("UPDATED:\n", "".join(updated_lines))
     filepath_temp = str(filepath).replace('.py', str(uuid4()) + '.py')
     with open(filepath_temp, 'w') as f:
         f.writelines(updated_lines)

@@ -4,9 +4,9 @@ from pathlib import Path
 import os
 import importlib.util
 
-IPYNB_PATH = Path("test_file.ipynb").resolve()
-OUTPUT_PATH = Path("notebook.py").resolve()
-NOTEBOOK_PATH = Path("test_notebook.py").resolve()
+IPYNB_PATH = Path("zt_backend/tests/test_file.ipynb").resolve()
+OUTPUT_PATH = Path("zt_backend/tests/notebook.py").resolve()
+NOTEBOOK_PATH = Path("zt_backend/tests/test_notebook.py").resolve()
 
 def dynamic_import(module_path):
     spec = importlib.util.spec_from_file_location("notebook_module", module_path)
