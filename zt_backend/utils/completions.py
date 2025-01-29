@@ -12,7 +12,7 @@ async def get_code_completions(cell_id: str, code: str, line: int, column: int) 
      
     await text_document_did_change({
         "textDocument": {
-            "uri": "file:///notebook.ztnb",
+            "uri": "file:///notebook.py",
             "version": 1
         },
         "contentChanges": [{

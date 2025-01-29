@@ -14,7 +14,7 @@ class NotebookState:
 
         self.notebook_db_path = notebook_db_path
         codeCell = notebook.CodeCell(
-            id=str(uuid.uuid4()),
+            id=str(uuid.uuid4()).split('-')[0],
             code="",
             components=[],
             variable_name="",
