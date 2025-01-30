@@ -127,6 +127,27 @@
         </v-icon>
       </v-btn>
     </v-app-bar>
+    <div class="fixed-error">
+      <transition name="fade">
+        <v-alert
+          v-if="errorMessage"
+          type="error"
+          dismissible
+          class="mb-2"
+        >
+          {{ errorMessage }}
+        </v-alert>
+      </transition>
+      <transition name="fade">
+        <v-alert
+          v-if="socketsDisconnected"
+          type="error"
+          dismissible
+        >
+          Connection to the server has been lost. Please refresh the page.
+        </v-alert>
+      </transition>
+    </div>
     <v-navigation-drawer
       v-if="$devMode && !isMobile && !isAppRoute"
       :rail="true"
@@ -200,16 +221,6 @@
       style="padding-top: 12px; padding-bottom: 12px"
     />
     <v-main :scrollable="false" class="w-100 mx-auto">
-      <v-container v-if="errorMessage">
-        <v-alert type="error">
-          {{ errorMessage }}
-        </v-alert>
-      </v-container>
-      <v-container v-if="socketsDisconnected">
-        <v-alert type="error">
-          Connection to the server has been lost. Please refresh the page.
-        </v-alert>
-      </v-container>
       <div :class="['content', 'px-8', 'd-flex', 'justify-center']">
         <div class="content__cells flex-grow-1" transition="slide-x-transition">
           <CodeCellManager
@@ -290,36 +301,37 @@
         </div>
 
         <div class="footer__status-wrapper">
-          <!-- <span>
-            <v-icon 
-              :icon="`ztIcon:${ztAliases.clock}`" 
-            />
-            Saved 5mins ago
-          </span> -->
-          <!-- <v-icon class="dot-divider" :icon="`ztIcon:${ztAliases.dot}`"/> -->
-          <div v-if="isCodeRunning" class="footer__status">
-            <v-icon :icon="`ztIcon:${ztAliases.status}`" />
-            <span>Running</span>
-          </div>
-          <div
-            v-if="!isCodeRunning"
-            class="footer__status footer__status--connected"
-          >
-            <v-icon :icon="`ztIcon:${ztAliases.status}`" />
-            <span>Connected</span>
-          </div>
-          <v-btn
-            v-if="isCodeRunning"
-            density="comfortable"
-            :icon="`ztIcon:${ztAliases.stop}`"
-            variant="plain"
-            :ripple="false"
-            @click="stopCodeExecution()"
-            rounded
-            class="stop-btn"
-          >
-          </v-btn>
+        <!-- Running Status -->
+        <div v-if="isCodeRunning" class="footer__status footer__status--running">
+          <v-icon :icon="`ztIcon:${ztAliases.status}`" />
+          <span>Running</span>
         </div>
+
+        <!-- Disconnected Status -->
+        <div v-else-if="socketsDisconnected" class="footer__status footer__status--disconnected">
+          <v-icon :icon="`ztIcon:${ztAliases.status}`" />
+          <span>Disconnected</span>
+        </div>
+
+        <!-- Connected Status -->
+        <div v-else class="footer__status footer__status--connected">
+          <v-icon :icon="`ztIcon:${ztAliases.status}`" />
+          <span>Connected</span>
+        </div>
+
+        <!-- Stop Button -->
+        <v-btn
+          v-if="isCodeRunning"
+          density="comfortable"
+          :icon="`ztIcon:${ztAliases.stop}`"
+          variant="plain"
+          :ripple="false"
+          @click="stopCodeExecution()"
+          rounded
+          class="stop-btn"
+        >
+        </v-btn>
+      </div>
       </div>
     </v-footer>
   </v-app>
@@ -1343,6 +1355,57 @@ export default {
 
 :deep(.theme-tooltip) {
   color: var(--v-theme-on-primary) !important;
+}
+
+/* Fixed Error Messages Styling */
+.fixed-error {
+  position: fixed;
+  top: 60px; /* 51px app bar height + 9px spacing */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 600px;
+  z-index: 1000; /* Ensure it appears above other elements */
+}
+
+.footer__status-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Adds space between icon and text */
+}
+
+.footer__status {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+}
+
+/* Running Status */
+.footer__status--running {
+  color: rgba(var(--v-theme-success)); /* Green color for running */
+}
+
+/* Disconnected Status */
+.footer__status--disconnected {
+  color: rgba(var(--v-theme-error)); /* Red color for disconnected */
+}
+
+/* Connected Status */
+.footer__status--connected {
+  color: rgba(var(--v-theme-info)); /* Blue color for connected */
+}
+
+/* Optional: Style the Icons Differently Based on Status */
+.footer__status--running v-icon {
+  color: rgba(var(--v-theme-success));
+}
+
+.footer__status--disconnected v-icon {
+  color: rgba(var(--v-theme-error));
+}
+
+.footer__status--connected v-icon {
+  color: rgba(var(--v-theme-info));
 }
 
 .toggle-group {
