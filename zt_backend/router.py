@@ -407,8 +407,9 @@ async def load_notebook(websocket: WebSocket):
                 else:
                     try:
                         start_dependencies = parse_dependencies()
-                        if not check_env(start_dependencies):
-                            await websocket.send_json({"env_stale": True})
+                        check_environment = check_env(start_dependencies)
+                        if check_environment:
+                            await websocket.send_json({"env_stale": check_environment})
                         notebook_response = notebook.NotebookResponse(
                             notebook=notebook_start, dependencies=start_dependencies
                         )

@@ -221,6 +221,19 @@
       style="padding-top: 12px; padding-bottom: 12px"
     />
     <v-main :scrollable="false" class="w-100 mx-auto">
+<<<<<<< HEAD
+=======
+      <v-container v-if="errorMessage">
+        <v-alert type="error">
+          {{ errorMessage }}
+        </v-alert>
+      </v-container>
+      <v-container v-if="socketsDisconnected">
+        <v-alert type="error">
+          {{socketsDisconnected}}
+        </v-alert>
+      </v-container>
+>>>>>>> 5aa406e (fix: Linting, dependency, and reconnection fixes)
       <div :class="['content', 'px-8', 'd-flex', 'justify-center']">
         <div class="content__cells flex-grow-1" transition="slide-x-transition">
           <CodeCellManager
@@ -724,8 +737,7 @@ export default {
       ) {
         this.currentlyExecutingCell = response.cell_executing;
       } else if (response.env_stale) {
-        this.errorMessage =
-          "Some dependencies are not installed in the current environment. Open dependency manager to install missing dependencies";
+        this.errorMessage = response.env_stale;
       } else if (response.complete) {
         this.isCodeRunning = false;
         this.stopTimer();
@@ -996,8 +1008,8 @@ export default {
         line: this.concatenatedCodeCache.length + line,
         column: column,
         code_w_context:
-          this.concatenatedCodeCache.code +
-          text +
+          this.concatenatedCodeCache.code + "\n" +
+          text + "\n" +
           this.concatenatedCodeCache.followingCode,
       };
       this.save_socket!.send(JSON.stringify(saveRequest));

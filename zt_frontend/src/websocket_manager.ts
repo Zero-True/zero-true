@@ -105,6 +105,7 @@ export class WebSocketManager {
             error
           );
           this.reconnectAttempts++;
+          globalState.connection_lost = `Connection to the server has been lost. Attempting to reconnect (${this.reconnectAttempts}/3).`;
           this.reconnectSocket();
         }
       }, delay);
@@ -112,7 +113,8 @@ export class WebSocketManager {
       console.error(
         `Max reconnect attempts reached for WebSocket: ${this.url}. Giving up.`
       );
-      globalState.connection_lost = true;
+      globalState.connection_lost =
+        "Connection to the server has been lost. Please refresh the page.";
     }
   }
 
