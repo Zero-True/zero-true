@@ -144,7 +144,7 @@
           type="error"
           dismissible
         >
-          Connection to the server has been lost. Please refresh the page.
+          {{socketsDisconnected}}
         </v-alert>
       </transition>
     </div>
@@ -221,19 +221,6 @@
       style="padding-top: 12px; padding-bottom: 12px"
     />
     <v-main :scrollable="false" class="w-100 mx-auto">
-<<<<<<< HEAD
-=======
-      <v-container v-if="errorMessage">
-        <v-alert type="error">
-          {{ errorMessage }}
-        </v-alert>
-      </v-container>
-      <v-container v-if="socketsDisconnected">
-        <v-alert type="error">
-          {{socketsDisconnected}}
-        </v-alert>
-      </v-container>
->>>>>>> 5aa406e (fix: Linting, dependency, and reconnection fixes)
       <div :class="['content', 'px-8', 'd-flex', 'justify-center']">
         <div class="content__cells flex-grow-1" transition="slide-x-transition">
           <CodeCellManager
