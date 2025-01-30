@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.6.1](https://github.com/Zero-True/zero-true/compare/v0.6.0...v0.6.1) (2025-01-30)
+
+
+### Bug Fixes
+
+* **express:** upgrade version to address high-risk vulnerability ([8718f48](https://github.com/Zero-True/zero-true/commit/8718f48d69c7be17e1b993ceb5ab936051409ed1))
+* **ui:** pinned alerts below app bar and propagated connection status to footer ([#424](https://github.com/Zero-True/zero-true/issues/424)) ([e0dbc60](https://github.com/Zero-True/zero-true/commit/e0dbc6036a9fce84709837f4d4545ceb12164755))
+* upgraded version of express to fix high risk security vulnerability ([#420](https://github.com/Zero-True/zero-true/issues/420)) ([8718f48](https://github.com/Zero-True/zero-true/commit/8718f48d69c7be17e1b993ceb5ab936051409ed1))
+* upgraded vue-tsc to fix template-compiler vulnerability ([#423](https://github.com/Zero-True/zero-true/issues/423)) ([fd783d7](https://github.com/Zero-True/zero-true/commit/fd783d729bbe03935b31197f43c9e6ae141bcb0e))
+
 ## [0.6.0](https://github.com/Zero-True/zero-true/compare/v0.5.3...v0.6.0) (2025-01-20)
 
 
