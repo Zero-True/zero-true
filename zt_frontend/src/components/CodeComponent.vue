@@ -206,7 +206,6 @@ export default {
   ],
   data() {
     return {
-      isFocused: false,
       copilotSuggestion: "",
       copilotAccepted: false,
       expanded: this.cellData.expandCode ? [0] : [],
@@ -217,7 +216,6 @@ export default {
         { title: "Text" },
       ],
       compDict: {} as { [key: string]: ZTComponent },
-      runLint: false,
       currentLint: [] as Diagnostic[],
     };
   },
@@ -376,49 +374,6 @@ export default {
         };
       };
 
-      const customLinter = linter(
-        (view) => {
-          if (!this.isFocused) {
-            return [];
-          }
-          if (!this.runLint) return this.currentLint;
-          const diagnostics: Diagnostic[] = [];
-
-          if (Array.isArray(this.lintResults)) {
-            this.lintResults.forEach((result: any) => {
-              const fromPos =
-                view.state.doc.line(result.from.line + 1).from +
-                result.from.ch;
-              const toPos =
-                view.state.doc.line(result.to.line + 1).from + result.to.ch;
-
-              if (
-                fromPos >= 0 &&
-                toPos >= fromPos &&
-                toPos <= view.state.doc.length
-              ) {
-                diagnostics.push({
-                  from: fromPos,
-                  to: toPos,
-                  severity: result.severity,
-                  message: result.message,
-                });
-              } else {
-                console.warn("Invalid lint result positions:", result);
-              }
-            });
-          } else {
-            console.warn("No lint results for cell:", this.cellData.id);
-          }
-          this.runLint = false;
-          this.currentLint = diagnostics;
-          return diagnostics;
-        },
-        {
-          needsRefresh: () => this.runLint,
-        }
-      );
-
       if (this.$devMode && !this.isAppRoute) {
         // Here we use the compartment-based approach to add the linter dynamically.
         return [
@@ -427,7 +382,7 @@ export default {
           ...(this.isDarkMode ? [oneDark] : []), // Add only when in dark mode
           indentUnit.of("    "),
           inlineSuggestion({ fetchFn: fetchSuggestion }),
-          lintCompartment.of(customLinter),
+          lintCompartment.of(this.getLinter()),
           autocompletion({ override: [customCompletionSource] }),
         ].filter(Boolean) as Extension[];
       }
@@ -485,7 +440,11 @@ export default {
     this.$watch(
       () => this.lintResults,
       () => {
-        this.runLint = true;
+        if (this.view) {
+          this.view.dispatch({
+            effects: lintCompartment.reconfigure(this.getLinter()),
+          });
+        }
       }
     );
     if (this.cellData.hideCell) {
@@ -523,7 +482,13 @@ export default {
       const position = this.view?.state.selection.main.head;
       const line = this.view?.state.doc.lineAt(position).number;
       const column = position - this.view?.state.doc.line(line).from;
-      this.$emit("saveCell", this.cellData.id, this.cellData.code, line, column);
+      this.$emit(
+        "saveCell",
+        this.cellData.id,
+        this.cellData.code,
+        line,
+        column
+      );
     },
     expandCodeUpdate(e: Boolean) {
       this.expanded = e ? [0] : [];
@@ -537,63 +502,53 @@ export default {
     renameCell(e: String) {
       this.cellData.cellName = e as string;
     },
+    getLinter() {
+      return linter(
+        (view) => {
+          const diagnostics: Diagnostic[] = [];
+
+          if (Array.isArray(this.lintResults)) {
+            this.lintResults.forEach((result: any) => {
+              const fromPos =
+                view.state.doc.line(result.from.line + 1).from + result.from.ch;
+              const toPos =
+                view.state.doc.line(result.to.line + 1).from + result.to.ch;
+
+              if (
+                fromPos >= 0 &&
+                toPos >= fromPos &&
+                toPos <= view.state.doc.length
+              ) {
+                diagnostics.push({
+                  from: fromPos,
+                  to: toPos,
+                  severity: result.severity,
+                  message: result.message,
+                });
+              } else {
+                console.warn("Invalid lint result positions:", result);
+              }
+            });
+          } else {
+            console.warn("No lint results for cell:", this.cellData.id);
+          }
+          this.currentLint = diagnostics;
+          return diagnostics;
+        },
+      );
+    },
     handleFocus() {
-      this.isFocused = true;
-      this.runLint = true;
-      // Toggle OFF the linter if you want to ensure no conflict while user types:
       if (this.view) {
         this.view.dispatch({
-          effects: lintCompartment.reconfigure([]),
+          effects: lintCompartment.reconfigure(this.getLinter()),
         });
       }
     },
     handleBlur() {
-      this.isFocused = false;
-      this.runLint = true;
       // Toggle ON the linter after user blurs:
       if (this.view) {
         this.view.dispatch({
-          effects: lintCompartment.reconfigure(linter(
-            (view) => {
-              if (!this.isFocused) {
-                return [];
-              }
-              if (!this.runLint) return this.currentLint;
-              const diagnostics: Diagnostic[] = [];
-
-              if (Array.isArray(this.lintResults)) {
-                this.lintResults.forEach((result: any) => {
-                  const fromPos =
-                    view.state.doc.line(result.from.line + 1).from + result.from.ch;
-                  const toPos =
-                    view.state.doc.line(result.to.line + 1).from + result.to.ch;
-
-                  if (
-                    fromPos >= 0 &&
-                    toPos >= fromPos &&
-                    toPos <= view.state.doc.length
-                  ) {
-                    diagnostics.push({
-                      from: fromPos,
-                      to: toPos,
-                      severity: result.severity,
-                      message: result.message,
-                    });
-                  } else {
-                    console.warn("Invalid lint result positions:", result);
-                  }
-                });
-              } else {
-                console.warn("No lint results for cell:", this.cellData.id);
-              }
-              this.runLint = false;
-              this.currentLint = diagnostics;
-              return diagnostics;
-            },
-            {
-              needsRefresh: () => this.runLint,
-            }
-          )),
+          effects: lintCompartment.reconfigure([]),
         });
       }
     },

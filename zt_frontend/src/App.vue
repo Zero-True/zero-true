@@ -987,6 +987,11 @@ export default {
           };
         }
       }
+      let concatenatedCode = this.concatenatedCodeCache.code + text
+      if (this.concatenatedCodeCache.followingCode != ""){
+        concatenatedCode += "\n" + this.concatenatedCodeCache.followingCode
+      }
+
       // The rest of the saveCell method remains unchanged
       const saveRequest: SaveRequest = {
         id: cellId,
@@ -994,10 +999,7 @@ export default {
         cellType: this.notebook.cells[cellId].cellType,
         line: this.concatenatedCodeCache.length + line,
         column: column,
-        code_w_context:
-          this.concatenatedCodeCache.code + "\n" +
-          text + "\n" +
-          this.concatenatedCodeCache.followingCode,
+        code_w_context: concatenatedCode,
       };
       this.save_socket!.send(JSON.stringify(saveRequest));
     },
