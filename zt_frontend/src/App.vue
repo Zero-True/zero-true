@@ -144,7 +144,7 @@
           type="error"
           dismissible
         >
-          Connection to the server has been lost. Please refresh the page.
+          {{socketsDisconnected}}
         </v-alert>
       </transition>
     </div>
@@ -724,8 +724,7 @@ export default {
       ) {
         this.currentlyExecutingCell = response.cell_executing;
       } else if (response.env_stale) {
-        this.errorMessage =
-          "Some dependencies are not installed in the current environment. Open dependency manager to install missing dependencies";
+        this.errorMessage = response.env_stale;
       } else if (response.complete) {
         this.isCodeRunning = false;
         this.stopTimer();
@@ -988,6 +987,11 @@ export default {
           };
         }
       }
+      let concatenatedCode = this.concatenatedCodeCache.code + text
+      if (this.concatenatedCodeCache.followingCode != ""){
+        concatenatedCode += "\n" + this.concatenatedCodeCache.followingCode
+      }
+
       // The rest of the saveCell method remains unchanged
       const saveRequest: SaveRequest = {
         id: cellId,
@@ -995,10 +999,7 @@ export default {
         cellType: this.notebook.cells[cellId].cellType,
         line: this.concatenatedCodeCache.length + line,
         column: column,
-        code_w_context:
-          this.concatenatedCodeCache.code +
-          text +
-          this.concatenatedCodeCache.followingCode,
+        code_w_context: concatenatedCode,
       };
       this.save_socket!.send(JSON.stringify(saveRequest));
     },

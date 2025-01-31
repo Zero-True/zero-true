@@ -9,6 +9,8 @@ import re
 from pathlib import Path
 from zt_backend.config import settings
 import sys
+from packaging.version import Version
+from packaging.specifiers import SpecifierSet
 
 logger = logging.getLogger("__name__")
 
@@ -39,20 +41,15 @@ def check_env(dependencies: notebook.Dependencies):
         package_name = dependency.package
         required_version = dependency.version
         try:
-            installed_version = version(package_name)
-            if required_version and not _check_version(installed_version, required_version):
-                return False
+            installed_version = Version(version(package_name))
+            if required_version and not installed_version in SpecifierSet(
+                required_version
+            ):
+                return f"Requirement {package_name}{required_version} not met. Installed version of {package_name} is {installed_version}."
         except PackageNotFoundError:
-            return False
-    return True
+            return f"Dependency {package_name} is not installed."
+    return None
 
-def _check_version(installed_version, required_version):
-    # Assuming `required_version` is in PEP 440-compatible format, e.g., `>=1.2.3`
-    from packaging.version import Version
-    from packaging.specifiers import SpecifierSet
-
-    specifier_set = SpecifierSet(required_version)
-    return Version(installed_version) in specifier_set
 
 def write_dependencies(dependencies: notebook.Dependencies):
     requirements_path = Path(settings.zt_path) / "requirements.txt"
@@ -85,12 +82,15 @@ async def dependency_update(
                 await websocket.send_json({"output": line})
             process.stdout.close()
         write_dependencies(dependency_request.dependencies)
-        if any(dep[0].startswith("matplotlib") for dep in dependency_request.dependencies):
+        if any(
+            dep[0].startswith("matplotlib") for dep in dependency_request.dependencies
+        ):
             try:
                 import matplotlib
+
                 matplotlib.use("Agg")
             except Exception as e:
-                logger.info('matplotlib not found')
+                logger.info("matplotlib not found")
         return parse_dependencies()
     except Exception as e:
         logger.error("Error updating dependencies: %s", traceback.format_exc())
