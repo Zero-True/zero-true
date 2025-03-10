@@ -124,7 +124,7 @@ export default defineComponent({
     const isDragging = ref(false);
     const isDragOver = ref(false);
     const isDragTarget = ref(false);
-    const protectedFiles = ref(["requirements.txt", "notebook.ztnb", "zt_db.db", "zt_db.db.wal"]);
+    const protectedFiles = ref(["requirements.txt", "notebook.ztnb","notebook.py", "zt_db.db", "zt_db.db.wal"]);
 
     watch(menuOpen, (newVal) => {
       if (newVal) {

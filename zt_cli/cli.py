@@ -229,84 +229,72 @@ def notebook(
 @cli_app.command()
 def jupyter_convert(
     ipynb_path: Annotated[str, typer.Argument(help="The path to the .ipynb file")],
-    ztnb_path: Annotated[
-        Optional[str], typer.Argument(help="The path to the output .ztnb file")
-    ] = "notebook.ztnb",
+    nb_path: Annotated[
+        Optional[str], typer.Argument(help="The path to the output .py file")
+    ] = "notebook.py",
 ):
     """
     Convert a Jupyter notebook to a Zero-True notebook.
     """
 
     # Add notebook.ztnb if not specified in the output path
-    if not ztnb_path.endswith("notebook.ztnb"):
-        ztnb_path = os.path.join(ztnb_path, "notebook.ztnb")
+    if not nb_path.endswith("notebook.py"):
+        nb_path = os.path.join(nb_path, "notebook.py")
 
     try:
         with open(ipynb_path, "r", encoding="utf-8") as f:
-            notebook = json.loads(f.read())
+            notebook = json.load(f)
     except Exception as e:
         typer.echo(f"Error occured: {e}")
         return
     else:
-        output = []
+        output = jupyter_convert_func(notebook)
 
-        output.append(f'notebookId = "{uuid.uuid4()}"')
-        output.append('notebookName = "Zero True"')
-        output.append("")
-        output.extend(
-            line for line in create_ztnb_cell('"code"', ["import zero_true as zt"])
-        )
-
-        # Create only code or markdown cells
-        for cell in notebook["cells"]:
-            if cell["cell_type"] in ["code", "markdown"]:
-                output.extend(
-                    line
-                    for line in create_ztnb_cell(
-                        f'"{cell["cell_type"]}"', cell["source"]
-                    )
-                )
-
-        with open(ztnb_path, "w", encoding="utf-8") as f:
+        with open(nb_path, "w", encoding="utf-8") as f:
             for item in output:
                 f.write(item + "\n")
 
-        typer.echo(f"Successfully converted {ipynb_path} to {ztnb_path}")
+        typer.echo(f"Successfully converted {ipynb_path} to {nb_path}")
         return
 
+def jupyter_convert_func(notebook):
+    output_lines = []
 
-def create_ztnb_cell(cell_type, source):
+    # Add notebook metadata
+    notebook_id = str(uuid.uuid4())
+    output_lines.append(f"import zero_true as zt")
+    output_lines.append("")
 
-    common_attributes = {
-        "cellName": '""',
-        "cellType": '"code"',
-        "hideCell": '"False"',
-        "hideCode": '"False"',
-        "expandCode": '"False"',
-        "showTable": '"False"',
-        "nonReactive": '"False"',
-        "code": '"""',
-    }
+    # Generate Python functions for each cell
+    for index, cell in enumerate(notebook["cells"], start=0):
+        cell_id = f"cell_{index}"
+        if cell["cell_type"] == "code":
+            output_lines.append(f"def {cell_id}():")
+            # Join the source lines with proper indentation
+            source_code = "".join(cell["source"])
+            for line in source_code.splitlines():
+                output_lines.append(f"    {line}")
+            output_lines.append("")  # Add an empty line after the function
 
-    cell_content = []
-    cell_content.append(f"[cells.{uuid.uuid4()}]")
+        elif cell["cell_type"] == "markdown":
+            markdown_content = "".join(cell["source"]).strip().replace('"""', "'''")
+            output_lines.append(f"def {cell_id}():")
+            output_lines.append(f"    zt.markdown(\"\"\"{markdown_content}\"\"\")")
+            output_lines.append("")  # Add an empty line after the function
 
-    for key, value in common_attributes.items():
-        if key == "cellType":
-            cell_content.append(f"{key} = {cell_type}")
-        else:
-            cell_content.append(f"{key} = {value}")
+    # Add notebook definition
+    output_lines.append(f"notebook = zt.notebook(")
+    output_lines.append(f"    id='{notebook_id}',")
+    output_lines.append(f"    name='Zero True',")
+    output_lines.append(f"    cells=[")
+    for index in range(0, len(notebook["cells"])):
+        output_lines.append(f"        zt.cell(cell_{index}, type='{'markdown' if notebook['cells'][index]['cell_type'] == 'markdown' else 'code'}'),")
+    output_lines.append(f"    ]")
+    output_lines.append(f")")
 
-    for line in source:
-        if cell_type == '"code"':
-            escaped_code = line.encode().decode("unicode_escape").replace('"""', "'''")
-            cell_content.append(escaped_code)
-        else:
-            cell_content.append(line)
-    cell_content[-1] = cell_content[-1] + '"""'
-    cell_content.append("")
+    return output_lines  # Return the list of output lines directly
 
-    return cell_content
+
 
 
 if __name__ == "__main__":

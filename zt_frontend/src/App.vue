@@ -1043,7 +1043,7 @@ export default {
         {
           doc: {
             version: 1,
-            uri: "file:///notebook.ztnb",
+            uri: "file:///notebook.py",
             position: {
               line: this.concatenatedCodeCache.length + line,
               character: column,

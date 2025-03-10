@@ -116,7 +116,7 @@ export default defineComponent({
     const searchResults = ref<any[]>([]);
     const isSearching = ref(false);
 
-    const protectedFiles = ref(["requirements.txt", "notebook.ztnb","zt_db.db","zt_db.db.wal"]);
+    const protectedFiles = ref(["requirements.txt", "notebook.ztnb","notebook.py","zt_db.db","zt_db.db.wal"]);
 
     const isProtectedFile = (filename: string) => {
       return protectedFiles.value.includes(filename);
